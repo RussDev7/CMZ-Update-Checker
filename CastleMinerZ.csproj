@@ -1,0 +1,474 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{4B1F19FE-15B1-49E4-83A9-5807E0F8BE15}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>DNA</RootNamespace>
+    <AssemblyName>CastleMinerZ</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ApplicationIcon>CastleMinerZ.ico</ApplicationIcon>
+    <StartupObject>DNA.CastleMinerZ.Program</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DNA.Common">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\CastleMiner Z\DNA.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="DNA.Steam">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\CastleMiner Z\DNA.Steam.dll</HintPath>
+    </Reference>
+    <Reference Include="Facebook">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\CastleMiner Z\Facebook.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Xna.Framework" />
+    <Reference Include="Microsoft.Xna.Framework.Game" />
+    <Reference Include="Microsoft.Xna.Framework.Graphics" />
+    <Reference Include="Microsoft.Xna.Framework.Xact" />
+    <Reference Include="Services.Client">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\CastleMiner Z\Services.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CastleMinerZ\Achievements\AcheivementID.cs" />
+    <Compile Include="CastleMinerZ\Achievements\AlienEncounterAchievement.cs" />
+    <Compile Include="CastleMinerZ\Achievements\CastleMinerZAchievementManager.cs" />
+    <Compile Include="CastleMinerZ\Achievements\CraftTNTAcheivement.cs" />
+    <Compile Include="CastleMinerZ\Achievements\DaysPastAchievement.cs" />
+    <Compile Include="CastleMinerZ\Achievements\DepthTraveledAchievement.cs" />
+    <Compile Include="CastleMinerZ\Achievements\DistaceTraveledAchievement.cs" />
+    <Compile Include="CastleMinerZ\Achievements\EnemiesKilledWithLaserWeaponAchievement.cs" />
+    <Compile Include="CastleMinerZ\Achievements\KillDragonGuidedMissileAchievement.cs" />
+    <Compile Include="CastleMinerZ\Achievements\KillEnemyGrenadeAchievement.cs" />
+    <Compile Include="CastleMinerZ\Achievements\KillEnemyTNTAchievement.cs" />
+    <Compile Include="CastleMinerZ\Achievements\PlayTimeAchievement.cs" />
+    <Compile Include="CastleMinerZ\Achievements\TotalCraftedAchievement.cs" />
+    <Compile Include="CastleMinerZ\Achievements\TotalKillsAchievement.cs" />
+    <Compile Include="CastleMinerZ\Achievements\UndeadKilledAchievement.cs" />
+    <Compile Include="CastleMinerZ\AddOnIDs.cs" />
+    <Compile Include="CastleMinerZ\AI\ActionDragonWaypoint.cs" />
+    <Compile Include="CastleMinerZ\AI\AlienAttack.cs" />
+    <Compile Include="CastleMinerZ\AI\AlienChase.cs" />
+    <Compile Include="CastleMinerZ\AI\AlienDie.cs" />
+    <Compile Include="CastleMinerZ\AI\AlienEmerge.cs" />
+    <Compile Include="CastleMinerZ\AI\AlienEnemyType.cs" />
+    <Compile Include="CastleMinerZ\AI\AlienGiveUp.cs" />
+    <Compile Include="CastleMinerZ\AI\AlienHit.cs" />
+    <Compile Include="CastleMinerZ\AI\ArcherSkeletonChase.cs" />
+    <Compile Include="CastleMinerZ\AI\ArcherSkeletonEmerge.cs" />
+    <Compile Include="CastleMinerZ\AI\ArcherSkeletonEnemyType.cs" />
+    <Compile Include="CastleMinerZ\AI\ArcherSkeletonIdle.cs" />
+    <Compile Include="CastleMinerZ\AI\ArcherSkeletonTryAttack.cs" />
+    <Compile Include="CastleMinerZ\AI\AxeSkeletonTryAttack.cs" />
+    <Compile Include="CastleMinerZ\AI\BaseDragonWaypoint.cs" />
+    <Compile Include="CastleMinerZ\AI\BaseTryAttack.cs" />
+    <Compile Include="CastleMinerZ\AI\BaseZombie.cs" />
+    <Compile Include="CastleMinerZ\AI\DamageLOSProbe.cs" />
+    <Compile Include="CastleMinerZ\AI\DamageType.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonAnimEnum.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonBaseState.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonClientEntity.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonDamageType.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonDefaultState.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonEntity.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonHostMigrationInfo.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonHoverAttackState.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonHoverState.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonLoiterLeftState.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonLoiterRightState.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonLoiterState.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonPartEntity.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonSoundEnum.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonStates.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonStrafeAttackState.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonType.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonTypeEnum.cs" />
+    <Compile Include="CastleMinerZ\AI\DragonWaypointActionEnum.cs" />
+    <Compile Include="CastleMinerZ\AI\EnemyBaseState.cs" />
+    <Compile Include="CastleMinerZ\AI\EnemyDrawPriority.cs" />
+    <Compile Include="CastleMinerZ\AI\EnemyManager.cs" />
+    <Compile Include="CastleMinerZ\AI\EnemyStates.cs" />
+    <Compile Include="CastleMinerZ\AI\EnemyType.cs" />
+    <Compile Include="CastleMinerZ\AI\EnemyTypeEnum.cs" />
+    <Compile Include="CastleMinerZ\AI\FelguardChase.cs" />
+    <Compile Include="CastleMinerZ\AI\FelguardDie.cs" />
+    <Compile Include="CastleMinerZ\AI\FelguardEmerge.cs" />
+    <Compile Include="CastleMinerZ\AI\FelguardEnemyType.cs" />
+    <Compile Include="CastleMinerZ\AI\FelguardGiveUp.cs" />
+    <Compile Include="CastleMinerZ\AI\FelguardHit.cs" />
+    <Compile Include="CastleMinerZ\AI\FelguardTryAttack.cs" />
+    <Compile Include="CastleMinerZ\AI\FireballEntity.cs" />
+    <Compile Include="CastleMinerZ\AI\FireballModelEntity.cs" />
+    <Compile Include="CastleMinerZ\AI\IFSMState.cs" />
+    <Compile Include="CastleMinerZ\AI\IShootableEnemy.cs" />
+    <Compile Include="CastleMinerZ\AI\SkeletonClassEnum.cs" />
+    <Compile Include="CastleMinerZ\AI\SkeletonDie.cs" />
+    <Compile Include="CastleMinerZ\AI\SkeletonEnemyType.cs" />
+    <Compile Include="CastleMinerZ\AI\SkeletonGiveUp.cs" />
+    <Compile Include="CastleMinerZ\AI\SkeletonHit.cs" />
+    <Compile Include="CastleMinerZ\AI\SkeletonTryAttack.cs" />
+    <Compile Include="CastleMinerZ\AI\StateMachine.cs" />
+    <Compile Include="CastleMinerZ\AI\ZombieChase.cs" />
+    <Compile Include="CastleMinerZ\AI\ZombieDie.cs" />
+    <Compile Include="CastleMinerZ\AI\ZombieDig.cs" />
+    <Compile Include="CastleMinerZ\AI\ZombieEmerge.cs" />
+    <Compile Include="CastleMinerZ\AI\ZombieEnemyType.cs" />
+    <Compile Include="CastleMinerZ\AI\ZombieGiveUp.cs" />
+    <Compile Include="CastleMinerZ\AI\ZombieHit.cs" />
+    <Compile Include="CastleMinerZ\AI\ZombieTryAttack.cs" />
+    <Compile Include="CastleMinerZ\BlasterShot.cs" />
+    <Compile Include="CastleMinerZ\BlockEntity.cs" />
+    <Compile Include="CastleMinerZ\CastleMinerDrawPriority.cs" />
+    <Compile Include="CastleMinerZ\CastleMinerSky.cs" />
+    <Compile Include="CastleMinerZ\CastleMinerToolModel.cs" />
+    <Compile Include="CastleMinerZ\CastleMinerZArgs.cs" />
+    <Compile Include="CastleMinerZ\CastleMinerZControllerMapping.cs" />
+    <Compile Include="CastleMinerZ\CastleMinerZGame.cs" />
+    <Compile Include="CastleMinerZ\CastleMinerZPlayerStats.cs" />
+    <Compile Include="CastleMinerZ\CheatCodeIds.cs" />
+    <Compile Include="CastleMinerZ\CMZColors.cs" />
+    <Compile Include="CastleMinerZ\ConstructionProbeClass.cs" />
+    <Compile Include="CastleMinerZ\CrackBoxEntity.cs" />
+    <Compile Include="CastleMinerZ\CraterFoundTransitionMusicTrigger.cs" />
+    <Compile Include="CastleMinerZ\DistanceTrigger.cs" />
+    <Compile Include="CastleMinerZ\DoorEntity.cs" />
+    <Compile Include="CastleMinerZ\ExplosiveFlashEntity.cs" />
+    <Compile Include="CastleMinerZ\FacebookLoginDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CastleMinerZ\FacebookLoginDialog.Designer.cs">
+      <DependentUpon>FacebookLoginDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CastleMinerZ\FlashGrenadeProjectile.cs" />
+    <Compile Include="CastleMinerZ\FlyingPickupEntity.cs" />
+    <Compile Include="CastleMinerZ\FrontEndScreen.cs" />
+    <Compile Include="CastleMinerZ\GameMessageManager.cs" />
+    <Compile Include="CastleMinerZ\GameMessageType.cs" />
+    <Compile Include="CastleMinerZ\GameScreen.cs" />
+    <Compile Include="CastleMinerZ\Globalization\Strings.cs" />
+    <Compile Include="CastleMinerZ\GlobalSettings.cs" />
+    <Compile Include="CastleMinerZ\GPSMarkerEntity.cs" />
+    <Compile Include="CastleMinerZ\GraphicsProfileSupport\GraphicsProfileManager.cs" />
+    <Compile Include="CastleMinerZ\GraphicsProfileSupport\ProfiledContentManager.cs" />
+    <Compile Include="CastleMinerZ\GrenadeProjectile.cs" />
+    <Compile Include="CastleMinerZ\GrenadeTypeEnum.cs" />
+    <Compile Include="CastleMinerZ\GunEntity.cs" />
+    <Compile Include="CastleMinerZ\HEGrenadeProjectile.cs" />
+    <Compile Include="CastleMinerZ\IGameMessageHandler.cs" />
+    <Compile Include="CastleMinerZ\Inventory\AssultRifleInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\AxeInventoryClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\AxeInventoryItem.cs" />
+    <Compile Include="CastleMinerZ\Inventory\BareHandInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\BlockInventoryItem.cs" />
+    <Compile Include="CastleMinerZ\Inventory\BlockInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\BoltRifleInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\ChainsawInventoryItem.cs" />
+    <Compile Include="CastleMinerZ\Inventory\ChainsawInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\ClockEntity.cs" />
+    <Compile Include="CastleMinerZ\Inventory\ClockInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\CompassEntity.cs" />
+    <Compile Include="CastleMinerZ\Inventory\CompassInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\Crate.cs" />
+    <Compile Include="CastleMinerZ\Inventory\Door.cs" />
+    <Compile Include="CastleMinerZ\Inventory\DoorInventoryitem.cs" />
+    <Compile Include="CastleMinerZ\Inventory\DoorInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\Explosive.cs" />
+    <Compile Include="CastleMinerZ\Inventory\ExplosiveTypes.cs" />
+    <Compile Include="CastleMinerZ\Inventory\GPSEntity.cs" />
+    <Compile Include="CastleMinerZ\Inventory\GPSItem.cs" />
+    <Compile Include="CastleMinerZ\Inventory\GPSItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\GrenadeInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\GrenadeItem.cs" />
+    <Compile Include="CastleMinerZ\Inventory\GrenadeLauncherBaseInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\GrenadeLauncherBaseItem.cs" />
+    <Compile Include="CastleMinerZ\Inventory\GrenadeLauncherGuidedInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\GrenadeLauncherGuidedItem.cs" />
+    <Compile Include="CastleMinerZ\Inventory\GrenadeLauncherInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\GunInventoryItem.cs" />
+    <Compile Include="CastleMinerZ\Inventory\GunInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\InventoryItem.cs" />
+    <Compile Include="CastleMinerZ\Inventory\InventoryItemIDs.cs" />
+    <Compile Include="CastleMinerZ\Inventory\InventoryTrayManager.cs" />
+    <Compile Include="CastleMinerZ\Inventory\ItemBlockInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\ItemDrawPriority.cs" />
+    <Compile Include="CastleMinerZ\Inventory\ItemUse.cs" />
+    <Compile Include="CastleMinerZ\Inventory\KnifeInventoryItem.cs" />
+    <Compile Include="CastleMinerZ\Inventory\KnifeInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\LaserARInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\LaserDrillInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\LaserGunInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\LaserPistolClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\LaserPrecisionInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\LaserRifleClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\LaserShotgunClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\LaserSMGClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\LMGInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\LootGrade.cs" />
+    <Compile Include="CastleMinerZ\Inventory\LootResult.cs" />
+    <Compile Include="CastleMinerZ\Inventory\ModelInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\PackageBitFlags.cs" />
+    <Compile Include="CastleMinerZ\Inventory\PickInventoryItem.cs" />
+    <Compile Include="CastleMinerZ\Inventory\PickInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\PistolInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\PlayerInventory.cs" />
+    <Compile Include="CastleMinerZ\Inventory\PossibleLootType.cs" />
+    <Compile Include="CastleMinerZ\Inventory\PumpShotgunInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\Recipe.cs" />
+    <Compile Include="CastleMinerZ\Inventory\RocketLauncherBaseInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\RocketLauncherBaseItem.cs" />
+    <Compile Include="CastleMinerZ\Inventory\RocketLauncherGuidedInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\RocketLauncherGuidedItem.cs" />
+    <Compile Include="CastleMinerZ\Inventory\RocketLauncherInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\SaberInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\SMGInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\SpadeInventoryClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\SpadeInventoryItem.cs" />
+    <Compile Include="CastleMinerZ\Inventory\SpawnType.cs" />
+    <Compile Include="CastleMinerZ\Inventory\StickInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\StickyGrenadeInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\StickyGrenadeItem.cs" />
+    <Compile Include="CastleMinerZ\Inventory\TorchInventoryitem.cs" />
+    <Compile Include="CastleMinerZ\Inventory\TorchInventoryItemClass.cs" />
+    <Compile Include="CastleMinerZ\Inventory\TrayItemAction.cs" />
+    <Compile Include="CastleMinerZ\ItemBlockEntityHolder.cs" />
+    <Compile Include="CastleMinerZ\ItemBlockEntityManager.cs" />
+    <Compile Include="CastleMinerZ\MainThreadMessageSender.cs" />
+    <Compile Include="CastleMinerZ\Net\AddExplosionEffectsMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\AddExplosiveFlashMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\AlterBlockMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\AppointServerMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\BroadcastTextMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\CastleMinerZMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\ChangeCarriedItemMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\ClientReadyForChunksMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\ConsumePickupMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\CrateFocusMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\CreatePickupMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\DestroyCrateMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\DestroyCustomBlockMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\DetonateExplosiveMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\DetonateFireballMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\DetonateGrenadeMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\DetonateRocketMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\DigMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\DoorOpenCloseMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\DragonAttackMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\EnemyGiveUpMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\ExistingDragonMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\FireRocketMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\GrenadeMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\GunshotMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\InventoryRetrieveFromServerMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\InventoryStoreOnServerMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\ItemCrateMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\KickMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\KillDragonMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\KillEnemyMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\MeleePlayerMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\MigrateDragonMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\PlayerExistsMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\PlayerUpdateMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\ProvideChunkMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\ProvideDeltaListMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\RemoveBlocksMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\RemoveDragonMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\RequestChunkMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\RequestDragonMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\RequestInventoryMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\RequestPickupMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\RequestWorldInfoMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\RestartLevelMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\ServerInfo.cs" />
+    <Compile Include="CastleMinerZ\Net\ShotgunShotMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\SpawnDragonMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\SpawnEnemyMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\SpeedUpEnemyMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\Steam\SteamHostDiscovery.cs" />
+    <Compile Include="CastleMinerZ\Net\Steam\SteamNetworkSessionProvider.cs" />
+    <Compile Include="CastleMinerZ\Net\Steam\SteamNetworkSessionServices.cs" />
+    <Compile Include="CastleMinerZ\Net\Steam\SteamNetworkSessionStaticProvider.cs" />
+    <Compile Include="CastleMinerZ\Net\TimeConnectedMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\TimeOfDayMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\UpdateDragonMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\UpdateSpawnerMessage.cs" />
+    <Compile Include="CastleMinerZ\Net\WorldInfoMessage.cs" />
+    <Compile Include="CastleMinerZ\OptionsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CastleMinerZ\OptionsForm.Designer.cs">
+      <DependentUpon>OptionsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CastleMinerZ\PickupEntity.cs" />
+    <Compile Include="CastleMinerZ\PickupManager.cs" />
+    <Compile Include="CastleMinerZ\Player.cs" />
+    <Compile Include="CastleMinerZ\PlayerMode.cs" />
+    <Compile Include="CastleMinerZ\PlayerModelEntity.cs" />
+    <Compile Include="CastleMinerZ\PostToWall.cs" />
+    <Compile Include="CastleMinerZ\Program.cs" />
+    <Compile Include="CastleMinerZ\ReflectionCamera.cs" />
+    <Compile Include="CastleMinerZ\RocketEntity.cs" />
+    <Compile Include="CastleMinerZ\Selector.cs" />
+    <Compile Include="CastleMinerZ\SessionStats.cs" />
+    <Compile Include="CastleMinerZ\SmokeGrenadeProjectile.cs" />
+    <Compile Include="CastleMinerZ\Terrain\Block.cs" />
+    <Compile Include="CastleMinerZ\Terrain\BlockBuildData.cs" />
+    <Compile Include="CastleMinerZ\Terrain\BlockFace.cs" />
+    <Compile Include="CastleMinerZ\Terrain\BlockTerrain.cs" />
+    <Compile Include="CastleMinerZ\Terrain\BlockTerrainPass.cs" />
+    <Compile Include="CastleMinerZ\Terrain\BlockTerrainTechnique.cs" />
+    <Compile Include="CastleMinerZ\Terrain\BlockType.cs" />
+    <Compile Include="CastleMinerZ\Terrain\BlockTypeEnum.cs" />
+    <Compile Include="CastleMinerZ\Terrain\BlockVertex.cs" />
+    <Compile Include="CastleMinerZ\Terrain\CachedChunk.cs" />
+    <Compile Include="CastleMinerZ\Terrain\ChunkCache.cs" />
+    <Compile Include="CastleMinerZ\Terrain\ChunkCacheCommand.cs" />
+    <Compile Include="CastleMinerZ\Terrain\ChunkCacheCommandDelegate.cs" />
+    <Compile Include="CastleMinerZ\Terrain\ChunkCacheCommandEnum.cs" />
+    <Compile Include="CastleMinerZ\Terrain\ChunkCacheCommandStatus.cs" />
+    <Compile Include="CastleMinerZ\Terrain\DeltaEntry.cs" />
+    <Compile Include="CastleMinerZ\Terrain\FallLockTestResult.cs" />
+    <Compile Include="CastleMinerZ\Terrain\RenderChunk.cs" />
+    <Compile Include="CastleMinerZ\Terrain\SpawnBlockView.cs" />
+    <Compile Include="CastleMinerZ\Terrain\SpawnData.cs" />
+    <Compile Include="CastleMinerZ\Terrain\Spawner.cs" />
+    <Compile Include="CastleMinerZ\Terrain\VertexBufferKeeper.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WaterPlane.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\ArcticBiome.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\BedrockDepositer.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\Biome.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\CastleMinerZBuilder.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\CaveBiome.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\ClassicBiome.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\CostalBiome.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\CrashSiteDepositer.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\DecentBiome.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\DesertBiome.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\FlatLandBiome.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\HellCeilingBiome.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\HellFloorBiome.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\LagoonBiome.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\MountainBiome.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\OceanBiome.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\OreDepositer.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\OriginBiome.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\TestBiome.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\TreeDepositer.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\TreeTestBiome.cs" />
+    <Compile Include="CastleMinerZ\Terrain\WorldBuilders\WorldBuilder.cs" />
+    <Compile Include="CastleMinerZ\ToolMaterialTypes.cs" />
+    <Compile Include="CastleMinerZ\TorchCloud.cs" />
+    <Compile Include="CastleMinerZ\TorchEntity.cs" />
+    <Compile Include="CastleMinerZ\TorchReference.cs" />
+    <Compile Include="CastleMinerZ\TracerManager.cs" />
+    <Compile Include="CastleMinerZ\TransitionMusicTrigger.cs" />
+    <Compile Include="CastleMinerZ\UI\ChatInputScreen.cs" />
+    <Compile Include="CastleMinerZ\UI\ChooseOnlineGameScreen.cs" />
+    <Compile Include="CastleMinerZ\UI\ChooseSavedWorldScreen.cs" />
+    <Compile Include="CastleMinerZ\UI\ControllerScreen.cs" />
+    <Compile Include="CastleMinerZ\UI\ControlsTab.cs" />
+    <Compile Include="CastleMinerZ\UI\CraftingScreen.cs" />
+    <Compile Include="CastleMinerZ\UI\CrateScreen.cs" />
+    <Compile Include="CastleMinerZ\UI\DifficultyLevelScreen.cs" />
+    <Compile Include="CastleMinerZ\UI\GameDifficultyTypes.cs" />
+    <Compile Include="CastleMinerZ\UI\GameModeMenu.cs" />
+    <Compile Include="CastleMinerZ\UI\GameModeTypes.cs" />
+    <Compile Include="CastleMinerZ\UI\GraphicsTab.cs" />
+    <Compile Include="CastleMinerZ\UI\HostOptionItems.cs" />
+    <Compile Include="CastleMinerZ\UI\HostOptions.cs" />
+    <Compile Include="CastleMinerZ\UI\HostOptionsTab.cs" />
+    <Compile Include="CastleMinerZ\UI\InGameHUD.cs" />
+    <Compile Include="CastleMinerZ\UI\InGameMenu.cs" />
+    <Compile Include="CastleMinerZ\UI\InGameMenuItems.cs" />
+    <Compile Include="CastleMinerZ\UI\InGameWaitScreen.cs" />
+    <Compile Include="CastleMinerZ\UI\LoadScreen.cs" />
+    <Compile Include="CastleMinerZ\UI\MainMenu.cs" />
+    <Compile Include="CastleMinerZ\UI\MainMenuItems.cs" />
+    <Compile Include="CastleMinerZ\UI\MenuBackdropScreen.cs" />
+    <Compile Include="CastleMinerZ\UI\OptionsMenu.cs" />
+    <Compile Include="CastleMinerZ\UI\OptionsMenuItems.cs" />
+    <Compile Include="CastleMinerZ\UI\OptionsScreen.cs" />
+    <Compile Include="CastleMinerZ\UI\PlainChatInputScreen.cs" />
+    <Compile Include="CastleMinerZ\UI\ProgressCallback.cs" />
+    <Compile Include="CastleMinerZ\UI\ReleaseNotesScreen.cs" />
+    <Compile Include="CastleMinerZ\UI\SelectPlayerCallback.cs" />
+    <Compile Include="CastleMinerZ\UI\SelectPlayerScreen.cs" />
+    <Compile Include="CastleMinerZ\UI\SettingsMenu.cs" />
+    <Compile Include="CastleMinerZ\UI\SettingsTab.cs" />
+    <Compile Include="CastleMinerZ\UI\TeleportMenu.cs" />
+    <Compile Include="CastleMinerZ\UI\TeleportMenuItems.cs" />
+    <Compile Include="CastleMinerZ\UI\Tier1Item.cs" />
+    <Compile Include="CastleMinerZ\UI\Tier2Item.cs" />
+    <Compile Include="CastleMinerZ\UI\WaitScreen.cs" />
+    <Compile Include="CastleMinerZ\Utils\DebugUtils.cs" />
+    <Compile Include="CastleMinerZ\Utils\FlyCamera.cs" />
+    <Compile Include="CastleMinerZ\Utils\GameUtils.cs" />
+    <Compile Include="CastleMinerZ\Utils\ILinkedListNode.cs" />
+    <Compile Include="CastleMinerZ\Utils\IReleaseable.cs" />
+    <Compile Include="CastleMinerZ\Utils\LockFreeStack.cs" />
+    <Compile Include="CastleMinerZ\Utils\ObjectCache.cs" />
+    <Compile Include="CastleMinerZ\Utils\SimpleQueue.cs" />
+    <Compile Include="CastleMinerZ\Utils\SynchronizedQueue.cs" />
+    <Compile Include="CastleMinerZ\Utils\TargetSearchResult.cs" />
+    <Compile Include="CastleMinerZ\Utils\TargetUtils.cs" />
+    <Compile Include="CastleMinerZ\Utils\Threading\BaseTask.cs" />
+    <Compile Include="CastleMinerZ\Utils\Threading\CountdownLatch.cs" />
+    <Compile Include="CastleMinerZ\Utils\Threading\GatherTask.cs" />
+    <Compile Include="CastleMinerZ\Utils\Threading\LambdaProxy.cs" />
+    <Compile Include="CastleMinerZ\Utils\Threading\SpinLock.cs" />
+    <Compile Include="CastleMinerZ\Utils\Threading\Task.cs" />
+    <Compile Include="CastleMinerZ\Utils\Threading\TaskDelegate.cs" />
+    <Compile Include="CastleMinerZ\Utils\Threading\TaskDispatcher.cs" />
+    <Compile Include="CastleMinerZ\Utils\Threading\TaskThread.cs" />
+    <Compile Include="CastleMinerZ\Utils\Threading\TaskThreadEnum.cs" />
+    <Compile Include="CastleMinerZ\Utils\Threading\WaitableTask.cs" />
+    <Compile Include="CastleMinerZ\Utils\Trace\AABBTraceProbe.cs" />
+    <Compile Include="CastleMinerZ\Utils\Trace\TraceProbe.cs" />
+    <Compile Include="CastleMinerZ\WorldInfo.cs" />
+    <Compile Include="CastleMinerZ\WorldManager.cs" />
+    <Compile Include="CastleMinerZ\WorldTypeIDs.cs" />
+    <Compile Include="Distribution\SteamOnlineServices.cs" />
+    <Compile Include="Drawing\UI\PCListSelectScreen.cs" />
+    <Compile Include="NetworkVersions.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="CastleMinerZ\FacebookLoginDialog.resources" />
+    <EmbeddedResource Include="CastleMinerZ\Game.ico" />
+    <EmbeddedResource Include="CastleMinerZ\Globalization\Strings.resources" />
+    <EmbeddedResource Include="CastleMinerZ\OptionsForm.resources" />
+    <EmbeddedResource Include="Microsoft.Xna.Framework.RuntimeProfile" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

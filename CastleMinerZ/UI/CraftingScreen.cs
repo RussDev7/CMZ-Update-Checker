@@ -1,0 +1,804 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using DNA.Audio;
+using DNA.CastleMinerZ.Globalization;
+using DNA.CastleMinerZ.Inventory;
+using DNA.Drawing;
+using DNA.Drawing.UI;
+using DNA.Drawing.UI.Controls;
+using DNA.Input;
+using DNA.Timers;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+
+namespace DNA.CastleMinerZ.UI
+{
+	public class CraftingScreen : UIControlScreen
+	{
+		private int GetTrayIndexFromRow(int row)
+		{
+			return (row - 8) / 2;
+		}
+
+		public InventoryItem SelectedItem
+		{
+			get
+			{
+				if (this._selectedLocation.Y < 8)
+				{
+					return this._hud.PlayerInventory.Inventory[this._selectedLocation.X + this._selectedLocation.Y * 4];
+				}
+				if (this._selectedLocation.Y >= 8)
+				{
+					return this._hud.PlayerInventory.TrayManager.GetTrayItem(this.GetTrayIndexFromRow(this._selectedLocation.Y), this._selectedLocation.X);
+				}
+				return null;
+			}
+			set
+			{
+				if (this._selectedLocation.Y < 8)
+				{
+					this._hud.PlayerInventory.Inventory[this._selectedLocation.X + this._selectedLocation.Y * 4] = value;
+				}
+				if (this._selectedLocation.Y >= 8)
+				{
+					this._hud.PlayerInventory.TrayManager.SetTrayItem(this.GetTrayIndexFromRow(this._selectedLocation.Y), this._selectedLocation.X, value);
+				}
+			}
+		}
+
+		public int SelectedRecipeIndex
+		{
+			get
+			{
+				return this._hud.PlayerInventory.DiscoveredRecipies.IndexOf(this._selectedRecipe);
+			}
+			set
+			{
+				if (this._hud.PlayerInventory.DiscoveredRecipies.Count > 0 && value >= 0 && value < this._hud.PlayerInventory.DiscoveredRecipies.Count)
+				{
+					this._selectedRecipe = this._hud.PlayerInventory.DiscoveredRecipies[value];
+					return;
+				}
+				this._selectedRecipe = null;
+			}
+		}
+
+		public CraftingScreen(CastleMinerZGame game, InGameHUD hud)
+			: base(false)
+		{
+			this._game = game;
+			this._hud = hud;
+			this._bigFont = this._game._medFont;
+			this._smallFont = this._game._smallFont;
+			this._background = this._game._uiSprites["BlockUIBack"];
+			this._gridSelector = this._game._uiSprites["Selector"];
+			this._gridSquare = this._game._uiSprites["SingleGrid"];
+			this._tier2Back = this._game._uiSprites["Tier2Back"];
+			this._gridSprite = this._game._uiSprites["HudGrid"];
+			this._craftSelector = CastleMinerZGame.Instance._uiSprites["CraftSelector"];
+			this._buyToCraftDialog = new PCDialogScreen(Strings.Purchase_Game, Strings.You_must_purchase_the_game_to_craft_this_item, null, true, this._game.DialogScreenImage, this._game._myriadMed, true, this._game.ButtonFrame);
+			this._buyToCraftDialog.UseDefaultValues();
+			this._selectedItemNameText = new TextRegionElement(this._game._medFont);
+			this._selectedItemNameText.Color = CMZColors.MenuAqua;
+			this._selectedItemDescriptionText = new TextRegionElement(this._game._smallFont);
+			this._selectedItemDescriptionText.Color = CMZColors.MenuBlue;
+			this._selectedItemIngredientsText = new TextRegionElement(this._game._smallFont);
+			this._selectedItemIngredientsText.Color = CMZColors.MenuBlue;
+			this._selectedItemNameText.Size = new Vector2(215f, 50f);
+			this._selectedItemDescriptionText.Size = new Vector2(215f, 60f);
+			this._selectedItemIngredientsText.Size = new Vector2(72f, 130f);
+			this._selectedItemNameText.OutlineWidth = (this._selectedItemDescriptionText.OutlineWidth = 0);
+			this._selectedItemIngredientsText.OutlineWidth = 0;
+			Tier1Item tier1Item = new Tier1Item(Strings.Materials, new Vector2(14f, 29f), this._game._uiSprites["MaterialsIcon"], this);
+			tier1Item.SetItems(new List<Tier2Item>
+			{
+				new Tier2Item(Strings.Ores, Recipe.RecipeTypes.Ores, tier1Item, this),
+				new Tier2Item(Strings.Components, Recipe.RecipeTypes.Components, tier1Item, this)
+			});
+			this._tier1Items.Add(tier1Item);
+			this.SelectedTier1Item = tier1Item;
+			Tier1Item tier1Item2 = new Tier1Item(Strings.Tools, new Vector2(14f, 77f), this._game._uiSprites["ToolsIcon"], this);
+			tier1Item2.SetItems(new List<Tier2Item>
+			{
+				new Tier2Item(Strings.Pickaxes, Recipe.RecipeTypes.Pickaxes, tier1Item2, this),
+				new Tier2Item(Strings.Spades, Recipe.RecipeTypes.Spades, tier1Item2, this),
+				new Tier2Item(Strings.Axes, Recipe.RecipeTypes.Axes, tier1Item2, this),
+				new Tier2Item(Strings.Special, Recipe.RecipeTypes.SpecialTools, tier1Item2, this)
+			});
+			this._tier1Items.Add(tier1Item2);
+			Tier1Item tier1Item3 = new Tier1Item(Strings.Weapons, new Vector2(14f, 126f), this._game._uiSprites["WeaponsIcon"], this);
+			tier1Item3.SetItems(new List<Tier2Item>
+			{
+				new Tier2Item(Strings.Ammo, Recipe.RecipeTypes.Ammo, tier1Item3, this),
+				new Tier2Item(Strings.Knives, Recipe.RecipeTypes.Knives, tier1Item3, this),
+				new Tier2Item(Strings.Pistols, Recipe.RecipeTypes.Pistols, tier1Item3, this),
+				new Tier2Item(Strings.Shotguns, Recipe.RecipeTypes.Shotguns, tier1Item3, this),
+				new Tier2Item(Strings.Rifles, Recipe.RecipeTypes.Rifles, tier1Item3, this),
+				new Tier2Item(Strings.Assault_Rifles, Recipe.RecipeTypes.AssaultRifles, tier1Item3, this),
+				new Tier2Item(Strings.SMG_s, Recipe.RecipeTypes.SMGs, tier1Item3, this),
+				new Tier2Item(Strings.LMG_s, Recipe.RecipeTypes.LMGs, tier1Item3, this),
+				new Tier2Item(Strings.RPG, Recipe.RecipeTypes.RPG, tier1Item3, this),
+				new Tier2Item(Strings.Explosives, Recipe.RecipeTypes.Explosives, tier1Item3, this),
+				new Tier2Item(Strings.Laser_Swords, Recipe.RecipeTypes.LaserSwords, tier1Item3, this)
+			});
+			this._tier1Items.Add(tier1Item3);
+			Tier1Item tier1Item4 = new Tier1Item(Strings.Structures, new Vector2(14f, 172f), this._game._uiSprites["StructuresIcon"], this);
+			tier1Item4.SetItems(new List<Tier2Item>
+			{
+				new Tier2Item(Strings.Walls, Recipe.RecipeTypes.Walls, tier1Item4, this),
+				new Tier2Item(Strings.Containers, Recipe.RecipeTypes.Containers, tier1Item4, this),
+				new Tier2Item(Strings.Spawn_Points, Recipe.RecipeTypes.SpawnPoints, tier1Item4, this),
+				new Tier2Item(Strings.Other, Recipe.RecipeTypes.OtherStructure, tier1Item4, this),
+				new Tier2Item(Strings.Doors, Recipe.RecipeTypes.Doors, tier1Item4, this)
+			});
+			this._tier1Items.Add(tier1Item4);
+			this._popUpFadeOutTimer.Update(TimeSpan.FromSeconds(2.0));
+		}
+
+		private PlayerInventory Inventory
+		{
+			get
+			{
+				return this._hud.PlayerInventory;
+			}
+		}
+
+		private List<Recipe> DiscoveredReceipes
+		{
+			get
+			{
+				return this._hud.PlayerInventory.DiscoveredRecipies;
+			}
+		}
+
+		public override void Draw(GraphicsDevice device, SpriteBatch spriteBatch, GameTime gameTime)
+		{
+			spriteBatch.Begin();
+			spriteBatch.Draw(this._background, this._backgroundRectangle, Color.White);
+			this._game.GameScreen.HUD.DrawPlayerStats(spriteBatch);
+			this._game.GameScreen.HUD.DrawDistanceStr(spriteBatch);
+			for (int i = 0; i < this._tier1Items.Count; i++)
+			{
+				this._tier1Items[i].Draw(spriteBatch);
+			}
+			this._selectedItemNameText.Draw(device, spriteBatch, gameTime, false);
+			this._selectedItemDescriptionText.Draw(device, spriteBatch, gameTime, false);
+			this._selectedItemIngredientsText.Draw(device, spriteBatch, gameTime, false);
+			spriteBatch.DrawOutlinedText(this._smallFont, this.CRAFTING, new Vector2((float)this._backgroundRectangle.X + (84f - this._smallFont.MeasureString(this.CRAFTING).X / 2f) * Screen.Adjuster.ScaleFactor.Y, (float)this._backgroundRectangle.Y + 5f * Screen.Adjuster.ScaleFactor.Y), CMZColors.MenuOrange, Color.Black, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
+			spriteBatch.DrawOutlinedText(this._smallFont, this.INVENTORY, new Vector2((float)this._backgroundRectangle.X + (717f - this._smallFont.MeasureString(this.INVENTORY).X / 2f) * Screen.Adjuster.ScaleFactor.Y, (float)this._backgroundRectangle.Y + 70f * Screen.Adjuster.ScaleFactor.Y), CMZColors.MenuOrange, Color.Black, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
+			PlayerInventory playerInventory = this._hud.PlayerInventory;
+			Vector2 vector = new Vector2((float)this._backgroundRectangle.X + 646f * Screen.Adjuster.ScaleFactor.Y, (float)this._backgroundRectangle.Y + 96f * Screen.Adjuster.ScaleFactor.Y);
+			float num = 59f * Screen.Adjuster.ScaleFactor.Y;
+			int num2 = (int)(64f * Screen.Adjuster.ScaleFactor.Y);
+			for (int j = 0; j < 8; j++)
+			{
+				for (int k = 0; k < 4; k++)
+				{
+					Vector2 vector2 = vector + num * new Vector2((float)k, (float)j);
+					this._inventoryItemLocations[k + j * 4] = new Rectangle((int)vector2.X, (int)vector2.Y, (int)num, (int)num);
+					InventoryItem inventoryItem = playerInventory.Inventory[j * 4 + k];
+					if (inventoryItem != null && inventoryItem != this._holdingItem)
+					{
+						inventoryItem.Draw2D(spriteBatch, new Rectangle((int)vector2.X, (int)vector2.Y, num2, num2));
+					}
+				}
+			}
+			int num3 = 0;
+			int num4 = 2;
+			Rectangle[] array = new Rectangle[num4];
+			Size size = new Size((int)((float)this._gridSprite.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._gridSprite.Height * Screen.Adjuster.ScaleFactor.Y));
+			array[num3] = new Rectangle(Screen.Adjuster.ScreenRect.Center.X - size.Width, Screen.Adjuster.ScreenRect.Bottom - size.Height - (int)(5f * Screen.Adjuster.ScaleFactor.Y), size.Width, size.Height);
+			Rectangle rectangle = array[num3];
+			this._gridSprite.Draw(spriteBatch, rectangle, Color.White);
+			this.DrawItemTray(num3, 32, rectangle, num2, num, playerInventory, spriteBatch);
+			num3 = 1;
+			array[num3] = new Rectangle(Screen.Adjuster.ScreenRect.Center.X, Screen.Adjuster.ScreenRect.Bottom - size.Height - (int)(5f * Screen.Adjuster.ScaleFactor.Y), size.Width, size.Height);
+			rectangle = array[num3];
+			this._gridSprite.Draw(spriteBatch, rectangle, Color.White);
+			this.DrawItemTray(num3, 40, rectangle, num2, num, playerInventory, spriteBatch);
+			Vector2 vector3 = vector;
+			Rectangle rectangle2;
+			if (this._selectedLocation.Y < 8)
+			{
+				Vector2 vector4 = vector3 + num * new Vector2((float)this._selectedLocation.X, (float)this._selectedLocation.Y);
+				rectangle2 = new Rectangle((int)vector4.X, (int)vector4.Y, num2, num2);
+			}
+			else
+			{
+				Rectangle rectangle3 = array[this.GetTrayIndexFromRow(this._selectedLocation.Y)];
+				rectangle2 = new Rectangle(rectangle3.Left + (int)(7f * Screen.Adjuster.ScaleFactor.Y + num * (float)this._selectedLocation.X), (int)((float)rectangle3.Top + 7f * Screen.Adjuster.ScaleFactor.Y), num2, num2);
+			}
+			if (this._hitTestTrue)
+			{
+				this._gridSelector.Draw(spriteBatch, rectangle2, (this._holdingItem == null) ? Color.White : Color.Red);
+			}
+			if (this._holdingItem != null)
+			{
+				this._holdingItem.Draw2D(spriteBatch, new Rectangle((int)((float)this._mousePointerLocation.X - num / 2f), (int)((float)this._mousePointerLocation.Y - num / 2f), (int)num, (int)num));
+			}
+			InventoryItem selectedItem = this.SelectedItem;
+			InventoryItem holdingItem = this._holdingItem;
+			if (this.SelectedItem != null && this._holdingItem == null && this._hitTestTrue && this._popUpTimer.Expired)
+			{
+				Color color = new Color(this._popUpFadeInTimer.PercentComplete, this._popUpFadeInTimer.PercentComplete, this._popUpFadeInTimer.PercentComplete, this._popUpFadeInTimer.PercentComplete);
+				Color color2 = new Color(0f, 0f, 0f, this._popUpFadeInTimer.PercentComplete);
+				spriteBatch.DrawOutlinedText(this._smallFont, this._popUpItem.Name, this._popUpLocation, color, color2, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
+			}
+			else if (!this._popUpFadeOutTimer.Expired)
+			{
+				Color color3 = new Color(1f - this._popUpFadeOutTimer.PercentComplete, 1f - this._popUpFadeOutTimer.PercentComplete, 1f - this._popUpFadeOutTimer.PercentComplete, 1f - this._popUpFadeOutTimer.PercentComplete);
+				Color color4 = new Color(0f, 0f, 0f, 1f - this._popUpFadeOutTimer.PercentComplete);
+				spriteBatch.DrawOutlinedText(this._smallFont, this._popUpItem.Name, this._popUpLocation, color3, color4, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
+			}
+			spriteBatch.End();
+			base.Draw(device, spriteBatch, gameTime);
+		}
+
+		private void DrawItemTray(int trayIndex, int columnOffset, Rectangle gridRect, int size, float itemSpacing, PlayerInventory inventory, SpriteBatch spriteBatch)
+		{
+			for (int i = 0; i < 8; i++)
+			{
+				Vector2 vector = new Vector2(itemSpacing * (float)i + (float)gridRect.Left + 2f * Screen.Adjuster.ScaleFactor.Y, (float)gridRect.Top + 2f * Screen.Adjuster.ScaleFactor.Y);
+				this._inventoryItemLocations[i + columnOffset] = new Rectangle((int)vector.X, (int)vector.Y, size, size);
+				InventoryItem trayItem = inventory.TrayManager.GetTrayItem(trayIndex, i);
+				if (trayItem != null && trayItem != this._holdingItem)
+				{
+					trayItem.Draw2D(spriteBatch, new Rectangle((int)vector.X, (int)vector.Y, size, size));
+				}
+			}
+		}
+
+		public override void OnPushed()
+		{
+			this._nextPopUpItem = null;
+			this._popUpFadeInTimer.Reset();
+			this._popUpFadeOutTimer.Update(TimeSpan.FromSeconds(0.2));
+			this._hitTestTrue = false;
+			base.OnPushed();
+		}
+
+		public int HitTest(Point p)
+		{
+			for (int i = 0; i < this._inventoryItemLocations.Length; i++)
+			{
+				if (this._inventoryItemLocations[i].Contains(p))
+				{
+					return i;
+				}
+			}
+			return -1;
+		}
+
+		protected override bool OnPlayerInput(InputManager inputManager, GameController controller, KeyboardInput chatPad, GameTime gameTime)
+		{
+			if (inputManager.Keyboard.WasKeyPressed(Keys.Escape))
+			{
+				if (this._holdingItem != null)
+				{
+					this._hud.PlayerInventory.AddInventoryItem(this._holdingItem, false);
+					this._holdingItem = null;
+				}
+				else
+				{
+					base.PopMe();
+				}
+				SoundManager.Instance.PlayInstance("Click");
+			}
+			else if (inputManager.Keyboard.WasKeyPressed(Keys.E))
+			{
+				if (this._holdingItem != null)
+				{
+					this._hud.PlayerInventory.AddInventoryItem(this._holdingItem, false);
+					this._holdingItem = null;
+				}
+				SoundManager.Instance.PlayInstance("Click");
+				base.PopMe();
+			}
+			if (this._holdingItem == null && this.SelectedItem != null && this._hitTestTrue)
+			{
+				if (this.SelectedItem == this._nextPopUpItem)
+				{
+					if (this._popUpTimer.Expired)
+					{
+						if (!this._popUpFadeInTimer.Expired)
+						{
+							this._popUpFadeInTimer.Update(gameTime.ElapsedGameTime);
+							this._popUpFadeOutTimer = new OneShotTimer(this._popUpFadeInTimer.ElaspedTime);
+						}
+					}
+					else
+					{
+						this._popUpFadeOutTimer.Update(gameTime.ElapsedGameTime);
+						this._popUpTimer.Update(gameTime.ElapsedGameTime);
+						if (this._popUpTimer.Expired)
+						{
+							this._popUpItem = this.SelectedItem;
+							Vector2 vector = this._smallFont.MeasureString(this._popUpItem.Name) * Screen.Adjuster.ScaleFactor.Y;
+							this._popUpLocation = new Point(inputManager.Mouse.Position.X, inputManager.Mouse.Position.Y + (int)vector.Y);
+							if ((float)this._popUpLocation.Y + vector.Y > (float)Screen.Adjuster.ScreenRect.Bottom)
+							{
+								this._popUpLocation.Y = this._popUpLocation.Y - (int)(vector.Y * 2f);
+							}
+							if ((float)this._popUpLocation.X + vector.X > (float)Screen.Adjuster.ScreenRect.Right)
+							{
+								this._popUpLocation.X = (int)((float)Screen.Adjuster.ScreenRect.Right - vector.X);
+							}
+						}
+					}
+				}
+				else
+				{
+					this._nextPopUpItem = this.SelectedItem;
+					this._popUpTimer.Reset();
+					this._popUpFadeInTimer.Reset();
+					this._popUpFadeOutTimer.Update(gameTime.ElapsedGameTime);
+				}
+			}
+			else
+			{
+				this._popUpFadeOutTimer.Update(gameTime.ElapsedGameTime);
+				this._nextPopUpItem = null;
+				this._popUpFadeInTimer.Reset();
+			}
+			if (this._holdingItem == null)
+			{
+				for (int i = 0; i < this._tier1Items.Count; i++)
+				{
+					if (this._tier1Items[i].CheckInput(inputManager))
+					{
+						this.SelectedTier1Item = this._tier1Items[i];
+					}
+				}
+			}
+			if ((inputManager.Keyboard.IsKeyDown(Keys.LeftShift) || inputManager.Keyboard.IsKeyDown(Keys.RightShift)) && inputManager.Mouse.LeftButtonPressed && this.HitTest(inputManager.Mouse.Position) >= 0)
+			{
+				if (this._holdingItem != null)
+				{
+					if (this._selectedLocation.Y < 8)
+					{
+						int num = this._hud.PlayerInventory.AddItemToTray(this._holdingItem);
+						if (num == 0)
+						{
+							this._holdingItem = null;
+							SoundManager.Instance.PlayInstance("Click");
+						}
+						else if (this._holdingItem.StackCount != num)
+						{
+							this._holdingItem.StackCount = num;
+							SoundManager.Instance.PlayInstance("Click");
+						}
+					}
+					else
+					{
+						int num2 = this._hud.PlayerInventory.AddItemToInventory(this._holdingItem);
+						if (num2 == 0)
+						{
+							this._holdingItem = null;
+							SoundManager.Instance.PlayInstance("Click");
+						}
+						else if (this._holdingItem.StackCount != num2)
+						{
+							this._holdingItem.StackCount = num2;
+							SoundManager.Instance.PlayInstance("Click");
+						}
+					}
+				}
+				else if (this.SelectedItem != null)
+				{
+					if (this._selectedLocation.Y < 8)
+					{
+						int num3 = this._hud.PlayerInventory.AddItemToTray(this.SelectedItem);
+						if (num3 == 0)
+						{
+							this.SelectedItem = null;
+							SoundManager.Instance.PlayInstance("Click");
+						}
+						else if (this.SelectedItem.StackCount != num3)
+						{
+							this.SelectedItem.StackCount = num3;
+							SoundManager.Instance.PlayInstance("Click");
+						}
+					}
+					else
+					{
+						int num4 = this._hud.PlayerInventory.AddItemToInventory(this.SelectedItem);
+						if (num4 == 0)
+						{
+							this.SelectedItem = null;
+							SoundManager.Instance.PlayInstance("Click");
+						}
+						else if (this.SelectedItem.StackCount != num4)
+						{
+							this.SelectedItem.StackCount = num4;
+							SoundManager.Instance.PlayInstance("Click");
+						}
+					}
+				}
+			}
+			else if (inputManager.Mouse.LeftButtonPressed && this.HitTest(inputManager.Mouse.Position) >= 0)
+			{
+				if (this._holdingItem == null)
+				{
+					if (this.SelectedItem != null)
+					{
+						this._holdingItem = this.SelectedItem;
+						this._hud.PlayerInventory.Remove(this._holdingItem);
+					}
+					SoundManager.Instance.PlayInstance("Click");
+				}
+				else
+				{
+					InventoryItem selectedItem = this.SelectedItem;
+					if (selectedItem != null && selectedItem.CanStack(this._holdingItem))
+					{
+						selectedItem.Stack(this._holdingItem);
+						this.SelectedItem = selectedItem;
+						if (this._holdingItem.StackCount == 0)
+						{
+							this._holdingItem = null;
+						}
+					}
+					else
+					{
+						this.SelectedItem = this._holdingItem;
+						this._holdingItem = selectedItem;
+					}
+					SoundManager.Instance.PlayInstance("Click");
+				}
+			}
+			else if (inputManager.Mouse.RightButtonPressed && this.HitTest(inputManager.Mouse.Position) >= 0)
+			{
+				if (this._holdingItem == null)
+				{
+					if (this.SelectedItem != null)
+					{
+						SoundManager.Instance.PlayInstance("Click");
+						if (this.SelectedItem.StackCount == 1)
+						{
+							this._holdingItem = this.SelectedItem;
+							this._hud.PlayerInventory.Remove(this._holdingItem);
+						}
+						else
+						{
+							this._holdingItem = this.SelectedItem.Split();
+						}
+					}
+				}
+				else if (this._holdingItem != null)
+				{
+					SoundManager.Instance.PlayInstance("Click");
+					if (this.SelectedItem != null)
+					{
+						if (this._holdingItem.ItemClass == this.SelectedItem.ItemClass)
+						{
+							if (inputManager.Mouse.RightButtonPressed)
+							{
+								if (this.SelectedItem.StackCount < this.SelectedItem.MaxStackCount)
+								{
+									if (this._holdingItem.StackCount > 1)
+									{
+										this.SelectedItem.Stack(this._holdingItem.PopOneItem());
+									}
+									else
+									{
+										this.SelectedItem.Stack(this._holdingItem);
+										this._holdingItem = null;
+									}
+								}
+							}
+							else if (this.SelectedItem.StackCount > 1)
+							{
+								InventoryItem inventoryItem = this.SelectedItem.Split();
+								this._holdingItem.Stack(inventoryItem);
+								this.SelectedItem.Stack(inventoryItem);
+							}
+							else if (this._holdingItem.StackCount < this._holdingItem.MaxStackCount)
+							{
+								this._holdingItem.Stack(this.SelectedItem);
+								this.SelectedItem = null;
+							}
+						}
+						else
+						{
+							InventoryItem selectedItem2 = this.SelectedItem;
+							this.SelectedItem = this._holdingItem;
+							this._holdingItem = selectedItem2;
+						}
+					}
+					else if (inputManager.Mouse.RightButtonPressed)
+					{
+						if (this._holdingItem.StackCount > 1)
+						{
+							this.SelectedItem = this._holdingItem.PopOneItem();
+						}
+						else
+						{
+							this.SelectedItem = this._holdingItem;
+							this._holdingItem = null;
+						}
+					}
+					else if (this._holdingItem.StackCount > 1)
+					{
+						this.SelectedItem = this._holdingItem.Split();
+					}
+					else
+					{
+						this.SelectedItem = this._holdingItem;
+						this._holdingItem = null;
+					}
+				}
+			}
+			else if (inputManager.Keyboard.WasKeyPressed(Keys.Q))
+			{
+				SoundManager.Instance.PlayInstance("Click");
+				if (this._holdingItem != null)
+				{
+					Vector3 localPosition = this._game.LocalPlayer.LocalPosition;
+					localPosition.Y += 1f;
+					PickupManager.Instance.CreatePickup(this._holdingItem, localPosition, true, false);
+					SoundManager.Instance.PlayInstance("dropitem");
+					this._holdingItem = null;
+				}
+				else if (this.SelectedItem != null)
+				{
+					this._hud.PlayerInventory.DropItem(this.SelectedItem);
+				}
+			}
+			else if (inputManager.Mouse.LeftButtonPressed && !this._backgroundRectangle.Contains(inputManager.Mouse.Position) && this._holdingItem != null)
+			{
+				SoundManager.Instance.PlayInstance("Click");
+				Vector3 localPosition2 = this._game.LocalPlayer.LocalPosition;
+				localPosition2.Y += 1f;
+				PickupManager.Instance.CreatePickup(this._holdingItem, localPosition2, true, false);
+				SoundManager.Instance.PlayInstance("dropitem");
+				this._holdingItem = null;
+			}
+			else if (inputManager.Mouse.RightButtonPressed && !this._backgroundRectangle.Contains(inputManager.Mouse.Position) && this._holdingItem != null)
+			{
+				InventoryItem inventoryItem2;
+				if (this._holdingItem.StackCount > 1)
+				{
+					inventoryItem2 = this._holdingItem.PopOneItem();
+				}
+				else
+				{
+					inventoryItem2 = this._holdingItem;
+					this._holdingItem = null;
+				}
+				SoundManager.Instance.PlayInstance("Click");
+				Vector3 localPosition3 = this._game.LocalPlayer.LocalPosition;
+				localPosition3.Y += 1f;
+				PickupManager.Instance.CreatePickup(inventoryItem2, localPosition3, true, false);
+				SoundManager.Instance.PlayInstance("dropitem");
+			}
+			else if (inputManager.Mouse.DeltaWheel < 0 && this.HitTest(inputManager.Mouse.Position) >= 0)
+			{
+				if (this.ItemCountDown())
+				{
+					SoundManager.Instance.PlayInstance("Click");
+				}
+			}
+			else if (inputManager.Mouse.DeltaWheel > 0 && this.HitTest(inputManager.Mouse.Position) >= 0 && this.ItemCountUp())
+			{
+				SoundManager.Instance.PlayInstance("Click");
+			}
+			if (inputManager.Mouse.Position != inputManager.Mouse.LastPosition)
+			{
+				this._mousePointerLocation = inputManager.Mouse.Position;
+				int num5 = this.HitTest(inputManager.Mouse.Position);
+				if (num5 >= 0)
+				{
+					this._hitTestTrue = true;
+					this._selectedLocation.Y = num5 / 4;
+					if (this._selectedLocation.Y < 8)
+					{
+						this._selectedLocation.X = num5 % 4;
+					}
+					else
+					{
+						this._selectedLocation.X = num5 % 8;
+					}
+				}
+				else
+				{
+					this._hitTestTrue = false;
+				}
+			}
+			return base.OnPlayerInput(inputManager, controller, chatPad, gameTime);
+		}
+
+		public bool ItemCountDown()
+		{
+			if (this._holdingItem == null)
+			{
+				return false;
+			}
+			if (this.SelectedItem == null)
+			{
+				if (this._holdingItem.StackCount == 1)
+				{
+					this.SelectedItem = this._holdingItem;
+					this._holdingItem = null;
+				}
+				else
+				{
+					this.SelectedItem = this._holdingItem.PopOneItem();
+				}
+			}
+			else
+			{
+				if (this._holdingItem.ItemClass != this.SelectedItem.ItemClass || this.SelectedItem.StackCount >= this.SelectedItem.MaxStackCount)
+				{
+					return false;
+				}
+				if (this._holdingItem.StackCount == 1)
+				{
+					this.SelectedItem.Stack(this._holdingItem);
+					this._holdingItem = null;
+				}
+				else
+				{
+					this.SelectedItem.Stack(this._holdingItem.PopOneItem());
+				}
+			}
+			return true;
+		}
+
+		public bool ItemCountUp()
+		{
+			if (this._holdingItem == null)
+			{
+				if (this.SelectedItem == null)
+				{
+					return false;
+				}
+				if (this.SelectedItem.StackCount == 1)
+				{
+					this._holdingItem = this.SelectedItem;
+					this._hud.PlayerInventory.Remove(this._holdingItem);
+				}
+				else
+				{
+					this._holdingItem = this.SelectedItem.PopOneItem();
+				}
+			}
+			else
+			{
+				if (this.SelectedItem == null)
+				{
+					return false;
+				}
+				if (this._holdingItem.ItemClass != this.SelectedItem.ItemClass || this._holdingItem.StackCount >= this._holdingItem.MaxStackCount)
+				{
+					return false;
+				}
+				if (this.SelectedItem.StackCount == 1)
+				{
+					this._holdingItem.Stack(this.SelectedItem);
+					this.SelectedItem = null;
+				}
+				else
+				{
+					this._holdingItem.Stack(this.SelectedItem.PopOneItem());
+				}
+			}
+			return true;
+		}
+
+		protected override void OnUpdate(DNAGame game, GameTime gameTime)
+		{
+			if (this._hud.LocalPlayer.Dead)
+			{
+				if (this._holdingItem != null)
+				{
+					this._hud.PlayerInventory.AddInventoryItem(this._holdingItem, false);
+					this._holdingItem = null;
+				}
+				base.PopMe();
+			}
+			Size size = new Size((int)((float)this._background.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._background.Height * Screen.Adjuster.ScaleFactor.Y));
+			this._backgroundRectangle = new Rectangle(Screen.Adjuster.ScreenRect.Center.X - size.Width / 2, (int)(55f * Screen.Adjuster.ScaleFactor.Y), size.Width, size.Height);
+			this._selectedItemNameText.Text = this.SelectedTier1Item.SelectedTier2Item.SelectedItem.Name;
+			this._selectedItemDescriptionText.Location = new Vector2((float)this._backgroundRectangle.X + 32f * Screen.Adjuster.ScaleFactor.Y, (float)this._backgroundRectangle.Y + (float)(367 + this._game._medFont.LineSpacing * this._selectedItemNameText.NumberOfLines) * Screen.Adjuster.ScaleFactor.Y);
+			this._selectedItemDescriptionText.Text = this.SelectedTier1Item.SelectedTier2Item.SelectedItem.Description;
+			this.sbuilder.Clear();
+			this.sbuilder.Append(Strings.Components);
+			this.sbuilder.Append(":\n");
+			this.sbuilder.Append(this.SelectedTier1Item.SelectedTier2Item.SelectedItemIngredients[0].Name);
+			for (int i = 1; i < this.SelectedTier1Item.SelectedTier2Item.SelectedItemIngredients.Count; i++)
+			{
+				this.sbuilder.Append(", ");
+				this.sbuilder.Append(this.SelectedTier1Item.SelectedTier2Item.SelectedItemIngredients[i].Name);
+			}
+			this._selectedItemIngredientsText.Location = new Vector2((float)this._backgroundRectangle.X + 170f * Screen.Adjuster.ScaleFactor.Y, (float)this._backgroundRectangle.Y + 235f * Screen.Adjuster.ScaleFactor.Y);
+			this._selectedItemIngredientsText.Text = this.sbuilder.ToString();
+			if (this._prevScreenRect != Screen.Adjuster.ScreenRect)
+			{
+				for (int j = 0; j < this._tier1Items.Count; j++)
+				{
+					this._tier1Items[j].UpdateScaledLocation(this._backgroundRectangle);
+				}
+				this._selectedItemNameText.Location = new Vector2((float)this._backgroundRectangle.X + 32f * Screen.Adjuster.ScaleFactor.Y, (float)this._backgroundRectangle.Y + 367f * Screen.Adjuster.ScaleFactor.Y);
+			}
+			this._prevScreenRect = Screen.Adjuster.ScreenRect;
+			base.OnUpdate(game, gameTime);
+		}
+
+		private const int Columns = 4;
+
+		private const int Rows = 8;
+
+		private const int ItemSize = 64;
+
+		private Sprite _background;
+
+		public Sprite _gridSelector;
+
+		public Sprite _craftSelector;
+
+		public Sprite _gridSquare;
+
+		private Sprite _gridSprite;
+
+		public Sprite _tier2Back;
+
+		private CastleMinerZGame _game;
+
+		private SpriteFont _bigFont;
+
+		private SpriteFont _smallFont;
+
+		private InGameHUD _hud;
+
+		private Recipe _selectedRecipe;
+
+		private int _selectedIngredientIndex;
+
+		private PCDialogScreen _buyToCraftDialog;
+
+		private List<Tier1Item> _tier1Items = new List<Tier1Item>();
+
+		public Tier1Item SelectedTier1Item;
+
+		private Rectangle _backgroundRectangle;
+
+		private TextRegionElement _selectedItemNameText;
+
+		private TextRegionElement _selectedItemDescriptionText;
+
+		private TextRegionElement _selectedItemIngredientsText;
+
+		private Rectangle[] _inventoryItemLocations = new Rectangle[48];
+
+		private InventoryItem _holdingItem;
+
+		private Point _selectedLocation = new Point(0, 0);
+
+		private bool _hitTestTrue;
+
+		private Point _mousePointerLocation = default(Point);
+
+		private OneShotTimer _popUpTimer = new OneShotTimer(TimeSpan.FromSeconds(0.25));
+
+		private OneShotTimer _popUpFadeInTimer = new OneShotTimer(TimeSpan.FromSeconds(0.25));
+
+		private OneShotTimer _popUpFadeOutTimer = new OneShotTimer(TimeSpan.FromSeconds(0.25));
+
+		private Point _popUpLocation;
+
+		private InventoryItem _popUpItem;
+
+		private InventoryItem _nextPopUpItem;
+
+		private string CRAFTING = Strings.Crafting.ToUpper();
+
+		private string INVENTORY = Strings.Inventory.ToUpper();
+
+		private Rectangle _prevScreenRect;
+
+		private StringBuilder sbuilder = new StringBuilder();
+	}
+}

@@ -1,0 +1,65 @@
+﻿using System;
+using System.IO;
+using DNA.CastleMinerZ.Inventory;
+using DNA.Net;
+using DNA.Net.GamerServices;
+
+namespace DNA.CastleMinerZ.Net
+{
+	public class KillEnemyMessage : CastleMinerZMessage
+	{
+		private KillEnemyMessage()
+		{
+		}
+
+		public static void Send(LocalNetworkGamer from, int enemyid, int targetid, byte killerid, InventoryItemIDs itemid)
+		{
+			KillEnemyMessage sendInstance = Message.GetSendInstance<KillEnemyMessage>();
+			sendInstance.EnemyID = enemyid;
+			sendInstance.TargetID = targetid;
+			sendInstance.WeaponID = itemid;
+			sendInstance.KillerID = killerid;
+			sendInstance.DoSend(from);
+		}
+
+		public override CastleMinerZMessage.MessageTypes MessageType
+		{
+			get
+			{
+				return CastleMinerZMessage.MessageTypes.EnemyMessage;
+			}
+		}
+
+		protected override SendDataOptions SendDataOptions
+		{
+			get
+			{
+				return SendDataOptions.Reliable;
+			}
+		}
+
+		protected override void RecieveData(BinaryReader reader)
+		{
+			this.EnemyID = reader.ReadInt32();
+			this.TargetID = reader.ReadInt32();
+			this.WeaponID = (InventoryItemIDs)reader.ReadInt16();
+			this.KillerID = reader.ReadByte();
+		}
+
+		protected override void SendData(BinaryWriter writer)
+		{
+			writer.Write(this.EnemyID);
+			writer.Write(this.TargetID);
+			writer.Write((short)this.WeaponID);
+			writer.Write(this.KillerID);
+		}
+
+		public int EnemyID;
+
+		public int TargetID;
+
+		public InventoryItemIDs WeaponID;
+
+		public byte KillerID;
+	}
+}
