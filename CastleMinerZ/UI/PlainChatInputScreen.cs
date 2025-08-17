@@ -2,6 +2,7 @@
 using DNA.CastleMinerZ.Globalization;
 using DNA.CastleMinerZ.Net;
 using DNA.Drawing;
+using DNA.Drawing.UI;
 using DNA.Drawing.UI.Controls;
 using DNA.Input;
 using Microsoft.Xna.Framework;
@@ -25,8 +26,8 @@ namespace DNA.CastleMinerZ.UI
 		{
 			this._yLoc = yLoc;
 			this._textEditControl.LocalPosition = new Point(0, (int)this._yLoc);
-			this._textEditControl.Size = new Size(this.Width - 20, 200);
-			this._textEditControl.Font = this._game._myriadSmall;
+			this._textEditControl.Size = new Size(this.Width, 200);
+			this._textEditControl.Font = this._game._consoleFont;
 			this._textEditControl.Frame = this._game.ButtonFrame;
 			this._textEditControl.EnterPressed += this._textEditControl_EnterPressed;
 			this._textEditControl.TextColor = Color.White;
@@ -47,7 +48,13 @@ namespace DNA.CastleMinerZ.UI
 		{
 			this._textEditControl.Text = "";
 			this._textEditControl.HasFocus = true;
+			this._game.GameScreen.HUD.console.ShowAll = true;
 			base.OnPushed();
+		}
+
+		public override void OnPoped()
+		{
+			this._game.GameScreen.HUD.console.ShowAll = false;
 		}
 
 		protected override bool OnPlayerInput(InputManager inputManager, GameController controller, KeyboardInput chatPad, GameTime gameTime)
@@ -72,7 +79,7 @@ namespace DNA.CastleMinerZ.UI
 
 		public TextEditControl _textEditControl = new TextEditControl();
 
-		public int Width = 350;
+		public int Width = Screen.Adjuster.ScreenRect.Width / 2;
 
 		private CastleMinerZGame _game = CastleMinerZGame.Instance;
 

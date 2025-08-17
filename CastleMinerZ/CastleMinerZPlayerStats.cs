@@ -7,6 +7,7 @@ using DNA.CastleMinerZ.Terrain;
 using DNA.Distribution;
 using DNA.Distribution.Steam;
 using DNA.Input;
+using Microsoft.Xna.Framework;
 
 namespace DNA.CastleMinerZ
 {
@@ -373,6 +374,7 @@ namespace DNA.CastleMinerZ
 			this.brightness = reader.ReadSingle();
 			this.musicVolume = reader.ReadSingle();
 			this.controllerSensitivity = reader.ReadSingle();
+			this.controllerSensitivity = MathHelper.Clamp(this.controllerSensitivity, 0f, 1f);
 			this.AutoClimb = reader.ReadBoolean();
 			this.DrawDistance = (int)reader.ReadByte();
 			this.PostOnAchievement = reader.ReadBoolean();

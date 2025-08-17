@@ -49,22 +49,25 @@ namespace DNA.CastleMinerZ.AI
 			this.FireballIndex = index;
 			this.SpawnedLocally = spawnedLocally;
 			this.WasInLoadedArea = false;
-			this.SmokeEmitter = this.ParticleDef._smokeTrailEffect.CreateEmitter(CastleMinerZGame.Instance);
-			this.SmokeEmitter.Emitting = true;
-			this.SmokeEmitter.DrawPriority = 900;
-			base.Children.Add(this.SmokeEmitter);
-			this.FireEmitter = this.ParticleDef._fireTrailEffect.CreateEmitter(CastleMinerZGame.Instance);
-			this.FireEmitter.Emitting = true;
-			this.FireEmitter.DrawPriority = 900;
-			base.Children.Add(this.FireEmitter);
-			this.FireGlowEmitter = this.ParticleDef._fireGlowEffect.CreateEmitter(CastleMinerZGame.Instance);
-			this.FireGlowEmitter.Emitting = true;
-			this.FireGlowEmitter.DrawPriority = 900;
-			base.Children.Add(this.FireGlowEmitter);
-			this.FireBallEmitter = this.ParticleDef._fireBallEffect.CreateEmitter(CastleMinerZGame.Instance);
-			this.FireBallEmitter.Emitting = true;
-			this.FireBallEmitter.DrawPriority = 900;
-			base.Children.Add(this.FireBallEmitter);
+			if (CastleMinerZGame.Instance.IsActive)
+			{
+				this.SmokeEmitter = this.ParticleDef._smokeTrailEffect.CreateEmitter(CastleMinerZGame.Instance);
+				this.SmokeEmitter.Emitting = true;
+				this.SmokeEmitter.DrawPriority = 900;
+				base.Children.Add(this.SmokeEmitter);
+				this.FireEmitter = this.ParticleDef._fireTrailEffect.CreateEmitter(CastleMinerZGame.Instance);
+				this.FireEmitter.Emitting = true;
+				this.FireEmitter.DrawPriority = 900;
+				base.Children.Add(this.FireEmitter);
+				this.FireGlowEmitter = this.ParticleDef._fireGlowEffect.CreateEmitter(CastleMinerZGame.Instance);
+				this.FireGlowEmitter.Emitting = true;
+				this.FireGlowEmitter.DrawPriority = 900;
+				base.Children.Add(this.FireGlowEmitter);
+				this.FireBallEmitter = this.ParticleDef._fireBallEffect.CreateEmitter(CastleMinerZGame.Instance);
+				this.FireBallEmitter.Emitting = true;
+				this.FireBallEmitter.DrawPriority = 900;
+				base.Children.Add(this.FireBallEmitter);
+			}
 			base.LocalPosition = spawnposition;
 			Vector3 vector = target - spawnposition;
 			this.Velocity = vector * (this.EType.FireballVelocity / vector.Length());
@@ -83,14 +86,17 @@ namespace DNA.CastleMinerZ.AI
 			}
 			this.Detonated = true;
 			this.model.RemoveFromParent();
-			this.FireGlowEmitter.Emitting = false;
-			this.FireBallEmitter.Emitting = false;
-			this.FireEmitter.Emitting = false;
-			this.SmokeEmitter.Emitting = false;
+			if (this.SmokeEmitter != null && this.FireEmitter != null)
+			{
+				this.FireGlowEmitter.Emitting = false;
+				this.FireBallEmitter.Emitting = false;
+				this.FireEmitter.Emitting = false;
+				this.SmokeEmitter.Emitting = false;
+			}
 			this.FireballCue.Stop(AudioStopOptions.Immediate);
 			SoundManager.Instance.PlayInstance(this.ParticleDef._detonateSoundName, this.SoundEmitter);
 			Scene scene = base.Scene;
-			if (scene == null || scene.Children == null)
+			if (scene == null || scene.Children == null || !CastleMinerZGame.Instance.IsActive)
 			{
 				return;
 			}
@@ -128,7 +134,11 @@ namespace DNA.CastleMinerZ.AI
 			this.SoundEmitter.Velocity = this.Velocity;
 			if (this.Detonated)
 			{
-				if (!this.FireEmitter.HasActiveParticles && !this.SmokeEmitter.HasActiveParticles)
+				if (this.SmokeEmitter == null && this.FireEmitter == null)
+				{
+					EnemyManager.Instance.RemoveFireball(this);
+				}
+				else if (!this.FireEmitter.HasActiveParticles && !this.SmokeEmitter.HasActiveParticles)
 				{
 					EnemyManager.Instance.RemoveFireball(this);
 				}

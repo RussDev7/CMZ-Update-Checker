@@ -41,6 +41,7 @@ namespace DNA.CastleMinerZ
 				if (blasterShot == null)
 				{
 					blasterShot = new BlasterShot(0);
+					BlasterShot._garbage.Add(blasterShot);
 				}
 				blasterShot._lifeTime = BlasterShot.TotalLifeTime;
 				blasterShot._color = new Color(laserGunInventoryItemClass.TracerColor);
@@ -56,7 +57,6 @@ namespace DNA.CastleMinerZ
 				blasterShot._weaponUsed = item;
 				blasterShot._lastPosition = position;
 				blasterShot._explosiveType = (laserGunInventoryItemClass.IsHarvestWeapon() ? ExplosiveTypes.Harvest : ExplosiveTypes.Laser);
-				BlasterShot._garbage.Add(blasterShot);
 			}
 			return blasterShot;
 		}
@@ -78,6 +78,7 @@ namespace DNA.CastleMinerZ
 				if (blasterShot == null)
 				{
 					blasterShot = new BlasterShot(shooterID);
+					BlasterShot._garbage.Add(blasterShot);
 				}
 				blasterShot._lifeTime = BlasterShot.TotalLifeTime;
 				blasterShot._color = new Color(laserGunInventoryItemClass.TracerColor);
@@ -94,7 +95,6 @@ namespace DNA.CastleMinerZ
 				blasterShot._weaponUsed = item;
 				blasterShot._lastPosition = position;
 				blasterShot._explosiveType = (laserGunInventoryItemClass.IsHarvestWeapon() ? ExplosiveTypes.Harvest : ExplosiveTypes.Laser);
-				BlasterShot._garbage.Add(blasterShot);
 			}
 			return blasterShot;
 		}
@@ -244,7 +244,7 @@ namespace DNA.CastleMinerZ
 				scene = TracerManager.Instance.Scene;
 			}
 			Matrix matrix = MathTools.CreateWorld(collisionLocation, -collisionNormal);
-			if (scene != null)
+			if (scene != null && CastleMinerZGame.Instance.IsActive)
 			{
 				ParticleEmitter particleEmitter = BlasterShot._spashEffect.CreateEmitter(CastleMinerZGame.Instance);
 				particleEmitter.LocalScale = new Vector3(0.01f);
@@ -271,39 +271,25 @@ namespace DNA.CastleMinerZ
 				this.Emitter.Forward = new Vector3(0f, 0f, 1f);
 			}
 			bool flag = false;
-			bool flag2 = false;
-			bool flag3 = true;
 			if (this.CollisionsRemaining > 0)
 			{
-				if (bounce)
-				{
-					this.CollisionsRemaining--;
-					flag = true;
-					this.ReflectedShot = true;
-				}
-				else if (flag3)
-				{
-					this.CollisionsRemaining--;
-					flag2 = true;
-					this.ReflectedShot = false;
-				}
+				this.CollisionsRemaining--;
+				flag = bounce;
+				this.ReflectedShot = bounce;
 			}
-			if (!flag2)
+			if (flag)
 			{
-				if (flag)
-				{
-					Vector3 vector = base.WorldPosition - collisionLocation;
-					Vector3 vector2 = Vector3.Reflect(vector, collisionNormal) + collisionLocation;
-					this._lastPosition = collisionLocation;
-					this._velocity = Vector3.Reflect(this._velocity, collisionNormal);
-					base.LocalToParent = MathTools.CreateWorld(vector2, this._velocity);
-					this._noCollideFrame = true;
-				}
-				else
-				{
-					this._velocity = new Vector3(0f, 0f, 0f);
-					base.RemoveFromParent();
-				}
+				Vector3 vector = base.WorldPosition - collisionLocation;
+				Vector3 vector2 = Vector3.Reflect(vector, collisionNormal) + collisionLocation;
+				this._lastPosition = collisionLocation;
+				this._velocity = Vector3.Reflect(this._velocity, collisionNormal);
+				base.LocalToParent = MathTools.CreateWorld(vector2, this._velocity);
+				this._noCollideFrame = true;
+			}
+			else
+			{
+				this._velocity = new Vector3(0f, 0f, 0f);
+				base.RemoveFromParent();
 			}
 			if (CastleMinerZGame.Instance.IsLocalPlayerId(this._shooter) && destroyBlock)
 			{

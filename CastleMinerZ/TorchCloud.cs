@@ -72,6 +72,10 @@ namespace DNA.CastleMinerZ
 			if (!this.ContainsTorch(blockCenter))
 			{
 				this._listsDirty = true;
+				if (facing >= BlockFace.NUM_FACES)
+				{
+					facing = BlockFace.POSY;
+				}
 				this.TorchReferences.Add(new TorchReference(blockCenter, facing));
 			}
 		}

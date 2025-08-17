@@ -108,10 +108,7 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 			}
 			for (int i = 0; i < this.bossSpawnerLocs.Count; i++)
 			{
-				if (i < this.bossSpawnerLocs.Count)
-				{
-					AlterBlockMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, this.bossSpawnerLocs[i], BlockTypeEnum.BossSpawnOff);
-				}
+				AlterBlockMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, this.bossSpawnerLocs[i], BlockTypeEnum.BossSpawnOff);
 			}
 			if (this.bossSpawnerLocs.Count > 0)
 			{

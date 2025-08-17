@@ -29,59 +29,24 @@ namespace DNA.CastleMinerZ.Inventory
 			{
 				Quaternion quaternion = Quaternion.CreateFromYawPitchRoll(0f, 0f, -0.7853982f) * Quaternion.CreateFromYawPitchRoll(0f, -1.5707964f, 0f);
 				Matrix matrix = Matrix.Transform(Matrix.CreateScale(32f / modelEntity.GetLocalBoundingSphere().Radius), quaternion);
-				InventoryItemIDs id = this.ID;
-				if (id <= InventoryItemIDs.CopperSpacePistol)
+				switch (this.ID)
 				{
-					if (id != InventoryItemIDs.IronSpacePistol)
-					{
-						switch (id)
-						{
-						case InventoryItemIDs.IronSpaceSMGGun:
-							goto IL_00DC;
-						case InventoryItemIDs.CopperSpaceAssultRifle:
-							goto IL_00F9;
-						case InventoryItemIDs.CopperSpacePistol:
-							break;
-						default:
-							goto IL_00F9;
-						}
-					}
+				case InventoryItemIDs.IronSpacePistol:
+				case InventoryItemIDs.IronSpaceSMGGun:
+				case InventoryItemIDs.CopperSpacePistol:
+				case InventoryItemIDs.CopperSpaceSMGGun:
+				case InventoryItemIDs.GoldSpacePistol:
+				case InventoryItemIDs.GoldSpaceSMGGun:
+				case InventoryItemIDs.DiamondSpacePistol:
+				case InventoryItemIDs.DiamondSpaceSMGGun:
+					matrix.Translation = new Vector3(13f, -21f, -16f);
+					goto IL_0114;
+				case InventoryItemIDs.CopperSpaceAssultRifle:
+				case InventoryItemIDs.GoldSpaceAssultRifle:
+				case InventoryItemIDs.DiamondSpaceAssultRifle:
+					matrix.Translation = new Vector3(9f, -17f, -16f);
+					goto IL_0114;
 				}
-				else
-				{
-					switch (id)
-					{
-					case InventoryItemIDs.CopperSpaceSMGGun:
-						goto IL_00DC;
-					case InventoryItemIDs.GoldSpaceAssultRifle:
-						goto IL_00F9;
-					case InventoryItemIDs.GoldSpacePistol:
-						break;
-					default:
-						switch (id)
-						{
-						case InventoryItemIDs.GoldSpaceSMGGun:
-							goto IL_00DC;
-						case InventoryItemIDs.DiamondSpaceAssultRifle:
-							goto IL_00F9;
-						case InventoryItemIDs.DiamondSpacePistol:
-							break;
-						default:
-							if (id != InventoryItemIDs.DiamondSpaceSMGGun)
-							{
-								goto IL_00F9;
-							}
-							goto IL_00DC;
-						}
-						break;
-					}
-				}
-				matrix.Translation = new Vector3(13f, -21f, -16f);
-				goto IL_0114;
-				IL_00DC:
-				matrix.Translation = new Vector3(13f, -21f, -16f);
-				goto IL_0114;
-				IL_00F9:
 				matrix.Translation = new Vector3(9f, -17f, -16f);
 				IL_0114:
 				modelEntity.LocalToParent = matrix;

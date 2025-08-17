@@ -32,22 +32,6 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 			return array2[num];
 		}
 
-		private int GetEnemyBlockOverride(int blockID, IntVector3 worldPos, float noise)
-		{
-			float num = 0.5f;
-			float num2 = 0f;
-			float num3 = 0.35f;
-			if (noise < num3 * num)
-			{
-				blockID = Biome.hellSpawnOff;
-			}
-			else if (noise < num3 * num2)
-			{
-				blockID = Biome.alienSpawnOff;
-			}
-			return blockID;
-		}
-
 		public override void BuildColumn(BlockTerrain terrain, int worldX, int worldZ, int minY, float blender)
 		{
 			bool flag = true;

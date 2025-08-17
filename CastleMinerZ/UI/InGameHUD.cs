@@ -754,6 +754,11 @@ namespace DNA.CastleMinerZ.UI
 			this.lastTOD = -1f;
 		}
 
+		public void ExternalUpdate(DNAGame game, GameTime gameTime)
+		{
+			this.OnUpdate(game, gameTime);
+		}
+
 		protected override void OnUpdate(DNAGame game, GameTime gameTime)
 		{
 			if (CastleMinerZGame.Instance.GameScreen.DoUpdate)
@@ -1298,7 +1303,11 @@ namespace DNA.CastleMinerZ.UI
 				vector /= 2f;
 			}
 			Vector2 vector2 = controllerMapping.Aiming * vector;
-			this.GunEyePointCameraLocation += (vector2 - this.GunEyePointCameraLocation) * num * (float)gameTime.ElapsedGameTime.TotalSeconds;
+			if (!this.LocalPlayer.Dead)
+			{
+				this.GunEyePointCameraLocation += (vector2 - this.GunEyePointCameraLocation) * num * (float)gameTime.ElapsedGameTime.TotalSeconds;
+				this.GunEyePointCameraLocation.Y = MathHelper.Clamp(this.GunEyePointCameraLocation.Y, 0f, 100f);
+			}
 			GunInventoryItem gunInventoryItem = this.ActiveInventoryItem as GunInventoryItem;
 			if (gunInventoryItem != null)
 			{
@@ -1474,7 +1483,7 @@ namespace DNA.CastleMinerZ.UI
 				{
 					this.PlayerInventory.SwitchCurrentTray();
 				}
-				if (controllerMapping.Activate.Pressed && this.ConstructionProbe._collides)
+				if (!this.LocalPlayer.Dead && controllerMapping.Activate.Pressed && this.ConstructionProbe._collides)
 				{
 					BlockTypeEnum block = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex);
 					if (BlockType.IsContainer(block))
@@ -1501,10 +1510,10 @@ namespace DNA.CastleMinerZ.UI
 						{
 						case BlockTypeEnum.NormalLowerDoorClosedZ:
 							this.UseDoor(BlockTypeEnum.NormalLowerDoorOpenZ, BlockTypeEnum.NormalUpperDoorOpen);
-							goto IL_0E9C;
+							goto IL_0EDE;
 						case BlockTypeEnum.NormalLowerDoorClosedX:
 							this.UseDoor(BlockTypeEnum.NormalLowerDoorOpenX, BlockTypeEnum.NormalUpperDoorOpen);
-							goto IL_0E9C;
+							goto IL_0EDE;
 						case BlockTypeEnum.NormalLowerDoor:
 							break;
 						case BlockTypeEnum.NormalUpperDoorClosed:
@@ -1521,14 +1530,14 @@ namespace DNA.CastleMinerZ.UI
 								AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0), BlockTypeEnum.NormalLowerDoorOpenZ);
 							}
 							SoundManager.Instance.PlayInstance("Click");
-							goto IL_0E9C;
+							goto IL_0EDE;
 						}
 						case BlockTypeEnum.NormalLowerDoorOpenZ:
 							this.UseDoor(BlockTypeEnum.NormalLowerDoorClosedZ, BlockTypeEnum.NormalUpperDoorClosed);
-							goto IL_0E9C;
+							goto IL_0EDE;
 						case BlockTypeEnum.NormalLowerDoorOpenX:
 							this.UseDoor(BlockTypeEnum.NormalLowerDoorClosedX, BlockTypeEnum.NormalUpperDoorClosed);
-							goto IL_0E9C;
+							goto IL_0EDE;
 						case BlockTypeEnum.NormalUpperDoorOpen:
 						{
 							DoorOpenCloseMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex, false);
@@ -1543,23 +1552,23 @@ namespace DNA.CastleMinerZ.UI
 								AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0), BlockTypeEnum.NormalLowerDoorClosedZ);
 							}
 							SoundManager.Instance.PlayInstance("Click");
-							goto IL_0E9C;
+							goto IL_0EDE;
 						}
 						case BlockTypeEnum.TNT:
 							this.SetFuseForExplosive(this.ConstructionProbe._worldIndex, ExplosiveTypes.TNT);
-							goto IL_0E9C;
+							goto IL_0EDE;
 						case BlockTypeEnum.C4:
 							this.SetFuseForExplosive(this.ConstructionProbe._worldIndex, ExplosiveTypes.C4);
-							goto IL_0E9C;
+							goto IL_0EDE;
 						default:
 							switch (blockTypeEnum)
 							{
 							case BlockTypeEnum.StrongLowerDoorClosedZ:
 								this.UseDoor(BlockTypeEnum.StrongLowerDoorOpenZ, BlockTypeEnum.StrongUpperDoorOpen);
-								goto IL_0E9C;
+								goto IL_0EDE;
 							case BlockTypeEnum.StrongLowerDoorClosedX:
 								this.UseDoor(BlockTypeEnum.StrongLowerDoorOpenX, BlockTypeEnum.StrongUpperDoorOpen);
-								goto IL_0E9C;
+								goto IL_0EDE;
 							case BlockTypeEnum.StrongLowerDoor:
 								break;
 							case BlockTypeEnum.StrongUpperDoorClosed:
@@ -1576,14 +1585,14 @@ namespace DNA.CastleMinerZ.UI
 									AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0), BlockTypeEnum.StrongLowerDoorOpenZ);
 								}
 								SoundManager.Instance.PlayInstance("Click");
-								goto IL_0E9C;
+								goto IL_0EDE;
 							}
 							case BlockTypeEnum.StrongLowerDoorOpenZ:
 								this.UseDoor(BlockTypeEnum.StrongLowerDoorClosedZ, BlockTypeEnum.StrongUpperDoorClosed);
-								goto IL_0E9C;
+								goto IL_0EDE;
 							case BlockTypeEnum.StrongLowerDoorOpenX:
 								this.UseDoor(BlockTypeEnum.StrongLowerDoorClosedX, BlockTypeEnum.StrongUpperDoorClosed);
-								goto IL_0E9C;
+								goto IL_0EDE;
 							case BlockTypeEnum.StrongUpperDoorOpen:
 							{
 								DoorOpenCloseMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex, false);
@@ -1598,16 +1607,16 @@ namespace DNA.CastleMinerZ.UI
 									AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0), BlockTypeEnum.StrongLowerDoorClosedZ);
 								}
 								SoundManager.Instance.PlayInstance("Click");
-								goto IL_0E9C;
+								goto IL_0EDE;
 							}
 							default:
 								switch (blockTypeEnum)
 								{
 								case BlockTypeEnum.EnemySpawnAltar:
-									goto IL_0E9C;
+									goto IL_0EDE;
 								case BlockTypeEnum.TeleportStation:
 									this.PlayerInventory.ShowTeleportStationMenu(this.ConstructionProbe._worldIndex + Vector3.Zero);
-									goto IL_0E9C;
+									goto IL_0EDE;
 								}
 								break;
 							}
@@ -1616,7 +1625,7 @@ namespace DNA.CastleMinerZ.UI
 						SoundManager.Instance.PlayInstance("Error");
 					}
 				}
-				IL_0E9C:
+				IL_0EDE:
 				if (this.ActiveInventoryItem == null)
 				{
 					this.LocalPlayer.UsingTool = false;

@@ -34,6 +34,18 @@ namespace DNA.CastleMinerZ.Inventory
 			this.worth = pWorth;
 		}
 
+		private PossibleLootType(EnemyTypeEnum pItemID, int pSeed, int pLootTier, int pMinDepth, int pMaxDepth, int pMinCount, int pMaxCount, int pWorth)
+		{
+			this.enemyType = pItemID;
+			this.weight = pSeed;
+			this.lootTier = pLootTier;
+			this.minWorldLevel = pMinDepth;
+			this.maxWorldLevel = pMaxDepth;
+			this.minQuantity = pMinCount;
+			this.maxQuantity = pMaxCount;
+			this.worth = pWorth;
+		}
+
 		private PossibleLootType(EnemyTypeEnum pItemID, int pSeed, int pLootTier, int pMinDepth, int pMaxDepth, int pMinCount, int pMaxCount, int pWorth, PackageBitFlags pPackageFlags)
 		{
 			this.enemyType = pItemID;
@@ -42,18 +54,6 @@ namespace DNA.CastleMinerZ.Inventory
 			this.minWorldLevel = pMinDepth;
 			this.maxWorldLevel = pMaxDepth;
 			this.packageFlags = pPackageFlags;
-			this.minQuantity = pMinCount;
-			this.maxQuantity = pMaxCount;
-			this.worth = pWorth;
-		}
-
-		private PossibleLootType(EnemyTypeEnum pItemID, int pSeed, int pLootTier, int pMinDepth, int pMaxDepth, int pMinCount, int pMaxCount, int pWorth)
-		{
-			this.enemyType = pItemID;
-			this.weight = pSeed;
-			this.lootTier = pLootTier;
-			this.minWorldLevel = pMinDepth;
-			this.maxWorldLevel = pMaxDepth;
 			this.minQuantity = pMinCount;
 			this.maxQuantity = pMaxCount;
 			this.worth = pWorth;

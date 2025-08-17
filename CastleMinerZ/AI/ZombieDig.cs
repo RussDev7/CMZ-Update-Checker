@@ -119,13 +119,13 @@ namespace DNA.CastleMinerZ.AI
 			float y = vector.Y;
 			vector.Y = 0f;
 			float num2 = vector.Length();
+			int num3 = ((entity.SpawnSource != null) ? 48 : 16);
+			int num4 = ((entity.SpawnSource != null) ? 24 : 8);
 			if (num2 < 1f && Math.Abs(y) < 1.5f)
 			{
 				entity.StateMachine.ChangeState(entity.EType.GetAttackState(entity));
 				return;
 			}
-			int num3 = ((entity.SpawnSource != null) ? 48 : 16);
-			int num4 = ((entity.SpawnSource != null) ? 24 : 8);
 			if (entity.Target.IsLocal && (num2 > (float)num3 || Math.Abs(y) > (float)num4))
 			{
 				entity.StateMachine.ChangeState(entity.EType.GetGiveUpState(entity));

@@ -412,48 +412,28 @@ namespace DNA.CastleMinerZ.Inventory
 				return true;
 			}
 			InventoryItem inventoryItem = null;
-			int num = 0;
-			while (num < 2147483647 && amount > 0)
+			int upperBound = this.TrayManager.Trays.GetUpperBound(0);
+			int upperBound2 = this.TrayManager.Trays.GetUpperBound(1);
+			for (int i = 0; i <= upperBound; i++)
 			{
-				num = int.MaxValue;
-				int upperBound = this.TrayManager.Trays.GetUpperBound(0);
-				int upperBound2 = this.TrayManager.Trays.GetUpperBound(1);
-				bool flag = false;
-				for (int i = 0; i <= upperBound; i++)
+				for (int j = 0; j <= upperBound2; j++)
 				{
-					for (int j = 0; j <= upperBound2; j++)
+					inventoryItem = this.TrayManager.Trays[i, j];
+					this.DeductFromItemStack(ref inventoryItem, ref amount, itemClass);
+					if (inventoryItem == null)
 					{
-						inventoryItem = this.TrayManager.Trays[i, j];
-						if (inventoryItem != null && inventoryItem.ItemClass == itemClass && inventoryItem.StackCount < num)
-						{
-							num = inventoryItem.StackCount;
-							flag = true;
-							break;
-						}
-						inventoryItem = null;
-					}
-					if (flag)
-					{
-						break;
+						this.TrayManager.Trays[i, j] = null;
 					}
 				}
-				this.DeductFromItemStack(ref inventoryItem, ref amount, itemClass);
 			}
-			num = 0;
-			while (num < 2147483647 && amount > 0)
+			for (int k = 0; k < this.Inventory.Length; k++)
 			{
-				num = int.MaxValue;
-				for (int k = 0; k < this.Inventory.Length; k++)
-				{
-					inventoryItem = this.Inventory[k];
-					if (inventoryItem != null && inventoryItem.ItemClass == itemClass && inventoryItem.StackCount < num)
-					{
-						num = inventoryItem.StackCount;
-						break;
-					}
-					inventoryItem = null;
-				}
+				inventoryItem = this.Inventory[k];
 				this.DeductFromItemStack(ref inventoryItem, ref amount, itemClass);
+				if (inventoryItem == null)
+				{
+					this.Inventory[k] = null;
+				}
 			}
 			return amount <= 0;
 		}
@@ -753,6 +733,7 @@ namespace DNA.CastleMinerZ.Inventory
 				InventoryItem itemFromCurrentTray = this.TrayManager.GetItemFromCurrentTray(this.SelectedInventoryIndex);
 				if (itemFromCurrentTray == null)
 				{
+					this._player.currentAnimState = Player.AnimationState.Unshouldered;
 					return this._bareHands;
 				}
 				return itemFromCurrentTray;

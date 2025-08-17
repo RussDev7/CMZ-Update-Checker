@@ -7,10 +7,10 @@ using System.Runtime.Versioning;
 using System.Security;
 using System.Security.Permissions;
 
-[assembly: AssemblyVersion("1.9.8.0")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyTitle("CastleMiner Z")]
+[assembly: AssemblyVersion("1.9.9.4")]
 [assembly: AssemblyProduct("CastleMiner Z")]
+[assembly: AssemblyTitle("CastleMiner Z")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyCompany("DigitalDNA Games")]
 [assembly: AssemblyCopyright("Copyright © DigitalDNA Games 2011")]
 [assembly: AssemblyTrademark("")]

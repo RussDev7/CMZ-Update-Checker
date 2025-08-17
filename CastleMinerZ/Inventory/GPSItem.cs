@@ -115,7 +115,8 @@ namespace DNA.CastleMinerZ.Inventory
 				return;
 			}
 			InventoryItemIDs id = this.GPSClass.ID;
-			switch (id)
+			InventoryItemIDs inventoryItemIDs = id;
+			switch (inventoryItemIDs)
 			{
 			case InventoryItemIDs.GPS:
 				if (controller.Use.Pressed)
@@ -158,11 +159,12 @@ namespace DNA.CastleMinerZ.Inventory
 					if (this.InflictDamage())
 					{
 						hud.PlayerInventory.Remove(this);
+						return;
 					}
 				}
 				break;
 			default:
-				if (id != InventoryItemIDs.SpawnBasic)
+				if (inventoryItemIDs != InventoryItemIDs.SpawnBasic)
 				{
 					return;
 				}
@@ -190,7 +192,6 @@ namespace DNA.CastleMinerZ.Inventory
 					});
 					BroadcastTextMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, text2);
 					CastleMinerZGame.Instance.GameScreen.TeleportToLocation(this._pointToLocation, false);
-					return;
 				}
 				break;
 			}

@@ -2737,6 +2737,10 @@ namespace DNA.CastleMinerZ.Terrain
 		{
 			if (this.IsReady)
 			{
+				if (!CastleMinerZGame.Instance.IsActive)
+				{
+					this.BuildPendingVertexBuffers();
+				}
 				this.StepInitialization();
 				ChunkCache.Instance.Update(gameTime);
 				return;

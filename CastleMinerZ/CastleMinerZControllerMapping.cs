@@ -50,11 +50,12 @@ namespace DNA.CastleMinerZ
 
 		public override void ClearAllControls()
 		{
-			foreach (Trigger trigger in new Trigger[]
+			Trigger[] array = new Trigger[]
 			{
 				this.PrevoiusItem, this.NextItem, this.DropQuickbarItem, this.BlockUI, this.Activate, this.Shoulder, this.Use, this.Reload, this.PlayersScreen, this.FlyMode,
 				this.TextChat, this.SwitchTray, this.Slot1, this.Slot2, this.Slot3, this.Slot4, this.Slot5, this.Slot6, this.Slot7, this.Slot8
-			})
+			};
+			for (int i = 0; i < array.Length; i++)
 			{
 			}
 			base.ClearAllControls();

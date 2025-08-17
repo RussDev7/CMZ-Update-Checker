@@ -319,6 +319,10 @@ namespace DNA.CastleMinerZ
 
 			public void Update(float dt)
 			{
+				if (this.RemoveAfterDraw)
+				{
+					return;
+				}
 				this.TimeLeft -= dt;
 				if (this.TimeLeft < 0f)
 				{
@@ -377,12 +381,15 @@ namespace DNA.CastleMinerZ
 						{
 							SoundManager.Instance.PlayInstance("BulletHitDirt", this.SoundEmitter);
 						}
-						ParticleEmitter particleEmitter = TracerManager._smokeEffect.CreateEmitter(CastleMinerZGame.Instance);
-						particleEmitter.Reset();
-						particleEmitter.Emitting = true;
-						TracerManager.Instance.Scene.Children.Add(particleEmitter);
-						particleEmitter.LocalPosition = vector;
-						particleEmitter.DrawPriority = 900;
+						if (CastleMinerZGame.Instance.IsActive)
+						{
+							ParticleEmitter particleEmitter = TracerManager._smokeEffect.CreateEmitter(CastleMinerZGame.Instance);
+							particleEmitter.Reset();
+							particleEmitter.Emitting = true;
+							TracerManager.Instance.Scene.Children.Add(particleEmitter);
+							particleEmitter.LocalPosition = vector;
+							particleEmitter.DrawPriority = 900;
+						}
 					}
 					else if (!this.PlayedSound)
 					{
@@ -472,34 +479,37 @@ namespace DNA.CastleMinerZ
 							SoundManager.Instance.PlayInstance("BulletHitDirt", this.SoundEmitter);
 						}
 						Vector3 intersection = TracerManager.Tracer.tp.GetIntersection();
-						if (shootableEnemy is DragonClientEntity)
+						if (CastleMinerZGame.Instance.IsActive)
 						{
-							ParticleEmitter particleEmitter2 = TracerManager._dragonFlashEffect.CreateEmitter(CastleMinerZGame.Instance);
-							particleEmitter2.Reset();
-							particleEmitter2.Emitting = true;
-							TracerManager.Instance.Scene.Children.Add(particleEmitter2);
-							particleEmitter2.LocalPosition = intersection;
-							particleEmitter2.DrawPriority = 900;
+							if (shootableEnemy is DragonClientEntity)
+							{
+								ParticleEmitter particleEmitter2 = TracerManager._dragonFlashEffect.CreateEmitter(CastleMinerZGame.Instance);
+								particleEmitter2.Reset();
+								particleEmitter2.Emitting = true;
+								TracerManager.Instance.Scene.Children.Add(particleEmitter2);
+								particleEmitter2.LocalPosition = intersection;
+								particleEmitter2.DrawPriority = 900;
+							}
+							ParticleEmitter particleEmitter3 = TracerManager._smokeEffect.CreateEmitter(CastleMinerZGame.Instance);
+							particleEmitter3.Reset();
+							particleEmitter3.Emitting = true;
+							TracerManager.Instance.Scene.Children.Add(particleEmitter3);
+							particleEmitter3.LocalPosition = intersection;
+							particleEmitter3.DrawPriority = 900;
+							if (shootableEnemy == null)
+							{
+								ParticleEmitter particleEmitter4 = TracerManager._sparkEffect.CreateEmitter(CastleMinerZGame.Instance);
+								particleEmitter4.Reset();
+								particleEmitter4.Emitting = true;
+								TracerManager.Instance.Scene.Children.Add(particleEmitter4);
+								particleEmitter4.LocalPosition = intersection;
+								particleEmitter4.DrawPriority = 900;
+							}
 						}
-						ParticleEmitter particleEmitter3 = TracerManager._smokeEffect.CreateEmitter(CastleMinerZGame.Instance);
-						particleEmitter3.Reset();
-						particleEmitter3.Emitting = true;
-						TracerManager.Instance.Scene.Children.Add(particleEmitter3);
-						particleEmitter3.LocalPosition = intersection;
-						particleEmitter3.DrawPriority = 900;
 						BlockTypeEnum blockWithChanges = BlockTerrain.Instance.GetBlockWithChanges(TracerManager.Tracer.tp._worldIndex);
 						if (blockWithChanges == BlockTypeEnum.TNT || blockWithChanges == BlockTypeEnum.C4)
 						{
 							DetonateExplosiveMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, TracerManager.Tracer.tp._worldIndex, true, (blockWithChanges == BlockTypeEnum.TNT) ? ExplosiveTypes.TNT : ExplosiveTypes.C4);
-						}
-						if (shootableEnemy == null)
-						{
-							ParticleEmitter particleEmitter4 = TracerManager._sparkEffect.CreateEmitter(CastleMinerZGame.Instance);
-							particleEmitter4.Reset();
-							particleEmitter4.Emitting = true;
-							TracerManager.Instance.Scene.Children.Add(particleEmitter4);
-							particleEmitter4.LocalPosition = intersection;
-							particleEmitter4.DrawPriority = 900;
 						}
 					}
 				}

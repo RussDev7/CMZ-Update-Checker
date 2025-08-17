@@ -563,7 +563,7 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public static void AddDigEffects(Vector3 position)
 		{
-			if (TracerManager.Instance != null)
+			if (TracerManager.Instance != null && CastleMinerZGame.Instance.IsActive)
 			{
 				Scene scene = TracerManager.Instance.Scene;
 				if (scene == null || scene.Children == null)
@@ -607,7 +607,7 @@ namespace DNA.CastleMinerZ.Inventory
 			AudioEmitter audioEmitter = new AudioEmitter();
 			audioEmitter.Position = Position;
 			SoundManager.Instance.PlayInstance("Explosion", audioEmitter);
-			if (TracerManager.Instance != null)
+			if (TracerManager.Instance != null && CastleMinerZGame.Instance.IsActive)
 			{
 				Scene scene = TracerManager.Instance.Scene;
 				if (scene == null || scene.Children == null)

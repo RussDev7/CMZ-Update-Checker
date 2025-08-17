@@ -44,8 +44,8 @@ namespace DNA.CastleMinerZ
 			CastleMinerZGame.GlobalSettings.Load();
 			Version version = Assembly.GetExecutingAssembly().GetName().Version;
 			NetworkSession.StaticProvider = new SteamNetworkSessionStaticProvider(steamOnlineServices.SteamAPI);
-			NetworkSession.NetworkSessionServices = new SteamNetworkSessionServices(steamOnlineServices.SteamAPI, guid, 3);
-			IssueReporter issueReporter = new OnlineIssueReporter(OnlineServices.Instance.Username, "na", guid, DateTime.UtcNow, version);
+			NetworkSession.NetworkSessionServices = new SteamNetworkSessionServices(steamOnlineServices.SteamAPI, guid, 4);
+			IssueReporter issueReporter = new BacktraceIssueReporter(version, steamOnlineServices.SteamUserID, steamOnlineServices.Username);
 			CastleMinerZGame.TrialMode = false;
 			DNAGame.Run<CastleMinerZGame>(issueReporter, steamOnlineServices);
 			steamOnlineServices.Dispose();

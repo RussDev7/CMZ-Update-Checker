@@ -288,9 +288,9 @@ namespace DNA.CastleMinerZ.AI
 			{
 				player = this.GetNetworkPlayerByName(msg.PlayerName);
 			}
+			bool flag = false;
 			if (player != null)
 			{
-				bool flag = false;
 				if (player.IsLocal)
 				{
 					flag = true;

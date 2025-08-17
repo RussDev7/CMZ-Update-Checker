@@ -198,10 +198,6 @@ namespace DNA.CastleMinerZ.Terrain
 			spawnData.maxTier = Math.Min(spawnData.maxTier + difficultyData.spawnersDefeated, 10);
 		}
 
-		private void GetNearbyPlayerList()
-		{
-		}
-
 		private SpawnData GetSpawnData(string spawnID)
 		{
 			SpawnData spawnDataById = this.GetSpawnDataById(spawnID);
@@ -536,8 +532,6 @@ namespace DNA.CastleMinerZ.Terrain
 
 		private BlockTypeEnum _currentBlockType;
 
-		private Spawner.SpawnLightState _spawnLightState;
-
 		private List<int> _enemyIDs = new List<int>();
 
 		private byte _lastPlayerID;
@@ -561,13 +555,6 @@ namespace DNA.CastleMinerZ.Terrain
 			public int spawnersDefeated;
 
 			public GameDifficultyTypes difficultyMode;
-		}
-
-		public enum SpawnLightState
-		{
-			None,
-			On,
-			Off
 		}
 
 		public enum SpawnState

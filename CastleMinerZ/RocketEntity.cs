@@ -54,14 +54,17 @@ namespace DNA.CastleMinerZ
 				this._timeToFullGuidance = 1f;
 				this._timeToMaxSpeed = 1f;
 			}
-			this._smokeEmitter = RocketEntity.sSmokeTrailEffect.CreateEmitter(CastleMinerZGame.Instance);
-			this._smokeEmitter.Emitting = false;
-			this._smokeEmitter.DrawPriority = 900;
-			base.Children.Add(this._smokeEmitter);
-			this._fireEmitter = RocketEntity.sFireTrailEffect.CreateEmitter(CastleMinerZGame.Instance);
-			this._fireEmitter.Emitting = false;
-			this._fireEmitter.DrawPriority = 900;
-			base.Children.Add(this._fireEmitter);
+			if (CastleMinerZGame.Instance.IsActive)
+			{
+				this._smokeEmitter = RocketEntity.sSmokeTrailEffect.CreateEmitter(CastleMinerZGame.Instance);
+				this._smokeEmitter.Emitting = false;
+				this._smokeEmitter.DrawPriority = 900;
+				base.Children.Add(this._smokeEmitter);
+				this._fireEmitter = RocketEntity.sFireTrailEffect.CreateEmitter(CastleMinerZGame.Instance);
+				this._fireEmitter.Emitting = false;
+				this._fireEmitter.DrawPriority = 900;
+				base.Children.Add(this._fireEmitter);
+			}
 			this.Collidee = false;
 			this.Collider = false;
 		}
@@ -80,7 +83,7 @@ namespace DNA.CastleMinerZ
 			base.OnUpdate(gameTime);
 			if (!this._active)
 			{
-				if (!this._fireEmitter.HasActiveParticles && !this._smokeEmitter.HasActiveParticles)
+				if (this._fireEmitter != null && this._smokeEmitter != null && !this._fireEmitter.HasActiveParticles && !this._smokeEmitter.HasActiveParticles)
 				{
 					this._fireEmitter.RemoveFromParent();
 					this._smokeEmitter.RemoveFromParent();
@@ -102,8 +105,11 @@ namespace DNA.CastleMinerZ
 			Vector3 vector6;
 			if (this._runningTime >= 0f)
 			{
-				this._fireEmitter.Emitting = true;
-				this._smokeEmitter.Emitting = true;
+				if (this._fireEmitter != null && this._smokeEmitter != null)
+				{
+					this._fireEmitter.Emitting = true;
+					this._smokeEmitter.Emitting = true;
+				}
 				Vector3 vector4;
 				if (this._guided)
 				{
@@ -200,8 +206,11 @@ namespace DNA.CastleMinerZ
 			this._audioEmitter.Position = base.LocalPosition;
 			if (flag2)
 			{
-				this._fireEmitter.Emitting = false;
-				this._smokeEmitter.Emitting = false;
+				if (this._fireEmitter != null && this._smokeEmitter != null)
+				{
+					this._fireEmitter.Emitting = false;
+					this._smokeEmitter.Emitting = false;
+				}
 				this._rocket.RemoveFromParent();
 				this._rocket = null;
 				this._active = false;

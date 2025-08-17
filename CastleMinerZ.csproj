@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{4B1F19FE-15B1-49E4-83A9-5807E0F8BE15}</ProjectGuid>
+    <ProjectGuid>{9499F95A-3408-4D03-83A4-D5F19F561B07}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>DNA</RootNamespace>
     <AssemblyName>CastleMinerZ</AssemblyName>
@@ -36,6 +36,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Backtrace">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\CastleMiner Z\Backtrace.dll</HintPath>
+    </Reference>
     <Reference Include="DNA.Common">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\CastleMiner Z\DNA.Common.dll</HintPath>
     </Reference>
@@ -50,9 +53,6 @@
     <Reference Include="Microsoft.Xna.Framework.Game" />
     <Reference Include="Microsoft.Xna.Framework.Graphics" />
     <Reference Include="Microsoft.Xna.Framework.Xact" />
-    <Reference Include="Services.Client">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\CastleMiner Z\Services.Client.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -148,6 +148,7 @@
     <Compile Include="CastleMinerZ\AI\ZombieGiveUp.cs" />
     <Compile Include="CastleMinerZ\AI\ZombieHit.cs" />
     <Compile Include="CastleMinerZ\AI\ZombieTryAttack.cs" />
+    <Compile Include="CastleMinerZ\BacktraceIssueReporter.cs" />
     <Compile Include="CastleMinerZ\BlasterShot.cs" />
     <Compile Include="CastleMinerZ\BlockEntity.cs" />
     <Compile Include="CastleMinerZ\CastleMinerDrawPriority.cs" />
@@ -469,6 +470,9 @@
     <EmbeddedResource Include="CastleMinerZ\Globalization\Strings.resources" />
     <EmbeddedResource Include="CastleMinerZ\OptionsForm.resources" />
     <EmbeddedResource Include="Microsoft.Xna.Framework.RuntimeProfile" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

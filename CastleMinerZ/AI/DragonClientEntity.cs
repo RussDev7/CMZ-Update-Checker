@@ -205,24 +205,27 @@ namespace DNA.CastleMinerZ.AI
 				float heading = DragonBaseState.GetHeading(base.LocalToWorld.Forward, 0f);
 				base.LocalRotation = Quaternion.CreateFromYawPitchRoll(heading, 0f, 0f);
 				int damageType = (int)this.EType.DamageType;
-				ParticleEmitter particleEmitter = DragonClientEntity.ParticlePackages[damageType]._flashEffect.CreateEmitter(CastleMinerZGame.Instance);
-				particleEmitter.Reset();
-				particleEmitter.Emitting = true;
-				particleEmitter.LocalPosition = Vector3.Zero;
-				particleEmitter.DrawPriority = 900;
-				base.Children.Add(particleEmitter);
-				particleEmitter = DragonClientEntity.ParticlePackages[damageType]._firePuffEffect.CreateEmitter(CastleMinerZGame.Instance);
-				particleEmitter.Reset();
-				particleEmitter.Emitting = true;
-				particleEmitter.LocalPosition = Vector3.Zero;
-				particleEmitter.DrawPriority = 900;
-				base.Children.Add(particleEmitter);
-				particleEmitter = DragonClientEntity.ParticlePackages[damageType]._smokePuffEffect.CreateEmitter(CastleMinerZGame.Instance);
-				particleEmitter.Reset();
-				particleEmitter.Emitting = true;
-				particleEmitter.LocalPosition = Vector3.Zero;
-				particleEmitter.DrawPriority = 900;
-				base.Children.Add(particleEmitter);
+				if (CastleMinerZGame.Instance.IsActive)
+				{
+					ParticleEmitter particleEmitter = DragonClientEntity.ParticlePackages[damageType]._flashEffect.CreateEmitter(CastleMinerZGame.Instance);
+					particleEmitter.Reset();
+					particleEmitter.Emitting = true;
+					particleEmitter.LocalPosition = Vector3.Zero;
+					particleEmitter.DrawPriority = 900;
+					base.Children.Add(particleEmitter);
+					particleEmitter = DragonClientEntity.ParticlePackages[damageType]._firePuffEffect.CreateEmitter(CastleMinerZGame.Instance);
+					particleEmitter.Reset();
+					particleEmitter.Emitting = true;
+					particleEmitter.LocalPosition = Vector3.Zero;
+					particleEmitter.DrawPriority = 900;
+					base.Children.Add(particleEmitter);
+					particleEmitter = DragonClientEntity.ParticlePackages[damageType]._smokePuffEffect.CreateEmitter(CastleMinerZGame.Instance);
+					particleEmitter.Reset();
+					particleEmitter.Emitting = true;
+					particleEmitter.LocalPosition = Vector3.Zero;
+					particleEmitter.DrawPriority = 900;
+					base.Children.Add(particleEmitter);
+				}
 			}
 		}
 

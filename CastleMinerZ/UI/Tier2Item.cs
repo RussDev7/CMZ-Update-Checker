@@ -115,28 +115,32 @@ namespace DNA.CastleMinerZ.UI
 						{
 							SoundManager.Instance.PlayInstance("craft");
 							CastleMinerZPlayerStats.ItemStats itemStats = CastleMinerZGame.Instance.PlayerStats.GetItemStats(this._items[this._selectedIndex].Result.ItemClass.ID);
-							if (!inputManager.Keyboard.IsKeyDown(Keys.LeftShift))
+							if (CastleMinerZGame.Instance.GameMode != GameModeTypes.Creative)
 							{
-								if (!inputManager.Keyboard.IsKeyDown(Keys.RightShift))
+								if (!inputManager.Keyboard.IsKeyDown(Keys.LeftShift))
+								{
+									if (!inputManager.Keyboard.IsKeyDown(Keys.RightShift))
+									{
+										goto IL_0140;
+									}
+								}
+								while (this.Inventory.CanCraft(this._items[this._selectedIndex]))
 								{
 									this.Inventory.Craft(this._items[this._selectedIndex]);
 									itemStats.Crafted++;
 									if (CastleMinerZGame.Instance.GameMode == GameModeTypes.Endurance)
 									{
 										CastleMinerZGame.Instance.PlayerStats.TotalItemsCrafted++;
-										goto IL_018F;
 									}
-									goto IL_018F;
 								}
+								goto IL_019F;
 							}
-							while (this.Inventory.CanCraft(this._items[this._selectedIndex]))
+							IL_0140:
+							this.Inventory.Craft(this._items[this._selectedIndex]);
+							itemStats.Crafted++;
+							if (CastleMinerZGame.Instance.GameMode == GameModeTypes.Endurance)
 							{
-								this.Inventory.Craft(this._items[this._selectedIndex]);
-								itemStats.Crafted++;
-								if (CastleMinerZGame.Instance.GameMode == GameModeTypes.Endurance)
-								{
-									CastleMinerZGame.Instance.PlayerStats.TotalItemsCrafted++;
-								}
+								CastleMinerZGame.Instance.PlayerStats.TotalItemsCrafted++;
 							}
 						}
 						else
@@ -146,7 +150,7 @@ namespace DNA.CastleMinerZ.UI
 					}
 				}
 			}
-			IL_018F:
+			IL_019F:
 			return this._scaledLocation.Contains(inputManager.Mouse.Position);
 		}
 

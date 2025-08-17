@@ -264,6 +264,9 @@ namespace DNA.CastleMinerZ.UI
 
 		private static Size[] _screenSizes = new Size[]
 		{
+			new Size(3840, 2160),
+			new Size(4096, 2160),
+			new Size(2560, 1440),
 			new Size(1920, 1200),
 			new Size(1920, 1080),
 			new Size(1680, 1050),

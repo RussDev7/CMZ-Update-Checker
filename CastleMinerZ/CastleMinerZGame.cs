@@ -201,7 +201,7 @@ namespace DNA.CastleMinerZ
 			this.PauseDuringGuide = false;
 			this.StartGamerServices();
 			TaskDispatcher.Create();
-			base.Window.AllowUserResizing = false;
+			base.Window.AllowUserResizing = true;
 			this.IsFullScreen = CastleMinerZGame.GlobalSettings.FullScreen;
 		}
 
@@ -245,6 +245,8 @@ namespace DNA.CastleMinerZ
 			this.SetAudio(1f, 0f, 0f, 0f);
 			ControllerImages.Load(base.Content);
 			this.MenuBackdrop = base.Content.Load<Texture2D>("UI\\Screens\\MenuBack");
+			this.CMZREAd = base.Content.Load<Texture2D>("UI\\CMZREAd");
+			this.CMZREAdSel = base.Content.Load<Texture2D>("UI\\CMZREAdSelected");
 			this._terrain = new BlockTerrain(base.GraphicsDevice, base.Content);
 			InventoryItem.Initalize(base.Content);
 			BlockEntity.Initialize();
@@ -497,7 +499,7 @@ namespace DNA.CastleMinerZ
 		public void HostGame(bool local, SuccessCallback callback)
 		{
 			NetworkSessionProperties networkSessionProperties = new NetworkSessionProperties();
-			networkSessionProperties[0] = new int?(3);
+			networkSessionProperties[0] = new int?(4);
 			networkSessionProperties[2] = new int?((int)this.GameMode);
 			networkSessionProperties[1] = new int?(0);
 			networkSessionProperties[3] = new int?((int)this.Difficulty);
@@ -512,10 +514,10 @@ namespace DNA.CastleMinerZ
 			}
 			if (local)
 			{
-				base.HostGame(NetworkSessionType.Local, networkSessionProperties, new SignedInGamer[] { DNA.Drawing.UI.Screen.CurrentGamer }, 2, false, true, callback, "CastleMinerZSteam", 3, this.CurrentWorld.ServerMessage, null);
+				base.HostGame(NetworkSessionType.Local, networkSessionProperties, new SignedInGamer[] { DNA.Drawing.UI.Screen.CurrentGamer }, 2, false, true, callback, "CastleMinerZSteam", 4, this.CurrentWorld.ServerMessage, null);
 				return;
 			}
-			base.HostGame(NetworkSessionType.PlayerMatch, networkSessionProperties, new SignedInGamer[] { DNA.Drawing.UI.Screen.CurrentGamer }, 16, false, true, callback, "CastleMinerZSteam", 3, this.CurrentWorld.ServerMessage, string.IsNullOrWhiteSpace(this.CurrentWorld.ServerPassword) ? null : this.CurrentWorld.ServerPassword);
+			base.HostGame(NetworkSessionType.PlayerMatch, networkSessionProperties, new SignedInGamer[] { DNA.Drawing.UI.Screen.CurrentGamer }, 16, false, true, callback, "CastleMinerZSteam", 4, this.CurrentWorld.ServerMessage, string.IsNullOrWhiteSpace(this.CurrentWorld.ServerPassword) ? null : this.CurrentWorld.ServerPassword);
 		}
 
 		public void GetNetworkSessions(CastleMinerZGame.GotSessionsCallback callback)
@@ -525,7 +527,7 @@ namespace DNA.CastleMinerZ
 			{
 				networkSessionProperties[i] = null;
 			}
-			networkSessionProperties[0] = new int?(3);
+			networkSessionProperties[0] = new int?(4);
 			networkSessionProperties[1] = new int?(0);
 			QuerySessionInfo querySessionInfo = new QuerySessionInfo();
 			querySessionInfo._props = networkSessionProperties;
@@ -980,6 +982,14 @@ namespace DNA.CastleMinerZ
 
 		private void _processKickMessage(DNA.Net.Message message, LocalNetworkGamer localGamer)
 		{
+			KickMessage kickMessage = (KickMessage)message;
+			if (kickMessage.PlayerID == this.MyNetworkGamer.Id)
+			{
+				this.EndGame(true);
+				this._waitForWorldInfo = null;
+				string text = (kickMessage.Banned ? Strings.You_have_been_banned_by_the_host_of_this_session_ : Strings.You_have_been_kicked_by_the_host_of_the_session_);
+				this.FrontEnd.ShowUIDialog(Strings.Session_Ended, text, false);
+			}
 		}
 
 		private void _processRequestWorldInfoMessage(DNA.Net.Message message, LocalNetworkGamer localGamer, bool isEcho)
@@ -1248,7 +1258,7 @@ namespace DNA.CastleMinerZ
 			LocalNetworkGamer myNetworkGamer = this.MyNetworkGamer;
 			bool isHost = myNetworkGamer.IsHost;
 			bool flag = message.Sender == myNetworkGamer;
-			if (3 != base.CurrentNetworkSession.SessionProperties[0].Value)
+			if (4 != base.CurrentNetworkSession.SessionProperties[0].Value)
 			{
 				this.EndGame(false);
 				this.FrontEnd.ShowUIDialog(Strings.Session_Ended, Strings.You_have_a_different_version_of_the_game_than_the_host_, false);
@@ -1266,7 +1276,7 @@ namespace DNA.CastleMinerZ
 			{
 				this._processAddExplosionEffectsMessage(message);
 			}
-			else if (message is KickMessage)
+			else if (message is KickMessage && !isHost)
 			{
 				this._processKickMessage(message, myNetworkGamer);
 			}
@@ -1414,15 +1424,13 @@ namespace DNA.CastleMinerZ
 				if (!localNetworkGamer.IsHost)
 				{
 					this.GameMode = (GameModeTypes)base.CurrentNetworkSession.SessionProperties[2].Value;
-					int? num = base.CurrentNetworkSession.SessionProperties[4];
-					int num2 = 1;
-					if ((num.GetValueOrDefault() == num2) & (num != null))
+					if (base.CurrentNetworkSession.SessionProperties[4] == 1)
 					{
 						this.InfiniteResourceMode = true;
 					}
 					else
 					{
-						this.InfiniteResourceMode = true;
+						this.InfiniteResourceMode = false;
 					}
 				}
 				else
@@ -1563,7 +1571,7 @@ namespace DNA.CastleMinerZ
 			base.EndDraw();
 		}
 
-		public const int NetworkVersion = 3;
+		public const int NetworkVersion = 4;
 
 		public const string NetworkGameName = "CastleMinerZSteam";
 
@@ -1620,6 +1628,10 @@ namespace DNA.CastleMinerZ
 		public Texture2D MenuBackdrop;
 
 		public byte TerrainServerID;
+
+		public Texture2D CMZREAd;
+
+		public Texture2D CMZREAdSel;
 
 		public bool DrawingReflection;
 

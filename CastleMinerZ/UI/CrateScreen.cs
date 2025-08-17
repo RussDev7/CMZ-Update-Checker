@@ -814,7 +814,7 @@ namespace DNA.CastleMinerZ.UI
 					SoundManager.Instance.PlayInstance("Click");
 				}
 			}
-			if (controller.PressedDPad.Down || (controller.CurrentState.ThumbSticks.Left.Y < -0.2f && controller.LastState.ThumbSticks.Left.Y >= -0.2f) || inputManager.Keyboard.WasKeyPressed(Keys.Down))
+			if (controller.PressedDPad.Down || (controller.CurrentState.ThumbSticks.Left.Y < -0.2f && controller.LastState.ThumbSticks.Left.Y >= -0.2f) || inputManager.Keyboard.WasKeyPressed(Keys.Up))
 			{
 				this._mousePointerActive = false;
 				this.waitScrollTimer.Reset();
@@ -825,7 +825,7 @@ namespace DNA.CastleMinerZ.UI
 				}
 				CrateFocusMessage.Send((LocalNetworkGamer)this._game.LocalPlayer.Gamer, this._selectorInCrateGrid ? this.CurrentCrate.Location : IntVector3.Zero, this._selectedLocation);
 			}
-			if (controller.PressedDPad.Up || (controller.CurrentState.ThumbSticks.Left.Y > 0.2f && controller.LastState.ThumbSticks.Left.Y <= 0.2f) || inputManager.Keyboard.WasKeyPressed(Keys.Up))
+			if (controller.PressedDPad.Up || (controller.CurrentState.ThumbSticks.Left.Y > 0.2f && controller.LastState.ThumbSticks.Left.Y <= 0.2f) || inputManager.Keyboard.WasKeyPressed(Keys.Down))
 			{
 				this._mousePointerActive = false;
 				this.waitScrollTimer.Reset();
@@ -974,6 +974,11 @@ namespace DNA.CastleMinerZ.UI
 							this._selectedLocation.X = this.hoverItem % 4;
 						}
 						this._selectorInCrateGrid = true;
+						if (this._selectedLocation != this._lastSelectedLocation)
+						{
+							this._lastSelectedLocation = this._selectedLocation;
+							CrateFocusMessage.Send((LocalNetworkGamer)this._game.LocalPlayer.Gamer, this.CurrentCrate.Location, this._selectedLocation);
+						}
 					}
 					else
 					{
@@ -1152,6 +1157,8 @@ namespace DNA.CastleMinerZ.UI
 		private InGameHUD _hud;
 
 		private Point _selectedLocation = new Point(0, 0);
+
+		private Point _lastSelectedLocation = new Point(0, 0);
 
 		private InventoryItem _holdingItem;
 

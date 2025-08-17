@@ -360,7 +360,7 @@ namespace DNA.CastleMinerZ
 		private void JoinGame(AvailableNetworkSession session, string password)
 		{
 			this._uiGroup.PushScreen(this._connectingScreen);
-			this._game.JoinGame(session, new SignedInGamer[] { Screen.CurrentGamer }, new SuccessCallbackWithMessage(this.JoinCallback), "CastleMinerZSteam", 3, password);
+			this._game.JoinGame(session, new SignedInGamer[] { Screen.CurrentGamer }, new SuccessCallbackWithMessage(this.JoinCallback), "CastleMinerZSteam", 4, password);
 		}
 
 		private void GetPasswordForInvitedGameCallback(ClientSessionInfo sessionInfo, object context, SetPasswordForInvitedGameCallback callback)
@@ -406,7 +406,7 @@ namespace DNA.CastleMinerZ
 		public void JoinInvitedGame(ulong lobbyId)
 		{
 			this._uiGroup.PushScreen(this._connectingScreen);
-			this._game.JoinInvitedGame(lobbyId, 3, "CastleMinerZSteam", new SignedInGamer[] { Screen.CurrentGamer }, new SuccessCallbackWithMessage(this.JoinCallback), new GetPasswordForInvitedGameCallback(this.GetPasswordForInvitedGameCallback));
+			this._game.JoinInvitedGame(lobbyId, 4, "CastleMinerZSteam", new SignedInGamer[] { Screen.CurrentGamer }, new SuccessCallbackWithMessage(this.JoinCallback), new GetPasswordForInvitedGameCallback(this.GetPasswordForInvitedGameCallback));
 		}
 
 		private void _startScreen_AfterDraw(object sender, DrawEventArgs e)

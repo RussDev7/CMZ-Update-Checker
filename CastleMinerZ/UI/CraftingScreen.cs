@@ -87,9 +87,6 @@ namespace DNA.CastleMinerZ.UI
 			this._selectedItemDescriptionText.Color = CMZColors.MenuBlue;
 			this._selectedItemIngredientsText = new TextRegionElement(this._game._smallFont);
 			this._selectedItemIngredientsText.Color = CMZColors.MenuBlue;
-			this._selectedItemNameText.Size = new Vector2(215f, 50f);
-			this._selectedItemDescriptionText.Size = new Vector2(215f, 60f);
-			this._selectedItemIngredientsText.Size = new Vector2(72f, 130f);
 			this._selectedItemNameText.OutlineWidth = (this._selectedItemDescriptionText.OutlineWidth = 0);
 			this._selectedItemIngredientsText.OutlineWidth = 0;
 			Tier1Item tier1Item = new Tier1Item(Strings.Materials, new Vector2(14f, 29f), this._game._uiSprites["MaterialsIcon"], this);
@@ -164,6 +161,9 @@ namespace DNA.CastleMinerZ.UI
 			{
 				this._tier1Items[i].Draw(spriteBatch);
 			}
+			this._selectedItemNameText.Size = new Vector2(150f * Screen.Adjuster.ScaleFactor.Y, 10f * Screen.Adjuster.ScaleFactor.Y);
+			this._selectedItemDescriptionText.Size = new Vector2(150f * Screen.Adjuster.ScaleFactor.Y, 60f * Screen.Adjuster.ScaleFactor.Y);
+			this._selectedItemIngredientsText.Size = new Vector2(72f * Screen.Adjuster.ScaleFactor.Y, 130f * Screen.Adjuster.ScaleFactor.Y);
 			this._selectedItemNameText.Draw(device, spriteBatch, gameTime, false);
 			this._selectedItemDescriptionText.Draw(device, spriteBatch, gameTime, false);
 			this._selectedItemIngredientsText.Draw(device, spriteBatch, gameTime, false);
@@ -690,6 +690,7 @@ namespace DNA.CastleMinerZ.UI
 
 		protected override void OnUpdate(DNAGame game, GameTime gameTime)
 		{
+			InGameHUD.Instance.ExternalUpdate(game, gameTime);
 			if (this._hud.LocalPlayer.Dead)
 			{
 				if (this._holdingItem != null)

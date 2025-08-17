@@ -335,9 +335,9 @@ namespace DNA.CastleMinerZ.AI
 
 		public float StartingHealth;
 
-		public int StartingDistanceLimit;
-
 		public int SpawnRadius;
+
+		public int StartingDistanceLimit;
 
 		public float AttackAnimationSpeed = 1f;
 

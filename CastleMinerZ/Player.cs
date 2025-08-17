@@ -609,7 +609,13 @@ namespace DNA.CastleMinerZ
 		private void ProcessChangeCarriedItemMessage(Message message)
 		{
 			ChangeCarriedItemMessage changeCarriedItemMessage = (ChangeCarriedItemMessage)message;
-			this.PutItemInHand(changeCarriedItemMessage.ItemID);
+			InventoryItem.InventoryItemClass @class = InventoryItem.GetClass(changeCarriedItemMessage.ItemID);
+			if (@class != null)
+			{
+				this.PutItemInHand(changeCarriedItemMessage.ItemID);
+				return;
+			}
+			this.PutItemInHand(InventoryItemIDs.BareHands);
 		}
 
 		private void ProcessDigMessage(Message message)
@@ -623,7 +629,7 @@ namespace DNA.CastleMinerZ
 			{
 				SoundManager.Instance.PlayInstance(this.GetDigSound(digMessage.BlockType), this.SoundEmitter);
 			}
-			if (base.Scene != null && BlockTerrain.Instance.RegionIsLoaded(digMessage.Location))
+			if (base.Scene != null && BlockTerrain.Instance.RegionIsLoaded(digMessage.Location) && CastleMinerZGame.Instance.IsActive)
 			{
 				ParticleEmitter particleEmitter = Player._sparkEffect.CreateEmitter(CastleMinerZGame.Instance);
 				particleEmitter.Reset();
@@ -1971,7 +1977,7 @@ namespace DNA.CastleMinerZ
 
 		public AudioEmitter SoundEmitter = new AudioEmitter();
 
-		public static ParticleEffect _smokeEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\DigSmokeEffect");
+		public static ParticleEffect _smokeEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\SmokeEffect");
 
 		private static ParticleEffect _sparkEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\SparksEffect");
 
@@ -2009,7 +2015,7 @@ namespace DNA.CastleMinerZ
 
 		private bool usingAnimationPlaying;
 
-		private Player.AnimationState currentAnimState;
+		public Player.AnimationState currentAnimState;
 
 		private float underWaterSpeed = 1.894f;
 
@@ -2039,7 +2045,7 @@ namespace DNA.CastleMinerZ
 			}
 		}
 
-		private enum AnimationState
+		public enum AnimationState
 		{
 			Unshouldered,
 			Shouldering,

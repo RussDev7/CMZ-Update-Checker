@@ -604,6 +604,10 @@ namespace DNA.CastleMinerZ
 				this._uiGroup.PushScreen(this._optionsScreen);
 				return;
 			case InGameMenuItems.Quit:
+				if (this._game.LocalPlayer.Dead)
+				{
+					InGameHUD.Instance.RespawnPlayer();
+				}
 				if (this._localPlayer.Gamer.IsHost)
 				{
 					this._localPlayer.SaveInventory(this._game.SaveDevice, this._game.CurrentWorld.SavePath);

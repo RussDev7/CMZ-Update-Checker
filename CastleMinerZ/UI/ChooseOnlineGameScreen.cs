@@ -136,7 +136,7 @@ namespace DNA.CastleMinerZ.UI
 		public override void OnPushed()
 		{
 			this._currentSort = ChooseOnlineGameScreen.SortBy.NumFriendsDesc;
-			this._hostDiscovery = NetworkSession.GetHostDiscoveryObject("CastleMinerZSteam", 3, DNAGame.GetLocalID());
+			this._hostDiscovery = NetworkSession.GetHostDiscoveryObject("CastleMinerZSteam", 4, DNAGame.GetLocalID());
 			base.OnPushed();
 		}
 

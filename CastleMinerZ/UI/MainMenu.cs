@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text;
 using DNA.CastleMinerZ.Globalization;
 using DNA.Drawing;
@@ -32,6 +33,7 @@ namespace DNA.CastleMinerZ.UI
 
 		protected override void OnDraw(GraphicsDevice device, SpriteBatch spriteBatch, GameTime gameTime)
 		{
+			this.adRect = new Rectangle((int)((float)Screen.Adjuster.ScreenRect.Width * 0.6f), Screen.Adjuster.ScreenRect.Height / 4, (int)((float)CastleMinerZGame.Instance.CMZREAd.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)CastleMinerZGame.Instance.CMZREAd.Height * Screen.Adjuster.ScaleFactor.Y));
 			Rectangle screenRect = Screen.Adjuster.ScreenRect;
 			spriteBatch.Begin();
 			string gamertag = Screen.CurrentGamer.Gamertag;
@@ -41,12 +43,29 @@ namespace DNA.CastleMinerZ.UI
 			int num2 = this._game.Logo.Height * num / this._game.Logo.Width;
 			this._game.Logo.Draw(spriteBatch, new Rectangle(Screen.Adjuster.ScreenRect.Center.X - num / 2, 0, num, num2), Color.White);
 			this.DrawArea = new Rectangle?(new Rectangle(0, (int)((double)num2 * 0.75), (int)((float)(Screen.Adjuster.ScreenRect.Width / 2) - 125f * Screen.Adjuster.ScaleFactor.X), Screen.Adjuster.ScreenRect.Height - num2));
+			spriteBatch.Draw(this.adSel ? CastleMinerZGame.Instance.CMZREAdSel : CastleMinerZGame.Instance.CMZREAd, this.adRect, Color.White);
 			spriteBatch.End();
 			base.OnDraw(device, spriteBatch, gameTime);
 		}
 
 		protected override bool OnPlayerInput(InputManager input, GameController controller, KeyboardInput chatpad, GameTime gameTime)
 		{
+			if (this.adRect.Contains(input.Mouse.Position))
+			{
+				this.adSel = true;
+				if (input.Mouse.LeftButtonReleased && this.adSel)
+				{
+					Process.Start(new ProcessStartInfo
+					{
+						FileName = "https://store.steampowered.com/app/3631230/CastleMiner_Z__Resurrection/",
+						UseShellExecute = true
+					});
+				}
+			}
+			else if (!input.Mouse.LeftButtonDown)
+			{
+				this.adSel = false;
+			}
 			if (controller.PressedButtons.B || controller.PressedButtons.Back || input.Keyboard.WasKeyPressed(Keys.Escape))
 			{
 				this._game.FrontEnd.ConfirmExit();
@@ -71,6 +90,10 @@ namespace DNA.CastleMinerZ.UI
 		private MenuItemElement joinOnlineControl;
 
 		private MenuItemElement purchaseControl;
+
+		private Rectangle adRect;
+
+		private bool adSel;
 
 		private StringBuilder builder = new StringBuilder();
 

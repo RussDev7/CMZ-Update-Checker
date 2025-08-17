@@ -21,14 +21,17 @@ namespace DNA.CastleMinerZ
 			base.BlendState = BlendState.Additive;
 			base.DepthStencilState = DepthStencilState.DepthRead;
 			this.DrawPriority = 300;
-			this._smokeEmitter = ExplosiveFlashEntity._smokeEffect.CreateEmitter(CastleMinerZGame.Instance);
-			this._smokeEmitter.Emitting = true;
-			this._smokeEmitter.DrawPriority = 900;
-			this._smokeEmitter.LocalPosition += new Vector3(0f, 1f, 0f);
-			this._smokeEmitter.LocalRotation = Quaternion.CreateFromAxisAngle(Vector3.Left, Angle.FromDegrees(90f).Radians);
-			base.Children.Add(this._smokeEmitter);
-			this._flashingModel = new ExplosiveFlashEntity.FlashingModelEntity();
-			base.Children.Add(this._flashingModel);
+			if (CastleMinerZGame.Instance.IsActive)
+			{
+				this._smokeEmitter = ExplosiveFlashEntity._smokeEffect.CreateEmitter(CastleMinerZGame.Instance);
+				this._smokeEmitter.Emitting = true;
+				this._smokeEmitter.DrawPriority = 900;
+				this._smokeEmitter.LocalPosition += new Vector3(0f, 1f, 0f);
+				this._smokeEmitter.LocalRotation = Quaternion.CreateFromAxisAngle(Vector3.Left, Angle.FromDegrees(90f).Radians);
+				base.Children.Add(this._smokeEmitter);
+				this._flashingModel = new ExplosiveFlashEntity.FlashingModelEntity();
+				base.Children.Add(this._flashingModel);
+			}
 		}
 
 		public override void Update(DNAGame game, GameTime gameTime)

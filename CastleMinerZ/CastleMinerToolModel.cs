@@ -95,7 +95,7 @@ namespace DNA.CastleMinerZ
 						}
 						else
 						{
-							dnaeffect.DiffuseColor = Color.Gray;
+							dnaeffect.DiffuseColor = this.DiffuseColor;
 						}
 						if (dnaeffect.Parameters["LightDirection1"] != null)
 						{
@@ -117,6 +117,8 @@ namespace DNA.CastleMinerZ
 		public Color ToolColor2 = Color.Gray;
 
 		public Color EmissiveColor = Color.Black;
+
+		public Color DiffuseColor = Color.Gray;
 
 		public bool AttachedToLocalPlayer;
 

@@ -108,9 +108,9 @@ namespace DNA.CastleMinerZ
 			string text;
 			if (args.Count > 0 && (text = args[0].ToLower()) != null)
 			{
-				if (<PrivateImplementationDetails>{04695B4C-2F66-44ED-8880-3DFE08E62914}.$$method0x6000ae7-1 == null)
+				if (<PrivateImplementationDetails>{DF2B40B0-404E-4155-9011-DBEE096B8228}.$$method0x600031a-1 == null)
 				{
-					<PrivateImplementationDetails>{04695B4C-2F66-44ED-8880-3DFE08E62914}.$$method0x6000ae7-1 = new Dictionary<string, int>(8)
+					<PrivateImplementationDetails>{DF2B40B0-404E-4155-9011-DBEE096B8228}.$$method0x600031a-1 = new Dictionary<string, int>(8)
 					{
 						{ "english", 0 },
 						{ "french", 1 },
@@ -123,7 +123,7 @@ namespace DNA.CastleMinerZ
 					};
 				}
 				int num;
-				if (<PrivateImplementationDetails>{04695B4C-2F66-44ED-8880-3DFE08E62914}.$$method0x6000ae7-1.TryGetValue(text, out num))
+				if (<PrivateImplementationDetails>{DF2B40B0-404E-4155-9011-DBEE096B8228}.$$method0x600031a-1.TryGetValue(text, out num))
 				{
 					switch (num)
 					{

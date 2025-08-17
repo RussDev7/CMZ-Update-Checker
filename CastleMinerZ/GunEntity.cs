@@ -1,7 +1,6 @@
 ﻿using System;
 using DNA.CastleMinerZ.Inventory;
 using DNA.Drawing;
-using DNA.Drawing.Effects;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -34,17 +33,6 @@ namespace DNA.CastleMinerZ
 			base.EnableDefaultLighting();
 		}
 
-		protected override bool SetEffectParams(ModelMesh mesh, Effect effect, GameTime gameTime, Matrix world, Matrix view, Matrix projection)
-		{
-			bool flag = base.SetEffectParams(mesh, effect, gameTime, world, view, projection);
-			DNAEffect dnaeffect = effect as DNAEffect;
-			if (dnaeffect != null)
-			{
-				dnaeffect.DiffuseColor = this.DiffuseColor;
-			}
-			return flag;
-		}
-
 		public override void Draw(GraphicsDevice device, GameTime gameTime, Matrix view, Matrix projection)
 		{
 			base.CalculateLighting();
@@ -60,7 +48,5 @@ namespace DNA.CastleMinerZ
 		private ModelEntity _muzzleFlash;
 
 		private Random rand = new Random();
-
-		public Color DiffuseColor = Color.Gray;
 	}
 }
