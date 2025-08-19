@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{9499F95A-3408-4D03-83A4-D5F19F561B07}</ProjectGuid>
+    <ProjectGuid>{69F591E0-2F0B-4BC9-B021-6883EE7C5FB2}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>DNA</RootNamespace>
     <AssemblyName>CastleMinerZ</AssemblyName>

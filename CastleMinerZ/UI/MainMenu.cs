@@ -52,8 +52,12 @@ namespace DNA.CastleMinerZ.UI
 		{
 			if (this.adRect.Contains(input.Mouse.Position))
 			{
+				if (input.Mouse.LeftButtonPressed)
+				{
+					this.adClicked = true;
+				}
 				this.adSel = true;
-				if (input.Mouse.LeftButtonReleased && this.adSel)
+				if (input.Mouse.LeftButtonReleased && this.adSel && this.adClicked)
 				{
 					Process.Start(new ProcessStartInfo
 					{
@@ -65,6 +69,10 @@ namespace DNA.CastleMinerZ.UI
 			else if (!input.Mouse.LeftButtonDown)
 			{
 				this.adSel = false;
+			}
+			if (!input.Mouse.LeftButtonDown)
+			{
+				this.adClicked = false;
 			}
 			if (controller.PressedButtons.B || controller.PressedButtons.Back || input.Keyboard.WasKeyPressed(Keys.Escape))
 			{
@@ -98,5 +106,7 @@ namespace DNA.CastleMinerZ.UI
 		private StringBuilder builder = new StringBuilder();
 
 		private Rectangle _nameRect = Rectangle.Empty;
+
+		private bool adClicked;
 	}
 }

@@ -96,9 +96,9 @@ namespace DNA.CastleMinerZ.UI
 			this._fullScreen.TextColor = Color.White;
 			this._fullScreen.Font = this._controlsFont;
 			base.Children.Add(this._fullScreen);
-			base.Children.Add(this._resolutionDropList);
 			base.Children.Add(this._textureQualityDropList);
 			base.Children.Add(this._viewDistanceDropList);
+			base.Children.Add(this._resolutionDropList);
 			this._restartDialog = new PCDialogScreen(Strings.Texture_Quality, Strings.You_must_restart_the_game_to_apply_these_changes_, null, false, this._game.DialogScreenImage, this._game._myriadMed, true, this._game.ButtonFrame);
 			this._restartDialog.UseDefaultValues();
 		}
@@ -194,10 +194,9 @@ namespace DNA.CastleMinerZ.UI
 				int num = (int)(50f * Screen.Adjuster.ScaleFactor.Y);
 				Point point = new Point(0, (int)(75f * Screen.Adjuster.ScaleFactor.Y));
 				int num2 = (int)(215f * Screen.Adjuster.ScaleFactor.Y);
-				this._musicVolumeLabel.LocalPosition = point;
-				this._musicVolumeTrack.LocalPosition = new Point(point.X + num2, point.Y + (int)(10f * Screen.Adjuster.ScaleFactor.Y));
-				this._musicVolumeTrack.Size = new Size((int)(185f * Screen.Adjuster.ScaleFactor.Y), num);
-				this._musicMute.LocalPosition = new Point(point.X + num2 * 2, point.Y + (int)(5f * Screen.Adjuster.ScaleFactor.Y));
+				this._resolutionLabel.LocalPosition = point;
+				this._resolutionDropList.LocalPosition = new Point(point.X + num2, point.Y);
+				this._fullScreen.LocalPosition = new Point(point.X + num2 * 2, point.Y);
 				point.Y += num;
 				this._autoClimb.LocalPosition = point;
 				point.X += num2;
@@ -215,9 +214,10 @@ namespace DNA.CastleMinerZ.UI
 				this._textureQualityLabel.LocalPosition = point;
 				this._textureQualityDropList.LocalPosition = new Point(point.X + num2, point.Y);
 				point.Y += num;
-				this._resolutionLabel.LocalPosition = point;
-				this._resolutionDropList.LocalPosition = new Point(point.X + num2, point.Y);
-				this._fullScreen.LocalPosition = new Point(point.X + num2 * 2, point.Y);
+				this._musicVolumeLabel.LocalPosition = point;
+				this._musicVolumeTrack.LocalPosition = new Point(point.X + num2, point.Y + (int)(10f * Screen.Adjuster.ScaleFactor.Y));
+				this._musicVolumeTrack.Size = new Size((int)(185f * Screen.Adjuster.ScaleFactor.Y), num);
+				this._musicMute.LocalPosition = new Point(point.X + num2 * 2, point.Y + (int)(5f * Screen.Adjuster.ScaleFactor.Y));
 			}
 			base.OnUpdate(game, gameTime);
 		}
@@ -264,9 +264,24 @@ namespace DNA.CastleMinerZ.UI
 
 		private static Size[] _screenSizes = new Size[]
 		{
-			new Size(3840, 2160),
+			new Size(7680, 4320),
+			new Size(6016, 3384),
+			new Size(5120, 2880),
+			new Size(5120, 2160),
+			new Size(4096, 2304),
 			new Size(4096, 2160),
+			new Size(3840, 2400),
+			new Size(3840, 2160),
+			new Size(3840, 1600),
+			new Size(3440, 1440),
+			new Size(3200, 1800),
+			new Size(2880, 1620),
+			new Size(2736, 1824),
+			new Size(2560, 1600),
 			new Size(2560, 1440),
+			new Size(2560, 1080),
+			new Size(2304, 1440),
+			new Size(2048, 1080),
 			new Size(1920, 1200),
 			new Size(1920, 1080),
 			new Size(1680, 1050),

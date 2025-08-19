@@ -8,8 +8,8 @@ using System.Runtime.CompilerServices;
 
 namespace DNA.CastleMinerZ.Globalization
 {
-	[GeneratedCode("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
 	[DebuggerNonUserCode]
+	[GeneratedCode("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
 	[CompilerGenerated]
 	internal class Strings
 	{

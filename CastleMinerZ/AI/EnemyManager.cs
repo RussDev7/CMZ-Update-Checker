@@ -998,19 +998,37 @@ namespace DNA.CastleMinerZ.AI
 						{
 							Vector3 vector2 = worldPosition - this.zombieProbe._start;
 							Vector3 vector3 = Vector3.Cross(vector, vector2);
-							if (vector3.LengthSquared() > 0.0001f)
+							float num5 = ((baseZombie2.EType.EType == EnemyTypeEnum.FELGUARD || baseZombie2.EType.EType == EnemyTypeEnum.HELL_LORD) ? 0.001f : 0.0001f);
+							if (vector3.LengthSquared() > num5)
 							{
 								vector3.Normalize();
 								vector3 = Vector3.Cross(vector3, vector);
-								if (Math.Abs(Vector3.Dot(worldPosition, vector3) - Vector3.Dot(this.zombieProbe._start, vector3)) > 3f)
+								float num6 = ((baseZombie2.EType.EType == EnemyTypeEnum.FELGUARD || baseZombie2.EType.EType == EnemyTypeEnum.HELL_LORD) ? 9f : 3f);
+								if (Math.Abs(Vector3.Dot(worldPosition, vector3) - Vector3.Dot(this.zombieProbe._start, vector3)) > num6)
 								{
 									continue;
 								}
 							}
-							BoundingBox playerAABB = baseZombie2.PlayerAABB;
-							playerAABB.Min += worldPosition;
-							playerAABB.Max += worldPosition;
-							this.zombieProbe.TestBoundBox(playerAABB);
+							if (baseZombie2.EType.EType == EnemyTypeEnum.FELGUARD || baseZombie2.EType.EType == EnemyTypeEnum.HELL_LORD)
+							{
+								BoundingBox playerAABB = baseZombie2.PlayerAABB;
+								playerAABB.Min.X = -1.5f;
+								playerAABB.Min.Z = -1.5f;
+								playerAABB.Max.X = 1.5f;
+								playerAABB.Max.Z = 1.5f;
+								playerAABB.Min.Y = 0f;
+								playerAABB.Max.Y = 6f;
+								playerAABB.Min += worldPosition;
+								playerAABB.Max += worldPosition;
+								this.zombieProbe.TestBoundBox(playerAABB);
+							}
+							else
+							{
+								BoundingBox playerAABB2 = baseZombie2.PlayerAABB;
+								playerAABB2.Min += worldPosition;
+								playerAABB2.Max += worldPosition;
+								this.zombieProbe.TestBoundBox(playerAABB2);
+							}
 							if (this.zombieProbe._collides && num3 != this.zombieProbe._inT)
 							{
 								float chanceOfBulletStrike = baseZombie2.EType.ChanceOfBulletStrike;
