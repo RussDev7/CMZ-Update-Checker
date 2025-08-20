@@ -440,6 +440,11 @@ namespace DNA.CastleMinerZ
 
 		protected override void OnExiting(object sender, EventArgs args)
 		{
+			if (this.GameMode == GameModeTypes.Endurance && this.FrontEnd.WorldManager != null)
+			{
+				this.FrontEnd.WorldManager.Delete(this.CurrentWorld);
+				this.SaveDevice.Flush();
+			}
 			this._exitRequested = true;
 			while (this._waitToExit || this._saving)
 			{

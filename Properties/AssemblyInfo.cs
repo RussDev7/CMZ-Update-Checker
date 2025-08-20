@@ -7,7 +7,7 @@ using System.Runtime.Versioning;
 using System.Security;
 using System.Security.Permissions;
 
-[assembly: AssemblyVersion("1.9.9.5")]
+[assembly: AssemblyVersion("1.9.9.6")]
 [assembly: AssemblyProduct("CastleMiner Z")]
 [assembly: AssemblyTitle("CastleMiner Z")]
 [assembly: AssemblyDescription("")]

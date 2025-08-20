@@ -61,7 +61,7 @@ namespace DNA.CastleMinerZ.UI
 				{
 					Process.Start(new ProcessStartInfo
 					{
-						FileName = "https://store.steampowered.com/app/3631230/CastleMiner_Z__Resurrection/",
+						FileName = "https://store.steampowered.com/app/3631230?utm_source=CMZ_INGAMEAD",
 						UseShellExecute = true
 					});
 				}
