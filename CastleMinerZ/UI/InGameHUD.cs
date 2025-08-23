@@ -127,20 +127,20 @@ namespace DNA.CastleMinerZ.UI
 
 		public void RespawnPlayer()
 		{
-			Player player = null;
-			float num = float.MaxValue;
-			foreach (NetworkGamer networkGamer in this._game.CurrentNetworkSession.RemoteGamers)
+			Player closetPlayer = null;
+			float closetDist = float.MaxValue;
+			foreach (NetworkGamer gamer in this._game.CurrentNetworkSession.RemoteGamers)
 			{
-				if (networkGamer.Tag != null)
+				if (gamer.Tag != null)
 				{
-					Player player2 = (Player)networkGamer.Tag;
-					if (player2 != null && !player2.Dead)
+					Player player = (Player)gamer.Tag;
+					if (player != null && !player.Dead)
 					{
-						float num2 = player2.LocalPosition.LengthSquared();
-						if (num2 < num)
+						float dist = player.LocalPosition.LengthSquared();
+						if (dist < closetDist)
 						{
-							player = player2;
-							num = num2;
+							closetPlayer = player;
+							closetDist = dist;
 						}
 					}
 				}
@@ -155,7 +155,7 @@ namespace DNA.CastleMinerZ.UI
 					return;
 				}
 			}
-			else if (player == null)
+			else if (closetPlayer == null)
 			{
 				if (this._game.LocalPlayer.Gamer.IsHost && !this._game.IsOnlineGame)
 				{
@@ -166,7 +166,7 @@ namespace DNA.CastleMinerZ.UI
 			else
 			{
 				this.RefreshPlayer();
-				this._game.GameScreen.TeleportToLocation(player.LocalPosition, false);
+				this._game.GameScreen.TeleportToLocation(closetPlayer.LocalPosition, false);
 				if (this._game.IsOnlineGame)
 				{
 					BroadcastTextMessage.Send(this._game.MyNetworkGamer, this.LocalPlayer.Gamer.Gamertag + " " + Strings.Has_Respawned);
@@ -176,20 +176,20 @@ namespace DNA.CastleMinerZ.UI
 
 		public bool AllPlayersDead()
 		{
-			Player player = null;
-			foreach (NetworkGamer networkGamer in this._game.CurrentNetworkSession.RemoteGamers)
+			Player closetPlayer = null;
+			foreach (NetworkGamer gamer in this._game.CurrentNetworkSession.RemoteGamers)
 			{
-				if (networkGamer.Tag != null)
+				if (gamer.Tag != null)
 				{
-					Player player2 = (Player)networkGamer.Tag;
-					if (player2 != null && !player2.Dead)
+					Player player = (Player)gamer.Tag;
+					if (player != null && !player.Dead)
 					{
-						player = player2;
+						closetPlayer = player;
 						break;
 					}
 				}
 			}
-			return player == null;
+			return closetPlayer == null;
 		}
 
 		public void RefreshPlayer()
@@ -274,27 +274,27 @@ namespace DNA.CastleMinerZ.UI
 
 		private void DrawAcheivement(GraphicsDevice device, SpriteBatch spriteBatch)
 		{
-			Rectangle screenRect = Screen.Adjuster.ScreenRect;
-			Sprite sprite = this._game._uiSprites["AwardEnd"];
-			Sprite sprite2 = this._game._uiSprites["AwardCenter"];
-			Sprite sprite3 = this._game._uiSprites["AwardCircle"];
-			float num = (float)sprite.Width;
-			Vector2 vector = new Vector2(79f, 10f);
-			Vector2 vector2 = new Vector2(79f, 37f);
-			float num2 = vector.X - num;
-			Vector2 vector3 = this._game._systemFont.MeasureString(this._achievementText1);
-			Vector2 vector4 = this._game._systemFont.MeasureString(this._achievementText2);
-			float num3 = Math.Max(vector3.X, vector4.X) + num2;
-			float num4 = num3 + num * 2f;
-			float num5 = (float)screenRect.Center.X - num4 / 2f;
-			int num6 = (int)this.acheimentDisplayLocation.Y;
-			this._achievementLocation = new Vector2(num5, (float)num6);
-			sprite.Draw(spriteBatch, new Vector2(num5, (float)num6), Color.White);
-			sprite.Draw(spriteBatch, new Vector2(num5 + num3 + num, (float)num6), 1f, Color.White, SpriteEffects.FlipHorizontally);
-			sprite2.Draw(spriteBatch, new Rectangle((int)(num5 + num) - 1, num6, (int)(num3 + 2f), sprite2.Height), Color.White);
-			sprite3.Draw(spriteBatch, new Vector2(num5, (float)num6), Color.White);
-			spriteBatch.DrawString(this._game._systemFont, this._achievementText1, vector + this._achievementLocation, new Color(219, 219, 219));
-			spriteBatch.DrawString(this._game._systemFont, this._achievementText2, vector2 + this._achievementLocation, new Color(219, 219, 219));
+			Rectangle titleSafe = Screen.Adjuster.ScreenRect;
+			Sprite endSprite = this._game._uiSprites["AwardEnd"];
+			Sprite centerSprite = this._game._uiSprites["AwardCenter"];
+			Sprite circle = this._game._uiSprites["AwardCircle"];
+			float endWidth = (float)endSprite.Width;
+			Vector2 textOffset = new Vector2(79f, 10f);
+			Vector2 textOffset2 = new Vector2(79f, 37f);
+			float indent = textOffset.X - endWidth;
+			Vector2 fontSize = this._game._systemFont.MeasureString(this._achievementText1);
+			Vector2 fontSize2 = this._game._systemFont.MeasureString(this._achievementText2);
+			float barwidth = Math.Max(fontSize.X, fontSize2.X) + indent;
+			float hsize = barwidth + endWidth * 2f;
+			float hpos = (float)titleSafe.Center.X - hsize / 2f;
+			int yloc = (int)this.acheimentDisplayLocation.Y;
+			this._achievementLocation = new Vector2(hpos, (float)yloc);
+			endSprite.Draw(spriteBatch, new Vector2(hpos, (float)yloc), Color.White);
+			endSprite.Draw(spriteBatch, new Vector2(hpos + barwidth + endWidth, (float)yloc), 1f, Color.White, SpriteEffects.FlipHorizontally);
+			centerSprite.Draw(spriteBatch, new Rectangle((int)(hpos + endWidth) - 1, yloc, (int)(barwidth + 2f), centerSprite.Height), Color.White);
+			circle.Draw(spriteBatch, new Vector2(hpos, (float)yloc), Color.White);
+			spriteBatch.DrawString(this._game._systemFont, this._achievementText1, textOffset + this._achievementLocation, new Color(219, 219, 219));
+			spriteBatch.DrawString(this._game._systemFont, this._achievementText2, textOffset2 + this._achievementLocation, new Color(219, 219, 219));
 		}
 
 		private void EquipActiveItem()
@@ -312,8 +312,8 @@ namespace DNA.CastleMinerZ.UI
 			this.LocalPlayer.Equip(this.ActiveInventoryItem);
 			if (this.ActiveInventoryItem is GunInventoryItem)
 			{
-				GunInventoryItem gunInventoryItem = (GunInventoryItem)this.ActiveInventoryItem;
-				this.LocalPlayer.ReloadSound = gunInventoryItem.GunClass.ReloadSound;
+				GunInventoryItem gitm = (GunInventoryItem)this.ActiveInventoryItem;
+				this.LocalPlayer.ReloadSound = gitm.GunClass.ReloadSound;
 			}
 		}
 
@@ -374,33 +374,33 @@ namespace DNA.CastleMinerZ.UI
 			{
 				return;
 			}
-			Rectangle rectangle = new Rectangle(0, 0, Screen.Adjuster.ScreenRect.Width, Screen.Adjuster.ScreenRect.Height);
+			Rectangle titleSafe = new Rectangle(0, 0, Screen.Adjuster.ScreenRect.Width, Screen.Adjuster.ScreenRect.Height);
 			spriteBatch.Begin();
 			if (!this.LocalPlayer.Dead && this.LocalPlayer.ShoulderedAnimState)
 			{
-				GunInventoryItemClass gunInventoryItemClass = this.ActiveInventoryItem.ItemClass as GunInventoryItemClass;
-				if (gunInventoryItemClass != null && gunInventoryItemClass.Scoped)
+				GunInventoryItemClass activeGunClass = this.ActiveInventoryItem.ItemClass as GunInventoryItemClass;
+				if (activeGunClass != null && activeGunClass.Scoped)
 				{
 					this.LocalPlayer.Avatar.Visible = false;
-					if (gunInventoryItemClass is RocketLauncherGuidedInventoryItemClass)
+					if (activeGunClass is RocketLauncherGuidedInventoryItemClass)
 					{
-						RocketLauncherGuidedInventoryItemClass rocketLauncherGuidedInventoryItemClass = (RocketLauncherGuidedInventoryItemClass)gunInventoryItemClass;
-						if (rocketLauncherGuidedInventoryItemClass.LockedOnToDragon)
+						RocketLauncherGuidedInventoryItemClass rocketLauncherClass = (RocketLauncherGuidedInventoryItemClass)activeGunClass;
+						if (rocketLauncherClass.LockedOnToDragon)
 						{
-							spriteBatch.Draw(this._missileLock, rocketLauncherGuidedInventoryItemClass.LockedOnSpriteLocation, Color.Red);
+							spriteBatch.Draw(this._missileLock, rocketLauncherClass.LockedOnSpriteLocation, Color.Red);
 						}
 						else
 						{
-							spriteBatch.Draw(this._missileLocking, rocketLauncherGuidedInventoryItemClass.LockedOnSpriteLocation, Color.Lime);
+							spriteBatch.Draw(this._missileLocking, rocketLauncherClass.LockedOnSpriteLocation, Color.Lime);
 						}
 					}
-					Size size = new Size((int)((float)this._sniperScope.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._sniperScope.Height * Screen.Adjuster.ScaleFactor.Y));
-					Vector2 vector = new Vector2((float)(rectangle.Center.X - size.Width / 2), (float)(rectangle.Center.Y - size.Height / 2));
-					spriteBatch.Draw(this._sniperScope, new Rectangle((int)vector.X, (int)vector.Y, size.Width, size.Height), Color.White);
-					spriteBatch.Draw(this._game.DummyTexture, new Rectangle(0, 0, Screen.Adjuster.ScreenRect.Width, (int)vector.Y), Color.Black);
-					spriteBatch.Draw(this._game.DummyTexture, new Rectangle(0, (int)vector.Y + size.Height, Screen.Adjuster.ScreenRect.Width, (int)vector.Y), Color.Black);
-					spriteBatch.Draw(this._game.DummyTexture, new Rectangle(0, (int)vector.Y, (int)vector.X, size.Height), Color.Black);
-					spriteBatch.Draw(this._game.DummyTexture, new Rectangle(Screen.Adjuster.ScreenRect.Width - (int)vector.X, (int)vector.Y, (int)vector.X, size.Height), Color.Black);
+					Size scopeSize = new Size((int)((float)this._sniperScope.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._sniperScope.Height * Screen.Adjuster.ScaleFactor.Y));
+					Vector2 location = new Vector2((float)(titleSafe.Center.X - scopeSize.Width / 2), (float)(titleSafe.Center.Y - scopeSize.Height / 2));
+					spriteBatch.Draw(this._sniperScope, new Rectangle((int)location.X, (int)location.Y, scopeSize.Width, scopeSize.Height), Color.White);
+					spriteBatch.Draw(this._game.DummyTexture, new Rectangle(0, 0, Screen.Adjuster.ScreenRect.Width, (int)location.Y), Color.Black);
+					spriteBatch.Draw(this._game.DummyTexture, new Rectangle(0, (int)location.Y + scopeSize.Height, Screen.Adjuster.ScreenRect.Width, (int)location.Y), Color.Black);
+					spriteBatch.Draw(this._game.DummyTexture, new Rectangle(0, (int)location.Y, (int)location.X, scopeSize.Height), Color.Black);
+					spriteBatch.Draw(this._game.DummyTexture, new Rectangle(Screen.Adjuster.ScreenRect.Width - (int)location.X, (int)location.Y, (int)location.X, scopeSize.Height), Color.Black);
 				}
 				else
 				{
@@ -412,9 +412,9 @@ namespace DNA.CastleMinerZ.UI
 				this.LocalPlayer.Avatar.Visible = true;
 			}
 			spriteBatch.End();
-			if (rectangle != this._prevTitleSafe)
+			if (titleSafe != this._prevTitleSafe)
 			{
-				this.console.Location = new Vector2((float)rectangle.Left, (float)rectangle.Top);
+				this.console.Location = new Vector2((float)titleSafe.Left, (float)titleSafe.Top);
 				this._chatScreen.YLoc = this.console.Bounds.Bottom + 25f;
 			}
 			this.console.Draw(device, spriteBatch, gameTime, false);
@@ -425,11 +425,11 @@ namespace DNA.CastleMinerZ.UI
 			else
 			{
 				spriteBatch.Begin();
-				int num = (int)((1f - this.PlayerHealth) * 120f);
-				int num2 = (int)((1f - this.PlayerHealth) * 102f);
-				if (num > 0)
+				int transparency = (int)((1f - this.PlayerHealth) * 120f);
+				int red = (int)((1f - this.PlayerHealth) * 102f);
+				if (transparency > 0)
 				{
-					spriteBatch.Draw(this._game.DummyTexture, new Rectangle(0, 0, Screen.Adjuster.ScreenRect.Width, Screen.Adjuster.ScreenRect.Height), new Color(num2, 0, 0, num));
+					spriteBatch.Draw(this._game.DummyTexture, new Rectangle(0, 0, Screen.Adjuster.ScreenRect.Width, Screen.Adjuster.ScreenRect.Height), new Color(red, 0, 0, transparency));
 				}
 				if (this.LocalPlayer.PercentSubmergedLava > 0f)
 				{
@@ -439,186 +439,186 @@ namespace DNA.CastleMinerZ.UI
 				{
 					spriteBatch.Draw(this._game.DummyTexture, new Rectangle(0, 0, Screen.Adjuster.ScreenRect.Width, Screen.Adjuster.ScreenRect.Height), Color.Red);
 				}
-				Rectangle rectangle2 = new Rectangle(0, 0, this._damageArrow.Width, this._damageArrow.Height);
-				Vector2 vector2 = new Vector2((float)(this._damageArrow.Width / 2), (float)(this._damageArrow.Height + 150));
-				Vector2 vector3 = new Vector2((float)rectangle.Center.X, (float)rectangle.Center.Y);
-				int i = 0;
-				while (i < this._damageIndicator.Count)
+				Rectangle sourceRectangle = new Rectangle(0, 0, this._damageArrow.Width, this._damageArrow.Height);
+				Vector2 origin = new Vector2((float)(this._damageArrow.Width / 2), (float)(this._damageArrow.Height + 150));
+				Vector2 position = new Vector2((float)titleSafe.Center.X, (float)titleSafe.Center.Y);
+				int indicatorIndex = 0;
+				while (indicatorIndex < this._damageIndicator.Count)
 				{
-					this._damageIndicator[i].drawTimer.Update(gameTime.ElapsedGameTime);
-					if (this._damageIndicator[i].drawTimer.Expired)
+					this._damageIndicator[indicatorIndex].drawTimer.Update(gameTime.ElapsedGameTime);
+					if (this._damageIndicator[indicatorIndex].drawTimer.Expired)
 					{
-						this._damageIndicator.RemoveAt(i);
+						this._damageIndicator.RemoveAt(indicatorIndex);
 					}
 					else
 					{
-						Vector3 vector4 = this._damageIndicator[i].DamageSource - this.LocalPlayer.LocalPosition;
-						vector4 = Vector3.TransformNormal(vector4, this.LocalPlayer.WorldToLocal);
-						Angle angle = Angle.ATan2((double)vector4.X, (double)(-(double)vector4.Z));
-						this._damageArrow.Draw(spriteBatch, vector3, rectangle2, new Color((int)(139f * this._damageIndicator[i].fadeAmount), 0, 0, (int)(255f * this._damageIndicator[i].fadeAmount)), angle, vector2, 0.75f, SpriteEffects.None, 0f);
-						i++;
+						Vector3 toDamage = this._damageIndicator[indicatorIndex].DamageSource - this.LocalPlayer.LocalPosition;
+						toDamage = Vector3.TransformNormal(toDamage, this.LocalPlayer.WorldToLocal);
+						Angle angle = Angle.ATan2((double)toDamage.X, (double)(-(double)toDamage.Z));
+						this._damageArrow.Draw(spriteBatch, position, sourceRectangle, new Color((int)(139f * this._damageIndicator[indicatorIndex].fadeAmount), 0, 0, (int)(255f * this._damageIndicator[indicatorIndex].fadeAmount)), angle, origin, 0.75f, SpriteEffects.None, 0f);
+						indicatorIndex++;
 					}
 				}
 				if (this.LocalPlayer.Dead && this.timeToShowRespawnText.Expired && this._game.GameScreen._uiGroup.CurrentScreen == this)
 				{
-					string text = "";
-					string text2 = Strings.Click_To_Respawn;
+					string deadStr = "";
+					string deadStr2 = Strings.Click_To_Respawn;
 					if (this.WaitToRespawn)
 					{
-						text = Strings.Respawn_In + ": ";
-						text2 = "";
+						deadStr = Strings.Respawn_In + ": ";
+						deadStr2 = "";
 					}
 					if (this._game.IsOnlineGame && this.AllPlayersDead() && this._game.GameMode == GameModeTypes.Endurance)
 					{
 						if (this._game.CurrentNetworkSession.IsHost)
 						{
-							text = "";
-							text2 = Strings.Click_To_Restart;
+							deadStr = "";
+							deadStr2 = Strings.Click_To_Restart;
 						}
 						else
 						{
-							text = Strings.Waiting_For_Host_To_Restart;
-							text2 = "";
+							deadStr = Strings.Waiting_For_Host_To_Restart;
+							deadStr2 = "";
 						}
 					}
-					Vector2 vector5 = this._game._medLargeFont.MeasureString(text + text2);
-					Vector2 vector6 = new Vector2((float)rectangle.Center.X - vector5.X / 2f, (float)rectangle.Center.Y - vector5.Y / 2f);
+					Vector2 strSize = this._game._medLargeFont.MeasureString(deadStr + deadStr2);
+					Vector2 drawPosition = new Vector2((float)titleSafe.Center.X - strSize.X / 2f, (float)titleSafe.Center.Y - strSize.Y / 2f);
 					if (this._game.GameMode == GameModeTypes.Endurance)
 					{
 						this.sbuilder.Length = 0;
 						this.sbuilder.Append(Strings.Distance_Traveled);
 						this.sbuilder.Append(": ");
 						this.sbuilder.Concat(this.maxDistanceTraveled);
-						Vector2 vector7 = this._game._medLargeFont.MeasureString(this.sbuilder);
-						vector6 = new Vector2((float)rectangle.Center.X - vector7.X / 2f, (float)rectangle.Center.Y - vector7.Y - vector7.Y / 2f);
-						spriteBatch.DrawOutlinedText(this._game._medLargeFont, this.sbuilder, new Vector2(vector6.X, vector6.Y), Color.White, Color.Black, 2);
+						Vector2 endurStrSize = this._game._medLargeFont.MeasureString(this.sbuilder);
+						drawPosition = new Vector2((float)titleSafe.Center.X - endurStrSize.X / 2f, (float)titleSafe.Center.Y - endurStrSize.Y - endurStrSize.Y / 2f);
+						spriteBatch.DrawOutlinedText(this._game._medLargeFont, this.sbuilder, new Vector2(drawPosition.X, drawPosition.Y), Color.White, Color.Black, 2);
 						this.sbuilder.Length = 0;
 						this.sbuilder.Append(" " + Strings.In + " ");
 						this.sbuilder.Concat(this.currentDay);
 						this.sbuilder.Append((this.currentDay != 1) ? (" " + Strings.Days) : (" " + Strings.Day));
-						vector7 = this._game._medLargeFont.MeasureString(this.sbuilder);
-						vector6 = new Vector2((float)rectangle.Center.X - vector7.X / 2f, (float)rectangle.Center.Y - vector7.Y / 2f);
-						spriteBatch.DrawOutlinedText(this._game._medLargeFont, this.sbuilder, new Vector2(vector6.X, vector6.Y), Color.White, Color.Black, 2);
-						vector6 = new Vector2((float)rectangle.Center.X - vector5.X / 2f, (float)rectangle.Center.Y - vector5.Y / 2f + vector7.Y);
+						endurStrSize = this._game._medLargeFont.MeasureString(this.sbuilder);
+						drawPosition = new Vector2((float)titleSafe.Center.X - endurStrSize.X / 2f, (float)titleSafe.Center.Y - endurStrSize.Y / 2f);
+						spriteBatch.DrawOutlinedText(this._game._medLargeFont, this.sbuilder, new Vector2(drawPosition.X, drawPosition.Y), Color.White, Color.Black, 2);
+						drawPosition = new Vector2((float)titleSafe.Center.X - strSize.X / 2f, (float)titleSafe.Center.Y - strSize.Y / 2f + endurStrSize.Y);
 					}
-					spriteBatch.DrawOutlinedText(this._game._medLargeFont, text, new Vector2(vector6.X, vector6.Y), Color.White, Color.Black, 2);
-					vector6.X += this._game._medLargeFont.MeasureString(text).X;
+					spriteBatch.DrawOutlinedText(this._game._medLargeFont, deadStr, new Vector2(drawPosition.X, drawPosition.Y), Color.White, Color.Black, 2);
+					drawPosition.X += this._game._medLargeFont.MeasureString(deadStr).X;
 					if (!this.WaitToRespawn || (this.AllPlayersDead() && this._game.CurrentNetworkSession.IsHost && this._game.GameMode == GameModeTypes.Endurance))
 					{
 						if (this._game.GameMode != GameModeTypes.Endurance || !this.AllPlayersDead() || this._game.CurrentNetworkSession.IsHost)
 						{
-							spriteBatch.DrawOutlinedText(this._game._medLargeFont, text2, new Vector2(vector6.X, vector6.Y), Color.White, Color.Black, 2);
+							spriteBatch.DrawOutlinedText(this._game._medLargeFont, deadStr2, new Vector2(drawPosition.X, drawPosition.Y), Color.White, Color.Black, 2);
 						}
 					}
 					else if (this._game.IsOnlineGame && !this.AllPlayersDead() && this._game.GameMode == GameModeTypes.Endurance)
 					{
 						this.sbuilder.Length = 0;
 						this.sbuilder.Concat((int)(21.0 - this.timeToRespawn.ElaspedTime.TotalSeconds));
-						spriteBatch.DrawOutlinedText(this._game._medLargeFont, this.sbuilder, new Vector2(vector6.X, vector6.Y), Color.White, Color.Black, 2);
+						spriteBatch.DrawOutlinedText(this._game._medLargeFont, this.sbuilder, new Vector2(drawPosition.X, drawPosition.Y), Color.White, Color.Black, 2);
 					}
 				}
 				this.DrawDistanceStr(spriteBatch);
 				if (this.ConstructionProbe.AbleToBuild && this.PlayerInventory.ActiveInventoryItem != null)
 				{
-					BlockTypeEnum block = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex);
-					BlockType type = BlockType.GetType(block);
-					spriteBatch.DrawString(this._game._medFont, type.Name, new Vector2((float)rectangle.Right - (this._game._medFont.MeasureString(type.Name).X + 10f) * Screen.Adjuster.ScaleFactor.Y, (float)(this._game._medFont.LineSpacing * 4) * Screen.Adjuster.ScaleFactor.Y), CMZColors.MenuAqua * 0.75f, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.Y, SpriteEffects.None, 0f);
+					BlockTypeEnum bte = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex);
+					BlockType bt = BlockType.GetType(bte);
+					spriteBatch.DrawString(this._game._medFont, bt.Name, new Vector2((float)titleSafe.Right - (this._game._medFont.MeasureString(bt.Name).X + 10f) * Screen.Adjuster.ScaleFactor.Y, (float)(this._game._medFont.LineSpacing * 4) * Screen.Adjuster.ScaleFactor.Y), CMZColors.MenuAqua * 0.75f, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.Y, SpriteEffects.None, 0f);
 				}
-				Size size2 = new Size((int)((float)this._gridSprite.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._gridSprite.Height * Screen.Adjuster.ScaleFactor.Y));
-				Rectangle rectangle3 = new Rectangle(rectangle.Center.X - size2.Width / 2, rectangle.Bottom - size2.Height - (int)(5f * Screen.Adjuster.ScaleFactor.Y), size2.Width, size2.Height);
-				this._gridSprite.Draw(spriteBatch, rectangle3, new Color(1f, 1f, 1f, this.GetTrayAlphaSetting()));
-				Vector2 vector8 = new Vector2(-35f * Screen.Adjuster.ScaleFactor.Y, -68f * Screen.Adjuster.ScaleFactor.Y);
-				Rectangle rectangle4 = rectangle3;
-				rectangle3.X += (int)vector8.X;
-				rectangle3.Y += (int)vector8.Y;
-				this._gridSprite.Draw(spriteBatch, rectangle3, Color.White);
+				Size gridSize = new Size((int)((float)this._gridSprite.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._gridSprite.Height * Screen.Adjuster.ScaleFactor.Y));
+				Rectangle gridRect = new Rectangle(titleSafe.Center.X - gridSize.Width / 2, titleSafe.Bottom - gridSize.Height - (int)(5f * Screen.Adjuster.ScaleFactor.Y), gridSize.Width, gridSize.Height);
+				this._gridSprite.Draw(spriteBatch, gridRect, new Color(1f, 1f, 1f, this.GetTrayAlphaSetting()));
+				Vector2 mainTrayOffset = new Vector2(-35f * Screen.Adjuster.ScaleFactor.Y, -68f * Screen.Adjuster.ScaleFactor.Y);
+				Rectangle gridRect2 = gridRect;
+				gridRect.X += (int)mainTrayOffset.X;
+				gridRect.Y += (int)mainTrayOffset.Y;
+				this._gridSprite.Draw(spriteBatch, gridRect, Color.White);
 				this.DrawPlayerStats(spriteBatch);
 				if (this.LocalPlayer.Underwater)
 				{
-					float num3 = this.PlayerOxygen / 1f;
-					Vector2 vector9 = new Vector2((float)rectangle3.Center.X, (float)(rectangle3.Top - 30));
-					this._bubbleBar.Draw(spriteBatch, new Rectangle((int)(vector9.X + (float)this._bubbleBar.Width * (1f - num3)), (int)vector9.Y, (int)((float)this._bubbleBar.Width * num3), this._bubbleBar.Height), new Rectangle((int)((float)this._bubbleBar.Width * (1f - num3)), 0, (int)((float)this._bubbleBar.Width * num3), this._bubbleBar.Height), Color.White);
+					float bubbleScale = this.PlayerOxygen / 1f;
+					Vector2 bubbleBarLocation = new Vector2((float)gridRect.Center.X, (float)(gridRect.Top - 30));
+					this._bubbleBar.Draw(spriteBatch, new Rectangle((int)(bubbleBarLocation.X + (float)this._bubbleBar.Width * (1f - bubbleScale)), (int)bubbleBarLocation.Y, (int)((float)this._bubbleBar.Width * bubbleScale), this._bubbleBar.Height), new Rectangle((int)((float)this._bubbleBar.Width * (1f - bubbleScale)), 0, (int)((float)this._bubbleBar.Width * bubbleScale), this._bubbleBar.Height), Color.White);
 				}
-				int num4 = (int)(64f * Screen.Adjuster.ScaleFactor.Y);
+				int size = (int)(64f * Screen.Adjuster.ScaleFactor.Y);
+				for (int i = 0; i < this.PlayerInventory.TrayManager.CurrentTrayLength; i++)
+				{
+					InventoryItem item = this.PlayerInventory.TrayManager.GetItemFromCurrentTray(i);
+					if (item != null)
+					{
+						int xpos = (int)(59f * Screen.Adjuster.ScaleFactor.Y * (float)i + (float)gridRect.Left + 2f * Screen.Adjuster.ScaleFactor.Y);
+						item.Draw2D(spriteBatch, new Rectangle(xpos, gridRect.Top + (int)(2f * Screen.Adjuster.ScaleFactor.Y), size, size));
+					}
+				}
 				for (int j = 0; j < this.PlayerInventory.TrayManager.CurrentTrayLength; j++)
 				{
-					InventoryItem itemFromCurrentTray = this.PlayerInventory.TrayManager.GetItemFromCurrentTray(j);
-					if (itemFromCurrentTray != null)
+					InventoryItem item2 = this.PlayerInventory.TrayManager.GetItemFromNextTray(j);
+					if (item2 != null)
 					{
-						int num5 = (int)(59f * Screen.Adjuster.ScaleFactor.Y * (float)j + (float)rectangle3.Left + 2f * Screen.Adjuster.ScaleFactor.Y);
-						itemFromCurrentTray.Draw2D(spriteBatch, new Rectangle(num5, rectangle3.Top + (int)(2f * Screen.Adjuster.ScaleFactor.Y), num4, num4));
+						int xpos2 = (int)(59f * Screen.Adjuster.ScaleFactor.Y * (float)j + (float)gridRect2.Left + 2f * Screen.Adjuster.ScaleFactor.Y);
+						item2.Draw2D(spriteBatch, new Rectangle(xpos2, gridRect2.Top + (int)(2f * Screen.Adjuster.ScaleFactor.Y), size, size), new Color(1f, 1f, 1f, this.GetTrayAlphaSetting()), true);
 					}
 				}
-				for (int k = 0; k < this.PlayerInventory.TrayManager.CurrentTrayLength; k++)
-				{
-					InventoryItem itemFromNextTray = this.PlayerInventory.TrayManager.GetItemFromNextTray(k);
-					if (itemFromNextTray != null)
-					{
-						int num6 = (int)(59f * Screen.Adjuster.ScaleFactor.Y * (float)k + (float)rectangle4.Left + 2f * Screen.Adjuster.ScaleFactor.Y);
-						itemFromNextTray.Draw2D(spriteBatch, new Rectangle(num6, rectangle4.Top + (int)(2f * Screen.Adjuster.ScaleFactor.Y), num4, num4), new Color(1f, 1f, 1f, this.GetTrayAlphaSetting()), true);
-					}
-				}
-				Rectangle rectangle5 = new Rectangle(rectangle3.Left + (int)(7f * Screen.Adjuster.ScaleFactor.Y + 59f * Screen.Adjuster.ScaleFactor.Y * (float)this.PlayerInventory.SelectedInventoryIndex), (int)((float)rectangle3.Top + 7f * Screen.Adjuster.ScaleFactor.Y), num4, num4);
-				this._selectorSprite.Draw(spriteBatch, rectangle5, Color.White);
+				Rectangle selectorRect = new Rectangle(gridRect.Left + (int)(7f * Screen.Adjuster.ScaleFactor.Y + 59f * Screen.Adjuster.ScaleFactor.Y * (float)this.PlayerInventory.SelectedInventoryIndex), (int)((float)gridRect.Top + 7f * Screen.Adjuster.ScaleFactor.Y), size, size);
+				this._selectorSprite.Draw(spriteBatch, selectorRect, Color.White);
 				this.sbuilder.Length = 0;
 				if (this.ActiveInventoryItem != null)
 				{
-					Vector2 vector10 = this._game._medFont.MeasureString(this.ActiveInventoryItem.Name);
+					Vector2 textSize = this._game._medFont.MeasureString(this.ActiveInventoryItem.Name);
 					this.ActiveInventoryItem.GetDisplayText(this.sbuilder);
-					spriteBatch.DrawString(this._game._medFont, this.sbuilder, new Vector2((float)rectangle3.Left, (float)rectangle3.Y - vector10.Y * Screen.Adjuster.ScaleFactor.Y), CMZColors.MenuAqua * 0.75f, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.Y, SpriteEffects.None, 0f);
+					spriteBatch.DrawString(this._game._medFont, this.sbuilder, new Vector2((float)gridRect.Left, (float)gridRect.Y - textSize.Y * Screen.Adjuster.ScaleFactor.Y), CMZColors.MenuAqua * 0.75f, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.Y, SpriteEffects.None, 0f);
 				}
 				if (!this.LocalPlayer.Dead && !this.LocalPlayer.Shouldering)
 				{
-					GunInventoryItem gunInventoryItem = this.ActiveInventoryItem as GunInventoryItem;
-					Angle fieldOfView = this.LocalPlayer.FPSCamera.FieldOfView;
-					Angle angle2 = Angle.FromDegrees(0.5f);
-					if (gunInventoryItem != null)
+					GunInventoryItem ActiveGun = this.ActiveInventoryItem as GunInventoryItem;
+					Angle fov = this.LocalPlayer.FPSCamera.FieldOfView;
+					Angle innacuracy = Angle.FromDegrees(0.5f);
+					if (ActiveGun != null)
 					{
 						if (this.LocalPlayer.Shouldering && !this.LocalPlayer.Reloading)
 						{
-							Angle angle3 = Angle.Lerp(gunInventoryItem.GunClass.MinInnaccuracy, gunInventoryItem.GunClass.ShoulderedMinAccuracy, this.LocalPlayer.Avatar.Animations[2].Progress);
-							angle2 = angle3 + this.InnaccuracyMultiplier * (gunInventoryItem.GunClass.ShoulderedMaxAccuracy - angle3);
+							Angle accuracy = Angle.Lerp(ActiveGun.GunClass.MinInnaccuracy, ActiveGun.GunClass.ShoulderedMinAccuracy, this.LocalPlayer.Avatar.Animations[2].Progress);
+							innacuracy = accuracy + this.InnaccuracyMultiplier * (ActiveGun.GunClass.ShoulderedMaxAccuracy - accuracy);
 						}
 						else
 						{
-							angle2 = gunInventoryItem.GunClass.MinInnaccuracy + this.InnaccuracyMultiplier * (gunInventoryItem.GunClass.MaxInnaccuracy - gunInventoryItem.GunClass.MinInnaccuracy);
+							innacuracy = ActiveGun.GunClass.MinInnaccuracy + this.InnaccuracyMultiplier * (ActiveGun.GunClass.MaxInnaccuracy - ActiveGun.GunClass.MinInnaccuracy);
 						}
 					}
-					this._crosshairTickDrawLocation = angle2 / fieldOfView * (float)Screen.Adjuster.ScreenRect.Width;
-					float num7 = Math.Max(1f, Screen.Adjuster.ScaleFactor.Y);
-					Color color = new Color((1f - this.InnaccuracyMultiplier) / 2f + 0.5f, (1f - this.InnaccuracyMultiplier) / 2f + 0.5f, (1f - this.InnaccuracyMultiplier) / 2f + 0.5f, (1f - this.InnaccuracyMultiplier) / 2f + 0.5f);
-					spriteBatch.Draw(this._crosshairTick, new Vector2((float)((int)((float)rectangle.Center.X + this._crosshairTickDrawLocation)), (float)((int)((float)rectangle.Center.Y - 1f * num7))), num7, color);
-					spriteBatch.Draw(this._crosshairTick, new Vector2((float)((int)((float)rectangle.Center.X - (9f * num7 + this._crosshairTickDrawLocation))), (float)((int)((float)rectangle.Center.Y - 1f * num7))), num7, color);
-					spriteBatch.Draw(this._crosshairTick, new Vector2((float)((int)((float)rectangle.Center.X + 1f * num7)), (float)((int)((float)rectangle.Center.Y - 8f * num7 - this._crosshairTickDrawLocation))), color, Angle.FromDegrees(90f), Vector2.Zero, num7, SpriteEffects.None, 0f);
-					spriteBatch.Draw(this._crosshairTick, new Vector2((float)((int)((float)rectangle.Center.X + 1f * num7)), (float)((int)((float)rectangle.Center.Y + this._crosshairTickDrawLocation + 1f * num7))), color, Angle.FromDegrees(90f), Vector2.Zero, num7, SpriteEffects.None, 0f);
+					this._crosshairTickDrawLocation = innacuracy / fov * (float)Screen.Adjuster.ScreenRect.Width;
+					float scale = Math.Max(1f, Screen.Adjuster.ScaleFactor.Y);
+					Color crosshairTickColor = new Color((1f - this.InnaccuracyMultiplier) / 2f + 0.5f, (1f - this.InnaccuracyMultiplier) / 2f + 0.5f, (1f - this.InnaccuracyMultiplier) / 2f + 0.5f, (1f - this.InnaccuracyMultiplier) / 2f + 0.5f);
+					spriteBatch.Draw(this._crosshairTick, new Vector2((float)((int)((float)titleSafe.Center.X + this._crosshairTickDrawLocation)), (float)((int)((float)titleSafe.Center.Y - 1f * scale))), scale, crosshairTickColor);
+					spriteBatch.Draw(this._crosshairTick, new Vector2((float)((int)((float)titleSafe.Center.X - (9f * scale + this._crosshairTickDrawLocation))), (float)((int)((float)titleSafe.Center.Y - 1f * scale))), scale, crosshairTickColor);
+					spriteBatch.Draw(this._crosshairTick, new Vector2((float)((int)((float)titleSafe.Center.X + 1f * scale)), (float)((int)((float)titleSafe.Center.Y - 8f * scale - this._crosshairTickDrawLocation))), crosshairTickColor, Angle.FromDegrees(90f), Vector2.Zero, scale, SpriteEffects.None, 0f);
+					spriteBatch.Draw(this._crosshairTick, new Vector2((float)((int)((float)titleSafe.Center.X + 1f * scale)), (float)((int)((float)titleSafe.Center.Y + this._crosshairTickDrawLocation + 1f * scale))), crosshairTickColor, Angle.FromDegrees(90f), Vector2.Zero, scale, SpriteEffects.None, 0f);
 				}
 				if (!this.fadeInGameStart.Expired)
 				{
-					float num8 = (float)this.fadeInGameStart.ElaspedTime.TotalSeconds;
-					num8 = num8 * 1f - num8;
-					spriteBatch.Draw(this._game.DummyTexture, new Rectangle(0, 0, Screen.Adjuster.ScreenRect.Width, Screen.Adjuster.ScreenRect.Height), new Color(num8, num8, num8, 1f - (float)this.fadeInGameStart.ElaspedTime.TotalSeconds));
+					float colorValue = (float)this.fadeInGameStart.ElaspedTime.TotalSeconds;
+					colorValue = colorValue * 1f - colorValue;
+					spriteBatch.Draw(this._game.DummyTexture, new Rectangle(0, 0, Screen.Adjuster.ScreenRect.Width, Screen.Adjuster.ScreenRect.Height), new Color(colorValue, colorValue, colorValue, 1f - (float)this.fadeInGameStart.ElaspedTime.TotalSeconds));
 				}
 				if (!this.drawDayTimer.Expired && !this.LocalPlayer.Dead)
 				{
-					float num9 = 1f;
-					float num10 = 0.33333334f;
+					float blender = 1f;
+					float spn = 0.33333334f;
 					if (this.drawDayTimer.ElaspedTime < TimeSpan.FromSeconds(3.0))
 					{
-						num9 = this.drawDayTimer.PercentComplete / num10;
+						blender = this.drawDayTimer.PercentComplete / spn;
 					}
 					else if (this.drawDayTimer.ElaspedTime > TimeSpan.FromSeconds(6.0))
 					{
-						num9 = 1f - (this.drawDayTimer.PercentComplete - num10 * 2f) / num10;
+						blender = 1f - (this.drawDayTimer.PercentComplete - spn * 2f) / spn;
 					}
 					this.sbuilder.Length = 0;
 					this.sbuilder.Append(Strings.Day + " ");
 					this.sbuilder.Concat(this.currentDay);
-					spriteBatch.DrawString(this._game._largeFont, this.sbuilder, new Vector2((float)rectangle.Left, (float)rectangle.Bottom - this._game._largeFont.MeasureString(this.sbuilder).Y), CMZColors.MenuAqua * 0.75f * num9);
+					spriteBatch.DrawString(this._game._largeFont, this.sbuilder, new Vector2((float)titleSafe.Left, (float)titleSafe.Bottom - this._game._largeFont.MeasureString(this.sbuilder).Y), CMZColors.MenuAqua * 0.75f * blender);
 				}
 				this.DrawAcheivements(device, spriteBatch, gameTime);
 				spriteBatch.End();
 			}
-			this._prevTitleSafe = rectangle;
+			this._prevTitleSafe = titleSafe;
 			base.OnDraw(device, spriteBatch, gameTime);
 		}
 
@@ -647,30 +647,30 @@ namespace DNA.CastleMinerZ.UI
 
 		public void DrawHealthBar(SpriteBatch spriteBatch, bool isCenterScreen)
 		{
-			Color dodgerBlue = Color.DodgerBlue;
-			Rectangle rectangle;
+			Color barColor = Color.DodgerBlue;
+			Rectangle healthBarLocation;
 			if (isCenterScreen)
 			{
-				rectangle = new Rectangle((int)((float)Screen.Adjuster.ScreenRect.Center.X - (float)this._emptyHealthBar.Width * Screen.Adjuster.ScaleFactor.Y / 2f), (int)((float)Screen.Adjuster.ScreenRect.Top + 20f * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._emptyHealthBar.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._emptyHealthBar.Height * Screen.Adjuster.ScaleFactor.Y));
+				healthBarLocation = new Rectangle((int)((float)Screen.Adjuster.ScreenRect.Center.X - (float)this._emptyHealthBar.Width * Screen.Adjuster.ScaleFactor.Y / 2f), (int)((float)Screen.Adjuster.ScreenRect.Top + 20f * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._emptyHealthBar.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._emptyHealthBar.Height * Screen.Adjuster.ScaleFactor.Y));
 			}
 			else
 			{
-				rectangle = new Rectangle((int)((float)Screen.Adjuster.ScreenRect.Center.X - (float)this._emptyHealthBar.Width * 2.2f * Screen.Adjuster.ScaleFactor.Y / 2f), (int)((float)Screen.Adjuster.ScreenRect.Top + 20f * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._emptyHealthBar.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._emptyHealthBar.Height * Screen.Adjuster.ScaleFactor.Y));
+				healthBarLocation = new Rectangle((int)((float)Screen.Adjuster.ScreenRect.Center.X - (float)this._emptyHealthBar.Width * 2.2f * Screen.Adjuster.ScaleFactor.Y / 2f), (int)((float)Screen.Adjuster.ScreenRect.Top + 20f * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._emptyHealthBar.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._emptyHealthBar.Height * Screen.Adjuster.ScaleFactor.Y));
 			}
-			float num = this.PlayerHealth / 1f;
-			this.DrawResourceBar(spriteBatch, this._emptyHealthBar, dodgerBlue, num, rectangle);
+			float healthScale = this.PlayerHealth / 1f;
+			this.DrawResourceBar(spriteBatch, this._emptyHealthBar, barColor, healthScale, healthBarLocation);
 		}
 
 		public void DrawStaminaBar(SpriteBatch spriteBatch)
 		{
-			Color color = Color.Yellow;
-			Rectangle rectangle = new Rectangle((int)((float)Screen.Adjuster.ScreenRect.Center.X + (float)this._emptyStaminaBar.Width * 0.2f * Screen.Adjuster.ScaleFactor.Y / 2f), (int)((float)Screen.Adjuster.ScreenRect.Top + 20f * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._emptyStaminaBar.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._emptyStaminaBar.Height * Screen.Adjuster.ScaleFactor.Y));
-			float num = this.PlayerStamina / 1f;
+			Color staminaColor = Color.Yellow;
+			Rectangle barLocation = new Rectangle((int)((float)Screen.Adjuster.ScreenRect.Center.X + (float)this._emptyStaminaBar.Width * 0.2f * Screen.Adjuster.ScaleFactor.Y / 2f), (int)((float)Screen.Adjuster.ScreenRect.Top + 20f * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._emptyStaminaBar.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._emptyStaminaBar.Height * Screen.Adjuster.ScaleFactor.Y));
+			float statScale = this.PlayerStamina / 1f;
 			if (!this.StaminaBlockTimer.Expired)
 			{
-				color = Color.OrangeRed;
+				staminaColor = Color.OrangeRed;
 			}
-			this.DrawResourceBar(spriteBatch, this._emptyStaminaBar, color, num, rectangle);
+			this.DrawResourceBar(spriteBatch, this._emptyStaminaBar, staminaColor, statScale, barLocation);
 		}
 
 		public void DrawResourceBar(SpriteBatch spriteBatch, Sprite resourceIcon, Color barColor, float ratio, Rectangle barLocation)
@@ -686,12 +686,12 @@ namespace DNA.CastleMinerZ.UI
 
 		public bool DrawAbleToBuild()
 		{
-			IntVector3 neighborIndex = BlockTerrain.Instance.GetNeighborIndex(this.ConstructionProbe._worldIndex, this.ConstructionProbe._inFace);
+			IntVector3 addSpot = BlockTerrain.Instance.GetNeighborIndex(this.ConstructionProbe._worldIndex, this.ConstructionProbe._inFace);
 			CastleMinerZGame.Instance.LocalPlayer.MovementProbe.SkipEmbedded = false;
-			Vector3 worldPosition = CastleMinerZGame.Instance.LocalPlayer.WorldPosition;
-			worldPosition.Y += 0.05f;
-			CastleMinerZGame.Instance.LocalPlayer.MovementProbe.Init(worldPosition, worldPosition, CastleMinerZGame.Instance.LocalPlayer.PlayerAABB);
-			return !BlockTerrain.Instance.ProbeTouchesBlock(CastleMinerZGame.Instance.LocalPlayer.MovementProbe, neighborIndex);
+			Vector3 pos = CastleMinerZGame.Instance.LocalPlayer.WorldPosition;
+			pos.Y += 0.05f;
+			CastleMinerZGame.Instance.LocalPlayer.MovementProbe.Init(pos, pos, CastleMinerZGame.Instance.LocalPlayer.PlayerAABB);
+			return !BlockTerrain.Instance.ProbeTouchesBlock(CastleMinerZGame.Instance.LocalPlayer.MovementProbe, addSpot);
 		}
 
 		protected void DoConstructionModeUpdate()
@@ -702,9 +702,9 @@ namespace DNA.CastleMinerZ.UI
 			}
 			else
 			{
-				Matrix localToWorld = this.LocalPlayer.FPSCamera.LocalToWorld;
-				Vector3 translation = localToWorld.Translation;
-				this.ConstructionProbe.Init(translation, Vector3.Add(translation, Vector3.Multiply(localToWorld.Forward, 5f)), this.PlayerInventory.ActiveInventoryItem.ItemClass.IsMeleeWeapon);
+				Matrix i = this.LocalPlayer.FPSCamera.LocalToWorld;
+				Vector3 eyePos = i.Translation;
+				this.ConstructionProbe.Init(eyePos, Vector3.Add(eyePos, Vector3.Multiply(i.Forward, 5f)), this.PlayerInventory.ActiveInventoryItem.ItemClass.IsMeleeWeapon);
 				this.ConstructionProbe.SkipEmbedded = true;
 				this.ConstructionProbe.Trace();
 			}
@@ -719,33 +719,33 @@ namespace DNA.CastleMinerZ.UI
 				return;
 			}
 			IntVector3 worldIndex = this.ConstructionProbe._worldIndex;
-			Vector3 vector = worldIndex + new Vector3(0.5f, 0.5f, 0.5f);
+			Vector3 blockPosition = worldIndex + new Vector3(0.5f, 0.5f, 0.5f);
 			-this.ConstructionProbe._inNormal;
-			Matrix matrix = Matrix.Identity;
-			float num = 0.51f;
+			Matrix worldMat = Matrix.Identity;
+			float offset = 0.51f;
 			switch (this.ConstructionProbe._inFace)
 			{
 			case BlockFace.POSX:
-				matrix = Matrix.CreateWorld(vector + new Vector3(1f, 0f, 0f) * num, -Vector3.UnitY, Vector3.UnitX);
+				worldMat = Matrix.CreateWorld(blockPosition + new Vector3(1f, 0f, 0f) * offset, -Vector3.UnitY, Vector3.UnitX);
 				break;
 			case BlockFace.NEGZ:
-				matrix = Matrix.CreateWorld(vector + new Vector3(0f, 0f, -1f) * num, -Vector3.UnitX, -Vector3.UnitZ);
+				worldMat = Matrix.CreateWorld(blockPosition + new Vector3(0f, 0f, -1f) * offset, -Vector3.UnitX, -Vector3.UnitZ);
 				break;
 			case BlockFace.NEGX:
-				matrix = Matrix.CreateWorld(vector + new Vector3(-1f, 0f, 0f) * num, Vector3.UnitY, -Vector3.UnitX);
+				worldMat = Matrix.CreateWorld(blockPosition + new Vector3(-1f, 0f, 0f) * offset, Vector3.UnitY, -Vector3.UnitX);
 				break;
 			case BlockFace.POSZ:
-				matrix = Matrix.CreateWorld(vector + new Vector3(0f, 0f, 1f) * num, Vector3.UnitX, Vector3.UnitZ);
+				worldMat = Matrix.CreateWorld(blockPosition + new Vector3(0f, 0f, 1f) * offset, Vector3.UnitX, Vector3.UnitZ);
 				break;
 			case BlockFace.POSY:
-				matrix = Matrix.CreateWorld(vector + new Vector3(0f, 1f, 0f) * num, Vector3.UnitX, Vector3.UnitY);
+				worldMat = Matrix.CreateWorld(blockPosition + new Vector3(0f, 1f, 0f) * offset, Vector3.UnitX, Vector3.UnitY);
 				break;
 			case BlockFace.NEGY:
-				matrix = Matrix.CreateWorld(vector + new Vector3(0f, -1f, 0f) * num, -Vector3.UnitX, -Vector3.UnitY);
+				worldMat = Matrix.CreateWorld(blockPosition + new Vector3(0f, -1f, 0f) * offset, -Vector3.UnitX, -Vector3.UnitY);
 				break;
 			}
 			this._game.GameScreen.CrackBox.LocalPosition = worldIndex + new Vector3(0.5f, -0.002f, 0.5f);
-			this._game.GameScreen.SelectorEntity.LocalToParent = matrix;
+			this._game.GameScreen.SelectorEntity.LocalToParent = worldMat;
 			this._game.GameScreen.SelectorEntity.Visible = true;
 		}
 
@@ -766,10 +766,10 @@ namespace DNA.CastleMinerZ.UI
 				this.LocalPlayer.UpdateGunEyePointCamera(this.GunEyePointCameraLocation);
 				if (this.ActiveInventoryItem is GPSItem)
 				{
-					GPSItem gpsitem = (GPSItem)this.ActiveInventoryItem;
+					GPSItem gps = (GPSItem)this.ActiveInventoryItem;
 					this._game.GameScreen.GPSMarker.Visible = true;
-					this._game.GameScreen.GPSMarker.LocalPosition = gpsitem.PointToLocation + new Vector3(0.5f, 1f, 0.5f);
-					this._game.GameScreen.GPSMarker.color = gpsitem.color;
+					this._game.GameScreen.GPSMarker.LocalPosition = gps.PointToLocation + new Vector3(0.5f, 1f, 0.5f);
+					this._game.GameScreen.GPSMarker.color = gps.color;
 				}
 				else
 				{
@@ -777,8 +777,8 @@ namespace DNA.CastleMinerZ.UI
 				}
 				if (this.ActiveInventoryItem.ItemClass is RocketLauncherGuidedInventoryItemClass)
 				{
-					RocketLauncherGuidedInventoryItemClass rocketLauncherGuidedInventoryItemClass = (RocketLauncherGuidedInventoryItemClass)this.ActiveInventoryItem.ItemClass;
-					rocketLauncherGuidedInventoryItemClass.CheckIfLocked(gameTime.ElapsedGameTime);
+					RocketLauncherGuidedInventoryItemClass rocketLauncher = (RocketLauncherGuidedInventoryItemClass)this.ActiveInventoryItem.ItemClass;
+					rocketLauncher.CheckIfLocked(gameTime.ElapsedGameTime);
 				}
 				for (int i = 0; i < this._tntWaitingToExplode.Count; i++)
 				{
@@ -833,9 +833,9 @@ namespace DNA.CastleMinerZ.UI
 					this.timeToRespawn.Update(TimeSpan.FromSeconds(gameTime.ElapsedGameTime.TotalSeconds));
 				}
 				this.EquipActiveItem();
-				Vector2 vector = new Vector2(0f, 0f);
-				Vector2 vector2 = new Vector2(this._game.LocalPlayer.LocalPosition.X, this._game.LocalPlayer.LocalPosition.Z);
-				this.currentDistanceTraveled = (int)Vector2.Distance(vector, vector2);
+				Vector2 origin = new Vector2(0f, 0f);
+				Vector2 playerPosition = new Vector2(this._game.LocalPlayer.LocalPosition.X, this._game.LocalPlayer.LocalPosition.Z);
+				this.currentDistanceTraveled = (int)Vector2.Distance(origin, playerPosition);
 				if (CastleMinerZGame.TrialMode)
 				{
 					if (this.currentDistanceTraveled <= 300)
@@ -884,9 +884,9 @@ namespace DNA.CastleMinerZ.UI
 				{
 					this.maxDistanceTraveled = this.currentDistanceTraveled;
 				}
-				Vector3 vector3 = new Vector3(0f, 0f, 1f);
-				Vector3 vector4 = new Vector3(vector2.X, 0f, vector2.Y);
-				this.compassRotation = vector3.AngleBetween(vector4);
+				Vector3 northVec = new Vector3(0f, 0f, 1f);
+				Vector3 playerVec = new Vector3(playerPosition.X, 0f, playerPosition.Y);
+				this.compassRotation = northVec.AngleBetween(playerVec);
 				if (this.LocalPlayer.InLava)
 				{
 					if (!this.lavaSoundPlayed)
@@ -935,8 +935,8 @@ namespace DNA.CastleMinerZ.UI
 					this.StaminaRecoverTimer.Update(gameTime.ElapsedGameTime);
 					if (this.PlayerStamina < 1f)
 					{
-						float num = (this.StaminaRecoverTimer.Expired ? this.StaminaRecoverRate : (this.StaminaRecoverRate * this.StaminaDamagedRecoveryModifier));
-						this.PlayerStamina += num * (float)gameTime.ElapsedGameTime.TotalSeconds;
+						float recoverRate = (this.StaminaRecoverTimer.Expired ? this.StaminaRecoverRate : (this.StaminaRecoverRate * this.StaminaDamagedRecoveryModifier));
+						this.PlayerStamina += recoverRate * (float)gameTime.ElapsedGameTime.TotalSeconds;
 						if (this.PlayerStamina > 1f)
 						{
 							this.PlayerStamina = 1f;
@@ -949,7 +949,7 @@ namespace DNA.CastleMinerZ.UI
 					this._periodicSaveTimer.Reset();
 					this._game.SaveData();
 				}
-				int num2 = this._game._terrain.DepthUnderGround(this._game.LocalPlayer.LocalPosition);
+				int depth = this._game._terrain.DepthUnderGround(this._game.LocalPlayer.LocalPosition);
 				if (this.lightningFlashCount <= 0 || this._game.LocalPlayer.LocalPosition.Y <= -32f)
 				{
 					CastleMinerZGame.Instance.GameScreen._sky.drawLightning = false;
@@ -968,7 +968,7 @@ namespace DNA.CastleMinerZ.UI
 					}
 					else if (this.timeToThunder.Expired)
 					{
-						if (num2 < 4)
+						if (depth < 4)
 						{
 							if (this.lightningFlashCount < 3)
 							{
@@ -1002,49 +1002,49 @@ namespace DNA.CastleMinerZ.UI
 
 		public void Shoot(GunInventoryItemClass gun)
 		{
-			Matrix localToWorld = this.LocalPlayer.FPSCamera.LocalToWorld;
+			Matrix i = this.LocalPlayer.FPSCamera.LocalToWorld;
 			GameMessageManager.Instance.Send(GameMessageType.LocalPlayerFiredGun, null, gun);
 			if (gun is RocketLauncherBaseInventoryItemClass)
 			{
-				RocketLauncherBaseInventoryItemClass rocketLauncherBaseInventoryItemClass = gun as RocketLauncherBaseInventoryItemClass;
-				FireRocketMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, localToWorld, gun.ID, rocketLauncherBaseInventoryItemClass.IsGuided());
+				RocketLauncherBaseInventoryItemClass rl = gun as RocketLauncherBaseInventoryItemClass;
+				FireRocketMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, i, gun.ID, rl.IsGuided());
 				return;
 			}
 			if (gun is PumpShotgunInventoryItemClass || gun is LaserShotgunClass)
 			{
-				Angle angle;
+				Angle innaccuracy;
 				if (this.LocalPlayer.Shouldering)
 				{
-					angle = gun.ShoulderedMinAccuracy + this.InnaccuracyMultiplier * (gun.ShoulderedMaxAccuracy - gun.ShoulderedMinAccuracy);
+					innaccuracy = gun.ShoulderedMinAccuracy + this.InnaccuracyMultiplier * (gun.ShoulderedMaxAccuracy - gun.ShoulderedMinAccuracy);
 				}
 				else
 				{
-					angle = gun.MinInnaccuracy + this.InnaccuracyMultiplier * (gun.MaxInnaccuracy - gun.MinInnaccuracy);
+					innaccuracy = gun.MinInnaccuracy + this.InnaccuracyMultiplier * (gun.MaxInnaccuracy - gun.MinInnaccuracy);
 				}
-				ShotgunShotMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, localToWorld, angle, gun.ID, gun.NeedsDropCompensation);
+				ShotgunShotMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, i, innaccuracy, gun.ID, gun.NeedsDropCompensation);
 				return;
 			}
-			Angle angle2;
+			Angle innaccuracy2;
 			if (this.LocalPlayer.Shouldering)
 			{
-				angle2 = gun.ShoulderedMinAccuracy + this.InnaccuracyMultiplier * (gun.ShoulderedMaxAccuracy - gun.ShoulderedMinAccuracy);
+				innaccuracy2 = gun.ShoulderedMinAccuracy + this.InnaccuracyMultiplier * (gun.ShoulderedMaxAccuracy - gun.ShoulderedMinAccuracy);
 			}
 			else
 			{
-				angle2 = gun.MinInnaccuracy + this.InnaccuracyMultiplier * (gun.MaxInnaccuracy - gun.MinInnaccuracy);
+				innaccuracy2 = gun.MinInnaccuracy + this.InnaccuracyMultiplier * (gun.MaxInnaccuracy - gun.MinInnaccuracy);
 			}
-			GunshotMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, localToWorld, angle2, gun.ID, gun.NeedsDropCompensation);
+			GunshotMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, i, innaccuracy2, gun.ID, gun.NeedsDropCompensation);
 		}
 
 		public void MeleePlayer(InventoryItem tool, Player player)
 		{
 			MeleePlayerMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, player.Gamer, this.ActiveInventoryItem.ItemClass.ID, this.ConstructionProbe.GetIntersection());
-			ParticleEmitter particleEmitter = TracerManager._smokeEffect.CreateEmitter(CastleMinerZGame.Instance);
-			particleEmitter.Reset();
-			particleEmitter.Emitting = true;
-			TracerManager.Instance.Scene.Children.Add(particleEmitter);
-			particleEmitter.LocalPosition = this.ConstructionProbe.GetIntersection();
-			particleEmitter.DrawPriority = 900;
+			ParticleEmitter smokeEmitter = TracerManager._smokeEffect.CreateEmitter(CastleMinerZGame.Instance);
+			smokeEmitter.Reset();
+			smokeEmitter.Emitting = true;
+			TracerManager.Instance.Scene.Children.Add(smokeEmitter);
+			smokeEmitter.LocalPosition = this.ConstructionProbe.GetIntersection();
+			smokeEmitter.DrawPriority = 900;
 			if (tool.InflictDamage())
 			{
 				this.PlayerInventory.Remove(tool);
@@ -1053,22 +1053,22 @@ namespace DNA.CastleMinerZ.UI
 
 		public void Melee(InventoryItem tool)
 		{
-			byte b;
+			byte localid;
 			if (this._game.LocalPlayer != null && this._game.LocalPlayer.ValidGamer)
 			{
-				b = this._game.LocalPlayer.Gamer.Id;
+				localid = this._game.LocalPlayer.Gamer.Id;
 			}
 			else
 			{
-				b = byte.MaxValue;
+				localid = byte.MaxValue;
 			}
-			this.ConstructionProbe.EnemyHit.TakeDamage(this.ConstructionProbe.GetIntersection(), Vector3.Normalize(this.ConstructionProbe._end - this.ConstructionProbe._start), tool.ItemClass, b);
-			ParticleEmitter particleEmitter = TracerManager._smokeEffect.CreateEmitter(CastleMinerZGame.Instance);
-			particleEmitter.Reset();
-			particleEmitter.Emitting = true;
-			TracerManager.Instance.Scene.Children.Add(particleEmitter);
-			particleEmitter.LocalPosition = this.ConstructionProbe.GetIntersection();
-			particleEmitter.DrawPriority = 900;
+			this.ConstructionProbe.EnemyHit.TakeDamage(this.ConstructionProbe.GetIntersection(), Vector3.Normalize(this.ConstructionProbe._end - this.ConstructionProbe._start), tool.ItemClass, localid);
+			ParticleEmitter smokeEmitter = TracerManager._smokeEffect.CreateEmitter(CastleMinerZGame.Instance);
+			smokeEmitter.Reset();
+			smokeEmitter.Emitting = true;
+			TracerManager.Instance.Scene.Children.Add(smokeEmitter);
+			smokeEmitter.LocalPosition = this.ConstructionProbe.GetIntersection();
+			smokeEmitter.DrawPriority = 900;
 			if (tool.InflictDamage())
 			{
 				this.PlayerInventory.Remove(tool);
@@ -1090,13 +1090,13 @@ namespace DNA.CastleMinerZ.UI
 			{
 				return;
 			}
-			BlockTypeEnum block = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex);
-			if (BlockType.GetType(block).CanBeDug && this.IsValidDigTarget(block, this.ConstructionProbe._worldIndex))
+			BlockTypeEnum blockType = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex);
+			if (BlockType.GetType(blockType).CanBeDug && this.IsValidDigTarget(blockType, this.ConstructionProbe._worldIndex))
 			{
-				DigMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, false, this.ConstructionProbe.GetIntersection(), this.ConstructionProbe._inNormal, block);
+				DigMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, false, this.ConstructionProbe.GetIntersection(), this.ConstructionProbe._inNormal, blockType);
 				if (effective)
 				{
-					if (BlockType.IsContainer(block))
+					if (BlockType.IsContainer(blockType))
 					{
 						DestroyCrateMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex);
 						Crate crate;
@@ -1105,48 +1105,48 @@ namespace DNA.CastleMinerZ.UI
 							crate.EjectContents();
 						}
 					}
-					if (block == BlockTypeEnum.TeleportStation)
+					if (blockType == BlockTypeEnum.TeleportStation)
 					{
-						DestroyCustomBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex, block);
+						DestroyCustomBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex, blockType);
 						this.LocalPlayer.RemoveTeleportStationObject(this.ConstructionProbe._worldIndex + Vector3.Zero);
 					}
-					CastleMinerZGame.Instance.PlayerStats.DugBlock(block);
-					GameMessageManager.Instance.Send(GameMessageType.LocalPlayerMinedBlock, block, tool);
-					if (BlockType.ShouldDropLoot(block))
+					CastleMinerZGame.Instance.PlayerStats.DugBlock(blockType);
+					GameMessageManager.Instance.Send(GameMessageType.LocalPlayerMinedBlock, blockType, tool);
+					if (BlockType.ShouldDropLoot(blockType))
 					{
-						PossibleLootType.ProcessLootBlockOutput(block, this.ConstructionProbe._worldIndex);
+						PossibleLootType.ProcessLootBlockOutput(blockType, this.ConstructionProbe._worldIndex);
 					}
 					else
 					{
-						IntVector3 intVector = this.ConstructionProbe._worldIndex;
-						if (BlockType.IsUpperDoor(block))
+						IntVector3 pickupPosition = this.ConstructionProbe._worldIndex;
+						if (BlockType.IsUpperDoor(blockType))
 						{
-							intVector += new IntVector3(0, -1, 0);
+							pickupPosition += new IntVector3(0, -1, 0);
 						}
-						InventoryItem inventoryItem = tool.CreatesWhenDug(block, intVector);
-						if (inventoryItem != null)
+						InventoryItem item = tool.CreatesWhenDug(blockType, pickupPosition);
+						if (item != null)
 						{
-							PickupManager.Instance.CreatePickup(inventoryItem, intVector + Vector3.Zero, false, false);
+							PickupManager.Instance.CreatePickup(item, pickupPosition + Vector3.Zero, false, false);
 						}
 					}
 					AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex, BlockTypeEnum.Empty);
-					for (BlockFace blockFace = BlockFace.POSX; blockFace < BlockFace.NUM_FACES; blockFace++)
+					for (BlockFace bf = BlockFace.POSX; bf < BlockFace.NUM_FACES; bf++)
 					{
-						IntVector3 neighborIndex = BlockTerrain.Instance.GetNeighborIndex(this.ConstructionProbe._worldIndex, blockFace);
-						BlockTypeEnum blockWithChanges = BlockTerrain.Instance.GetBlockWithChanges(neighborIndex);
-						if (BlockType.GetType(blockWithChanges).Facing == blockFace)
+						IntVector3 nextBlockLocation = BlockTerrain.Instance.GetNeighborIndex(this.ConstructionProbe._worldIndex, bf);
+						BlockTypeEnum bbt = BlockTerrain.Instance.GetBlockWithChanges(nextBlockLocation);
+						if (BlockType.GetType(bbt).Facing == bf)
 						{
-							InventoryItem inventoryItem2 = BlockInventoryItemClass.CreateBlockItem(BlockType.GetType(blockWithChanges).ParentBlockType, 1, neighborIndex);
-							PickupManager.Instance.CreatePickup(inventoryItem2, IntVector3.ToVector3(neighborIndex) + new Vector3(0.5f, 0.5f, 0.5f), false, false);
-							AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, neighborIndex, BlockTypeEnum.Empty);
-							this.CheckToRemoveDoorConnections(BlockType.GetType(blockWithChanges).ParentBlockType, neighborIndex);
+							InventoryItem newBlockItem = BlockInventoryItemClass.CreateBlockItem(BlockType.GetType(bbt).ParentBlockType, 1, nextBlockLocation);
+							PickupManager.Instance.CreatePickup(newBlockItem, IntVector3.ToVector3(nextBlockLocation) + new Vector3(0.5f, 0.5f, 0.5f), false, false);
+							AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, nextBlockLocation, BlockTypeEnum.Empty);
+							this.CheckToRemoveDoorConnections(BlockType.GetType(bbt).ParentBlockType, nextBlockLocation);
 						}
 					}
-					this.CheckToRemoveDoorConnections(block, this.ConstructionProbe._worldIndex);
+					this.CheckToRemoveDoorConnections(blockType, this.ConstructionProbe._worldIndex);
 				}
 				else
 				{
-					GameMessageManager.Instance.Send(GameMessageType.LocalPlayerPickedAtBlock, block, tool);
+					GameMessageManager.Instance.Send(GameMessageType.LocalPlayerPickedAtBlock, blockType, tool);
 				}
 				if (tool.InflictDamage())
 				{
@@ -1157,88 +1157,88 @@ namespace DNA.CastleMinerZ.UI
 
 		private void CheckToRemoveDoorConnections(BlockTypeEnum removedBlockType, IntVector3 location)
 		{
-			IntVector3 intVector = IntVector3.Zero;
+			IntVector3 lowerDoorPosition = IntVector3.Zero;
 			if (BlockType.IsLowerDoor(removedBlockType))
 			{
-				IntVector3 intVector2 = location + new IntVector3(0, 1, 0);
-				intVector = location;
-				AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, intVector2, BlockTypeEnum.Empty);
+				IntVector3 upperDoorPosition = location + new IntVector3(0, 1, 0);
+				lowerDoorPosition = location;
+				AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, upperDoorPosition, BlockTypeEnum.Empty);
 			}
 			if (BlockType.IsUpperDoor(removedBlockType))
 			{
-				intVector = location + new IntVector3(0, -1, 0);
-				AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, intVector, BlockTypeEnum.Empty);
+				lowerDoorPosition = location + new IntVector3(0, -1, 0);
+				AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, lowerDoorPosition, BlockTypeEnum.Empty);
 			}
-			if (intVector != IntVector3.Zero)
+			if (lowerDoorPosition != IntVector3.Zero)
 			{
-				DestroyCustomBlockMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, intVector, removedBlockType);
+				DestroyCustomBlockMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, lowerDoorPosition, removedBlockType);
 			}
 		}
 
 		public IntVector3 Build(BlockInventoryItem blockItem, bool validateOnly = false)
 		{
-			IntVector3 zero = IntVector3.Zero;
+			IntVector3 failLocation = IntVector3.Zero;
 			if (!this.ConstructionProbe._collides)
 			{
-				return zero;
+				return failLocation;
 			}
-			IntVector3 neighborIndex = BlockTerrain.Instance.GetNeighborIndex(this.ConstructionProbe._worldIndex, this.ConstructionProbe._inFace);
-			BlockTypeEnum block = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex);
-			if (!BlockTerrain.Instance.OkayToBuildHere(neighborIndex))
+			IntVector3 addSpot = BlockTerrain.Instance.GetNeighborIndex(this.ConstructionProbe._worldIndex, this.ConstructionProbe._inFace);
+			BlockTypeEnum blockType = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex);
+			if (!BlockTerrain.Instance.OkayToBuildHere(addSpot))
 			{
-				return zero;
+				return failLocation;
 			}
-			BlockType type = BlockType.GetType(block);
-			if (!type.CanBuildOn)
+			BlockType btype = BlockType.GetType(blockType);
+			if (!btype.CanBuildOn)
 			{
-				return zero;
+				return failLocation;
 			}
-			if (!blockItem.CanPlaceHere(neighborIndex, this.ConstructionProbe._inFace))
+			if (!blockItem.CanPlaceHere(addSpot, this.ConstructionProbe._inFace))
 			{
-				return zero;
+				return failLocation;
 			}
-			bool flag = true;
+			bool buildAway = true;
 			if (CastleMinerZGame.Instance.CurrentNetworkSession != null)
 			{
 				for (int i = 0; i < CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers.Count; i++)
 				{
-					NetworkGamer networkGamer = CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers[i];
-					if (networkGamer != null)
+					NetworkGamer nwg = CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers[i];
+					if (nwg != null)
 					{
-						Player player = (Player)networkGamer.Tag;
-						if (player != null)
+						Player p = (Player)nwg.Tag;
+						if (p != null)
 						{
-							player.MovementProbe.SkipEmbedded = false;
-							Vector3 worldPosition = player.WorldPosition;
-							worldPosition.Y += 0.05f;
-							player.MovementProbe.Init(worldPosition, worldPosition, player.PlayerAABB);
-							if (BlockTerrain.Instance.ProbeTouchesBlock(player.MovementProbe, neighborIndex))
+							p.MovementProbe.SkipEmbedded = false;
+							Vector3 pos = p.WorldPosition;
+							pos.Y += 0.05f;
+							p.MovementProbe.Init(pos, pos, p.PlayerAABB);
+							if (BlockTerrain.Instance.ProbeTouchesBlock(p.MovementProbe, addSpot))
 							{
-								flag = false;
+								buildAway = false;
 								break;
 							}
 						}
 					}
 				}
-				if (flag)
+				if (buildAway)
 				{
 					if (validateOnly)
 					{
-						return neighborIndex;
+						return addSpot;
 					}
-					BoundingBox boundingBox = default(BoundingBox);
-					boundingBox.Min = IntVector3.ToVector3(neighborIndex) + new Vector3(0.01f, 0.01f, 0.01f);
-					boundingBox.Max = boundingBox.Min + new Vector3(0.98f, 0.98f, 0.98f);
-					if (!EnemyManager.Instance.TouchesZombies(boundingBox))
+					BoundingBox bb = default(BoundingBox);
+					bb.Min = IntVector3.ToVector3(addSpot) + new Vector3(0.01f, 0.01f, 0.01f);
+					bb.Max = bb.Min + new Vector3(0.98f, 0.98f, 0.98f);
+					if (!EnemyManager.Instance.TouchesZombies(bb))
 					{
-						BlockTypeEnum block2 = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex);
-						DigMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, true, this.ConstructionProbe.GetIntersection(), this.ConstructionProbe._inNormal, block2);
-						blockItem.AlterBlock(this.LocalPlayer, neighborIndex, this.ConstructionProbe._inFace);
-						return neighborIndex;
+						BlockTypeEnum blockType2 = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex);
+						DigMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, true, this.ConstructionProbe.GetIntersection(), this.ConstructionProbe._inNormal, blockType2);
+						blockItem.AlterBlock(this.LocalPlayer, addSpot, this.ConstructionProbe._inFace);
+						return addSpot;
 					}
 				}
 			}
-			return zero;
+			return failLocation;
 		}
 
 		public override void OnLostFocus()
@@ -1250,40 +1250,40 @@ namespace DNA.CastleMinerZ.UI
 
 		protected void DrawPlayerList(GraphicsDevice device, SpriteBatch spriteBatch, GameTime gameTime)
 		{
-			SpriteFont medFont = this._game._medFont;
-			Rectangle screenRect = Screen.Adjuster.ScreenRect;
+			SpriteFont font = this._game._medFont;
+			Rectangle safeArea = Screen.Adjuster.ScreenRect;
 			spriteBatch.Begin();
-			int count = this._game.CurrentNetworkSession.AllGamers.Count;
-			int maxGamers = this._game.CurrentNetworkSession.MaxGamers;
+			int playerCount = this._game.CurrentNetworkSession.AllGamers.Count;
+			int maxPlayers = this._game.CurrentNetworkSession.MaxGamers;
 			this._builder.Length = 0;
-			this._builder.Append(Strings.Players + " ").Concat(count).Append("/")
-				.Concat(maxGamers);
-			Vector2 vector = medFont.MeasureString(this._builder);
-			spriteBatch.DrawOutlinedText(medFont, this._builder, new Vector2((float)screenRect.Right - vector.X, (float)screenRect.Bottom - vector.Y), Color.White, Color.Black, 2);
-			float[] array = new float[1];
-			float num = 0f;
-			num += (array[0] = medFont.MeasureString("XXXXXXXXXXXXXXXXXXX ").X);
-			float num2 = ((float)Screen.Adjuster.ScreenRect.Width - num) / 2f;
-			float num3 = (float)screenRect.Top;
-			spriteBatch.DrawOutlinedText(medFont, Strings.Player, new Vector2(num2, num3), Color.Orange, Color.Black, 2);
-			num3 += (float)medFont.LineSpacing;
+			this._builder.Append(Strings.Players + " ").Concat(playerCount).Append("/")
+				.Concat(maxPlayers);
+			Vector2 size = font.MeasureString(this._builder);
+			spriteBatch.DrawOutlinedText(font, this._builder, new Vector2((float)safeArea.Right - size.X, (float)safeArea.Bottom - size.Y), Color.White, Color.Black, 2);
+			float[] columnWidths = new float[1];
+			float totalRowWidth = 0f;
+			totalRowWidth += (columnWidths[0] = font.MeasureString("XXXXXXXXXXXXXXXXXXX ").X);
+			float offset = ((float)Screen.Adjuster.ScreenRect.Width - totalRowWidth) / 2f;
+			float yloc = (float)safeArea.Top;
+			spriteBatch.DrawOutlinedText(font, Strings.Player, new Vector2(offset, yloc), Color.Orange, Color.Black, 2);
+			yloc += (float)font.LineSpacing;
 			for (int i = 0; i < this._game.CurrentNetworkSession.AllGamers.Count; i++)
 			{
-				NetworkGamer networkGamer = this._game.CurrentNetworkSession.AllGamers[i];
-				if (networkGamer.Tag != null)
+				NetworkGamer gamer = this._game.CurrentNetworkSession.AllGamers[i];
+				if (gamer.Tag != null)
 				{
-					Player player = (Player)networkGamer.Tag;
-					spriteBatch.DrawOutlinedText(medFont, player.Gamer.Gamertag, new Vector2(num2, num3), player.Gamer.IsLocal ? Color.Red : Color.White, Color.Black, 2);
+					Player player = (Player)gamer.Tag;
+					spriteBatch.DrawOutlinedText(font, player.Gamer.Gamertag, new Vector2(offset, yloc), player.Gamer.IsLocal ? Color.Red : Color.White, Color.Black, 2);
 					if (player.Profile != null)
 					{
-						float num4 = (float)medFont.LineSpacing * 0.9f;
-						float num5 = (float)medFont.LineSpacing - num4;
+						float profieSize = (float)font.LineSpacing * 0.9f;
+						float buff = (float)font.LineSpacing - profieSize;
 						if (player.GamerPicture != null)
 						{
-							spriteBatch.Draw(player.GamerPicture, new Rectangle((int)(num2 - (float)medFont.LineSpacing), (int)(num3 + num5), (int)num4, (int)num4), Color.White);
+							spriteBatch.Draw(player.GamerPicture, new Rectangle((int)(offset - (float)font.LineSpacing), (int)(yloc + buff), (int)profieSize, (int)profieSize), Color.White);
 						}
 					}
-					num3 += (float)medFont.LineSpacing;
+					yloc += (float)font.LineSpacing;
 				}
 			}
 			spriteBatch.End();
@@ -1296,26 +1296,26 @@ namespace DNA.CastleMinerZ.UI
 			controllerMapping.Sensitivity = this._game.PlayerStats.controllerSensitivity;
 			controllerMapping.InvertY = this._game.PlayerStats.InvertYAxis;
 			controllerMapping.ProcessInput(inputManager.Keyboard, inputManager.Mouse, controller);
-			float num = 5f;
-			Vector2 vector = new Vector2(this.maxGunCameraShift, this.maxGunCameraShift);
+			float speed = 5f;
+			Vector2 MaxValues = new Vector2(this.maxGunCameraShift, this.maxGunCameraShift);
 			if (this.LocalPlayer.Shouldering)
 			{
-				vector /= 2f;
+				MaxValues /= 2f;
 			}
-			Vector2 vector2 = controllerMapping.Aiming * vector;
+			Vector2 IntendedValues = controllerMapping.Aiming * MaxValues;
 			if (!this.LocalPlayer.Dead)
 			{
-				this.GunEyePointCameraLocation += (vector2 - this.GunEyePointCameraLocation) * num * (float)gameTime.ElapsedGameTime.TotalSeconds;
+				this.GunEyePointCameraLocation += (IntendedValues - this.GunEyePointCameraLocation) * speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 				this.GunEyePointCameraLocation.Y = MathHelper.Clamp(this.GunEyePointCameraLocation.Y, 0f, 100f);
 			}
-			GunInventoryItem gunInventoryItem = this.ActiveInventoryItem as GunInventoryItem;
-			if (gunInventoryItem != null)
+			GunInventoryItem ActiveGun = this.ActiveInventoryItem as GunInventoryItem;
+			if (ActiveGun != null)
 			{
 				if (!this.LocalPlayer.InContact)
 				{
 					if (this.InnaccuracyMultiplier < 1f)
 					{
-						this.InnaccuracyMultiplier += gunInventoryItem.GunClass.InnaccuracySpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+						this.InnaccuracyMultiplier += ActiveGun.GunClass.InnaccuracySpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 					}
 					if (this.InnaccuracyMultiplier > 1f)
 					{
@@ -1326,8 +1326,8 @@ namespace DNA.CastleMinerZ.UI
 				{
 					if (this.InnaccuracyMultiplier < 1f)
 					{
-						float num2 = MathHelper.Max(Math.Abs(controllerMapping.Movement.X), Math.Abs(controllerMapping.Movement.Y)) * gunInventoryItem.GunClass.InnaccuracySpeed;
-						this.InnaccuracyMultiplier += num2 * (float)gameTime.ElapsedGameTime.TotalSeconds;
+						float innaccuracySpeed = MathHelper.Max(Math.Abs(controllerMapping.Movement.X), Math.Abs(controllerMapping.Movement.Y)) * ActiveGun.GunClass.InnaccuracySpeed;
+						this.InnaccuracyMultiplier += innaccuracySpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 					}
 					if (this.InnaccuracyMultiplier > 1f)
 					{
@@ -1338,7 +1338,7 @@ namespace DNA.CastleMinerZ.UI
 				{
 					if (this.InnaccuracyMultiplier > 0f)
 					{
-						this.InnaccuracyMultiplier -= gunInventoryItem.GunClass.InnaccuracySpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+						this.InnaccuracyMultiplier -= ActiveGun.GunClass.InnaccuracySpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 					}
 					if (this.InnaccuracyMultiplier < 0f)
 					{
@@ -1485,27 +1485,27 @@ namespace DNA.CastleMinerZ.UI
 				}
 				if (!this.LocalPlayer.Dead && controllerMapping.Activate.Pressed && this.ConstructionProbe._collides)
 				{
-					BlockTypeEnum block = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex);
-					if (BlockType.IsContainer(block))
+					BlockTypeEnum blockType = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex);
+					if (BlockType.IsContainer(blockType))
 					{
 						Crate crate = CastleMinerZGame.Instance.CurrentWorld.GetCrate(this.ConstructionProbe._worldIndex, true);
 						this._crateScreen.CurrentCrate = crate;
 						this._game.GameScreen._uiGroup.PushScreen(this._crateScreen);
 						SoundManager.Instance.PlayInstance("Click");
 					}
-					else if (BlockType.IsSpawnerClickable(block))
+					else if (BlockType.IsSpawnerClickable(blockType))
 					{
-						Spawner spawner = CastleMinerZGame.Instance.CurrentWorld.GetSpawner(this.ConstructionProbe._worldIndex, true, block);
+						Spawner spawner = CastleMinerZGame.Instance.CurrentWorld.GetSpawner(this.ConstructionProbe._worldIndex, true, blockType);
 						if (this._game.IsOnlineGame)
 						{
 							BroadcastTextMessage.Send(this._game.MyNetworkGamer, this.LocalPlayer.Gamer.Gamertag + " " + Strings.Has_triggered_a_monster_spawner);
 						}
-						spawner.StartSpawner(block);
+						spawner.StartSpawner(blockType);
 						SoundManager.Instance.PlayInstance("Click");
 					}
 					else
 					{
-						BlockTypeEnum blockTypeEnum = block;
+						BlockTypeEnum blockTypeEnum = blockType;
 						switch (blockTypeEnum)
 						{
 						case BlockTypeEnum.NormalLowerDoorClosedZ:
@@ -1520,8 +1520,8 @@ namespace DNA.CastleMinerZ.UI
 						{
 							DoorOpenCloseMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex, true);
 							AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex, BlockTypeEnum.NormalUpperDoorOpen);
-							BlockTypeEnum block2 = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0));
-							if (block2 == BlockTypeEnum.NormalLowerDoorClosedX)
+							BlockTypeEnum blockType2 = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0));
+							if (blockType2 == BlockTypeEnum.NormalLowerDoorClosedX)
 							{
 								AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0), BlockTypeEnum.NormalLowerDoorOpenX);
 							}
@@ -1542,8 +1542,8 @@ namespace DNA.CastleMinerZ.UI
 						{
 							DoorOpenCloseMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex, false);
 							AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex, BlockTypeEnum.NormalUpperDoorClosed);
-							BlockTypeEnum block3 = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0));
-							if (block3 == BlockTypeEnum.NormalLowerDoorOpenX)
+							BlockTypeEnum blockType3 = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0));
+							if (blockType3 == BlockTypeEnum.NormalLowerDoorOpenX)
 							{
 								AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0), BlockTypeEnum.NormalLowerDoorClosedX);
 							}
@@ -1575,8 +1575,8 @@ namespace DNA.CastleMinerZ.UI
 							{
 								DoorOpenCloseMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex, true);
 								AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex, BlockTypeEnum.StrongUpperDoorOpen);
-								BlockTypeEnum block4 = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0));
-								if (block4 == BlockTypeEnum.StrongLowerDoorClosedX)
+								BlockTypeEnum blockType4 = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0));
+								if (blockType4 == BlockTypeEnum.StrongLowerDoorClosedX)
 								{
 									AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0), BlockTypeEnum.StrongLowerDoorOpenX);
 								}
@@ -1597,8 +1597,8 @@ namespace DNA.CastleMinerZ.UI
 							{
 								DoorOpenCloseMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex, false);
 								AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex, BlockTypeEnum.StrongUpperDoorClosed);
-								BlockTypeEnum block5 = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0));
-								if (block5 == BlockTypeEnum.StrongLowerDoorOpenX)
+								BlockTypeEnum blockType5 = InGameHUD.GetBlock(this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0));
+								if (blockType5 == BlockTypeEnum.StrongLowerDoorOpenX)
 								{
 									AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0), BlockTypeEnum.StrongLowerDoorClosedX);
 								}
@@ -1650,10 +1650,10 @@ namespace DNA.CastleMinerZ.UI
 
 		public void SetFuseForExplosive(IntVector3 location, ExplosiveTypes explosiveType)
 		{
-			Explosive explosive = new Explosive(location, explosiveType);
-			if (!this._tntWaitingToExplode.Contains(explosive))
+			Explosive tnt = new Explosive(location, explosiveType);
+			if (!this._tntWaitingToExplode.Contains(tnt))
 			{
-				this._tntWaitingToExplode.Add(explosive);
+				this._tntWaitingToExplode.Add(tnt);
 				AddExplosiveFlashMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, location);
 			}
 		}

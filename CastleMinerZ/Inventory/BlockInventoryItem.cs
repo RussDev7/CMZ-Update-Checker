@@ -63,17 +63,17 @@ namespace DNA.CastleMinerZ.Inventory
 			if (base.CoolDownTimer.Expired && controller.Use.Pressed && base.StackCount > 0)
 			{
 				base.CoolDownTimer.Reset();
-				IntVector3 intVector = hud.Build(this, true);
-				if (intVector != IntVector3.Zero)
+				IntVector3 location = hud.Build(this, true);
+				if (location != IntVector3.Zero)
 				{
-					bool flag = true;
+					bool buildNow = true;
 					if (BlockType.IsDoor(this.BlockTypeID))
 					{
-						CastleMinerZGame.Instance.CurrentWorld.SetDoor(intVector, DoorEntity.GetModelNameFromInventoryId(base.ItemClass.ID));
+						CastleMinerZGame.Instance.CurrentWorld.SetDoor(location, DoorEntity.GetModelNameFromInventoryId(base.ItemClass.ID));
 					}
 					if (this.BlockTypeID == BlockTypeEnum.SpawnPointBasic)
 					{
-						this.PlaceLocator(intVector);
+						this.PlaceLocator(location);
 						CastleMinerZGame.Instance.LocalPlayer.SetSpawnPoint(this);
 						hud.PlayerInventory.Consume(this, 1, false);
 					}
@@ -81,13 +81,13 @@ namespace DNA.CastleMinerZ.Inventory
 					{
 						this._hudReference = hud;
 						this.ShowKeyboard(null);
-						flag = false;
+						buildNow = false;
 					}
 					else
 					{
 						hud.PlayerInventory.Consume(this, 1, false);
 					}
-					if (flag)
+					if (buildNow)
 					{
 						hud.Build(this, false);
 					}
@@ -122,7 +122,7 @@ namespace DNA.CastleMinerZ.Inventory
 			{
 				this._customBlockName = reader.ReadString();
 			}
-			BlockTypeEnum inActiveSpawnBlockType = SpawnBlockView.GetInActiveSpawnBlockType(this.BlockTypeID);
+			BlockTypeEnum baseBlock = SpawnBlockView.GetInActiveSpawnBlockType(this.BlockTypeID);
 			BlockTypeEnum blockTypeID = this.BlockTypeID;
 		}
 
@@ -141,20 +141,20 @@ namespace DNA.CastleMinerZ.Inventory
 
 		protected override void OnKeyboardSubmit()
 		{
-			string textInput = this._keyboardInputScreen.TextInput;
-			if (textInput != null)
+			string nameText = this._keyboardInputScreen.TextInput;
+			if (nameText != null)
 			{
-				if (textInput.Length > 10)
+				if (nameText.Length > 10)
 				{
-					this._customBlockName = textInput.Substring(0, 10);
+					this._customBlockName = nameText.Substring(0, 10);
 				}
 				else
 				{
-					this._customBlockName = textInput;
+					this._customBlockName = nameText;
 				}
 			}
-			IntVector3 intVector = this._hudReference.Build(this, false);
-			this.PlaceLocator(intVector);
+			IntVector3 location = this._hudReference.Build(this, false);
+			this.PlaceLocator(location);
 			CastleMinerZGame.Instance.LocalPlayer.AddTeleportStationObject(this);
 			CastleMinerZGame.Instance.LocalPlayer.PlayerInventory.Consume(this, 1, true);
 			this._hudReference = null;

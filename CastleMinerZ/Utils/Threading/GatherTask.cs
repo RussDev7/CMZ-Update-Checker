@@ -53,10 +53,10 @@ namespace DNA.CastleMinerZ.Utils.Threading
 
 		public WaitableTask AddWaitableTask(TaskDelegate work, object context)
 		{
-			WaitableTask waitableTask = WaitableTask.Alloc();
-			waitableTask.Init(work, context, this);
-			this.InsertTask(waitableTask);
-			return waitableTask;
+			WaitableTask task = WaitableTask.Alloc();
+			task.Init(work, context, this);
+			this.InsertTask(task);
+			return task;
 		}
 
 		public void Start()
@@ -64,14 +64,14 @@ namespace DNA.CastleMinerZ.Utils.Threading
 			this._count.Value = this._children.Count;
 			while (!this._children.Empty)
 			{
-				BaseTask baseTask = this._children.Dequeue();
+				BaseTask proot = this._children.Dequeue();
 				if (this._rush)
 				{
-					TaskDispatcher.Instance.AddRushTask(baseTask);
+					TaskDispatcher.Instance.AddRushTask(proot);
 				}
 				else
 				{
-					TaskDispatcher.Instance.AddTask(baseTask);
+					TaskDispatcher.Instance.AddTask(proot);
 				}
 			}
 		}
@@ -97,11 +97,11 @@ namespace DNA.CastleMinerZ.Utils.Threading
 
 		public static GatherTask Alloc()
 		{
-			GatherTask gatherTask = GatherTask._cache.Get();
-			gatherTask._desiredThreadIndex = TaskThreadEnum.THREAD_ANY;
-			gatherTask._count.Value = 0;
-			gatherTask._rush = false;
-			return gatherTask;
+			GatherTask result = GatherTask._cache.Get();
+			result._desiredThreadIndex = TaskThreadEnum.THREAD_ANY;
+			result._count.Value = 0;
+			result._rush = false;
+			return result;
 		}
 
 		public override void Release()

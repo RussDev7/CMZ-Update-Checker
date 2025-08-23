@@ -17,7 +17,7 @@ namespace DNA.CastleMinerZ.UI
 
 		protected override void OnDraw(GraphicsDevice device, SpriteBatch spriteBatch, GameTime gameTime)
 		{
-			Rectangle rectangle = Screen.Adjuster.TransformClipped(new Rectangle(0, 0, 1280, 720));
+			Rectangle Destination = Screen.Adjuster.TransformClipped(new Rectangle(0, 0, 1280, 720));
 			spriteBatch.Begin();
 			if (this.preBlackness.Expired)
 			{
@@ -33,27 +33,27 @@ namespace DNA.CastleMinerZ.UI
 							}
 							else
 							{
-								spriteBatch.Draw(this._image, rectangle, Color.Black);
+								spriteBatch.Draw(this._image, Destination, Color.Black);
 							}
 						}
 						else
 						{
-							spriteBatch.Draw(this._image, rectangle, Color.Lerp(Color.White, Color.Black, this.fadeOut.PercentComplete));
+							spriteBatch.Draw(this._image, Destination, Color.Lerp(Color.White, Color.Black, this.fadeOut.PercentComplete));
 						}
 					}
 					else
 					{
-						spriteBatch.Draw(this._image, rectangle, Color.White);
+						spriteBatch.Draw(this._image, Destination, Color.White);
 					}
 				}
 				else
 				{
-					spriteBatch.Draw(this._image, rectangle, Color.Lerp(Color.Black, Color.White, this.fadeIn.PercentComplete));
+					spriteBatch.Draw(this._image, Destination, Color.Lerp(Color.Black, Color.White, this.fadeIn.PercentComplete));
 				}
 			}
 			else
 			{
-				spriteBatch.Draw(this._image, rectangle, Color.Black);
+				spriteBatch.Draw(this._image, Destination, Color.Black);
 			}
 			spriteBatch.End();
 			base.OnDraw(device, spriteBatch, gameTime);

@@ -41,16 +41,16 @@ namespace DNA.CastleMinerZ
 
 		private int GetModelIndex(InventoryItem item, IntVector3 location)
 		{
-			int num = 0;
+			int modelIndex = 0;
 			if (item is DoorInventoryitem)
 			{
 				Door door = CastleMinerZGame.Instance.CurrentWorld.GetDoor(location);
 				if (door != null)
 				{
-					num = (int)door.ModelName;
+					modelIndex = (int)door.ModelName;
 				}
 			}
-			return Math.Max(0, num);
+			return Math.Max(0, modelIndex);
 		}
 
 		public BasicPhysics PlayerPhysics
@@ -69,30 +69,30 @@ namespace DNA.CastleMinerZ
 		protected override void OnUpdate(GameTime gameTime)
 		{
 			this._displayEntity.LocalRotation = Quaternion.CreateFromAxisAngle(Vector3.Down, (float)gameTime.ElapsedGameTime.TotalSeconds) * this._displayEntity.LocalRotation;
-			Vector3 vector = this._displayEntity.LocalPosition;
+			Vector3 v = this._displayEntity.LocalPosition;
 			this._bouncePhase += (float)gameTime.ElapsedGameTime.TotalSeconds * 1.5f;
-			vector.Y = (float)Math.Sin((double)this._bouncePhase) * 0.1f + 0.1f;
-			this._displayEntity.LocalPosition = vector;
-			vector = this.PlayerPhysics.LocalVelocity;
+			v.Y = (float)Math.Sin((double)this._bouncePhase) * 0.1f + 0.1f;
+			this._displayEntity.LocalPosition = v;
+			v = this.PlayerPhysics.LocalVelocity;
 			if (this.OnGround)
 			{
-				vector.X *= 0.9f;
-				vector.Z *= 0.9f;
+				v.X *= 0.9f;
+				v.Z *= 0.9f;
 			}
 			else
 			{
-				vector.X *= 0.99f;
-				vector.Z *= 0.99f;
+				v.X *= 0.99f;
+				v.Z *= 0.99f;
 			}
-			if (Math.Abs(vector.X) < 0.1f)
+			if (Math.Abs(v.X) < 0.1f)
 			{
-				vector.X = 0f;
+				v.X = 0f;
 			}
-			if (Math.Abs(vector.Z) < 0.1f)
+			if (Math.Abs(v.Z) < 0.1f)
 			{
-				vector.Z = 0f;
+				v.Z = 0f;
 			}
-			this.PlayerPhysics.LocalVelocity = vector;
+			this.PlayerPhysics.LocalVelocity = v;
 			this._timeLeft -= (float)gameTime.ElapsedGameTime.TotalSeconds;
 			if (this._timeLeft <= 0f)
 			{
@@ -119,14 +119,14 @@ namespace DNA.CastleMinerZ
 			}
 			else if (!this._pickedUp)
 			{
-				Player localPlayer = CastleMinerZGame.Instance.LocalPlayer;
-				Vector3 localPosition = localPlayer.LocalPosition;
-				localPosition.Y += 1f;
-				if (!this._readyForPickup && Vector3.DistanceSquared(localPosition, base.LocalPosition) > 4f)
+				Player p = CastleMinerZGame.Instance.LocalPlayer;
+				Vector3 pp = p.LocalPosition;
+				pp.Y += 1f;
+				if (!this._readyForPickup && Vector3.DistanceSquared(pp, base.LocalPosition) > 4f)
 				{
 					this._readyForPickup = true;
 				}
-				if (this._readyForPickup && Vector3.DistanceSquared(localPosition, base.LocalPosition) < 4f)
+				if (this._readyForPickup && Vector3.DistanceSquared(pp, base.LocalPosition) < 4f)
 				{
 					this._pickedUp = true;
 					PickupManager.Instance.PlayerTouchedPickup(this);
@@ -137,30 +137,30 @@ namespace DNA.CastleMinerZ
 
 		public override bool ResolveCollsion(Entity e, out Plane collsionPlane, GameTime dt)
 		{
-			bool flag2;
+			bool flag;
 			using (Profiler.TimeSection("Pickup Collision", ProfilerThreadEnum.MAIN))
 			{
 				base.ResolveCollsion(e, out collsionPlane, dt);
-				bool flag = false;
+				bool result = false;
 				if (e == BlockTerrain.Instance)
 				{
-					float num = (float)dt.ElapsedGameTime.TotalSeconds;
-					Vector3 worldPosition = base.WorldPosition;
-					Vector3 vector = worldPosition;
-					Vector3 vector2 = this.PlayerPhysics.WorldVelocity;
+					float t = (float)dt.ElapsedGameTime.TotalSeconds;
+					Vector3 worldPos = base.WorldPosition;
+					Vector3 nextPos = worldPos;
+					Vector3 velocity = this.PlayerPhysics.WorldVelocity;
 					this.OnGround = false;
 					this.MovementProbe.SkipEmbedded = true;
-					int num2 = 0;
+					int iteration = 0;
 					for (;;)
 					{
-						Vector3 vector3 = vector;
-						Vector3 vector4 = Vector3.Multiply(vector2, num);
-						vector += vector4;
-						this.MovementProbe.Init(vector3, vector, this.CollisionAABB);
+						Vector3 prevPos = nextPos;
+						Vector3 movement = Vector3.Multiply(velocity, t);
+						nextPos += movement;
+						this.MovementProbe.Init(prevPos, nextPos, this.CollisionAABB);
 						BlockTerrain.Instance.Trace(this.MovementProbe);
 						if (this.MovementProbe._collides)
 						{
-							flag = true;
+							result = true;
 							if (this.MovementProbe._inFace == BlockFace.POSY)
 							{
 								this.OnGround = true;
@@ -169,38 +169,38 @@ namespace DNA.CastleMinerZ
 							{
 								goto IL_0189;
 							}
-							float num3 = Math.Max(this.MovementProbe._inT - 0.001f, 0f);
-							vector = vector3 + vector4 * num3;
-							vector2 -= Vector3.Multiply(this.MovementProbe._inNormal, Vector3.Dot(this.MovementProbe._inNormal, vector2));
-							num *= 1f - num3;
-							if (num <= 1E-07f)
+							float realt = Math.Max(this.MovementProbe._inT - 0.001f, 0f);
+							nextPos = prevPos + movement * realt;
+							velocity -= Vector3.Multiply(this.MovementProbe._inNormal, Vector3.Dot(this.MovementProbe._inNormal, velocity));
+							t *= 1f - realt;
+							if (t <= 1E-07f)
 							{
 								goto IL_0189;
 							}
-							if (vector2.LengthSquared() <= 1E-06f || Vector3.Dot(this.PlayerPhysics.WorldVelocity, vector2) <= 1E-06f)
+							if (velocity.LengthSquared() <= 1E-06f || Vector3.Dot(this.PlayerPhysics.WorldVelocity, velocity) <= 1E-06f)
 							{
 								break;
 							}
 						}
-						num2++;
-						if (!this.MovementProbe._collides || num2 >= 4)
+						iteration++;
+						if (!this.MovementProbe._collides || iteration >= 4)
 						{
 							goto IL_0189;
 						}
 					}
-					vector2 = Vector3.Zero;
+					velocity = Vector3.Zero;
 					IL_0189:
-					if (num2 == 4)
+					if (iteration == 4)
 					{
-						vector2 = Vector3.Zero;
+						velocity = Vector3.Zero;
 					}
-					base.LocalPosition = vector;
-					this.PlayerPhysics.WorldVelocity = vector2;
-					vector.Y += 1.2f;
+					base.LocalPosition = nextPos;
+					this.PlayerPhysics.WorldVelocity = velocity;
+					nextPos.Y += 1.2f;
 				}
-				flag2 = flag;
+				flag = result;
 			}
-			return flag2;
+			return flag;
 		}
 
 		private const float PickupRadSqu = 4f;

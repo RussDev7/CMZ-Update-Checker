@@ -23,11 +23,11 @@ namespace DNA.CastleMinerZ.Terrain
 
 		private void SetBlockProperty(BlockTypeEnum blockSource)
 		{
-			foreach (SpawnBlockView.SpawnBlockProperties spawnBlockProperties2 in SpawnBlockView._spawnBlockProperties)
+			foreach (SpawnBlockView.SpawnBlockProperties properties in SpawnBlockView._spawnBlockProperties)
 			{
-				if (spawnBlockProperties2.OffBlockTypeEnum == blockSource)
+				if (properties.OffBlockTypeEnum == blockSource)
 				{
-					this._blockProperties = spawnBlockProperties2;
+					this._blockProperties = properties;
 					break;
 				}
 			}
@@ -75,33 +75,33 @@ namespace DNA.CastleMinerZ.Terrain
 
 		public static BlockTypeEnum GetInActiveSpawnBlockType(BlockTypeEnum blockType)
 		{
-			BlockTypeEnum blockTypeEnum = blockType;
+			BlockTypeEnum activeBlockType = blockType;
 			switch (blockType)
 			{
 			case BlockTypeEnum.EnemySpawnOn:
-				blockTypeEnum = BlockTypeEnum.EnemySpawnOff;
+				activeBlockType = BlockTypeEnum.EnemySpawnOff;
 				break;
 			case BlockTypeEnum.EnemySpawnOff:
 				break;
 			case BlockTypeEnum.EnemySpawnRareOn:
-				blockTypeEnum = BlockTypeEnum.EnemySpawnRareOff;
+				activeBlockType = BlockTypeEnum.EnemySpawnRareOff;
 				break;
 			default:
 				switch (blockType)
 				{
 				case BlockTypeEnum.AlienSpawnOn:
-					blockTypeEnum = BlockTypeEnum.AlienSpawnOff;
+					activeBlockType = BlockTypeEnum.AlienSpawnOff;
 					break;
 				case BlockTypeEnum.HellSpawnOn:
-					blockTypeEnum = BlockTypeEnum.HellSpawnOff;
+					activeBlockType = BlockTypeEnum.HellSpawnOff;
 					break;
 				case BlockTypeEnum.BossSpawnOn:
-					blockTypeEnum = BlockTypeEnum.BossSpawnOff;
+					activeBlockType = BlockTypeEnum.BossSpawnOff;
 					break;
 				}
 				break;
 			}
-			return blockTypeEnum;
+			return activeBlockType;
 		}
 
 		public BlockTypeEnum GetActiveSpawnBlockType()

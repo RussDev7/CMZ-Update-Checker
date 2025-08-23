@@ -13,10 +13,10 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, IntVector3 blockLocation, int priority)
 		{
-			RequestChunkMessage sendInstance = Message.GetSendInstance<RequestChunkMessage>();
-			sendInstance.BlockLocation = blockLocation;
-			sendInstance.Priority = priority;
-			sendInstance.SendToHost(from);
+			RequestChunkMessage Instance = Message.GetSendInstance<RequestChunkMessage>();
+			Instance.BlockLocation = blockLocation;
+			Instance.Priority = priority;
+			Instance.SendToHost(from);
 		}
 
 		protected override SendDataOptions SendDataOptions

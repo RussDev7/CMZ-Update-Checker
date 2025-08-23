@@ -13,51 +13,51 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 
 		public override void BuildColumn(BlockTerrain terrain, int worldX, int worldZ, int minY, float blender)
 		{
-			int num = (int)(blender * 10f);
-			float num2 = this._noiseFunction.ComputeNoise(0.0046875f * (float)worldX, 0.0046875f * (float)worldZ);
-			CrashSiteDepositer.noiseHighestValue = Math.Max(CrashSiteDepositer.noiseHighestValue, num2);
-			if (num2 > 0.5f)
+			int intblend = (int)(blender * 10f);
+			float noise = this._noiseFunction.ComputeNoise(0.0046875f * (float)worldX, 0.0046875f * (float)worldZ);
+			CrashSiteDepositer.noiseHighestValue = Math.Max(CrashSiteDepositer.noiseHighestValue, noise);
+			if (noise > 0.5f)
 			{
-				int num3 = (int)((num2 - 0.5f) * 7f * 20f);
-				int num4 = 0;
-				if (num2 > 0.55f)
+				int craterDepth = (int)((noise - 0.5f) * 7f * 20f);
+				int moundHeight = 0;
+				if (noise > 0.55f)
 				{
-					num4 = Math.Min(num3, (int)((num2 - 0.55f) * 10f * 20f));
+					moundHeight = Math.Min(craterDepth, (int)((noise - 0.55f) * 10f * 20f));
 				}
-				Math.Max(20, 66 - num3 - (int)((float)num4 * 1.5f));
-				for (int i = 20; i < 126; i++)
+				Math.Max(20, 66 - craterDepth - (int)((float)moundHeight * 1.5f));
+				for (int y = 20; y < 126; y++)
 				{
-					int num5 = i + minY;
-					IntVector3 intVector = new IntVector3(worldX, num5, worldZ);
-					int num6 = terrain.MakeIndexFromWorldIndexVector(intVector);
-					int num7 = terrain._blocks[num6];
-					int num8 = i - 1 + minY;
-					IntVector3 intVector2 = new IntVector3(worldX, num8, worldZ);
-					int num9 = terrain.MakeIndexFromWorldIndexVector(intVector2);
-					if (i < 66 - num3 - num4 - 10)
+					int worldY = y + minY;
+					IntVector3 worldPos = new IntVector3(worldX, worldY, worldZ);
+					int index = terrain.MakeIndexFromWorldIndexVector(worldPos);
+					int num = terrain._blocks[index];
+					int blockBelowWorldY = y - 1 + minY;
+					IntVector3 blockBelowWorldPos = new IntVector3(worldX, blockBelowWorldY, worldZ);
+					int blockBelowIndex = terrain.MakeIndexFromWorldIndexVector(blockBelowWorldPos);
+					if (y < 66 - craterDepth - moundHeight - 10)
 					{
-						if (terrain._blocks[num6] != Biome.BloodSToneBlock && (num9 < 0 || terrain._blocks[num9] != Biome.BloodSToneBlock))
+						if (terrain._blocks[index] != Biome.BloodSToneBlock && (blockBelowIndex < 0 || terrain._blocks[blockBelowIndex] != Biome.BloodSToneBlock))
 						{
-							terrain._blocks[num6] = Biome.emptyblock;
+							terrain._blocks[index] = Biome.emptyblock;
 						}
 					}
-					else if (num4 > 0 && i < 66 - num3 + num4)
+					else if (moundHeight > 0 && y < 66 - craterDepth + moundHeight)
 					{
-						terrain._blocks[num6] = Biome.SpaceRockBlock;
+						terrain._blocks[index] = Biome.SpaceRockBlock;
 					}
-					else if (i >= 66 - num3 + num4)
+					else if (y >= 66 - craterDepth + moundHeight)
 					{
-						terrain._blocks[num6] = Biome.emptyblock;
+						terrain._blocks[index] = Biome.emptyblock;
 					}
-					if (terrain._blocks[num6] == Biome.SpaceRockBlock && i < 66 - num3 + (num4 - 3))
+					if (terrain._blocks[index] == Biome.SpaceRockBlock && y < 66 - craterDepth + (moundHeight - 3))
 					{
-						IntVector3 intVector3 = intVector + new IntVector3(777, 777, 777);
-						int num10 = this._slimeNoiseFunction.ComputeNoise(intVector3 / 2);
-						int num11 = this._slimeNoiseFunction.ComputeNoise(intVector3);
-						num10 += (num11 - 128) / 8;
-						if (num10 > 265 - num)
+						IntVector3 diapos = worldPos + new IntVector3(777, 777, 777);
+						int slimeNoise = this._slimeNoiseFunction.ComputeNoise(diapos / 2);
+						int slimeNoise2 = this._slimeNoiseFunction.ComputeNoise(diapos);
+						slimeNoise += (slimeNoise2 - 128) / 8;
+						if (slimeNoise > 265 - intblend)
 						{
-							terrain._blocks[num6] = Biome.SlimeBlock;
+							terrain._blocks[index] = Biome.SlimeBlock;
 						}
 					}
 				}

@@ -87,23 +87,23 @@ namespace DNA.CastleMinerZ.Inventory
 		public bool Reload(InGameHUD hud)
 		{
 			this._ammoCount = this.GunClass.AmmoCount(hud.PlayerInventory);
-			int num = this.GunClass.ClipCapacity - this.RoundsInClip;
-			if (num > this._ammoCount)
+			int ammoNeeded = this.GunClass.ClipCapacity - this.RoundsInClip;
+			if (ammoNeeded > this._ammoCount)
 			{
-				num = this._ammoCount;
+				ammoNeeded = this._ammoCount;
 			}
-			if (num > this.GunClass.RoundsPerReload)
+			if (ammoNeeded > this.GunClass.RoundsPerReload)
 			{
-				num = this.GunClass.RoundsPerReload;
+				ammoNeeded = this.GunClass.RoundsPerReload;
 			}
-			if (num <= 0)
+			if (ammoNeeded <= 0)
 			{
 				return false;
 			}
-			if (hud.PlayerInventory.Consume(this.GunClass.AmmoType, num))
+			if (hud.PlayerInventory.Consume(this.GunClass.AmmoType, ammoNeeded))
 			{
-				this.RoundsInClip += num;
-				this._ammoCount -= num;
+				this.RoundsInClip += ammoNeeded;
+				this._ammoCount -= ammoNeeded;
 			}
 			return this.RoundsInClip < this.GunClass.ClipCapacity && this._ammoCount > 0;
 		}
@@ -112,8 +112,8 @@ namespace DNA.CastleMinerZ.Inventory
 		{
 			hud.LocalPlayer.Shouldering = controller.Shoulder.Held;
 			this._ammoCount = this.GunClass.AmmoCount(hud.PlayerInventory);
-			bool flag = this.RoundsInClip < this.GunClass.ClipCapacity && this._ammoCount > 0;
-			if (flag && controller.Reload.Pressed)
+			bool canReload = this.RoundsInClip < this.GunClass.ClipCapacity && this._ammoCount > 0;
+			if (canReload && controller.Reload.Pressed)
 			{
 				this.gunReleased = !controller.Use.Held;
 				hud.LocalPlayer.Reloading = true;
@@ -124,12 +124,12 @@ namespace DNA.CastleMinerZ.Inventory
 			}
 			if (!hud.LocalPlayer.Reloading && base.CoolDownTimer.Expired && ((controller.Use.Held && this.GunClass.Automatic) || controller.Use.Pressed))
 			{
-				RocketLauncherGuidedInventoryItemClass rocketLauncherGuidedInventoryItemClass = base.ItemClass as RocketLauncherGuidedInventoryItemClass;
-				if (this.RoundsInClip > 0 && (rocketLauncherGuidedInventoryItemClass == null || rocketLauncherGuidedInventoryItemClass.LockedOnToDragon))
+				RocketLauncherGuidedInventoryItemClass guidedRocketLauncher = base.ItemClass as RocketLauncherGuidedInventoryItemClass;
+				if (this.RoundsInClip > 0 && (guidedRocketLauncher == null || guidedRocketLauncher.LockedOnToDragon))
 				{
-					if (rocketLauncherGuidedInventoryItemClass != null)
+					if (guidedRocketLauncher != null)
 					{
-						rocketLauncherGuidedInventoryItemClass.StopSound();
+						guidedRocketLauncher.StopSound();
 					}
 					hud.LocalPlayer.Reloading = false;
 					hud.Shoot((GunInventoryItemClass)base.ItemClass);
@@ -149,7 +149,7 @@ namespace DNA.CastleMinerZ.Inventory
 					}
 					return;
 				}
-				if (flag)
+				if (canReload)
 				{
 					hud.LocalPlayer.Reloading = true;
 				}

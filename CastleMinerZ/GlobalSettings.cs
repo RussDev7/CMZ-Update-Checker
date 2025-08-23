@@ -19,13 +19,13 @@ namespace DNA.CastleMinerZ
 
 		public static string GetAppDataDirectory(string subdir)
 		{
-			string folderPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-			string text = Path.Combine(folderPath, "CastleMinerZ");
+			string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+			string dataPath = Path.Combine(appData, "CastleMinerZ");
 			if (!string.IsNullOrEmpty(subdir))
 			{
-				text = Path.Combine(text, subdir);
+				dataPath = Path.Combine(dataPath, subdir);
 			}
-			return text;
+			return dataPath;
 		}
 
 		public static string GetAppDataDirectory()
@@ -35,33 +35,33 @@ namespace DNA.CastleMinerZ
 
 		public void Save()
 		{
-			HTFDocument htfdocument = new HTFDocument();
-			string appDataDirectory = GlobalSettings.GetAppDataDirectory();
-			if (!Directory.Exists(appDataDirectory))
+			HTFDocument settingsDoc = new HTFDocument();
+			string dataPath = GlobalSettings.GetAppDataDirectory();
+			if (!Directory.Exists(dataPath))
 			{
-				Directory.CreateDirectory(appDataDirectory);
+				Directory.CreateDirectory(dataPath);
 			}
-			string text = Path.Combine(appDataDirectory, "user.settings");
-			htfdocument.Children.Add(new HTFElement("FullScreen", this.FullScreen.ToString()));
-			htfdocument.Children.Add(new HTFElement("AskForFacebook", this.AskForFacebook.ToString()));
-			htfdocument.Children.Add(new HTFElement("ScreenWidth", this.ScreenSize.Width.ToString()));
-			htfdocument.Children.Add(new HTFElement("ScreenHeight", this.ScreenSize.Height.ToString()));
-			htfdocument.Children.Add(new HTFElement("TextureQuality", this.TextureQualityLevel.ToString()));
-			htfdocument.Save(text);
+			string fullSavePath = Path.Combine(dataPath, "user.settings");
+			settingsDoc.Children.Add(new HTFElement("FullScreen", this.FullScreen.ToString()));
+			settingsDoc.Children.Add(new HTFElement("AskForFacebook", this.AskForFacebook.ToString()));
+			settingsDoc.Children.Add(new HTFElement("ScreenWidth", this.ScreenSize.Width.ToString()));
+			settingsDoc.Children.Add(new HTFElement("ScreenHeight", this.ScreenSize.Height.ToString()));
+			settingsDoc.Children.Add(new HTFElement("TextureQuality", this.TextureQualityLevel.ToString()));
+			settingsDoc.Save(fullSavePath);
 		}
 
 		public void Load()
 		{
 			try
 			{
-				HTFDocument htfdocument = new HTFDocument();
-				string appDataDirectory = GlobalSettings.GetAppDataDirectory();
-				string text = Path.Combine(appDataDirectory, "user.settings");
-				htfdocument.Load(text);
-				for (int i = 0; i < htfdocument.Children.Count; i++)
+				HTFDocument settingsDoc = new HTFDocument();
+				string dataPath = GlobalSettings.GetAppDataDirectory();
+				string fullSavePath = Path.Combine(dataPath, "user.settings");
+				settingsDoc.Load(fullSavePath);
+				for (int i = 0; i < settingsDoc.Children.Count; i++)
 				{
 					string id;
-					if ((id = htfdocument.Children[i].ID) != null)
+					if ((id = settingsDoc.Children[i].ID) != null)
 					{
 						if (!(id == "FullScreen"))
 						{
@@ -73,27 +73,27 @@ namespace DNA.CastleMinerZ
 									{
 										if (id == "TextureQuality")
 										{
-											this.TextureQualityLevel = int.Parse(htfdocument.Children[i].Value);
+											this.TextureQualityLevel = int.Parse(settingsDoc.Children[i].Value);
 										}
 									}
 									else
 									{
-										this.ScreenSize.Height = int.Parse(htfdocument.Children[i].Value);
+										this.ScreenSize.Height = int.Parse(settingsDoc.Children[i].Value);
 									}
 								}
 								else
 								{
-									this.ScreenSize.Width = int.Parse(htfdocument.Children[i].Value);
+									this.ScreenSize.Width = int.Parse(settingsDoc.Children[i].Value);
 								}
 							}
 							else
 							{
-								this.AskForFacebook = bool.Parse(htfdocument.Children[i].Value);
+								this.AskForFacebook = bool.Parse(settingsDoc.Children[i].Value);
 							}
 						}
 						else
 						{
-							this.FullScreen = bool.Parse(htfdocument.Children[i].Value);
+							this.FullScreen = bool.Parse(settingsDoc.Children[i].Value);
 						}
 					}
 				}

@@ -16,10 +16,10 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, Vector3 pos, bool isStarted)
 		{
-			UpdateSpawnerMessage sendInstance = Message.GetSendInstance<UpdateSpawnerMessage>();
-			sendInstance.SpawnerPosition = pos;
-			sendInstance.IsStarted = isStarted;
-			sendInstance.DoSend(from);
+			UpdateSpawnerMessage Instance = Message.GetSendInstance<UpdateSpawnerMessage>();
+			Instance.SpawnerPosition = pos;
+			Instance.IsStarted = isStarted;
+			Instance.DoSend(from);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType

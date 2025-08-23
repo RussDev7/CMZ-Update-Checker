@@ -12,24 +12,24 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 
 		public override void BuildColumn(BlockTerrain terrain, int worldX, int worldZ, int minY, float blender)
 		{
-			int num = (int)MathHelper.Lerp(66f, 4f, blender);
-			int num2 = num - 3;
-			for (int i = 0; i < num; i++)
+			int groundLimit = (int)MathHelper.Lerp(66f, 4f, blender);
+			int sandLimit = groundLimit - 3;
+			for (int y = 0; y < groundLimit; y++)
 			{
 				if (terrain._resetRequested)
 				{
 					return;
 				}
-				int num3 = i + minY;
-				IntVector3 intVector = new IntVector3(worldX, num3, worldZ);
-				int num4 = terrain.MakeIndexFromWorldIndexVector(intVector);
-				if (i <= num2)
+				int worldY = y + minY;
+				IntVector3 worldPos = new IntVector3(worldX, worldY, worldZ);
+				int index = terrain.MakeIndexFromWorldIndexVector(worldPos);
+				if (y <= sandLimit)
 				{
-					terrain._blocks[num4] = Biome.bedrockBlock;
+					terrain._blocks[index] = Biome.bedrockBlock;
 				}
-				else if (i <= num)
+				else if (y <= groundLimit)
 				{
-					terrain._blocks[num4] = Biome.sandBlock;
+					terrain._blocks[index] = Biome.sandBlock;
 				}
 			}
 		}

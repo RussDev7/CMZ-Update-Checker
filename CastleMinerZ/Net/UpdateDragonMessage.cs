@@ -14,9 +14,9 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, BaseDragonWaypoint wpt)
 		{
-			UpdateDragonMessage sendInstance = Message.GetSendInstance<UpdateDragonMessage>();
-			sendInstance.Waypoint = wpt;
-			sendInstance.DoSend(from);
+			UpdateDragonMessage Instance = Message.GetSendInstance<UpdateDragonMessage>();
+			Instance.Waypoint = wpt;
+			Instance.DoSend(from);
 			UpdateDragonMessage.UpdateCount++;
 		}
 

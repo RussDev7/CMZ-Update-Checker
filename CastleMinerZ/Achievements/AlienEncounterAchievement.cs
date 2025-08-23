@@ -34,11 +34,11 @@ namespace DNA.CastleMinerZ.Achievements
 		{
 			get
 			{
-				int alienEncounters = base.PlayerStats.AlienEncounters;
-				if (this._lastAmount != alienEncounters)
+				int total = base.PlayerStats.AlienEncounters;
+				if (this._lastAmount != total)
 				{
-					this._lastAmount = alienEncounters;
-					this.lastString = alienEncounters.ToString() + " " + ((alienEncounters == 1) ? Strings.Alien_Encounter : Strings.Alien_Encounters);
+					this._lastAmount = total;
+					this.lastString = total.ToString() + " " + ((total == 1) ? Strings.Alien_Encounter : Strings.Alien_Encounters);
 				}
 				return this.lastString;
 			}

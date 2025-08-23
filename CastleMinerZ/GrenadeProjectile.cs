@@ -43,36 +43,36 @@ namespace DNA.CastleMinerZ
 
 		public static GrenadeProjectile Create(Vector3 position, Vector3 velocity, float timeLeft, GrenadeTypeEnum grenadeType, bool isLocal)
 		{
-			GrenadeProjectile grenadeProjectile = null;
+			GrenadeProjectile result = null;
 			switch (grenadeType)
 			{
 			case GrenadeTypeEnum.HE:
 			case GrenadeTypeEnum.Sticky:
-				grenadeProjectile = new HEGrenadeProjectile();
+				result = new HEGrenadeProjectile();
 				break;
 			case GrenadeTypeEnum.Smoke:
-				grenadeProjectile = new SmokeGrenadeProjectile();
+				result = new SmokeGrenadeProjectile();
 				break;
 			case GrenadeTypeEnum.Flash:
-				grenadeProjectile = new FlashGrenadeProjectile();
+				result = new FlashGrenadeProjectile();
 				break;
 			}
-			grenadeProjectile.LocalToParent = MathTools.CreateWorld(position, velocity);
-			grenadeProjectile._rotationAxis = grenadeProjectile.LocalToWorld.Right;
-			grenadeProjectile._rotationSpeed = 6f;
-			grenadeProjectile._linearVelocity = velocity;
-			grenadeProjectile._timeLeft = timeLeft;
-			grenadeProjectile._isLocal = isLocal;
-			grenadeProjectile.GrenadeType = grenadeType;
-			return grenadeProjectile;
+			result.LocalToParent = MathTools.CreateWorld(position, velocity);
+			result._rotationAxis = result.LocalToWorld.Right;
+			result._rotationSpeed = 6f;
+			result._linearVelocity = velocity;
+			result._timeLeft = timeLeft;
+			result._isLocal = isLocal;
+			result.GrenadeType = grenadeType;
+			return result;
 		}
 
 		protected GrenadeProjectile()
 		{
 			this._grenadeEntity = new ModelEntity(GrenadeProjectile._grenadeModel);
-			float num = 0.3f / this._grenadeEntity.GetLocalBoundingSphere().Radius;
-			this._grenadeEntity.LocalPosition = new Vector3(0f, -0.08f, 0f) * num;
-			this._grenadeEntity.LocalScale = new Vector3(num);
+			float s = 0.3f / this._grenadeEntity.GetLocalBoundingSphere().Radius;
+			this._grenadeEntity.LocalPosition = new Vector3(0f, -0.08f, 0f) * s;
+			this._grenadeEntity.LocalScale = new Vector3(s);
 			base.Children.Add(this._grenadeEntity);
 			this._stopped = false;
 			this._audioEmitter.Position = base.WorldPosition;
@@ -93,27 +93,27 @@ namespace DNA.CastleMinerZ
 		protected void MoveToNewPosition(Vector3 newPosition)
 		{
 			GrenadeProjectile.tp._lastEnemy = null;
-			int num = 10;
+			int count = 10;
 			if (this.GrenadeType == GrenadeTypeEnum.Sticky)
 			{
-				num = 1;
+				count = 1;
 			}
 			do
 			{
 				GrenadeProjectile.tp.Init(this._lastPosition, newPosition, this.cGrenadeAABB);
-				IShootableEnemy shootableEnemy = EnemyManager.Instance.Trace(GrenadeProjectile.tp, false);
-				GrenadeProjectile.tp._lastEnemy = shootableEnemy;
+				IShootableEnemy z = EnemyManager.Instance.Trace(GrenadeProjectile.tp, false);
+				GrenadeProjectile.tp._lastEnemy = z;
 				if (GrenadeProjectile.tp._collides)
 				{
-					Vector3 intersection = GrenadeProjectile.tp.GetIntersection();
-					num--;
-					if (num == 0)
+					Vector3 collisionPoint = GrenadeProjectile.tp.GetIntersection();
+					count--;
+					if (count == 0)
 					{
-						newPosition = intersection;
+						newPosition = collisionPoint;
 						this._stopped = true;
 						this._linearVelocity = Vector3.Zero;
 						this._rotationSpeed = 0f;
-						this._stickyPosition = intersection;
+						this._stickyPosition = collisionPoint;
 						if (this.GrenadeType == GrenadeTypeEnum.Sticky && GrenadeProjectile.tp._lastEnemy != null && !this._attached)
 						{
 							GrenadeProjectile.tp._lastEnemy.AttachProjectile(this._grenadeEntity);
@@ -122,8 +122,8 @@ namespace DNA.CastleMinerZ
 					}
 					else
 					{
-						float num2 = 0.1f;
-						if (shootableEnemy == null)
+						float restitution = 0.1f;
+						if (z == null)
 						{
 							this._audioEmitter.Position = base.WorldPosition;
 							this._audioEmitter.Velocity = this._linearVelocity;
@@ -131,26 +131,26 @@ namespace DNA.CastleMinerZ
 							{
 								SoundManager.Instance.PlayInstance("BulletHitDirt", this._audioEmitter);
 							}
-							BlockType type = BlockType.GetType(BlockTerrain.Instance.GetBlockWithChanges(GrenadeProjectile.tp._worldIndex));
-							num2 = type.BounceRestitution;
+							BlockType bt = BlockType.GetType(BlockTerrain.Instance.GetBlockWithChanges(GrenadeProjectile.tp._worldIndex));
+							restitution = bt.BounceRestitution;
 						}
-						this.HandleCollision(ref newPosition, GrenadeProjectile.tp._inNormal, intersection, num2);
+						this.HandleCollision(ref newPosition, GrenadeProjectile.tp._inNormal, collisionPoint, restitution);
 					}
 				}
 				else
 				{
-					num = 0;
+					count = 0;
 				}
 			}
-			while (!this._stopped && num > 0);
+			while (!this._stopped && count > 0);
 			base.LocalPosition = newPosition;
 		}
 
 		protected Vector3 ReflectVectorWithRestitution(Vector3 inVec, Vector3 normal, float restitution)
 		{
-			Vector3 vector = normal * -Vector3.Dot(inVec, normal);
-			Vector3 vector2 = inVec + vector;
-			return vector * restitution + vector2 * MathHelper.Lerp(1f, restitution, Math.Max(normal.Y, 0f));
+			Vector3 perp = normal * -Vector3.Dot(inVec, normal);
+			Vector3 par = inVec + perp;
+			return perp * restitution + par * MathHelper.Lerp(1f, restitution, Math.Max(normal.Y, 0f));
 		}
 
 		protected virtual void HandleCollision(ref Vector3 newPosition, Vector3 collisionNormal, Vector3 collisionPoint, float restitution)
@@ -165,14 +165,14 @@ namespace DNA.CastleMinerZ
 				return;
 			}
 			this._lastPosition = collisionPoint;
-			Vector3 vector = this.ReflectVectorWithRestitution(newPosition - collisionPoint, collisionNormal, restitution);
-			newPosition = vector + collisionPoint;
-			Vector3 vector2 = this._linearVelocity - collisionNormal * Vector3.Dot(this._linearVelocity, collisionNormal);
-			Vector3 vector3 = Vector3.Cross(collisionNormal, vector2);
-			if (vector3.LengthSquared() > 0f)
+			Vector3 offset = this.ReflectVectorWithRestitution(newPosition - collisionPoint, collisionNormal, restitution);
+			newPosition = offset + collisionPoint;
+			Vector3 vel = this._linearVelocity - collisionNormal * Vector3.Dot(this._linearVelocity, collisionNormal);
+			Vector3 rotAxis = Vector3.Cross(collisionNormal, vel);
+			if (rotAxis.LengthSquared() > 0f)
 			{
-				this._rotationAxis = Vector3.Normalize(vector3);
-				this._rotationSpeed = vector2.Length() / this.cGrenadeAABB.Max.X;
+				this._rotationAxis = Vector3.Normalize(rotAxis);
+				this._rotationSpeed = vel.Length() / this.cGrenadeAABB.Max.X;
 				return;
 			}
 			this._rotationSpeed = 0f;
@@ -180,7 +180,7 @@ namespace DNA.CastleMinerZ
 
 		protected override void OnUpdate(GameTime gameTime)
 		{
-			float num = (float)gameTime.ElapsedGameTime.TotalSeconds;
+			float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 			if (this._exploded && this.ReadyToBeRemoved())
 			{
 				if (this._attached)
@@ -191,10 +191,10 @@ namespace DNA.CastleMinerZ
 			}
 			if (this._stopped)
 			{
-				Vector3 worldPosition = base.WorldPosition;
-				worldPosition.Y -= 0.5f;
-				BlockType type = BlockType.GetType(BlockTerrain.Instance.GetBlockWithChanges(worldPosition));
-				if (this.GrenadeType != GrenadeTypeEnum.Sticky && !type.BlockPlayer)
+				Vector3 positionToCheck = base.WorldPosition;
+				positionToCheck.Y -= 0.5f;
+				BlockType bt = BlockType.GetType(BlockTerrain.Instance.GetBlockWithChanges(positionToCheck));
+				if (this.GrenadeType != GrenadeTypeEnum.Sticky && !bt.BlockPlayer)
 				{
 					this._stopped = false;
 				}
@@ -203,13 +203,13 @@ namespace DNA.CastleMinerZ
 			{
 				if (this._rotationSpeed != 0f)
 				{
-					Quaternion quaternion = Quaternion.CreateFromAxisAngle(this._rotationAxis, this._rotationSpeed * num);
-					base.LocalRotation = Quaternion.Concatenate(base.LocalRotation, quaternion);
+					Quaternion deltaRotation = Quaternion.CreateFromAxisAngle(this._rotationAxis, this._rotationSpeed * dt);
+					base.LocalRotation = Quaternion.Concatenate(base.LocalRotation, deltaRotation);
 				}
-				this._linearVelocity += Vector3.Down * (9.8f * num);
+				this._linearVelocity += Vector3.Down * (9.8f * dt);
 				this._lastPosition = base.WorldPosition;
-				Vector3 vector = this._lastPosition + this._linearVelocity * num;
-				this.MoveToNewPosition(vector);
+				Vector3 newPosition = this._lastPosition + this._linearVelocity * dt;
+				this.MoveToNewPosition(newPosition);
 			}
 			if (!this._exploded)
 			{
@@ -268,8 +268,8 @@ namespace DNA.CastleMinerZ
 		{
 			public override bool TestThisType(BlockTypeEnum e)
 			{
-				BlockType type = BlockType.GetType(e);
-				return type.CanBeTouched && type.BlockPlayer;
+				BlockType bt = BlockType.GetType(e);
+				return bt.CanBeTouched && bt.BlockPlayer;
 			}
 
 			public override bool TestThisEnemy(IShootableEnemy enemy)

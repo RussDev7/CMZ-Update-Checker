@@ -30,11 +30,11 @@ namespace DNA.CastleMinerZ.UI
 		public void SetItems(List<Tier2Item> items)
 		{
 			this._items = items;
-			Vector2 vector = new Vector2(263f, 7f);
+			Vector2 locOffset = new Vector2(263f, 7f);
 			for (int i = 0; i < this._items.Count; i++)
 			{
-				this._items[i].Location = this._location + vector;
-				vector.Y += 31f;
+				this._items[i].Location = this._location + locOffset;
+				locOffset.Y += 31f;
 			}
 			this.SelectedTier2Item = this._items[0];
 		}
@@ -70,20 +70,20 @@ namespace DNA.CastleMinerZ.UI
 
 		public void Draw(SpriteBatch spriteBatch)
 		{
-			bool flag = this._craftingScreen.SelectedTier1Item == this;
-			Color color = CMZColors.MenuAqua;
-			if (flag)
+			bool selected = this._craftingScreen.SelectedTier1Item == this;
+			Color textColor = CMZColors.MenuAqua;
+			if (selected)
 			{
-				color = Color.White;
+				textColor = Color.White;
 			}
-			spriteBatch.DrawString(this._font, this._title, new Vector2((float)this._scaledLocation.Right - (50f + this._font.MeasureString(this._title).X) * Screen.Adjuster.ScaleFactor.Y, (float)this._scaledLocation.Top), color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.Y, SpriteEffects.None, 0f);
-			int num = (int)(35f * Screen.Adjuster.ScaleFactor.Y);
-			spriteBatch.Draw(this._icon, new Rectangle(this._scaledLocation.Right - num, this._scaledLocation.Top, num, num), color);
-			if (flag)
+			spriteBatch.DrawString(this._font, this._title, new Vector2((float)this._scaledLocation.Right - (50f + this._font.MeasureString(this._title).X) * Screen.Adjuster.ScaleFactor.Y, (float)this._scaledLocation.Top), textColor, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.Y, SpriteEffects.None, 0f);
+			int iconSize = (int)(35f * Screen.Adjuster.ScaleFactor.Y);
+			spriteBatch.Draw(this._icon, new Rectangle(this._scaledLocation.Right - iconSize, this._scaledLocation.Top, iconSize, iconSize), textColor);
+			if (selected)
 			{
-				spriteBatch.Draw(this._craftingScreen._craftSelector, this._scaledLocation, color);
+				spriteBatch.Draw(this._craftingScreen._craftSelector, this._scaledLocation, textColor);
 			}
-			if (flag)
+			if (selected)
 			{
 				for (int i = 0; i < this._items.Count; i++)
 				{

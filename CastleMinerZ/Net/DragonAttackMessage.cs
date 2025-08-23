@@ -16,12 +16,12 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, BaseDragonWaypoint wpt, Vector3 target, int fbindex, bool animatedAttack)
 		{
-			DragonAttackMessage sendInstance = Message.GetSendInstance<DragonAttackMessage>();
-			sendInstance.Waypoint = wpt;
-			sendInstance.Target = target;
-			sendInstance.FireballIndex = fbindex;
-			sendInstance.AnimatedAttack = animatedAttack;
-			sendInstance.DoSend(from);
+			DragonAttackMessage Instance = Message.GetSendInstance<DragonAttackMessage>();
+			Instance.Waypoint = wpt;
+			Instance.Target = target;
+			Instance.FireballIndex = fbindex;
+			Instance.AnimatedAttack = animatedAttack;
+			Instance.DoSend(from);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType

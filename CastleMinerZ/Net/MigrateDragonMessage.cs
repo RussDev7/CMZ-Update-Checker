@@ -14,10 +14,10 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, byte targetID, DragonHostMigrationInfo miginfo)
 		{
-			MigrateDragonMessage sendInstance = Message.GetSendInstance<MigrateDragonMessage>();
-			sendInstance.MigrationInfo = miginfo;
-			sendInstance.TargetID = targetID;
-			sendInstance.DoSend(from);
+			MigrateDragonMessage Instance = Message.GetSendInstance<MigrateDragonMessage>();
+			Instance.MigrationInfo = miginfo;
+			Instance.TargetID = targetID;
+			Instance.DoSend(from);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType

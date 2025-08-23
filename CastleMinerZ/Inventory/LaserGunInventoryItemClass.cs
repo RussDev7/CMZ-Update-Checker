@@ -24,11 +24,11 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public override Entity CreateEntity(ItemUse use, bool attachedToLocalPlayer)
 		{
-			ModelEntity modelEntity = (ModelEntity)base.CreateEntity(use, attachedToLocalPlayer);
+			ModelEntity result = (ModelEntity)base.CreateEntity(use, attachedToLocalPlayer);
 			if (use == ItemUse.UI)
 			{
-				Quaternion quaternion = Quaternion.CreateFromYawPitchRoll(0f, 0f, -0.7853982f) * Quaternion.CreateFromYawPitchRoll(0f, -1.5707964f, 0f);
-				Matrix matrix = Matrix.Transform(Matrix.CreateScale(32f / modelEntity.GetLocalBoundingSphere().Radius), quaternion);
+				Quaternion mat = Quaternion.CreateFromYawPitchRoll(0f, 0f, -0.7853982f) * Quaternion.CreateFromYawPitchRoll(0f, -1.5707964f, 0f);
+				Matrix i = Matrix.Transform(Matrix.CreateScale(32f / result.GetLocalBoundingSphere().Radius), mat);
 				switch (this.ID)
 				{
 				case InventoryItemIDs.IronSpacePistol:
@@ -39,24 +39,24 @@ namespace DNA.CastleMinerZ.Inventory
 				case InventoryItemIDs.GoldSpaceSMGGun:
 				case InventoryItemIDs.DiamondSpacePistol:
 				case InventoryItemIDs.DiamondSpaceSMGGun:
-					matrix.Translation = new Vector3(13f, -21f, -16f);
+					i.Translation = new Vector3(13f, -21f, -16f);
 					goto IL_0114;
 				case InventoryItemIDs.CopperSpaceAssultRifle:
 				case InventoryItemIDs.GoldSpaceAssultRifle:
 				case InventoryItemIDs.DiamondSpaceAssultRifle:
-					matrix.Translation = new Vector3(9f, -17f, -16f);
+					i.Translation = new Vector3(9f, -17f, -16f);
 					goto IL_0114;
 				}
-				matrix.Translation = new Vector3(9f, -17f, -16f);
+				i.Translation = new Vector3(9f, -17f, -16f);
 				IL_0114:
-				modelEntity.LocalToParent = matrix;
+				result.LocalToParent = i;
 			}
 			else if (use == ItemUse.Pickup)
 			{
-				Matrix matrix2 = Matrix.CreateFromYawPitchRoll(0f, -1.5707964f, 0f);
-				modelEntity.LocalToParent = matrix2;
+				Matrix j = Matrix.CreateFromYawPitchRoll(0f, -1.5707964f, 0f);
+				result.LocalToParent = j;
 			}
-			return modelEntity;
+			return result;
 		}
 
 		internal virtual bool IsHarvestWeapon()

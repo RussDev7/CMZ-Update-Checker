@@ -13,10 +13,10 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, NetworkGamer kickedPlayer, bool banned)
 		{
-			KickMessage sendInstance = Message.GetSendInstance<KickMessage>();
-			sendInstance.Banned = banned;
-			sendInstance.PlayerID = kickedPlayer.Id;
-			sendInstance.DoSend(from, kickedPlayer);
+			KickMessage Instance = Message.GetSendInstance<KickMessage>();
+			Instance.Banned = banned;
+			Instance.PlayerID = kickedPlayer.Id;
+			Instance.DoSend(from, kickedPlayer);
 		}
 
 		protected override SendDataOptions SendDataOptions

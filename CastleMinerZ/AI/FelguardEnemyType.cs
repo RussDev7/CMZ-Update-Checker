@@ -54,24 +54,24 @@ namespace DNA.CastleMinerZ.AI
 
 		public override float GetDamageTypeMultiplier(DamageType damageType, bool headShot)
 		{
-			float num = 1f;
+			float result = 1f;
 			if ((damageType & DamageType.PIERCING) != (DamageType)0)
 			{
-				num *= 0.5f;
+				result *= 0.5f;
 			}
 			else if ((damageType & DamageType.SHOTGUN) != (DamageType)0)
 			{
-				num *= 1.5f;
+				result *= 1.5f;
 			}
 			else if ((damageType & DamageType.BLADE) != (DamageType)0)
 			{
-				num *= 0.75f;
+				result *= 0.75f;
 			}
 			if (headShot)
 			{
-				num *= 2f;
+				result *= 2f;
 			}
-			return num;
+			return result;
 		}
 	}
 }

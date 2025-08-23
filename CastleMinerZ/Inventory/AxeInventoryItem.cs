@@ -13,8 +13,8 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public override TimeSpan TimeToDig(BlockTypeEnum blockType)
 		{
-			AxeInventoryClass axeInventoryClass = (AxeInventoryClass)base.ItemClass;
-			switch (axeInventoryClass.Material)
+			AxeInventoryClass pcls = (AxeInventoryClass)base.ItemClass;
+			switch (pcls.Material)
 			{
 			case ToolMaterialTypes.Wood:
 				return base.TimeToDig(blockType);

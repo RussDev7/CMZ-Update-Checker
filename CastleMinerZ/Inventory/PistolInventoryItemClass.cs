@@ -26,20 +26,20 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public override Entity CreateEntity(ItemUse use, bool attachedToLocalPlayer)
 		{
-			ModelEntity modelEntity = (ModelEntity)base.CreateEntity(use, attachedToLocalPlayer);
+			ModelEntity result = (ModelEntity)base.CreateEntity(use, attachedToLocalPlayer);
 			if (use == ItemUse.UI)
 			{
-				Quaternion quaternion = Quaternion.CreateFromYawPitchRoll(0f, 0f, -0.7853982f) * Quaternion.CreateFromYawPitchRoll(0f, -1.5707964f, 0f);
-				Matrix matrix = Matrix.Transform(Matrix.CreateScale(25.6f / modelEntity.GetLocalBoundingSphere().Radius), quaternion);
-				matrix.Translation = new Vector3(4f, -12f, -16f);
-				modelEntity.LocalToParent = matrix;
+				Quaternion mat = Quaternion.CreateFromYawPitchRoll(0f, 0f, -0.7853982f) * Quaternion.CreateFromYawPitchRoll(0f, -1.5707964f, 0f);
+				Matrix i = Matrix.Transform(Matrix.CreateScale(25.6f / result.GetLocalBoundingSphere().Radius), mat);
+				i.Translation = new Vector3(4f, -12f, -16f);
+				result.LocalToParent = i;
 			}
 			else if (use == ItemUse.Pickup)
 			{
-				Matrix matrix2 = Matrix.CreateFromYawPitchRoll(0f, -1.5707964f, 0f);
-				modelEntity.LocalToParent = matrix2;
+				Matrix j = Matrix.CreateFromYawPitchRoll(0f, -1.5707964f, 0f);
+				result.LocalToParent = j;
 			}
-			return modelEntity;
+			return result;
 		}
 	}
 }

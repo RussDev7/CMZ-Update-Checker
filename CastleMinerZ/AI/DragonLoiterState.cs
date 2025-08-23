@@ -26,13 +26,13 @@ namespace DNA.CastleMinerZ.AI
 
 		public override void Update(DragonEntity entity, float dt)
 		{
-			Vector3 worldPosition = entity.WorldPosition;
-			worldPosition.Y = entity.TargetAltitude;
-			Vector3 vector = worldPosition - entity.TravelTarget;
-			vector.Y = 0f;
-			Vector3 forward = entity.LocalToWorld.Forward;
-			forward.Y = 0f;
-			if (Vector3.Dot(forward, vector) < 0f)
+			Vector3 pos = entity.WorldPosition;
+			pos.Y = entity.TargetAltitude;
+			Vector3 dest = pos - entity.TravelTarget;
+			dest.Y = 0f;
+			Vector3 fwd = entity.LocalToWorld.Forward;
+			fwd.Y = 0f;
+			if (Vector3.Dot(fwd, dest) < 0f)
 			{
 				return;
 			}
@@ -45,8 +45,8 @@ namespace DNA.CastleMinerZ.AI
 				}
 				return;
 			}
-			float num = vector.Length();
-			if (num > entity.EType.BreakOffStrafeDistance)
+			float dist = dest.Length();
+			if (dist > entity.EType.BreakOffStrafeDistance)
 			{
 				entity.StateMachine.ChangeState(MathTools.RandomBool() ? DragonStates.LoiterLeft : DragonStates.LoiterRight);
 			}

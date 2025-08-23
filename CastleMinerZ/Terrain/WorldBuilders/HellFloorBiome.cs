@@ -16,14 +16,14 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 
 		private int GetNextBossBlockCountdown(int spawnCount)
 		{
-			float num = 0.2f;
-			float num2 = 1.1f;
+			float randonVariance = 0.2f;
+			float distanceScalar = 1.1f;
 			if (this.Rnd != null)
 			{
-				this.Rnd.RandomDouble((double)(-(double)num), (double)num);
-				double num3 = 1.0;
-				int num4 = 4000 * (int)Math.Pow((double)(spawnCount + 1), (double)num2);
-				return (int)(num3 * (double)num4);
+				this.Rnd.RandomDouble((double)(-(double)randonVariance), (double)randonVariance);
+				double finalPercent = 1.0;
+				int numberOfBlocksToCountdown = 4000 * (int)Math.Pow((double)(spawnCount + 1), (double)distanceScalar);
+				return (int)(finalPercent * (double)numberOfBlocksToCountdown);
 			}
 			return 0;
 		}
@@ -48,29 +48,29 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 
 		public override void BuildColumn(BlockTerrain terrain, int worldX, int worldZ, int minY, float blender)
 		{
-			int num = 1;
-			float num2 = 0f;
-			int num3 = 4;
-			for (int i = 0; i < num3; i++)
+			int freq = 1;
+			float noise = 0f;
+			int octives = 4;
+			for (int i = 0; i < octives; i++)
 			{
-				num2 += this._noiseFunction.ComputeNoise(0.03125f * (float)worldX * (float)num + 200f, 0.03125f * (float)worldZ * (float)num + 200f) / (float)num;
-				num *= 2;
+				noise += this._noiseFunction.ComputeNoise(0.03125f * (float)worldX * (float)freq + 200f, 0.03125f * (float)worldZ * (float)freq + 200f) / (float)freq;
+				freq *= 2;
 			}
-			int num4 = 4 + (int)(num2 * 10f) + 3;
-			for (int j = 0; j < 32; j++)
+			int groundlevel = 4 + (int)(noise * 10f) + 3;
+			for (int y = 0; y < 32; y++)
 			{
-				int num5 = j + minY;
-				IntVector3 intVector = new IntVector3(worldX, num5, worldZ);
-				int num6 = terrain.MakeIndexFromWorldIndexVector(intVector);
-				if (j < num4)
+				int worldY = y + minY;
+				IntVector3 worldPos = new IntVector3(worldX, worldY, worldZ);
+				int index = terrain.MakeIndexFromWorldIndexVector(worldPos);
+				if (y < groundlevel)
 				{
-					terrain._blocks[num6] = Biome.BloodSToneBlock;
+					terrain._blocks[index] = Biome.BloodSToneBlock;
 				}
-				else if (j <= 4)
+				else if (y <= 4)
 				{
-					terrain._blocks[num6] = Biome.deepLavablock;
+					terrain._blocks[index] = Biome.deepLavablock;
 				}
-				this.CheckForBossSpawns(terrain, intVector, num6, j, num4);
+				this.CheckForBossSpawns(terrain, worldPos, index, y, groundlevel);
 			}
 		}
 
@@ -90,8 +90,8 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 					this.bossSpawnBlockCountdown = this.GetNextBossBlockCountdown(CastleMinerZGame.Instance.CurrentWorld.HellBossesSpawned);
 					terrain._blocks[index] = Biome.bossSpawnOff;
 					this.bossSpawnerLocs.Add(worldPos);
-					long num = (long)worldPos.Z * (long)worldPos.Z;
-					Math.Sqrt((double)((long)worldPos.X * (long)worldPos.X + num));
+					long zsqu = (long)worldPos.Z * (long)worldPos.Z;
+					Math.Sqrt((double)((long)worldPos.X * (long)worldPos.X + zsqu));
 				}
 			}
 		}

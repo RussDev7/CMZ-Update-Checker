@@ -25,12 +25,12 @@ namespace DNA.CastleMinerZ
 			{
 				return false;
 			}
-			float num = this.CrackAmount;
-			if (num >= 1f)
+			float amount = this.CrackAmount;
+			if (amount >= 1f)
 			{
-				num = 0.99f;
+				amount = 0.99f;
 			}
-			effect.Parameters["crackAmount"].SetValue(num);
+			effect.Parameters["crackAmount"].SetValue(amount);
 			return base.SetEffectParams(mesh, effect, gameTime, world, view, projection);
 		}
 

@@ -26,9 +26,9 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, Player player)
 		{
-			TimeConnectedMessage sendInstance = Message.GetSendInstance<TimeConnectedMessage>();
-			sendInstance.TimeConnected = player.TimeConnected;
-			sendInstance.DoSend(from);
+			TimeConnectedMessage Instance = Message.GetSendInstance<TimeConnectedMessage>();
+			Instance.TimeConnected = player.TimeConnected;
+			Instance.DoSend(from);
 		}
 
 		protected override SendDataOptions SendDataOptions

@@ -26,40 +26,40 @@ namespace DNA.CastleMinerZ
 			{
 				return;
 			}
-			SessionStats.SessionStatsData sessionStatsData = this.statMap[category];
-			sessionStatsData.Count++;
-			this.statMap[category] = sessionStatsData;
-			this.CheckProgress(sessionStatsData, category);
+			SessionStats.SessionStatsData statData = this.statMap[category];
+			statData.Count++;
+			this.statMap[category] = statData;
+			this.CheckProgress(statData, category);
 		}
 
 		private string GetActionAsString(SessionStats.StatAction action)
 		{
-			string text = "has";
+			string actionString = "has";
 			switch (action)
 			{
 			case SessionStats.StatAction.HasDefeated:
-				text = Strings.Has_Defeated;
+				actionString = Strings.Has_Defeated;
 				break;
 			case SessionStats.StatAction.HasOpened:
-				text = Strings.Has_Opened;
+				actionString = Strings.Has_Opened;
 				break;
 			case SessionStats.StatAction.HasFallen:
-				text = Strings.Has_Fallen;
+				actionString = Strings.Has_Fallen;
 				break;
 			}
-			return text;
+			return actionString;
 		}
 
 		private string GetBroadcastString(SessionStats.SessionStatsData statData)
 		{
-			string text = statData.Count.ToString() + " " + ((statData.Count == 1) ? statData.StatSingular : statData.StatPlural);
+			string statString = statData.Count.ToString() + " " + ((statData.Count == 1) ? statData.StatSingular : statData.StatPlural);
 			return string.Concat(new string[]
 			{
 				CastleMinerZGame.Instance.LocalPlayer.Gamer.Gamertag,
 				" ",
 				this.GetActionAsString(statData.Action),
 				" ",
-				text
+				statString
 			});
 		}
 

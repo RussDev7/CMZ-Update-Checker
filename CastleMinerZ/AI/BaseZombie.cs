@@ -105,35 +105,35 @@ namespace DNA.CastleMinerZ.AI
 
 		public float TimeToIntercept()
 		{
-			Vector3 vector = base.WorldPosition - this.Target.WorldPosition;
-			vector.Y = 0f;
-			float num = vector.LengthSquared();
-			if (num < 1f)
+			Vector3 delta = base.WorldPosition - this.Target.WorldPosition;
+			delta.Y = 0f;
+			float dlsw = delta.LengthSquared();
+			if (dlsw < 1f)
 			{
 				return 0f;
 			}
-			Vector3 worldVelocity = this.Target.PlayerPhysics.WorldVelocity;
-			Vector3 vector2 = worldVelocity - this.PlayerPhysics.WorldVelocity;
-			vector2.Y = 0f;
-			if (Vector3.Dot(vector, vector2) < 0f)
+			Vector3 pv = this.Target.PlayerPhysics.WorldVelocity;
+			Vector3 dv = pv - this.PlayerPhysics.WorldVelocity;
+			dv.Y = 0f;
+			if (Vector3.Dot(delta, dv) < 0f)
 			{
 				return float.MaxValue;
 			}
-			float num2 = vector2.LengthSquared();
-			if (num2 < 0.001f)
+			float speed = dv.LengthSquared();
+			if (speed < 0.001f)
 			{
 				return float.MaxValue;
 			}
-			num2 = (float)Math.Sqrt((double)num2);
-			vector2 *= 1f / num2;
-			float num3 = (float)Math.Sqrt((double)num);
-			vector *= 1f / num3;
-			float num4 = Vector3.Dot(vector2, vector);
-			if (num4 < 0.01f)
+			speed = (float)Math.Sqrt((double)speed);
+			dv *= 1f / speed;
+			float distance = (float)Math.Sqrt((double)dlsw);
+			delta *= 1f / distance;
+			float dot = Vector3.Dot(dv, delta);
+			if (dot < 0.01f)
 			{
 				return float.MaxValue;
 			}
-			return num3 / num4 / num2;
+			return distance / dot / speed;
 		}
 
 		public void Remove()
@@ -202,8 +202,8 @@ namespace DNA.CastleMinerZ.AI
 
 		public void TakeDamage(Vector3 damagePosition, Vector3 damageDirection, InventoryItem.InventoryItemClass itemClass, byte shooterID)
 		{
-			DamageType enemyDamageType = itemClass.EnemyDamageType;
-			float num = itemClass.EnemyDamage;
+			DamageType damageType = itemClass.EnemyDamageType;
+			float damageAmount = itemClass.EnemyDamage;
 			if (CastleMinerZGame.Instance.IsLocalPlayerId(shooterID))
 			{
 				CastleMinerZPlayerStats.ItemStats itemStats = CastleMinerZGame.Instance.PlayerStats.GetItemStats(itemClass.ID);
@@ -211,9 +211,9 @@ namespace DNA.CastleMinerZ.AI
 			}
 			if (this.Health > 0f)
 			{
-				float damageTypeMultiplier = this.EType.GetDamageTypeMultiplier(enemyDamageType, this.IsHeadshot(damagePosition));
-				num *= damageTypeMultiplier;
-				this.Health -= num;
+				float damageMultiplier = this.EType.GetDamageTypeMultiplier(damageType, this.IsHeadshot(damagePosition));
+				damageAmount *= damageMultiplier;
+				this.Health -= damageAmount;
 				if (this.Health <= 0f)
 				{
 					if (itemClass is LaserGunInventoryItemClass && CastleMinerZGame.Instance.GameMode == GameModeTypes.Endurance && shooterID == CastleMinerZGame.Instance.LocalPlayer.Gamer.Id)
@@ -236,104 +236,104 @@ namespace DNA.CastleMinerZ.AI
 			{
 				return;
 			}
-			float num = base.LocalPosition.Length();
-			float num2 = (num / 5000f).Clamp(0f, 1f);
-			float num3 = MathTools.RandomFloat(num2, 1f);
-			InventoryItem inventoryItem;
+			float dist = base.LocalPosition.Length();
+			float blender = (dist / 5000f).Clamp(0f, 1f);
+			float dval = MathTools.RandomFloat(blender, 1f);
+			InventoryItem item;
 			if (this.EType.FoundIn == EnemyType.FoundInEnum.HELL)
 			{
-				if ((double)num3 < 0.5)
+				if ((double)dval < 0.5)
 				{
-					inventoryItem = InventoryItem.CreateItem(InventoryItemIDs.ExplosivePowder, 1);
+					item = InventoryItem.CreateItem(InventoryItemIDs.ExplosivePowder, 1);
 				}
-				else if ((double)num3 < 0.8)
+				else if ((double)dval < 0.8)
 				{
-					inventoryItem = InventoryItem.CreateItem(InventoryItemIDs.ExplosivePowder, 2);
+					item = InventoryItem.CreateItem(InventoryItemIDs.ExplosivePowder, 2);
 				}
 				else
 				{
-					inventoryItem = InventoryItem.CreateItem(InventoryItemIDs.ExplosivePowder, 3);
+					item = InventoryItem.CreateItem(InventoryItemIDs.ExplosivePowder, 3);
 				}
 			}
 			if (this.EType.FoundIn == EnemyType.FoundInEnum.CRASHSITE)
 			{
-				if ((double)num3 < 0.5)
+				if ((double)dval < 0.5)
 				{
-					inventoryItem = InventoryItem.CreateItem(InventoryItemIDs.Copper, 1);
+					item = InventoryItem.CreateItem(InventoryItemIDs.Copper, 1);
 				}
-				else if ((double)num3 < 0.8)
+				else if ((double)dval < 0.8)
 				{
-					inventoryItem = InventoryItem.CreateItem(InventoryItemIDs.Iron, 1);
+					item = InventoryItem.CreateItem(InventoryItemIDs.Iron, 1);
 				}
 				else
 				{
-					inventoryItem = InventoryItem.CreateItem(InventoryItemIDs.Diamond, 1);
+					item = InventoryItem.CreateItem(InventoryItemIDs.Diamond, 1);
 				}
 			}
 			else
 			{
-				if ((double)num3 < 0.5)
+				if ((double)dval < 0.5)
 				{
 					return;
 				}
-				bool flag = base.LocalPosition.Y < -40f;
-				if (flag)
+				bool inhell = base.LocalPosition.Y < -40f;
+				if (inhell)
 				{
-					if ((double)num3 < 0.7)
+					if ((double)dval < 0.7)
 					{
-						inventoryItem = InventoryItem.CreateItem(InventoryItemIDs.CopperOre, 1);
+						item = InventoryItem.CreateItem(InventoryItemIDs.CopperOre, 1);
 					}
-					else if ((double)num3 < 0.8)
+					else if ((double)dval < 0.8)
 					{
-						inventoryItem = InventoryItem.CreateItem(InventoryItemIDs.Copper, 1);
+						item = InventoryItem.CreateItem(InventoryItemIDs.Copper, 1);
 					}
-					else if ((double)num3 < 0.85)
+					else if ((double)dval < 0.85)
 					{
-						inventoryItem = InventoryItem.CreateItem(InventoryItemIDs.Iron, 1);
+						item = InventoryItem.CreateItem(InventoryItemIDs.Iron, 1);
 					}
-					else if ((double)num3 < 0.9)
+					else if ((double)dval < 0.9)
 					{
-						inventoryItem = InventoryItem.CreateItem(InventoryItemIDs.GoldOre, 1);
+						item = InventoryItem.CreateItem(InventoryItemIDs.GoldOre, 1);
 					}
 					else
 					{
-						inventoryItem = InventoryItem.CreateItem(InventoryItemIDs.Diamond, 1);
+						item = InventoryItem.CreateItem(InventoryItemIDs.Diamond, 1);
 					}
 				}
-				else if ((double)num3 < 0.7)
+				else if ((double)dval < 0.7)
 				{
-					inventoryItem = InventoryItem.CreateItem(InventoryItemIDs.WoodBlock, 1);
+					item = InventoryItem.CreateItem(InventoryItemIDs.WoodBlock, 1);
 				}
-				else if ((double)num3 < 0.8)
+				else if ((double)dval < 0.8)
 				{
-					inventoryItem = InventoryItem.CreateItem(InventoryItemIDs.Coal, 1);
+					item = InventoryItem.CreateItem(InventoryItemIDs.Coal, 1);
 				}
-				else if ((double)num3 < 0.85)
+				else if ((double)dval < 0.85)
 				{
-					inventoryItem = InventoryItem.CreateItem(InventoryItemIDs.CopperOre, 1);
+					item = InventoryItem.CreateItem(InventoryItemIDs.CopperOre, 1);
 				}
-				else if ((double)num3 < 0.9)
+				else if ((double)dval < 0.9)
 				{
-					inventoryItem = InventoryItem.CreateItem(InventoryItemIDs.Copper, 1);
+					item = InventoryItem.CreateItem(InventoryItemIDs.Copper, 1);
 				}
 				else
 				{
-					inventoryItem = InventoryItem.CreateItem(InventoryItemIDs.IronOre, 1);
+					item = InventoryItem.CreateItem(InventoryItemIDs.IronOre, 1);
 				}
 			}
-			if (inventoryItem != null)
+			if (item != null)
 			{
-				PickupManager.Instance.CreatePickup(inventoryItem, base.LocalPosition + new Vector3(0f, 1f, 0f), false, false);
+				PickupManager.Instance.CreatePickup(item, base.LocalPosition + new Vector3(0f, 1f, 0f), false, false);
 			}
 		}
 
 		public bool Touches(BoundingBox box)
 		{
-			BoundingBox playerAABB = this.PlayerAABB;
-			Vector3 worldPosition = base.WorldPosition;
-			playerAABB.Min += worldPosition;
-			playerAABB.Max += worldPosition;
-			return playerAABB.Intersects(box);
+			BoundingBox bb = this.PlayerAABB;
+			Vector3 wp = base.WorldPosition;
+			bb.Min += wp;
+			bb.Max += wp;
+			return bb.Intersects(box);
 		}
 
 		protected override void OnUpdate(GameTime gameTime)
@@ -343,23 +343,23 @@ namespace DNA.CastleMinerZ.AI
 				this.Remove();
 				return;
 			}
-			Vector3 vector = base.WorldPosition + new Vector3(0f, 1f, 0f);
-			this.shadowProbe.Init(vector, base.WorldPosition + new Vector3(0f, -2.5f, 0f));
+			Vector3 pos = base.WorldPosition + new Vector3(0f, 1f, 0f);
+			this.shadowProbe.Init(pos, base.WorldPosition + new Vector3(0f, -2.5f, 0f));
 			this.shadowProbe.SkipEmbedded = true;
 			BlockTerrain.Instance.Trace(this.shadowProbe);
 			this._shadow.Visible = this.shadowProbe._collides;
 			if (this._shadow.Visible)
 			{
-				Vector3 intersection = this.shadowProbe.GetIntersection();
-				Vector3 vector2 = intersection - base.WorldPosition;
-				float num = Math.Abs(vector2.Y);
-				this._shadow.LocalPosition = vector2 + new Vector3(0f, 0.05f, 0f);
-				int num2 = 2;
-				float num3 = num / (float)num2;
-				this._shadow.LocalScale = new Vector3(1f + 2f * num3, 1f, 1f + 2f * num3);
-				this._shadow.EntityColor = new Color?(new Color(1f, 1f, 1f, Math.Max(0f, 0.5f * (1f - num3))));
+				Vector3 interSection = this.shadowProbe.GetIntersection();
+				Vector3 toGround = interSection - base.WorldPosition;
+				float height = Math.Abs(toGround.Y);
+				this._shadow.LocalPosition = toGround + new Vector3(0f, 0.05f, 0f);
+				int maxHeight = 2;
+				float blender = height / (float)maxHeight;
+				this._shadow.LocalScale = new Vector3(1f + 2f * blender, 1f, 1f + 2f * blender);
+				this._shadow.EntityColor = new Color?(new Color(1f, 1f, 1f, Math.Max(0f, 0.5f * (1f - blender))));
 			}
-			BlockTerrain.Instance.GetEnemyLighting(vector, ref this.DirectLightDirection[0], ref this.DirectLightColor[0], ref this.DirectLightDirection[1], ref this.DirectLightColor[1], ref this.AmbientLight);
+			BlockTerrain.Instance.GetEnemyLighting(pos, ref this.DirectLightDirection[0], ref this.DirectLightColor[0], ref this.DirectLightDirection[1], ref this.DirectLightColor[1], ref this.AmbientLight);
 			using (Profiler.TimeSection("Zombie Update", ProfilerThreadEnum.MAIN))
 			{
 				if (!this.Target.ValidGamer || this.Target.Dead)
@@ -373,31 +373,31 @@ namespace DNA.CastleMinerZ.AI
 
 		public override bool ResolveCollsion(Entity e, out Plane collsionPlane, GameTime dt)
 		{
-			bool flag2;
+			bool flag;
 			using (Profiler.TimeSection("Zombie Collision", ProfilerThreadEnum.MAIN))
 			{
 				base.ResolveCollsion(e, out collsionPlane, dt);
-				bool flag = false;
+				bool result = false;
 				if (e == BlockTerrain.Instance)
 				{
-					float num = (float)dt.ElapsedGameTime.TotalSeconds;
-					Vector3 worldPosition = base.WorldPosition;
-					Vector3 vector = worldPosition;
-					Vector3 vector2 = this.PlayerPhysics.WorldVelocity;
+					float t = (float)dt.ElapsedGameTime.TotalSeconds;
+					Vector3 worldPos = base.WorldPosition;
+					Vector3 nextPos = worldPos;
+					Vector3 velocity = this.PlayerPhysics.WorldVelocity;
 					this.OnGround = false;
 					this.TouchingWall = false;
 					this.MovementProbe.SkipEmbedded = true;
-					int num2 = 0;
+					int iteration = 0;
 					for (;;)
 					{
-						Vector3 vector3 = vector;
-						Vector3 vector4 = Vector3.Multiply(vector2, num);
-						vector += vector4;
-						this.MovementProbe.Init(vector3, vector, this.PlayerAABB);
+						Vector3 prevPos = nextPos;
+						Vector3 movement = Vector3.Multiply(velocity, t);
+						nextPos += movement;
+						this.MovementProbe.Init(prevPos, nextPos, this.PlayerAABB);
 						BlockTerrain.Instance.Trace(this.MovementProbe);
 						if (this.MovementProbe._collides)
 						{
-							flag = true;
+							result = true;
 							if (this.MovementProbe._inFace == BlockFace.POSY)
 							{
 								this.OnGround = true;
@@ -410,21 +410,21 @@ namespace DNA.CastleMinerZ.AI
 							{
 								break;
 							}
-							float num3 = Math.Max(this.MovementProbe._inT - 0.001f, 0f);
-							vector = vector3 + vector4 * num3;
-							vector2 -= Vector3.Multiply(this.MovementProbe._inNormal, Vector3.Dot(this.MovementProbe._inNormal, vector2));
-							num *= 1f - num3;
-							if (num <= 1E-07f)
+							float realt = Math.Max(this.MovementProbe._inT - 0.001f, 0f);
+							nextPos = prevPos + movement * realt;
+							velocity -= Vector3.Multiply(this.MovementProbe._inNormal, Vector3.Dot(this.MovementProbe._inNormal, velocity));
+							t *= 1f - realt;
+							if (t <= 1E-07f)
 							{
 								goto IL_01A2;
 							}
-							if (vector2.LengthSquared() <= 1E-06f || Vector3.Dot(this.PlayerPhysics.WorldVelocity, vector2) <= 1E-06f)
+							if (velocity.LengthSquared() <= 1E-06f || Vector3.Dot(this.PlayerPhysics.WorldVelocity, velocity) <= 1E-06f)
 							{
 								goto IL_017E;
 							}
 						}
-						num2++;
-						if (!this.MovementProbe._collides || num2 >= 4)
+						iteration++;
+						if (!this.MovementProbe._collides || iteration >= 4)
 						{
 							goto IL_01A2;
 						}
@@ -432,25 +432,25 @@ namespace DNA.CastleMinerZ.AI
 					this.TouchingWall = true;
 					goto IL_01A2;
 					IL_017E:
-					vector2 = Vector3.Zero;
+					velocity = Vector3.Zero;
 					IL_01A2:
-					if (num2 == 4)
+					if (iteration == 4)
 					{
-						vector2 = Vector3.Zero;
+						velocity = Vector3.Zero;
 					}
-					base.LocalPosition = vector;
-					this.PlayerPhysics.WorldVelocity = vector2;
+					base.LocalPosition = nextPos;
+					this.PlayerPhysics.WorldVelocity = velocity;
 					this.SoundUpdateTimer -= (float)dt.ElapsedGameTime.TotalSeconds;
 					if (this.SoundUpdateTimer < 0.1f)
 					{
 						this.SoundUpdateTimer += 0.1f;
-						this.SoundEmitter.Position = vector;
+						this.SoundEmitter.Position = nextPos;
 						this.SoundEmitter.Forward = base.LocalToWorld.Forward;
 						this.SoundEmitter.Up = Vector3.Up;
-						this.SoundEmitter.Velocity = vector2;
+						this.SoundEmitter.Velocity = velocity;
 					}
-					vector2.Y = 0f;
-					if (vector2.LengthSquared() < 0.25f)
+					velocity.Y = 0f;
+					if (velocity.LengthSquared() < 0.25f)
 					{
 						this.FrustrationCount -= (float)dt.ElapsedGameTime.TotalSeconds;
 					}
@@ -458,27 +458,27 @@ namespace DNA.CastleMinerZ.AI
 					{
 						this.ResetFrustration();
 					}
-					vector.Y += 1.2f;
+					nextPos.Y += 1.2f;
 				}
-				flag2 = flag;
+				flag = result;
 			}
-			return flag2;
+			return flag;
 		}
 
 		protected override bool SetEffectParams(ModelMesh mesh, Effect effect, GameTime gameTime, Matrix world, Matrix view, Matrix projection)
 		{
 			if (effect is DNAEffect)
 			{
-				DNAEffect dnaeffect = (DNAEffect)effect;
-				if (dnaeffect.Parameters["LightDirection1"] != null)
+				DNAEffect dnaEffect = (DNAEffect)effect;
+				if (dnaEffect.Parameters["LightDirection1"] != null)
 				{
-					dnaeffect.Parameters["LightDirection1"].SetValue(-this.DirectLightDirection[0]);
-					dnaeffect.Parameters["LightColor1"].SetValue(this.DirectLightColor[0]);
-					dnaeffect.Parameters["LightDirection2"].SetValue(-this.DirectLightDirection[1]);
-					dnaeffect.Parameters["LightColor2"].SetValue(this.DirectLightColor[1]);
-					dnaeffect.AmbientColor = ColorF.FromVector3(this.AmbientLight);
+					dnaEffect.Parameters["LightDirection1"].SetValue(-this.DirectLightDirection[0]);
+					dnaEffect.Parameters["LightColor1"].SetValue(this.DirectLightColor[0]);
+					dnaEffect.Parameters["LightDirection2"].SetValue(-this.DirectLightDirection[1]);
+					dnaEffect.Parameters["LightColor2"].SetValue(this.DirectLightColor[1]);
+					dnaEffect.AmbientColor = ColorF.FromVector3(this.AmbientLight);
 				}
-				dnaeffect.DiffuseMap = this.EType.EnemyTexture;
+				dnaEffect.DiffuseMap = this.EType.EnemyTexture;
 			}
 			return base.SetEffectParams(mesh, effect, gameTime, world, view, projection);
 		}

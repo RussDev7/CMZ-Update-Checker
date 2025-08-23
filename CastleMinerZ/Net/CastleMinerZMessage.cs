@@ -10,17 +10,17 @@ namespace DNA.CastleMinerZ.Net
 
 		protected bool SendToHost(LocalNetworkGamer sender)
 		{
-			bool flag = false;
+			bool result = false;
 			if (CastleMinerZGame.Instance != null)
 			{
-				NetworkGamer gamerFromID = CastleMinerZGame.Instance.GetGamerFromID(CastleMinerZGame.Instance.TerrainServerID);
-				if (gamerFromID != null && !gamerFromID.HasLeftSession)
+				NetworkGamer host = CastleMinerZGame.Instance.GetGamerFromID(CastleMinerZGame.Instance.TerrainServerID);
+				if (host != null && !host.HasLeftSession)
 				{
-					base.DoSend(sender, gamerFromID);
-					flag = true;
+					base.DoSend(sender, host);
+					result = true;
 				}
 			}
-			return flag;
+			return result;
 		}
 
 		public enum MessageTypes

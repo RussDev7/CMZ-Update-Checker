@@ -21,9 +21,9 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public override Entity CreateWorldEntity(bool attachedToLocalPlayer, BlockTypeEnum blockType, DoorEntity.ModelNameEnum modelName)
 		{
-			TorchEntity torchEntity = new TorchEntity(false);
-			torchEntity.SetPosition(BlockType.GetType(blockType).Facing);
-			return torchEntity;
+			TorchEntity entity = new TorchEntity(false);
+			entity.SetPosition(BlockType.GetType(blockType).Facing);
+			return entity;
 		}
 
 		public override Entity CreateEntity(ItemUse use, bool attachedToLocalPlayer)
@@ -33,29 +33,29 @@ namespace DNA.CastleMinerZ.Inventory
 			{
 			case ItemUse.UI:
 			{
-				ModelEntity modelEntity = new ModelEntity(TorchEntity._torchModel);
-				modelEntity.EnableDefaultLighting();
-				entity = modelEntity;
-				Quaternion quaternion = Quaternion.CreateFromYawPitchRoll(0f, 0f, -0.7853982f);
-				float num = 32f / modelEntity.GetLocalBoundingSphere().Radius;
-				Matrix matrix = Matrix.Transform(Matrix.CreateScale(num), quaternion);
-				matrix.Translation = new Vector3(-15f, -15f, 0f);
-				modelEntity.LocalToParent = matrix;
+				ModelEntity me = new ModelEntity(TorchEntity._torchModel);
+				me.EnableDefaultLighting();
+				entity = me;
+				Quaternion mat = Quaternion.CreateFromYawPitchRoll(0f, 0f, -0.7853982f);
+				float scale = 32f / me.GetLocalBoundingSphere().Radius;
+				Matrix i = Matrix.Transform(Matrix.CreateScale(scale), mat);
+				i.Translation = new Vector3(-15f, -15f, 0f);
+				me.LocalToParent = i;
 				break;
 			}
 			case ItemUse.Hand:
 			{
-				TorchEntity torchEntity = new TorchEntity(false);
-				entity = torchEntity;
-				torchEntity.LocalRotation = Quaternion.CreateFromAxisAngle(Vector3.UnitX, 1.5707964f) * Quaternion.CreateFromAxisAngle(Vector3.UnitY, 0.7853982f);
-				torchEntity.LocalScale = new Vector3(0.5f, 0.5f, 0.5f);
-				torchEntity.LocalPosition = new Vector3(0f, 0.11126215f, 0f);
+				TorchEntity te = new TorchEntity(false);
+				entity = te;
+				te.LocalRotation = Quaternion.CreateFromAxisAngle(Vector3.UnitX, 1.5707964f) * Quaternion.CreateFromAxisAngle(Vector3.UnitY, 0.7853982f);
+				te.LocalScale = new Vector3(0.5f, 0.5f, 0.5f);
+				te.LocalPosition = new Vector3(0f, 0.11126215f, 0f);
 				break;
 			}
 			case ItemUse.Pickup:
 			{
-				TorchEntity torchEntity2 = new TorchEntity(false);
-				entity = torchEntity2;
+				TorchEntity te2 = new TorchEntity(false);
+				entity = te2;
 				break;
 			}
 			}

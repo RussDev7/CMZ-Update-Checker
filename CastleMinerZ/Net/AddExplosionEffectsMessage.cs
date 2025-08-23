@@ -13,9 +13,9 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, IntVector3 position)
 		{
-			AddExplosionEffectsMessage sendInstance = Message.GetSendInstance<AddExplosionEffectsMessage>();
-			sendInstance.Position = position;
-			sendInstance.DoSend(from);
+			AddExplosionEffectsMessage Instance = Message.GetSendInstance<AddExplosionEffectsMessage>();
+			Instance.Position = position;
+			Instance.DoSend(from);
 		}
 
 		protected override SendDataOptions SendDataOptions

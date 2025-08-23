@@ -8,16 +8,16 @@ namespace DNA.CastleMinerZ.Terrain
 	{
 		public static VertexBufferKeeper Alloc(int numNeeded)
 		{
-			VertexBufferKeeper vertexBufferKeeper;
+			VertexBufferKeeper result;
 			if (numNeeded < 2048)
 			{
-				vertexBufferKeeper = VertexBufferKeeper._smallBufferCache.Get();
+				result = VertexBufferKeeper._smallBufferCache.Get();
 			}
 			else
 			{
-				vertexBufferKeeper = VertexBufferKeeper._largeBufferCache.Get();
+				result = VertexBufferKeeper._largeBufferCache.Get();
 			}
-			return vertexBufferKeeper;
+			return result;
 		}
 
 		public void Release()

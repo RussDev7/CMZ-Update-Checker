@@ -45,8 +45,8 @@ namespace DNA.CastleMinerZ.AI
 			this._fireballs = new List<FireballEntity>();
 			this._dragon = null;
 			this._dragonClient = null;
-			int num = 8;
-			this._fireballDamageBuffer = new IntVector3[(num + 1) * num * num];
+			int damagebuffersize = 8;
+			this._fireballDamageBuffer = new IntVector3[(damagebuffersize + 1) * damagebuffersize * damagebuffersize];
 			this._fireballDamageItemTypes = new BlockTypeEnum[this._fireballDamageBuffer.Length];
 			this._dependentItemsToRemoveBuffer = new IntVector3[this._fireballDamageBuffer.Length];
 			this._dependItemTypes = new BlockTypeEnum[this._fireballDamageBuffer.Length];
@@ -96,20 +96,20 @@ namespace DNA.CastleMinerZ.AI
 		{
 			for (int i = 0; i < this._enemies.Count; i++)
 			{
-				float num = Vector3.Distance(location, this._enemies[i].LocalPosition);
-				float num2 = damageRange / 2f;
-				if (num < damageRange)
+				float distance = Vector3.Distance(location, this._enemies[i].LocalPosition);
+				float maxOutDamageRange = damageRange / 2f;
+				if (distance < damageRange)
 				{
-					float num3;
-					if (num < num2)
+					float damage;
+					if (distance < maxOutDamageRange)
 					{
-						num3 = 12f;
+						damage = 12f;
 					}
 					else
 					{
-						num3 = 12f * (1f - (num - num2) / (damageRange - num2));
+						damage = 12f * (1f - (distance - maxOutDamageRange) / (damageRange - maxOutDamageRange));
 					}
-					this._enemies[i].TakeExplosiveDamage(num3, gamerID, itemID);
+					this._enemies[i].TakeExplosiveDamage(damage, gamerID, itemID);
 				}
 			}
 		}
@@ -206,11 +206,11 @@ namespace DNA.CastleMinerZ.AI
 		public void ResetFarthestDistance()
 		{
 			this.ClearedDistance = 50f;
-			Vector3 worldPosition = CastleMinerZGame.Instance.LocalPlayer.WorldPosition;
-			worldPosition.Y = 0f;
-			float num = worldPosition.Length();
+			Vector3 plrpos = CastleMinerZGame.Instance.LocalPlayer.WorldPosition;
+			plrpos.Y = 0f;
+			float d = plrpos.Length();
 			this.dragonDistanceIndex = Math.Min(this.dragonDistanceIndex, this.dragonDistances.Length);
-			while (this.dragonDistanceIndex > 0 && num <= this.dragonDistances[this.dragonDistanceIndex - 1])
+			while (this.dragonDistanceIndex > 0 && d <= this.dragonDistances[this.dragonDistanceIndex - 1])
 			{
 				this.dragonDistanceIndex--;
 			}
@@ -226,29 +226,29 @@ namespace DNA.CastleMinerZ.AI
 			{
 				return 1f;
 			}
-			float num = BlockTerrain.Instance.PercentMidnight;
-			float num2 = 1f - Math.Min(distance / 5000f, 1f);
-			num2 *= 0.5f;
-			num = Math.Max(0f, num - num2);
-			num /= 1f - num2;
-			return num.Clamp(0f, 0.79f);
+			float pm = BlockTerrain.Instance.PercentMidnight;
+			float off = 1f - Math.Min(distance / 5000f, 1f);
+			off *= 0.5f;
+			pm = Math.Max(0f, pm - off);
+			pm /= 1f - off;
+			return pm.Clamp(0f, 0.79f);
 		}
 
 		public float CalculatePlayerDistance()
 		{
-			Player localPlayer = CastleMinerZGame.Instance.LocalPlayer;
-			float num = 0f;
-			if (localPlayer != null)
+			Player plr = CastleMinerZGame.Instance.LocalPlayer;
+			float d = 0f;
+			if (plr != null)
 			{
-				Vector3 worldPosition = localPlayer.WorldPosition;
-				worldPosition.Y = 0f;
-				num = worldPosition.Length();
+				Vector3 plrpos = plr.WorldPosition;
+				plrpos.Y = 0f;
+				d = plrpos.Length();
 				if (CastleMinerZGame.Instance.GameMode == GameModeTypes.Endurance)
 				{
-					num += (CastleMinerZGame.Instance.GameScreen.Day - 0.41f) * 120f;
+					d += (CastleMinerZGame.Instance.GameScreen.Day - 0.41f) * 120f;
 				}
 			}
-			return num;
+			return d;
 		}
 
 		public void RegisterGunShot(Vector3 location)
@@ -288,33 +288,33 @@ namespace DNA.CastleMinerZ.AI
 			{
 				player = this.GetNetworkPlayerByName(msg.PlayerName);
 			}
-			bool flag = false;
+			bool spawnit = false;
 			if (player != null)
 			{
 				if (player.IsLocal)
 				{
-					flag = true;
+					spawnit = true;
 				}
 				else if (this._enemies.Count < 45)
 				{
-					flag = true;
+					spawnit = true;
 				}
 				else if (this._enemies.Count < 50)
 				{
 					this._enemyCounter++;
 					if ((this._enemyCounter & 3) == 1)
 					{
-						flag = true;
+						spawnit = true;
 					}
 				}
-				if (!flag)
+				if (!spawnit)
 				{
 					DebugUtils.Log("Spawn Failed. EnemyCount: " + this._enemies.Count);
 					return;
 				}
-				BaseZombie baseZombie = new BaseZombie(this, msg.EnemyTypeID, player, msg.SpawnPosition, msg.EnemyID, msg.RandomSeed, msg.InitPkg);
-				this.AddZombie(baseZombie);
-				baseZombie.SpawnValue = msg.SpawnValue;
+				BaseZombie zombie = new BaseZombie(this, msg.EnemyTypeID, player, msg.SpawnPosition, msg.EnemyID, msg.RandomSeed, msg.InitPkg);
+				this.AddZombie(zombie);
+				zombie.SpawnValue = msg.SpawnValue;
 				DebugUtils.Log(string.Concat(new object[]
 				{
 					"Enemy ID ",
@@ -328,8 +328,8 @@ namespace DNA.CastleMinerZ.AI
 				}));
 				if (msg.SpawnerPosition != Vector3.Zero)
 				{
-					baseZombie.SpawnSource = CastleMinerZGame.Instance.CurrentWorld.GetSpawner(IntVector3.FromVector3(msg.SpawnerPosition), false, BlockTypeEnum.Empty);
-					baseZombie.SetDistanceLimit();
+					zombie.SpawnSource = CastleMinerZGame.Instance.CurrentWorld.GetSpawner(IntVector3.FromVector3(msg.SpawnerPosition), false, BlockTypeEnum.Empty);
+					zombie.SetDistanceLimit();
 					return;
 				}
 			}
@@ -366,9 +366,9 @@ namespace DNA.CastleMinerZ.AI
 			}
 			if (this._dragon == null && this._dragonClient == null)
 			{
-				Vector3 worldPosition = CastleMinerZGame.Instance.LocalPlayer.WorldPosition;
-				worldPosition.Y = 0f;
-				if (worldPosition.LengthSquared() > 12960000f)
+				Vector3 plrpos = CastleMinerZGame.Instance.LocalPlayer.WorldPosition;
+				plrpos.Y = 0f;
+				if (plrpos.LengthSquared() > 12960000f)
 				{
 					dragonType = DragonTypeEnum.SKELETON;
 				}
@@ -397,10 +397,10 @@ namespace DNA.CastleMinerZ.AI
 				if (time.TotalGameTime > this.NextSpawnDragonTime)
 				{
 					this.NextSpawnDragonTime += TimeSpan.FromMinutes(1.0);
-					Player localPlayer = CastleMinerZGame.Instance.LocalPlayer;
-					Vector3 worldPosition = localPlayer.WorldPosition;
-					worldPosition.Y = 0f;
-					if (this.NextTimedDragonType < DragonTypeEnum.COUNT || worldPosition.LengthSquared() > 12960000f)
+					Player plr = CastleMinerZGame.Instance.LocalPlayer;
+					Vector3 plrpos = plr.WorldPosition;
+					plrpos.Y = 0f;
+					if (this.NextTimedDragonType < DragonTypeEnum.COUNT || plrpos.LengthSquared() > 12960000f)
 					{
 						this.AskForDragon(false, this.NextTimedDragonType);
 						this.NextTimedDragonType = (DragonTypeEnum)Math.Min((int)(this.NextTimedDragonType + 1), 5);
@@ -411,43 +411,43 @@ namespace DNA.CastleMinerZ.AI
 
 		private void RecalculateDragonBox(GameTime t)
 		{
-			Vector3 worldPosition = CastleMinerZGame.Instance.LocalPlayer.WorldPosition;
-			this.DragonBox = new BoundingBox(new Vector3(worldPosition.X - 500f, -100f, worldPosition.Z - 500f), new Vector3(worldPosition.X + 500f, 100f, worldPosition.Z + 500f));
-			float num = 16f;
+			Vector3 pos = CastleMinerZGame.Instance.LocalPlayer.WorldPosition;
+			this.DragonBox = new BoundingBox(new Vector3(pos.X - 500f, -100f, pos.Z - 500f), new Vector3(pos.X + 500f, 100f, pos.Z + 500f));
+			float minutesToWait = 16f;
 			switch (this.NextTimedDragonType)
 			{
 			case DragonTypeEnum.FIRE:
-				num = 32f;
+				minutesToWait = 32f;
 				break;
 			case DragonTypeEnum.FOREST:
-				num = 48f;
+				minutesToWait = 48f;
 				break;
 			case DragonTypeEnum.LIZARD:
-				num = 64f;
+				minutesToWait = 64f;
 				break;
 			case DragonTypeEnum.ICE:
-				num = 80f;
+				minutesToWait = 80f;
 				break;
 			case DragonTypeEnum.SKELETON:
-				num = 80f;
+				minutesToWait = 80f;
 				break;
 			case DragonTypeEnum.COUNT:
-				num = 80f;
+				minutesToWait = 80f;
 				break;
 			}
-			this.NextSpawnDragonTime = t.TotalGameTime + TimeSpan.FromMinutes((double)(num + 16f * MathTools.RandomFloat(-0.25f, 0.25f)));
+			this.NextSpawnDragonTime = t.TotalGameTime + TimeSpan.FromMinutes((double)(minutesToWait + 16f * MathTools.RandomFloat(-0.25f, 0.25f)));
 		}
 
 		public void BroadcastExistingDragonMessage(byte newClientID)
 		{
 			if (this._dragon != null)
 			{
-				float num = -1f;
+				float health = -1f;
 				if (this._dragonClient != null)
 				{
-					num = this._dragonClient.Health;
+					health = this._dragonClient.Health;
 				}
-				ExistingDragonMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, newClientID, this._dragon.EType.EType, this._dragon.ForBiome, num);
+				ExistingDragonMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, newClientID, this._dragon.EType.EType, this._dragon.ForBiome, health);
 			}
 		}
 
@@ -591,43 +591,43 @@ namespace DNA.CastleMinerZ.AI
 
 		public void SpawnDragonPickups(Vector3 location)
 		{
-			int num = MathTools.RandomInt(1, 4) + MathTools.RandomInt(1, 5);
-			float num2 = location.Length();
-			float num3 = (num2 / 5000f).Clamp(0f, 1f);
-			int num4 = MathTools.RandomInt(1, 3 + (int)(num3 * 5f)) + MathTools.RandomInt(1, 3 + (int)(num3 * 5f));
-			for (int i = 0; i < num4; i++)
+			int dropcount = MathTools.RandomInt(1, 4) + MathTools.RandomInt(1, 5);
+			float dist = location.Length();
+			float blender = (dist / 5000f).Clamp(0f, 1f);
+			int explosiveDrop = MathTools.RandomInt(1, 3 + (int)(blender * 5f)) + MathTools.RandomInt(1, 3 + (int)(blender * 5f));
+			for (int i = 0; i < explosiveDrop; i++)
 			{
-				InventoryItem inventoryItem = InventoryItem.CreateItem(InventoryItemIDs.ExplosivePowder, 1);
-				PickupManager.Instance.CreateUpwardPickup(inventoryItem, location + new Vector3(0f, 1f, 0f), 3f, false);
+				InventoryItem item = InventoryItem.CreateItem(InventoryItemIDs.ExplosivePowder, 1);
+				PickupManager.Instance.CreateUpwardPickup(item, location + new Vector3(0f, 1f, 0f), 3f, false);
 			}
-			for (int j = 0; j < num; j++)
+			for (int j = 0; j < dropcount; j++)
 			{
-				float num5 = MathTools.RandomFloat(num3, 1f);
+				float dval = MathTools.RandomFloat(blender, 1f);
 				float y = base.LocalPosition.Y;
-				InventoryItem inventoryItem2;
-				if ((double)num5 < 0.5)
+				InventoryItem item2;
+				if ((double)dval < 0.5)
 				{
-					inventoryItem2 = InventoryItem.CreateItem(InventoryItemIDs.Copper, 1);
+					item2 = InventoryItem.CreateItem(InventoryItemIDs.Copper, 1);
 				}
-				else if ((double)num5 < 0.6)
+				else if ((double)dval < 0.6)
 				{
-					inventoryItem2 = InventoryItem.CreateItem(InventoryItemIDs.Iron, 1);
+					item2 = InventoryItem.CreateItem(InventoryItemIDs.Iron, 1);
 				}
-				else if ((double)num5 < 0.8)
+				else if ((double)dval < 0.8)
 				{
-					inventoryItem2 = InventoryItem.CreateItem(InventoryItemIDs.Gold, 1);
+					item2 = InventoryItem.CreateItem(InventoryItemIDs.Gold, 1);
 				}
-				else if ((double)num5 < 0.9)
+				else if ((double)dval < 0.9)
 				{
-					inventoryItem2 = InventoryItem.CreateItem(InventoryItemIDs.Diamond, 1);
+					item2 = InventoryItem.CreateItem(InventoryItemIDs.Diamond, 1);
 				}
 				else
 				{
-					inventoryItem2 = InventoryItem.CreateItem(InventoryItemIDs.BloodStoneBlock, 1);
+					item2 = InventoryItem.CreateItem(InventoryItemIDs.BloodStoneBlock, 1);
 				}
-				if (inventoryItem2 != null)
+				if (item2 != null)
 				{
-					PickupManager.Instance.CreateUpwardPickup(inventoryItem2, location + new Vector3(0f, 1f, 0f), 3f, false);
+					PickupManager.Instance.CreateUpwardPickup(item2, location + new Vector3(0f, 1f, 0f), 3f, false);
 				}
 			}
 		}
@@ -670,7 +670,7 @@ namespace DNA.CastleMinerZ.AI
 				{
 					if (CastleMinerZGame.Instance.IsOnlineGame)
 					{
-						string text = string.Concat(new string[]
+						string str = string.Concat(new string[]
 						{
 							CastleMinerZGame.Instance.LocalPlayer.Gamer.Gamertag,
 							" ",
@@ -678,7 +678,7 @@ namespace DNA.CastleMinerZ.AI
 							" ",
 							this._dragonClient.EType.GetDragonName()
 						});
-						BroadcastTextMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, text);
+						BroadcastTextMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, str);
 					}
 					CastleMinerZGame.Instance.PlayerStats.GetItemStats(msg.WeaponID);
 					if (CastleMinerZGame.Instance.GameMode == GameModeTypes.Endurance)
@@ -737,50 +737,50 @@ namespace DNA.CastleMinerZ.AI
 			DragonType dragonType = DragonType.GetDragonType(msg.EType);
 			if (CastleMinerZGame.Instance.LocalPlayer != null && CastleMinerZGame.Instance.LocalPlayer.ValidLivingGamer)
 			{
-				Vector3 worldPosition = CastleMinerZGame.Instance.LocalPlayer.WorldPosition;
-				worldPosition.Y += 1f;
-				float num = Vector3.DistanceSquared(worldPosition, msg.Location);
-				if (num < 25f)
+				Vector3 playerPos = CastleMinerZGame.Instance.LocalPlayer.WorldPosition;
+				playerPos.Y += 1f;
+				float dsq = Vector3.DistanceSquared(playerPos, msg.Location);
+				if (dsq < 25f)
 				{
-					float num2 = Math.Max((float)Math.Sqrt((double)num) - 1f, 0f);
-					this._damageLOSProbe.Init(msg.Location, worldPosition);
+					float d = Math.Max((float)Math.Sqrt((double)dsq) - 1f, 0f);
+					this._damageLOSProbe.Init(msg.Location, playerPos);
 					this._damageLOSProbe.DragonTypeIndex = (int)dragonType.EType;
 					BlockTerrain.Instance.Trace(this._damageLOSProbe);
-					float num3 = Math.Min(this._damageLOSProbe.TotalDamageMultiplier * (1f - num2 / 5f), 1f);
+					float damage = Math.Min(this._damageLOSProbe.TotalDamageMultiplier * (1f - d / 5f), 1f);
 					if (CastleMinerZGame.Instance.GameMode == GameModeTypes.Survival && CastleMinerZGame.Instance.Difficulty == GameDifficultyTypes.EASY)
 					{
-						num3 *= 1f;
+						damage *= 1f;
 					}
-					num3 *= dragonType.FireballDamage;
-					InGameHUD.Instance.ApplyDamage(num3, msg.Location);
+					damage *= dragonType.FireballDamage;
+					InGameHUD.Instance.ApplyDamage(damage, msg.Location);
 				}
 			}
 			DragonDamageType damageType = dragonType.DamageType;
-			BlockTypeEnum blockTypeEnum;
+			BlockTypeEnum newType;
 			if (damageType == DragonDamageType.ICE)
 			{
-				blockTypeEnum = BlockTypeEnum.Ice;
+				newType = BlockTypeEnum.Ice;
 			}
 			else
 			{
-				blockTypeEnum = BlockTypeEnum.Empty;
+				newType = BlockTypeEnum.Empty;
 			}
-			for (byte b = 0; b < msg.NumBlocks; b += 1)
+			for (byte j = 0; j < msg.NumBlocks; j += 1)
 			{
-				BlockTerrain.Instance.SetBlock(msg.BlocksToRemove[(int)b], blockTypeEnum);
+				BlockTerrain.Instance.SetBlock(msg.BlocksToRemove[(int)j], newType);
 			}
 		}
 
 		private int RememberDependentObjects(IntVector3 worldIndex, int numDependents)
 		{
-			for (BlockFace blockFace = BlockFace.POSX; blockFace < BlockFace.NUM_FACES; blockFace++)
+			for (BlockFace bf = BlockFace.POSX; bf < BlockFace.NUM_FACES; bf++)
 			{
-				IntVector3 neighborIndex = BlockTerrain.Instance.GetNeighborIndex(worldIndex, blockFace);
-				BlockTypeEnum blockWithChanges = BlockTerrain.Instance.GetBlockWithChanges(neighborIndex);
-				if (BlockType.GetType(blockWithChanges).Facing == blockFace)
+				IntVector3 nb = BlockTerrain.Instance.GetNeighborIndex(worldIndex, bf);
+				BlockTypeEnum bbt = BlockTerrain.Instance.GetBlockWithChanges(nb);
+				if (BlockType.GetType(bbt).Facing == bf)
 				{
-					this._dependentItemsToRemoveBuffer[numDependents] = neighborIndex;
-					this._dependItemTypes[numDependents++] = blockWithChanges;
+					this._dependentItemsToRemoveBuffer[numDependents] = nb;
+					this._dependItemTypes[numDependents++] = bbt;
 				}
 			}
 			return numDependents;
@@ -800,90 +800,90 @@ namespace DNA.CastleMinerZ.AI
 
 		public void DetonateFireball(Vector3 position, int index, DragonType dragonType)
 		{
-			Vector3 vector = new Vector3((float)Math.Floor((double)position.X) + 0.5f, (float)Math.Floor((double)position.Y) + 0.5f, (float)Math.Floor((double)position.Z) + 0.5f);
-			Vector3 zero = Vector3.Zero;
-			Vector3 zero2 = Vector3.Zero;
-			int num = 0;
-			int num2 = 0;
-			IntVector3 zero3 = IntVector3.Zero;
-			DragonTypeEnum etype = dragonType.EType;
-			bool flag = dragonType.DamageType == DragonDamageType.DESTRUCTION;
+			Vector3 basePosition = new Vector3((float)Math.Floor((double)position.X) + 0.5f, (float)Math.Floor((double)position.Y) + 0.5f, (float)Math.Floor((double)position.Z) + 0.5f);
+			Vector3 walker = Vector3.Zero;
+			Vector3 testLocation = Vector3.Zero;
+			int numBlocks = 0;
+			int numDependentsToRemove = 0;
+			IntVector3 zero = IntVector3.Zero;
+			DragonTypeEnum denum = dragonType.EType;
+			bool checkRemoveDependentItems = dragonType.DamageType == DragonDamageType.DESTRUCTION;
 			if (CastleMinerZGame.Instance.GameMode == GameModeTypes.Endurance || CastleMinerZGame.Instance.GameMode == GameModeTypes.DragonEndurance || CastleMinerZGame.Instance.Difficulty == GameDifficultyTypes.HARD || CastleMinerZGame.Instance.Difficulty == GameDifficultyTypes.HARDCORE)
 			{
-				zero.X = -3f;
-				while (zero.X <= 3f)
+				walker.X = -3f;
+				while (walker.X <= 3f)
 				{
-					zero2.X = zero.X + vector.X;
-					zero.Y = -3f;
-					while (zero.Y <= 3f)
+					testLocation.X = walker.X + basePosition.X;
+					walker.Y = -3f;
+					while (walker.Y <= 3f)
 					{
-						zero2.Y = zero.Y + vector.Y;
-						zero.Z = -3f;
-						while (zero.Z <= 3f)
+						testLocation.Y = walker.Y + basePosition.Y;
+						walker.Z = -3f;
+						while (walker.Z <= 3f)
 						{
-							zero2.Z = zero.Z + vector.Z;
-							if (Vector3.DistanceSquared(zero2, position) <= 9f)
+							testLocation.Z = walker.Z + basePosition.Z;
+							if (Vector3.DistanceSquared(testLocation, position) <= 9f)
 							{
-								IntVector3 intVector = (IntVector3)zero2;
-								IntVector3 localIndex = BlockTerrain.Instance.GetLocalIndex(intVector);
-								if (BlockTerrain.Instance.IsIndexValid(localIndex))
+								IntVector3 vec = (IntVector3)testLocation;
+								IntVector3 local = BlockTerrain.Instance.GetLocalIndex(vec);
+								if (BlockTerrain.Instance.IsIndexValid(local))
 								{
-									BlockTypeEnum typeIndex = Block.GetTypeIndex(BlockTerrain.Instance.GetBlockAt(localIndex));
-									if (!DragonType.BreakLookup[(int)etype, (int)typeIndex] && !BlockType.IsUpperDoor(typeIndex))
+									BlockTypeEnum blockType = Block.GetTypeIndex(BlockTerrain.Instance.GetBlockAt(local));
+									if (!DragonType.BreakLookup[(int)denum, (int)blockType] && !BlockType.IsUpperDoor(blockType))
 									{
-										this._fireballDamageItemTypes[num] = typeIndex;
-										this._fireballDamageBuffer[num++] = intVector;
-										if (flag)
+										this._fireballDamageItemTypes[numBlocks] = blockType;
+										this._fireballDamageBuffer[numBlocks++] = vec;
+										if (checkRemoveDependentItems)
 										{
-											num2 = this.RememberDependentObjects(intVector, num2);
+											numDependentsToRemove = this.RememberDependentObjects(vec, numDependentsToRemove);
 										}
-										if (typeIndex == BlockTypeEnum.NormalLowerDoorOpenX || typeIndex == BlockTypeEnum.NormalLowerDoorOpenZ || typeIndex == BlockTypeEnum.NormalLowerDoorClosedX || typeIndex == BlockTypeEnum.NormalLowerDoorClosedZ)
+										if (blockType == BlockTypeEnum.NormalLowerDoorOpenX || blockType == BlockTypeEnum.NormalLowerDoorOpenZ || blockType == BlockTypeEnum.NormalLowerDoorClosedX || blockType == BlockTypeEnum.NormalLowerDoorClosedZ)
 										{
-											intVector.Y++;
-											this._fireballDamageItemTypes[num] = BlockTypeEnum.NormalUpperDoorOpen;
-											this._fireballDamageBuffer[num++] = intVector;
-											if (flag)
+											vec.Y++;
+											this._fireballDamageItemTypes[numBlocks] = BlockTypeEnum.NormalUpperDoorOpen;
+											this._fireballDamageBuffer[numBlocks++] = vec;
+											if (checkRemoveDependentItems)
 											{
-												num2 = this.RememberDependentObjects(intVector, num2);
+												numDependentsToRemove = this.RememberDependentObjects(vec, numDependentsToRemove);
 											}
 										}
-										if (typeIndex == BlockTypeEnum.StrongLowerDoorOpenX || typeIndex == BlockTypeEnum.StrongLowerDoorOpenZ || typeIndex == BlockTypeEnum.StrongLowerDoorClosedX || typeIndex == BlockTypeEnum.StrongLowerDoorClosedZ)
+										if (blockType == BlockTypeEnum.StrongLowerDoorOpenX || blockType == BlockTypeEnum.StrongLowerDoorOpenZ || blockType == BlockTypeEnum.StrongLowerDoorClosedX || blockType == BlockTypeEnum.StrongLowerDoorClosedZ)
 										{
-											intVector.Y++;
-											this._fireballDamageItemTypes[num] = BlockTypeEnum.StrongUpperDoorOpen;
-											this._fireballDamageBuffer[num++] = intVector;
-											if (flag)
+											vec.Y++;
+											this._fireballDamageItemTypes[numBlocks] = BlockTypeEnum.StrongUpperDoorOpen;
+											this._fireballDamageBuffer[numBlocks++] = vec;
+											if (checkRemoveDependentItems)
 											{
-												num2 = this.RememberDependentObjects(intVector, num2);
+												numDependentsToRemove = this.RememberDependentObjects(vec, numDependentsToRemove);
 											}
 										}
 									}
 								}
 							}
-							zero.Z += 1f;
+							walker.Z += 1f;
 						}
-						zero.Y += 1f;
+						walker.Y += 1f;
 					}
-					zero.X += 1f;
+					walker.X += 1f;
 				}
 			}
-			int num3 = num;
-			for (int i = 0; i < num2; i++)
+			int oldNumBlocks = numBlocks;
+			for (int i = 0; i < numDependentsToRemove; i++)
 			{
-				if (!this.VectorWillBeDamaged(this._dependentItemsToRemoveBuffer[i], num3))
+				if (!this.VectorWillBeDamaged(this._dependentItemsToRemoveBuffer[i], oldNumBlocks))
 				{
-					InventoryItem.InventoryItemClass inventoryItemClass = BlockInventoryItemClass.BlockClasses[BlockType.GetType(this._dependItemTypes[i]).ParentBlockType];
-					PickupManager.Instance.CreatePickup(inventoryItemClass.CreateItem(1), IntVector3.ToVector3(this._dependentItemsToRemoveBuffer[i]) + new Vector3(0.5f, 0.5f, 0.5f), false, false);
-					this._fireballDamageItemTypes[num] = this._dependItemTypes[i];
-					this._fireballDamageBuffer[num++] = this._dependentItemsToRemoveBuffer[i];
+					InventoryItem.InventoryItemClass bic = BlockInventoryItemClass.BlockClasses[BlockType.GetType(this._dependItemTypes[i]).ParentBlockType];
+					PickupManager.Instance.CreatePickup(bic.CreateItem(1), IntVector3.ToVector3(this._dependentItemsToRemoveBuffer[i]) + new Vector3(0.5f, 0.5f, 0.5f), false, false);
+					this._fireballDamageItemTypes[numBlocks] = this._dependItemTypes[i];
+					this._fireballDamageBuffer[numBlocks++] = this._dependentItemsToRemoveBuffer[i];
 					if (this._dependItemTypes[i] == BlockTypeEnum.NormalLowerDoorOpenX || this._dependItemTypes[i] == BlockTypeEnum.NormalLowerDoorOpenZ || this._dependItemTypes[i] == BlockTypeEnum.NormalLowerDoorClosedX || this._dependItemTypes[i] == BlockTypeEnum.NormalLowerDoorClosedZ)
 					{
-						this._fireballDamageItemTypes[num] = BlockTypeEnum.NormalUpperDoorOpen;
-						this._fireballDamageBuffer[num++] = this._dependentItemsToRemoveBuffer[i] + new IntVector3(0, 1, 0);
+						this._fireballDamageItemTypes[numBlocks] = BlockTypeEnum.NormalUpperDoorOpen;
+						this._fireballDamageBuffer[numBlocks++] = this._dependentItemsToRemoveBuffer[i] + new IntVector3(0, 1, 0);
 					}
 				}
 			}
-			for (int j = 0; j < num3; j++)
+			for (int j = 0; j < oldNumBlocks; j++)
 			{
 				if (BlockType.IsContainer(this._fireballDamageItemTypes[j]))
 				{
@@ -899,21 +899,21 @@ namespace DNA.CastleMinerZ.AI
 					DestroyCustomBlockMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, this._fireballDamageBuffer[j], this._fireballDamageItemTypes[j]);
 				}
 			}
-			DetonateFireballMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, position, index, num, this._fireballDamageBuffer, dragonType.EType);
+			DetonateFireballMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, position, index, numBlocks, this._fireballDamageBuffer, dragonType.EType);
 		}
 
 		public void HandleEnemyGiveUpMessage(EnemyGiveUpMessage msg)
 		{
 			for (int i = 0; i < this._enemies.Count; i++)
 			{
-				BaseZombie baseZombie = this._enemies[i];
-				if (!baseZombie.IsDead && (int)baseZombie.Target.Gamer.Id == msg.TargetID && baseZombie.EnemyID == msg.EnemyID)
+				BaseZombie enemy = this._enemies[i];
+				if (!enemy.IsDead && (int)enemy.Target.Gamer.Id == msg.TargetID && enemy.EnemyID == msg.EnemyID)
 				{
-					baseZombie.GiveUp();
-					if (baseZombie.SpawnSource != null)
+					enemy.GiveUp();
+					if (enemy.SpawnSource != null)
 					{
-						baseZombie.SpawnSource.HandleEnemyRemoved(baseZombie.SpawnValue);
-						baseZombie.SpawnSource = null;
+						enemy.SpawnSource.HandleEnemyRemoved(enemy.SpawnValue);
+						enemy.SpawnSource = null;
 					}
 					return;
 				}
@@ -924,26 +924,26 @@ namespace DNA.CastleMinerZ.AI
 		{
 			for (int i = 0; i < this._enemies.Count; i++)
 			{
-				BaseZombie baseZombie = this._enemies[i];
-				if (!baseZombie.IsDead && (int)baseZombie.Target.Gamer.Id == msg.TargetID && baseZombie.EnemyID == msg.EnemyID)
+				BaseZombie enemy = this._enemies[i];
+				if (!enemy.IsDead && (int)enemy.Target.Gamer.Id == msg.TargetID && enemy.EnemyID == msg.EnemyID)
 				{
 					if (CastleMinerZGame.Instance.IsLocalPlayerId(msg.KillerID))
 					{
 						CastleMinerZPlayerStats.ItemStats itemStats = CastleMinerZGame.Instance.PlayerStats.GetItemStats(msg.WeaponID);
-						baseZombie.CreatePickup();
-						CastleMinerZGame.Instance.PlayerStats.AddStat(baseZombie.EType.Category);
-						itemStats.AddStat(baseZombie.EType.Category);
+						enemy.CreatePickup();
+						CastleMinerZGame.Instance.PlayerStats.AddStat(enemy.EType.Category);
+						itemStats.AddStat(enemy.EType.Category);
 						if (CastleMinerZGame.Instance.GameMode == GameModeTypes.Endurance)
 						{
 							CastleMinerZGame.Instance.PlayerStats.TotalKills++;
 						}
 					}
-					if (baseZombie.SpawnSource != null)
+					if (enemy.SpawnSource != null)
 					{
-						baseZombie.SpawnSource.HandleEnemyDefeated(baseZombie.SpawnValue, msg.KillerID);
-						baseZombie.SpawnSource = null;
+						enemy.SpawnSource.HandleEnemyDefeated(enemy.SpawnValue, msg.KillerID);
+						enemy.SpawnSource = null;
 					}
-					baseZombie.Kill();
+					enemy.Kill();
 					return;
 				}
 			}
@@ -966,11 +966,11 @@ namespace DNA.CastleMinerZ.AI
 
 		public IShootableEnemy Trace(TraceProbe tp, bool meleeWeapon)
 		{
-			IShootableEnemy shootableEnemy = null;
+			IShootableEnemy result = null;
 			BlockTerrain.Instance.Trace(tp);
 			if (this._enemies.Count != 0)
 			{
-				BaseZombie baseZombie = null;
+				BaseZombie closestZombie = null;
 				if (tp._collides)
 				{
 					this.zombieProbe.Init(tp._start, tp.GetIntersection());
@@ -979,90 +979,90 @@ namespace DNA.CastleMinerZ.AI
 				{
 					this.zombieProbe.Init(tp._start, tp._end);
 				}
-				Vector3 vector = this.zombieProbe._end - this.zombieProbe._start;
-				if (vector.LengthSquared() <= 0.0001f)
+				Vector3 nml = this.zombieProbe._end - this.zombieProbe._start;
+				if (nml.LengthSquared() <= 0.0001f)
 				{
-					return baseZombie;
+					return closestZombie;
 				}
-				vector.Normalize();
-				float num = Vector3.Dot(this.zombieProbe._start, vector);
-				float num2 = Vector3.Dot(this.zombieProbe._end, vector);
-				float num3 = this.zombieProbe._inT;
-				foreach (BaseZombie baseZombie2 in this._enemies)
+				nml.Normalize();
+				float startD = Vector3.Dot(this.zombieProbe._start, nml);
+				float endD = Vector3.Dot(this.zombieProbe._end, nml);
+				float prevT = this.zombieProbe._inT;
+				foreach (BaseZombie z in this._enemies)
 				{
-					if (baseZombie2.IsHittable && tp.TestThisEnemy(baseZombie2))
+					if (z.IsHittable && tp.TestThisEnemy(z))
 					{
-						Vector3 worldPosition = baseZombie2.WorldPosition;
-						float num4 = Vector3.Dot(worldPosition, vector);
-						if (num - num4 <= 3f && num4 - num2 <= 3f)
+						Vector3 wp = z.WorldPosition;
+						float d = Vector3.Dot(wp, nml);
+						if (startD - d <= 3f && d - endD <= 3f)
 						{
-							Vector3 vector2 = worldPosition - this.zombieProbe._start;
-							Vector3 vector3 = Vector3.Cross(vector, vector2);
-							float num5 = ((baseZombie2.EType.EType == EnemyTypeEnum.FELGUARD || baseZombie2.EType.EType == EnemyTypeEnum.HELL_LORD) ? 0.001f : 0.0001f);
-							if (vector3.LengthSquared() > num5)
+							Vector3 vtoz = wp - this.zombieProbe._start;
+							Vector3 cr = Vector3.Cross(nml, vtoz);
+							float tol2 = ((z.EType.EType == EnemyTypeEnum.FELGUARD || z.EType.EType == EnemyTypeEnum.HELL_LORD) ? 0.001f : 0.0001f);
+							if (cr.LengthSquared() > tol2)
 							{
-								vector3.Normalize();
-								vector3 = Vector3.Cross(vector3, vector);
-								float num6 = ((baseZombie2.EType.EType == EnemyTypeEnum.FELGUARD || baseZombie2.EType.EType == EnemyTypeEnum.HELL_LORD) ? 9f : 3f);
-								if (Math.Abs(Vector3.Dot(worldPosition, vector3) - Vector3.Dot(this.zombieProbe._start, vector3)) > num6)
+								cr.Normalize();
+								cr = Vector3.Cross(cr, nml);
+								float tol3 = ((z.EType.EType == EnemyTypeEnum.FELGUARD || z.EType.EType == EnemyTypeEnum.HELL_LORD) ? 9f : 3f);
+								if (Math.Abs(Vector3.Dot(wp, cr) - Vector3.Dot(this.zombieProbe._start, cr)) > tol3)
 								{
 									continue;
 								}
 							}
-							if (baseZombie2.EType.EType == EnemyTypeEnum.FELGUARD || baseZombie2.EType.EType == EnemyTypeEnum.HELL_LORD)
+							if (z.EType.EType == EnemyTypeEnum.FELGUARD || z.EType.EType == EnemyTypeEnum.HELL_LORD)
 							{
-								BoundingBox playerAABB = baseZombie2.PlayerAABB;
-								playerAABB.Min.X = -1.5f;
-								playerAABB.Min.Z = -1.5f;
-								playerAABB.Max.X = 1.5f;
-								playerAABB.Max.Z = 1.5f;
-								playerAABB.Min.Y = 0f;
-								playerAABB.Max.Y = 6f;
-								playerAABB.Min += worldPosition;
-								playerAABB.Max += worldPosition;
-								this.zombieProbe.TestBoundBox(playerAABB);
+								BoundingBox bb = z.PlayerAABB;
+								bb.Min.X = -1.5f;
+								bb.Min.Z = -1.5f;
+								bb.Max.X = 1.5f;
+								bb.Max.Z = 1.5f;
+								bb.Min.Y = 0f;
+								bb.Max.Y = 6f;
+								bb.Min += wp;
+								bb.Max += wp;
+								this.zombieProbe.TestBoundBox(bb);
 							}
 							else
 							{
-								BoundingBox playerAABB2 = baseZombie2.PlayerAABB;
-								playerAABB2.Min += worldPosition;
-								playerAABB2.Max += worldPosition;
-								this.zombieProbe.TestBoundBox(playerAABB2);
+								BoundingBox bb2 = z.PlayerAABB;
+								bb2.Min += wp;
+								bb2.Max += wp;
+								this.zombieProbe.TestBoundBox(bb2);
 							}
-							if (this.zombieProbe._collides && num3 != this.zombieProbe._inT)
+							if (this.zombieProbe._collides && prevT != this.zombieProbe._inT)
 							{
-								float chanceOfBulletStrike = baseZombie2.EType.ChanceOfBulletStrike;
+								float f = z.EType.ChanceOfBulletStrike;
 								Vector3 intersection = this.zombieProbe.GetIntersection();
-								bool flag = chanceOfBulletStrike == 1f || meleeWeapon || baseZombie2.IsHeadshot(intersection) || (float)this._rnd.NextDouble() <= chanceOfBulletStrike;
-								if (flag)
+								bool countIt = f == 1f || meleeWeapon || z.IsHeadshot(intersection) || (float)this._rnd.NextDouble() <= f;
+								if (countIt)
 								{
-									baseZombie = baseZombie2;
-									num2 = Vector3.Dot(intersection, vector);
-									num3 = this.zombieProbe._inT;
+									closestZombie = z;
+									endD = Vector3.Dot(intersection, nml);
+									prevT = this.zombieProbe._inT;
 								}
 							}
 						}
 					}
 				}
-				if (baseZombie != null)
+				if (closestZombie != null)
 				{
 					tp._collides = true;
 					tp._end = this.zombieProbe._end;
 					tp._inT = this.zombieProbe._inT;
 					tp._inNormal = this.zombieProbe._inNormal;
 					tp._inFace = this.zombieProbe._inFace;
-					shootableEnemy = baseZombie;
+					result = closestZombie;
 				}
 			}
-			if (shootableEnemy == null && !tp._collides && this._dragonClient != null)
+			if (result == null && !tp._collides && this._dragonClient != null)
 			{
 				tp.Reset();
 				if (this._dragonClient.Trace(tp))
 				{
-					shootableEnemy = this._dragonClient;
+					result = this._dragonClient;
 				}
 			}
-			return shootableEnemy;
+			return result;
 		}
 
 		public void AddZombie(BaseZombie z)
@@ -1115,30 +1115,30 @@ namespace DNA.CastleMinerZ.AI
 
 		private void SpawnRandomZombies(Vector3 plrpos)
 		{
-			Vector3 vector = plrpos;
-			vector.Y += 1f;
-			float num = this.CalculatePlayerDistance();
-			float num2 = this.CalculateMidnight(num, plrpos.Y);
-			Vector3 vector2 = CastleMinerZGame.Instance.LocalPlayer.PlayerPhysics.WorldVelocity;
-			vector2 *= 5f;
-			EnemyTypeEnum zombie = EnemyType.GetZombie(num);
-			int spawnRadius = EnemyType.Types[(int)zombie].SpawnRadius;
-			vector.X += vector2.X + (float)this._rnd.Next(-spawnRadius, spawnRadius + 1);
-			vector.Z += vector2.Z + (float)this._rnd.Next(-spawnRadius, spawnRadius + 1);
-			if (BlockTerrain.Instance.RegionIsLoaded(vector))
+			Vector3 newpos = plrpos;
+			newpos.Y += 1f;
+			float distance = this.CalculatePlayerDistance();
+			float pm = this.CalculateMidnight(distance, plrpos.Y);
+			Vector3 vel = CastleMinerZGame.Instance.LocalPlayer.PlayerPhysics.WorldVelocity;
+			vel *= 5f;
+			EnemyTypeEnum etype = EnemyType.GetZombie(distance);
+			int radius = EnemyType.Types[(int)etype].SpawnRadius;
+			newpos.X += vel.X + (float)this._rnd.Next(-radius, radius + 1);
+			newpos.Z += vel.Z + (float)this._rnd.Next(-radius, radius + 1);
+			if (BlockTerrain.Instance.RegionIsLoaded(newpos))
 			{
-				vector = BlockTerrain.Instance.FindTopmostGroundLocation(vector);
-				IntVector3 intVector = new IntVector3((int)vector.X, (int)vector.Y - 1, (int)vector.Z);
-				int num3 = BlockTerrain.Instance.MakeIndexFromWorldIndexVector(intVector);
-				int num4 = BlockTerrain.Instance._blocks[num3];
-				BlockType type = Block.GetType(num4);
+				newpos = BlockTerrain.Instance.FindTopmostGroundLocation(newpos);
+				IntVector3 worldPos = new IntVector3((int)newpos.X, (int)newpos.Y - 1, (int)newpos.Z);
+				int index = BlockTerrain.Instance.MakeIndexFromWorldIndexVector(worldPos);
+				int block = BlockTerrain.Instance._blocks[index];
+				BlockType blockType = Block.GetType(block);
 				this._distanceEnemiesLeftToSpawn--;
-				if (type._type == BlockTypeEnum.SpaceRock || type._type == BlockTypeEnum.SpaceRockInventory)
+				if (blockType._type == BlockTypeEnum.SpaceRock || blockType._type == BlockTypeEnum.SpaceRockInventory)
 				{
 					return;
 				}
-				SpawnEnemyMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, vector, zombie, num2, this.MakeNextEnemyID(), this._rnd.Next(), Vector3.Zero, 0, null);
-				if (zombie == EnemyTypeEnum.ALIEN)
+				SpawnEnemyMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, newpos, etype, pm, this.MakeNextEnemyID(), this._rnd.Next(), Vector3.Zero, 0, null);
+				if (etype == EnemyTypeEnum.ALIEN)
 				{
 					this._localAlienCount++;
 					return;
@@ -1151,10 +1151,10 @@ namespace DNA.CastleMinerZ.AI
 		{
 			for (int i = 0; i < CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers.Count; i++)
 			{
-				NetworkGamer networkGamer = CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers[i];
-				if (networkGamer.Tag != null && name.Equals(networkGamer.Gamertag))
+				NetworkGamer gamer = CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers[i];
+				if (gamer.Tag != null && name.Equals(gamer.Gamertag))
 				{
-					return (Player)networkGamer.Tag;
+					return (Player)gamer.Tag;
 				}
 			}
 			return null;
@@ -1162,10 +1162,10 @@ namespace DNA.CastleMinerZ.AI
 
 		public int SpawnEnemy(Vector3 newpos, EnemyTypeEnum etype, Vector3 spawnerPos, int spawnValue, string targetPlayerName = null)
 		{
-			Player localPlayer = CastleMinerZGame.Instance.LocalPlayer;
-			float num = 0f;
-			int num2 = this.MakeNextEnemyID();
-			SpawnEnemyMessage.Send((LocalNetworkGamer)localPlayer.Gamer, newpos, etype, num, num2, this._rnd.Next(), spawnerPos, spawnValue, targetPlayerName);
+			Player player = CastleMinerZGame.Instance.LocalPlayer;
+			float pm = 0f;
+			int nextEnemyID = this.MakeNextEnemyID();
+			SpawnEnemyMessage.Send((LocalNetworkGamer)player.Gamer, newpos, etype, pm, nextEnemyID, this._rnd.Next(), spawnerPos, spawnValue, targetPlayerName);
 			if (etype == EnemyTypeEnum.ALIEN)
 			{
 				this._localAlienCount++;
@@ -1178,53 +1178,53 @@ namespace DNA.CastleMinerZ.AI
 			{
 				BroadcastTextMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, Strings.Hell_Lord_Spawned);
 			}
-			return num2;
+			return nextEnemyID;
 		}
 
 		private void SpawnAbovegroundEnemy(Vector3 plrpos)
 		{
-			Vector3 vector = plrpos;
-			vector.Y += 1f;
-			float num = this.CalculatePlayerDistance();
-			float num2 = this.CalculateMidnight(num, plrpos.Y);
-			if (num2 <= 0.0001f)
+			Vector3 newpos = plrpos;
+			newpos.Y += 1f;
+			float distance = this.CalculatePlayerDistance();
+			float pm = this.CalculateMidnight(distance, plrpos.Y);
+			if (pm <= 0.0001f)
 			{
 				this._timeSinceLastSurfaceEnemy = 0f;
 				return;
 			}
-			float num3 = MathHelper.Lerp(60f, this.GetMinEnemySpawnTime(num), (float)Math.Pow((double)num2, 0.25));
-			if (this._timeSinceLastSurfaceEnemy > num3 * (1f + (float)this._rnd.NextDouble() * 0.5f))
+			float interval = MathHelper.Lerp(60f, this.GetMinEnemySpawnTime(distance), (float)Math.Pow((double)pm, 0.25));
+			if (this._timeSinceLastSurfaceEnemy > interval * (1f + (float)this._rnd.NextDouble() * 0.5f))
 			{
-				Vector3 vector2 = CastleMinerZGame.Instance.LocalPlayer.PlayerPhysics.WorldVelocity;
-				vector2 *= 5f;
-				EnemyTypeEnum abovegroundEnemy = EnemyType.GetAbovegroundEnemy(num2, num);
-				int spawnRadius = EnemyType.Types[(int)abovegroundEnemy].SpawnRadius;
-				vector.X += vector2.X + (float)this._rnd.Next(-spawnRadius, spawnRadius + 1);
-				vector.Z += vector2.Z + (float)this._rnd.Next(-spawnRadius, spawnRadius + 1);
-				if (BlockTerrain.Instance.RegionIsLoaded(vector))
+				Vector3 vel = CastleMinerZGame.Instance.LocalPlayer.PlayerPhysics.WorldVelocity;
+				vel *= 5f;
+				EnemyTypeEnum etype = EnemyType.GetAbovegroundEnemy(pm, distance);
+				int radius = EnemyType.Types[(int)etype].SpawnRadius;
+				newpos.X += vel.X + (float)this._rnd.Next(-radius, radius + 1);
+				newpos.Z += vel.Z + (float)this._rnd.Next(-radius, radius + 1);
+				if (BlockTerrain.Instance.RegionIsLoaded(newpos))
 				{
 					if (plrpos.Y > -40f)
 					{
-						vector = BlockTerrain.Instance.FindTopmostGroundLocation(vector);
+						newpos = BlockTerrain.Instance.FindTopmostGroundLocation(newpos);
 					}
 					else
 					{
-						vector = BlockTerrain.Instance.FindSafeStartLocation(vector);
+						newpos = BlockTerrain.Instance.FindSafeStartLocation(newpos);
 					}
-					IntVector3 intVector = new IntVector3((int)vector.X, (int)vector.Y - 1, (int)vector.Z);
-					int num4 = BlockTerrain.Instance.MakeIndexFromWorldIndexVector(intVector);
-					int num5 = BlockTerrain.Instance._blocks[num4];
-					BlockType type = Block.GetType(num5);
-					Vector3 vector3 = new Vector3(vector.X, vector.Y + 0.5f, vector.Z);
-					float simpleTorchlightAtPoint = BlockTerrain.Instance.GetSimpleTorchlightAtPoint(vector3);
-					if (simpleTorchlightAtPoint < 0.4f || !ItemBlockEntityManager.Instance.NearLantern(vector3, 7.2f))
+					IntVector3 worldPos = new IntVector3((int)newpos.X, (int)newpos.Y - 1, (int)newpos.Z);
+					int index = BlockTerrain.Instance.MakeIndexFromWorldIndexVector(worldPos);
+					int block = BlockTerrain.Instance._blocks[index];
+					BlockType blockType = Block.GetType(block);
+					Vector3 np = new Vector3(newpos.X, newpos.Y + 0.5f, newpos.Z);
+					float torchlight = BlockTerrain.Instance.GetSimpleTorchlightAtPoint(np);
+					if (torchlight < 0.4f || !ItemBlockEntityManager.Instance.NearLantern(np, 7.2f))
 					{
 						this._timeSinceLastSurfaceEnemy = 0f;
-						if (type._type == BlockTypeEnum.SpaceRock || type._type == BlockTypeEnum.SpaceRockInventory)
+						if (blockType._type == BlockTypeEnum.SpaceRock || blockType._type == BlockTypeEnum.SpaceRockInventory)
 						{
 							return;
 						}
-						SpawnEnemyMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, vector, abovegroundEnemy, num2, this.MakeNextEnemyID(), this._rnd.Next(), Vector3.Zero, 0, null);
+						SpawnEnemyMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, newpos, etype, pm, this.MakeNextEnemyID(), this._rnd.Next(), Vector3.Zero, 0, null);
 						this._localSurfaceEnemyCount++;
 					}
 				}
@@ -1233,66 +1233,66 @@ namespace DNA.CastleMinerZ.AI
 
 		private void SpawnBelowgroundEnemy(Vector3 plrpos, float gametime)
 		{
-			Vector3 vector = plrpos;
-			vector.Y += 1f;
-			int num = (int)(-(plrpos.Y - 20f)).Clamp(0f, 50f);
-			float num2 = (float)num / 50f;
-			float num3 = (float)Math.Sin((double)(gametime / 60f % 2f * 3.1415927f));
-			if (num3 > 0f)
+			Vector3 newpos = plrpos;
+			newpos.Y += 1f;
+			int depth = (int)(-(plrpos.Y - 20f)).Clamp(0f, 50f);
+			float lerper = (float)depth / 50f;
+			float cycle = (float)Math.Sin((double)(gametime / 60f % 2f * 3.1415927f));
+			if (cycle > 0f)
 			{
-				num3 = (float)Math.Sqrt((double)num3);
+				cycle = (float)Math.Sqrt((double)cycle);
 			}
 			else
 			{
-				num3 = 0f;
+				cycle = 0f;
 			}
-			num2 *= num3;
-			float num4 = ((plrpos.Y < -40f) ? 3500f : this.CalculatePlayerDistance());
-			float num5 = MathHelper.Lerp(60f, this.GetMinEnemySpawnTime(num4), num2);
-			if (this._timeSinceLastCaveEnemy > num5 * (1f + (float)this._rnd.NextDouble() * 0.5f))
+			lerper *= cycle;
+			float d = ((plrpos.Y < -40f) ? 3500f : this.CalculatePlayerDistance());
+			float interval = MathHelper.Lerp(60f, this.GetMinEnemySpawnTime(d), lerper);
+			if (this._timeSinceLastCaveEnemy > interval * (1f + (float)this._rnd.NextDouble() * 0.5f))
 			{
-				EnemyTypeEnum belowgroundEnemy = EnemyType.GetBelowgroundEnemy((float)num, num4);
-				int spawnRadius = EnemyType.Types[(int)belowgroundEnemy].SpawnRadius;
-				int num6 = this._rnd.Next(-spawnRadius, spawnRadius);
-				if (num6 <= 0)
+				EnemyTypeEnum etype = EnemyType.GetBelowgroundEnemy((float)depth, d);
+				int radius = EnemyType.Types[(int)etype].SpawnRadius;
+				int offset = this._rnd.Next(-radius, radius);
+				if (offset <= 0)
 				{
-					num6 -= 5;
+					offset -= 5;
 				}
 				else
 				{
-					num6 += 5;
+					offset += 5;
 				}
-				vector.X += (float)num6;
-				num6 = this._rnd.Next(-spawnRadius, spawnRadius);
-				if (num6 <= 0)
+				newpos.X += (float)offset;
+				offset = this._rnd.Next(-radius, radius);
+				if (offset <= 0)
 				{
-					num6 -= 5;
+					offset -= 5;
 				}
 				else
 				{
-					num6 += 5;
+					offset += 5;
 				}
-				vector.Z += (float)num6;
-				if (BlockTerrain.Instance.RegionIsLoaded(vector))
+				newpos.Z += (float)offset;
+				if (BlockTerrain.Instance.RegionIsLoaded(newpos))
 				{
-					vector = BlockTerrain.Instance.FindClosestCeiling(vector);
-					if (vector.LengthSquared() != 0f)
+					newpos = BlockTerrain.Instance.FindClosestCeiling(newpos);
+					if (newpos.LengthSquared() != 0f)
 					{
-						IntVector3 intVector = new IntVector3((int)vector.X, (int)vector.Y, (int)vector.Z);
-						int num7 = BlockTerrain.Instance.MakeIndexFromWorldIndexVector(intVector);
-						int num8 = BlockTerrain.Instance._blocks[num7];
-						BlockType type = Block.GetType(num8);
-						Vector3 vector2 = vector;
-						vector2.Y -= 1f;
-						Vector2 simpleLightAtPoint = BlockTerrain.Instance.GetSimpleLightAtPoint(vector2);
-						if (simpleLightAtPoint.X <= 0.4f && simpleLightAtPoint.Y <= 0.4f)
+						IntVector3 worldPos = new IntVector3((int)newpos.X, (int)newpos.Y, (int)newpos.Z);
+						int index = BlockTerrain.Instance.MakeIndexFromWorldIndexVector(worldPos);
+						int block = BlockTerrain.Instance._blocks[index];
+						BlockType blockType = Block.GetType(block);
+						Vector3 lightchecker = newpos;
+						lightchecker.Y -= 1f;
+						Vector2 light = BlockTerrain.Instance.GetSimpleLightAtPoint(lightchecker);
+						if (light.X <= 0.4f && light.Y <= 0.4f)
 						{
 							this._timeSinceLastCaveEnemy = 0f;
-							if (type._type == BlockTypeEnum.SpaceRock || type._type == BlockTypeEnum.SpaceRockInventory)
+							if (blockType._type == BlockTypeEnum.SpaceRock || blockType._type == BlockTypeEnum.SpaceRockInventory)
 							{
 								return;
 							}
-							SpawnEnemyMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, vector, belowgroundEnemy, 0f, this.MakeNextEnemyID(), this._rnd.Next(), Vector3.Zero, 0, null);
+							SpawnEnemyMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, newpos, etype, 0f, this.MakeNextEnemyID(), this._rnd.Next(), Vector3.Zero, 0, null);
 							this._localCaveEnemyCount++;
 						}
 					}
@@ -1314,74 +1314,74 @@ namespace DNA.CastleMinerZ.AI
 		{
 			if (this._timeSinceLastAlien > this._nextAlienTime)
 			{
-				EnemyTypeEnum enemyTypeEnum = EnemyTypeEnum.ALIEN;
-				int spawnRadius = EnemyType.Types[(int)enemyTypeEnum].SpawnRadius;
-				Vector3 vector = Vector3.Zero;
+				EnemyTypeEnum etype = EnemyTypeEnum.ALIEN;
+				int originalRadius = EnemyType.Types[(int)etype].SpawnRadius;
+				Vector3 newpos = Vector3.Zero;
 				if (this._aliensAreAroused && BlockTerrain.Instance.RegionIsLoaded(plrpos))
 				{
-					vector = BlockTerrain.Instance.FindNearbySpawnPoint(plrpos, spawnRadius * 2, spawnRadius);
+					newpos = BlockTerrain.Instance.FindNearbySpawnPoint(plrpos, originalRadius * 2, originalRadius);
 				}
 				else
 				{
-					int num;
-					int num2;
+					int radius;
+					int minOffset;
 					if (!inAsteroid)
 					{
-						num = spawnRadius * 3;
-						num2 = 5;
+						radius = originalRadius * 3;
+						minOffset = 5;
 					}
 					else
 					{
-						num = spawnRadius;
-						num2 = 1;
+						radius = originalRadius;
+						minOffset = 1;
 					}
-					vector = plrpos;
-					vector.Y += 1f;
-					int num3 = this._rnd.Next(-num, num);
-					if (num3 <= 0)
+					newpos = plrpos;
+					newpos.Y += 1f;
+					int offset = this._rnd.Next(-radius, radius);
+					if (offset <= 0)
 					{
-						num3 -= num2;
-					}
-					else
-					{
-						num3 += num2;
-					}
-					vector.X += (float)num3;
-					num3 = this._rnd.Next(-num, num);
-					if (num3 <= 0)
-					{
-						num3 -= num2;
+						offset -= minOffset;
 					}
 					else
 					{
-						num3 += num2;
+						offset += minOffset;
 					}
-					vector.Z += (float)num3;
-					if (BlockTerrain.Instance.RegionIsLoaded(vector))
+					newpos.X += (float)offset;
+					offset = this._rnd.Next(-radius, radius);
+					if (offset <= 0)
 					{
-						vector = BlockTerrain.Instance.FindAlienSpawnPoint(vector, this._closestSpaceRock > (float)spawnRadius);
+						offset -= minOffset;
 					}
 					else
 					{
-						vector = Vector3.Zero;
+						offset += minOffset;
+					}
+					newpos.Z += (float)offset;
+					if (BlockTerrain.Instance.RegionIsLoaded(newpos))
+					{
+						newpos = BlockTerrain.Instance.FindAlienSpawnPoint(newpos, this._closestSpaceRock > (float)originalRadius);
+					}
+					else
+					{
+						newpos = Vector3.Zero;
 					}
 				}
-				if (vector.LengthSquared() != 0f)
+				if (newpos.LengthSquared() != 0f)
 				{
-					Vector3 vector2 = new Vector3(vector.X, vector.Y + 0.5f, vector.Z);
-					IntVector3 intVector = new IntVector3((int)vector.X, (int)vector.Y - 1, (int)vector.Z);
-					int num4 = BlockTerrain.Instance.MakeIndexFromWorldIndexVector(intVector);
-					BlockType blockType = Block.GetType(BlockTerrain.Instance._blocks[num4]);
-					if (!blockType.BlockPlayer)
+					Vector3 np = new Vector3(newpos.X, newpos.Y + 0.5f, newpos.Z);
+					IntVector3 worldPos = new IntVector3((int)newpos.X, (int)newpos.Y - 1, (int)newpos.Z);
+					int index = BlockTerrain.Instance.MakeIndexFromWorldIndexVector(worldPos);
+					BlockType bt = Block.GetType(BlockTerrain.Instance._blocks[index]);
+					if (!bt.BlockPlayer)
 					{
-						num4--;
-						blockType = Block.GetType(BlockTerrain.Instance._blocks[num4]);
+						index--;
+						bt = Block.GetType(BlockTerrain.Instance._blocks[index]);
 					}
-					if (blockType.ParentBlockType == BlockTypeEnum.SpaceRock || this._closestSpaceRock > (float)(spawnRadius * 2))
+					if (bt.ParentBlockType == BlockTypeEnum.SpaceRock || this._closestSpaceRock > (float)(originalRadius * 2))
 					{
 						this._timeSinceLastAlien = 0f;
 						this.SetNextAlienSpawnTime();
-						SpawnEnemyMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, vector2, enemyTypeEnum, 0f, this.MakeNextEnemyID(), this._rnd.Next(), Vector3.Zero, 0, null);
+						SpawnEnemyMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, np, etype, 0f, this.MakeNextEnemyID(), this._rnd.Next(), Vector3.Zero, 0, null);
 						this._localAlienCount++;
 					}
 				}
@@ -1390,37 +1390,37 @@ namespace DNA.CastleMinerZ.AI
 
 		private void SpawnTestEnemy(Vector3 plrpos)
 		{
-			BaseZombie baseZombie = new BaseZombie(this, EnemyTypeEnum.ALIEN, CastleMinerZGame.Instance.LocalPlayer, plrpos, 52, 1, EnemyType.Types[52].CreateInitPackage(0.5f));
-			this.AddZombie(baseZombie);
+			BaseZombie zombie = new BaseZombie(this, EnemyTypeEnum.ALIEN, CastleMinerZGame.Instance.LocalPlayer, plrpos, 52, 1, EnemyType.Types[52].CreateInitPackage(0.5f));
+			this.AddZombie(zombie);
 		}
 
 		public float AttentuateVelocity(Player plr, Vector3 fwd, Vector3 worldPos)
 		{
-			float num = 1f;
+			float result = 1f;
 			for (int i = 0; i < this._enemies.Count; i++)
 			{
 				if (this._enemies[i].Target == plr && this._enemies[i].IsBlocking)
 				{
-					Vector3 vector = this._enemies[i].WorldPosition - worldPos;
-					float num2 = vector.LengthSquared();
-					float num3 = 1f;
-					if (num2 < 4f && Math.Abs(vector.Y) < 1.5f)
+					Vector3 delta = this._enemies[i].WorldPosition - worldPos;
+					float lsq = delta.LengthSquared();
+					float att = 1f;
+					if (lsq < 4f && Math.Abs(delta.Y) < 1.5f)
 					{
-						num3 = 0.5f;
-						if (num2 > 0.0001f)
+						att = 0.5f;
+						if (lsq > 0.0001f)
 						{
-							Vector3 vector2 = Vector3.Normalize(vector);
-							float num4 = Vector3.Dot(vector2, fwd);
-							if (num4 > 0f)
+							Vector3 nml = Vector3.Normalize(delta);
+							float dot = Vector3.Dot(nml, fwd);
+							if (dot > 0f)
 							{
-								num3 *= Math.Min(1f, 2f * (1f - num4));
+								att *= Math.Min(1f, 2f * (1f - dot));
 							}
 						}
 					}
-					num *= num3;
+					result *= att;
 				}
 			}
-			return num;
+			return result;
 		}
 
 		protected override void OnUpdate(GameTime gameTime)
@@ -1430,28 +1430,28 @@ namespace DNA.CastleMinerZ.AI
 				return;
 			}
 			this.AddToSoundLevel((float)gameTime.ElapsedGameTime.TotalSeconds * -2f);
-			Player localPlayer = CastleMinerZGame.Instance.LocalPlayer;
+			Player plr = CastleMinerZGame.Instance.LocalPlayer;
 			EnemyManager._spawnFelgardTimer.Update(gameTime.ElapsedGameTime);
-			if (localPlayer != null && this._enemies.Count < 50)
+			if (plr != null && this._enemies.Count < 50)
 			{
 				this._timeSinceLastSurfaceEnemy += (float)gameTime.ElapsedGameTime.TotalSeconds;
 				this._timeSinceLastCaveEnemy += (float)gameTime.ElapsedGameTime.TotalSeconds;
-				Vector3 worldPosition = localPlayer.WorldPosition;
-				Vector3 vector = worldPosition;
-				vector.Y += 1f;
-				float simpleSunlightAtPoint = BlockTerrain.Instance.GetSimpleSunlightAtPoint(vector);
-				Vector2 vector2 = new Vector2(worldPosition.X, worldPosition.Z);
-				float num = vector2.Length();
+				Vector3 plrpos = plr.WorldPosition;
+				Vector3 newpos = plrpos;
+				newpos.Y += 1f;
+				float sunlight = BlockTerrain.Instance.GetSimpleSunlightAtPoint(newpos);
+				Vector2 pp = new Vector2(plrpos.X, plrpos.Z);
+				float d = pp.Length();
 				if (CastleMinerZGame.Instance.GameMode != GameModeTypes.DragonEndurance)
 				{
-					if (CastleMinerZGame.Instance.IsGameHost && this.dragonDistanceIndex < this.dragonDistances.Length && num > this.dragonDistances[this.dragonDistanceIndex])
+					if (CastleMinerZGame.Instance.IsGameHost && this.dragonDistanceIndex < this.dragonDistances.Length && d > this.dragonDistances[this.dragonDistanceIndex])
 					{
 						this.AskForDragon(true, (DragonTypeEnum)this.dragonDistanceIndex);
 						this.dragonDistanceIndex++;
 					}
 					this.CheckDragonBox(gameTime);
-					bool flag = BlockTerrain.Instance.PercentMidnight > 0.9f;
-					if (flag)
+					bool zfOn = BlockTerrain.Instance.PercentMidnight > 0.9f;
+					if (zfOn)
 					{
 						if (!this.ZombieFestIsOn)
 						{
@@ -1476,10 +1476,10 @@ namespace DNA.CastleMinerZ.AI
 					}
 					if (CastleMinerZGame.Instance.GameMode == GameModeTypes.Endurance || CastleMinerZGame.Instance.Difficulty == GameDifficultyTypes.HARD || CastleMinerZGame.Instance.Difficulty == GameDifficultyTypes.HARDCORE)
 					{
-						if (num > this.ClearedDistance)
+						if (d > this.ClearedDistance)
 						{
 							this._timeToFirstContact = -1f;
-							if (simpleSunlightAtPoint > 0.01f)
+							if (sunlight > 0.01f)
 							{
 								if (this._distanceEnemiesLeftToSpawn == 0)
 								{
@@ -1487,8 +1487,8 @@ namespace DNA.CastleMinerZ.AI
 								}
 								this._distanceEnemiesLeftToSpawn += MathTools.RandomInt(2, 5);
 							}
-							float num2 = (float)Math.Floor(1.5 + (double)(num / 40f)) * 40f;
-							this.ClearedDistance = MathTools.RandomFloat(num2 - 10f, num2 + 10f);
+							float nextD = (float)Math.Floor(1.5 + (double)(d / 40f)) * 40f;
+							this.ClearedDistance = MathTools.RandomFloat(nextD - 10f, nextD + 10f);
 						}
 						if (this._timeToFirstContact > 0f)
 						{
@@ -1510,7 +1510,7 @@ namespace DNA.CastleMinerZ.AI
 								this._nextDistanceEnemyTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
 								if (this._nextDistanceEnemyTimer <= 0f)
 								{
-									this.SpawnRandomZombies(worldPosition);
+									this.SpawnRandomZombies(plrpos);
 									if (this._distanceEnemiesLeftToSpawn > 0)
 									{
 										this._nextDistanceEnemyTimer += MathTools.RandomFloat(2f, 5f);
@@ -1533,29 +1533,29 @@ namespace DNA.CastleMinerZ.AI
 				}
 				if (CastleMinerZGame.Instance.CurrentNetworkSession != null && CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers != null)
 				{
-					int count = CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers.Count;
-					if (count > 0)
+					int gamerCount = CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers.Count;
+					if (gamerCount > 0)
 					{
-						if (CastleMinerZGame.Instance.GameMode != GameModeTypes.DragonEndurance && this._localSurfaceEnemyCount < 5 + 12 / count)
+						if (CastleMinerZGame.Instance.GameMode != GameModeTypes.DragonEndurance && this._localSurfaceEnemyCount < 5 + 12 / gamerCount)
 						{
 							this._timeSinceLastSurfaceEnemy += (float)gameTime.ElapsedGameTime.TotalSeconds;
-							this.SpawnAbovegroundEnemy(worldPosition);
+							this.SpawnAbovegroundEnemy(plrpos);
 						}
 						if (!this._lookingForSpaceRock && (this._timeOfLastSpaceRockScan == -1f || (CastleMinerZGame.Instance != null && (float)CastleMinerZGame.Instance.CurrentGameTime.TotalGameTime.TotalSeconds - this._timeOfLastSpaceRockScan > 3f)))
 						{
 							this._lookingForSpaceRock = true;
-							this._spaceRockScanPosition = worldPosition;
+							this._spaceRockScanPosition = plrpos;
 							TaskDispatcher.Instance.AddTask(this._searchForSpaceRockDelegate, null);
 						}
 						if (this._spaceRockNearby && this._localAlienCount < 10)
 						{
 							this._timeSinceLastAlien += (float)gameTime.ElapsedGameTime.TotalSeconds;
-							this.SpawnAlien(worldPosition, this._playerInAsteroid, (float)gameTime.TotalGameTime.TotalSeconds);
+							this.SpawnAlien(plrpos, this._playerInAsteroid, (float)gameTime.TotalGameTime.TotalSeconds);
 						}
-						if (simpleSunlightAtPoint != -1f && simpleSunlightAtPoint <= 0.4f && this._localCaveEnemyCount < 8 / count)
+						if (sunlight != -1f && sunlight <= 0.4f && this._localCaveEnemyCount < 8 / gamerCount)
 						{
 							this._timeSinceLastCaveEnemy += (float)gameTime.ElapsedGameTime.TotalSeconds;
-							this.SpawnBelowgroundEnemy(worldPosition, (float)gameTime.TotalGameTime.TotalSeconds);
+							this.SpawnBelowgroundEnemy(plrpos, (float)gameTime.TotalGameTime.TotalSeconds);
 						}
 					}
 				}
@@ -1565,28 +1565,28 @@ namespace DNA.CastleMinerZ.AI
 
 		public void SearchForSpaceRock(BaseTask task, object context)
 		{
-			BlockTerrain instance = BlockTerrain.Instance;
-			bool flag = false;
-			bool flag2 = false;
-			float maxValue = float.MaxValue;
-			if (instance != null)
+			BlockTerrain t = BlockTerrain.Instance;
+			bool blockNearby = false;
+			bool insideAsteroid = false;
+			float nearestBlock = float.MaxValue;
+			if (t != null)
 			{
-				flag = instance.ContainsBlockType(this._spaceRockScanPosition, EnemyType.Types[52].SpawnRadius * 3, BlockTypeEnum.SpaceRock, ref maxValue);
-				if (flag)
+				blockNearby = t.ContainsBlockType(this._spaceRockScanPosition, EnemyType.Types[52].SpawnRadius * 3, BlockTypeEnum.SpaceRock, ref nearestBlock);
+				if (blockNearby)
 				{
-					flag2 = instance.PointIsInAsteroid(this._spaceRockScanPosition);
+					insideAsteroid = t.PointIsInAsteroid(this._spaceRockScanPosition);
 				}
 			}
-			if (flag)
+			if (blockNearby)
 			{
-				this._closestSpaceRock = maxValue;
+				this._closestSpaceRock = nearestBlock;
 			}
-			this._playerInAsteroid = flag2;
-			this._spaceRockNearby = flag;
-			CastleMinerZGame instance2 = CastleMinerZGame.Instance;
-			if (instance2 != null)
+			this._playerInAsteroid = insideAsteroid;
+			this._spaceRockNearby = blockNearby;
+			CastleMinerZGame i = CastleMinerZGame.Instance;
+			if (i != null)
 			{
-				this._timeOfLastSpaceRockScan = (float)instance2.CurrentGameTime.TotalGameTime.TotalSeconds;
+				this._timeOfLastSpaceRockScan = (float)i.CurrentGameTime.TotalGameTime.TotalSeconds;
 			}
 			this._lookingForSpaceRock = false;
 		}

@@ -15,15 +15,15 @@ namespace DNA.CastleMinerZ
 
 		protected override bool SetEffectParams(ModelMesh mesh, Effect effect, GameTime gameTime, Matrix world, Matrix view, Matrix projection)
 		{
-			DNAEffect dnaeffect = effect as DNAEffect;
-			if (dnaeffect != null)
+			DNAEffect dft = effect as DNAEffect;
+			if (dft != null)
 			{
 				effect.Parameters["LightDirection1"].SetValue(-this.DirectLightDirection[0]);
 				effect.Parameters["LightColor1"].SetValue(this.DirectLightColor[0]);
 				effect.Parameters["LightDirection2"].SetValue(-this.DirectLightDirection[1]);
 				effect.Parameters["LightColor2"].SetValue(this.DirectLightColor[1]);
-				dnaeffect.AmbientColor = ColorF.FromVector3(this.AmbientLight);
-				dnaeffect.EmissiveColor = Color.Black;
+				dft.AmbientColor = ColorF.FromVector3(this.AmbientLight);
+				dft.EmissiveColor = Color.Black;
 			}
 			return base.SetEffectParams(mesh, effect, gameTime, world, view, projection);
 		}

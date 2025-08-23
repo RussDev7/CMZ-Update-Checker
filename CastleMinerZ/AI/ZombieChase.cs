@@ -71,19 +71,19 @@ namespace DNA.CastleMinerZ.AI
 					entity.ZombieGrowlCue = SoundManager.Instance.PlayInstance("Felguard", entity.SoundEmitter);
 				}
 			}
-			Vector3 worldVelocity = entity.PlayerPhysics.WorldVelocity;
-			worldVelocity.X = 0f;
-			worldVelocity.Z = 0f;
-			Vector3 vector = entity.Target.WorldPosition - entity.WorldPosition;
-			float y = vector.Y;
-			vector.Y = 0f;
-			float num = vector.Length();
-			if (num < 5f)
+			Vector3 newVel = entity.PlayerPhysics.WorldVelocity;
+			newVel.X = 0f;
+			newVel.Z = 0f;
+			Vector3 targetPos = entity.Target.WorldPosition - entity.WorldPosition;
+			float elevationDifference = targetPos.Y;
+			targetPos.Y = 0f;
+			float d = targetPos.Length();
+			if (d < 5f)
 			{
-				float num2 = entity.TimeToIntercept();
-				if (num2 < 1f / entity.CurrentSpeed)
+				float hitTime = entity.TimeToIntercept();
+				if (hitTime < 1f / entity.CurrentSpeed)
 				{
-					if (Math.Abs(y) > 4f && entity.OnGround && entity.Target.InContact)
+					if (Math.Abs(elevationDifference) > 4f && entity.OnGround && entity.Target.InContact)
 					{
 						entity.StateMachine.ChangeState(entity.EType.GetDigState(entity));
 						return;
@@ -95,7 +95,7 @@ namespace DNA.CastleMinerZ.AI
 			if (entity.FrustrationCount <= 0f)
 			{
 				entity.StateMachine.ChangeState(entity.EType.GetDigState(entity));
-				entity.PlayerPhysics.WorldVelocity = worldVelocity;
+				entity.PlayerPhysics.WorldVelocity = newVel;
 				return;
 			}
 			if (entity.EType.HasRunFast && !entity.IsMovingFast && entity.Target.IsLocal)
@@ -105,9 +105,9 @@ namespace DNA.CastleMinerZ.AI
 				{
 					SpeedUpEnemyMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, entity.EnemyID, (int)entity.Target.Gamer.Id);
 				}
-				Vector3 worldVelocity2 = entity.Target.PlayerPhysics.WorldVelocity;
-				worldVelocity2.Y = 0f;
-				if (worldVelocity2.LengthSquared() > 3.5f)
+				Vector3 spd = entity.Target.PlayerPhysics.WorldVelocity;
+				spd.Y = 0f;
+				if (spd.LengthSquared() > 3.5f)
 				{
 					entity.TimeLeftTilRunFast -= dt;
 					if (entity.TimeLeftTilRunFast < 0f)
@@ -116,48 +116,48 @@ namespace DNA.CastleMinerZ.AI
 					}
 				}
 			}
-			if (vector.LengthSquared() < 0.001f)
+			if (targetPos.LengthSquared() < 0.001f)
 			{
-				vector = Vector3.Zero;
+				targetPos = Vector3.Zero;
 			}
 			else
 			{
-				vector.Normalize();
+				targetPos.Normalize();
 			}
-			float num3 = entity.CurrentSpeed;
+			float speed = entity.CurrentSpeed;
 			if (!entity.OnGround)
 			{
-				num3 *= (entity.IsMovingFast ? 1f : 0.5f);
+				speed *= (entity.IsMovingFast ? 1f : 0.5f);
 			}
 			else if (entity.TouchingWall)
 			{
-				worldVelocity.Y += (entity.IsMovingFast ? entity.EType.FastJumpSpeed : 10f);
+				newVel.Y += (entity.IsMovingFast ? entity.EType.FastJumpSpeed : 10f);
 			}
-			worldVelocity.X = vector.X * num3;
-			worldVelocity.Z = vector.Z * num3;
-			entity.PlayerPhysics.WorldVelocity = worldVelocity;
-			worldVelocity.Y = 0f;
-			if (worldVelocity.LengthSquared() > 0.2f)
+			newVel.X = targetPos.X * speed;
+			newVel.Z = targetPos.Z * speed;
+			entity.PlayerPhysics.WorldVelocity = newVel;
+			newVel.Y = 0f;
+			if (newVel.LengthSquared() > 0.2f)
 			{
-				float num4 = (float)Math.Atan2((double)(-(double)worldVelocity.Z), (double)worldVelocity.X) + 1.5707964f;
-				entity.LocalRotation = Quaternion.CreateFromYawPitchRoll(base.MakeHeading(entity, num4), 0f, 0f);
+				float heading = (float)Math.Atan2((double)(-(double)newVel.Z), (double)newVel.X) + 1.5707964f;
+				entity.LocalRotation = Quaternion.CreateFromYawPitchRoll(base.MakeHeading(entity, heading), 0f, 0f);
 			}
-			if (num >= 5f)
+			if (d >= 5f)
 			{
 				if (entity.IsMovingFast)
 				{
-					float num5 = entity.TimeToIntercept();
-					if (num5 > 8f)
+					float hitTime2 = entity.TimeToIntercept();
+					if (hitTime2 > 8f)
 					{
 						entity.StateMachine.ChangeState(entity.EType.GetDigState(entity));
-						entity.PlayerPhysics.WorldVelocity = worldVelocity;
+						entity.PlayerPhysics.WorldVelocity = newVel;
 						return;
 					}
 				}
-				else if (num > (float)entity.PlayerDistanceLimit)
+				else if (d > (float)entity.PlayerDistanceLimit)
 				{
 					entity.StateMachine.ChangeState(entity.EType.GetDigState(entity));
-					entity.PlayerPhysics.WorldVelocity = worldVelocity;
+					entity.PlayerPhysics.WorldVelocity = newVel;
 				}
 			}
 		}

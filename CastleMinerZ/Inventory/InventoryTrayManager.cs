@@ -16,9 +16,9 @@ namespace DNA.CastleMinerZ.Inventory
 
 		private bool IsOutOfBounds(int trayIndex, int itemIndex)
 		{
-			int upperBound = this.Trays.GetUpperBound(0);
-			int upperBound2 = this.Trays.GetUpperBound(1);
-			return trayIndex > upperBound || itemIndex > upperBound2;
+			int trayBounds = this.Trays.GetUpperBound(0);
+			int itemBounds = this.Trays.GetUpperBound(1);
+			return trayIndex > trayBounds || itemIndex > itemBounds;
 		}
 
 		public InventoryItem GetItemFromCurrentTray(int itemIndex)
@@ -28,8 +28,8 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public InventoryItem GetItemFromNextTray(int itemIndex)
 		{
-			int nextTrayIndex = this.GetNextTrayIndex(this._currentTrayIndex);
-			return this.Trays[nextTrayIndex, itemIndex];
+			int index = this.GetNextTrayIndex(this._currentTrayIndex);
+			return this.Trays[index, itemIndex];
 		}
 
 		public InventoryItem GetTrayItem(int trayIndex, int itemIndex)
@@ -57,14 +57,14 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public bool RemoveItem(InventoryItem targetItem)
 		{
-			for (int i = 0; i < 2; i++)
+			for (int trayNum = 0; trayNum < 2; trayNum++)
 			{
-				for (int j = 0; j < 8; j++)
+				for (int itemNum = 0; itemNum < 8; itemNum++)
 				{
-					this.Trays[i, j];
-					if (this.Trays[i, j] == targetItem)
+					this.Trays[trayNum, itemNum];
+					if (this.Trays[trayNum, itemNum] == targetItem)
 					{
-						this.Trays[i, j] = null;
+						this.Trays[trayNum, itemNum] = null;
 						return true;
 					}
 				}
@@ -74,7 +74,7 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public bool CanConsume(InventoryItem.InventoryItemClass itemClass, int amount)
 		{
-			int num = this.ForAllItems(delegate(InventoryItem trayItem)
+			int result = this.ForAllItems(delegate(InventoryItem trayItem)
 			{
 				if (trayItem != null && trayItem.CanConsume(itemClass, amount))
 				{
@@ -82,19 +82,19 @@ namespace DNA.CastleMinerZ.Inventory
 				}
 				return 0;
 			});
-			return num == 1;
+			return result == 1;
 		}
 
 		internal void Update(GameTime gameTime)
 		{
-			for (int i = 0; i < 2; i++)
+			for (int trayNum = 0; trayNum < 2; trayNum++)
 			{
-				for (int j = 0; j < 8; j++)
+				for (int itemNum = 0; itemNum < 8; itemNum++)
 				{
-					InventoryItem inventoryItem = this.Trays[i, j];
-					if (inventoryItem != null)
+					InventoryItem item = this.Trays[trayNum, itemNum];
+					if (item != null)
 					{
-						inventoryItem.Update(gameTime);
+						item.Update(gameTime);
 					}
 				}
 			}
@@ -102,17 +102,17 @@ namespace DNA.CastleMinerZ.Inventory
 
 		internal int ForAllItems(TrayItemAction itemAction)
 		{
-			for (int i = 0; i < 2; i++)
+			for (int trayNum = 0; trayNum < 2; trayNum++)
 			{
-				for (int j = 0; j < 8; j++)
+				for (int itemNum = 0; itemNum < 8; itemNum++)
 				{
-					InventoryItem inventoryItem = this.Trays[i, j];
-					if (inventoryItem != null)
+					InventoryItem item = this.Trays[trayNum, itemNum];
+					if (item != null)
 					{
-						int num = itemAction(inventoryItem);
-						if (num != 0)
+						int returnValue = itemAction(item);
+						if (returnValue != 0)
 						{
-							return num;
+							return returnValue;
 						}
 					}
 				}
@@ -129,10 +129,10 @@ namespace DNA.CastleMinerZ.Inventory
 			{
 				for (int j = trays.GetLowerBound(1); j <= upperBound2; j++)
 				{
-					InventoryItem inventoryItem = trays[i, j];
-					if (inventoryItem != null)
+					InventoryItem item = trays[i, j];
+					if (item != null)
 					{
-						itemAction(inventoryItem);
+						itemAction(item);
 					}
 				}
 			}
@@ -140,40 +140,40 @@ namespace DNA.CastleMinerZ.Inventory
 
 		private int GetNextTrayIndex(int currentIndex)
 		{
-			int num = currentIndex + 1;
-			if (num >= 2)
+			int index = currentIndex + 1;
+			if (index >= 2)
 			{
-				num = 0;
+				index = 0;
 			}
-			return num;
+			return index;
 		}
 
 		internal int GetItemClassCount(InventoryItem.InventoryItemClass itemClass)
 		{
-			int num = 0;
-			for (int i = 0; i < 2; i++)
+			int total = 0;
+			for (int trayNum = 0; trayNum < 2; trayNum++)
 			{
-				for (int j = 0; j < 8; j++)
+				for (int itemNum = 0; itemNum < 8; itemNum++)
 				{
-					InventoryItem inventoryItem = this.Trays[i, j];
-					if (inventoryItem != null && itemClass == inventoryItem.ItemClass)
+					InventoryItem item = this.Trays[trayNum, itemNum];
+					if (item != null && itemClass == item.ItemClass)
 					{
-						num += inventoryItem.StackCount;
+						total += item.StackCount;
 					}
 				}
 			}
-			return num;
+			return total;
 		}
 
 		internal void RemoveAllItems(bool onlyRemoveEmptyItems = false)
 		{
-			for (int i = 0; i < 2; i++)
+			for (int trayNum = 0; trayNum < 2; trayNum++)
 			{
-				for (int j = 0; j < 8; j++)
+				for (int itemNum = 0; itemNum < 8; itemNum++)
 				{
-					if (this.Trays[i, j] != null && (!onlyRemoveEmptyItems || this.Trays[i, j].StackCount <= 0))
+					if (this.Trays[trayNum, itemNum] != null && (!onlyRemoveEmptyItems || this.Trays[trayNum, itemNum].StackCount <= 0))
 					{
-						this.Trays[i, j] = null;
+						this.Trays[trayNum, itemNum] = null;
 					}
 				}
 			}
@@ -181,7 +181,7 @@ namespace DNA.CastleMinerZ.Inventory
 
 		internal bool CanAdd(InventoryItem item)
 		{
-			int num = this.ForAllItems(delegate(InventoryItem trayItem)
+			int result = this.ForAllItems(delegate(InventoryItem trayItem)
 			{
 				if (trayItem != null && trayItem.CanStack(item))
 				{
@@ -189,7 +189,7 @@ namespace DNA.CastleMinerZ.Inventory
 				}
 				return 0;
 			});
-			return num == 1;
+			return result == 1;
 		}
 
 		internal void AddItemToExisting(InventoryItem item)
@@ -205,13 +205,13 @@ namespace DNA.CastleMinerZ.Inventory
 
 		internal bool AddItemToEmpty(InventoryItem item)
 		{
-			for (int i = 0; i < 2; i++)
+			for (int trayNum = 0; trayNum < 2; trayNum++)
 			{
-				for (int j = 0; j < 8; j++)
+				for (int itemNum = 0; itemNum < 8; itemNum++)
 				{
-					if (this.Trays[i, j] == null)
+					if (this.Trays[trayNum, itemNum] == null)
 					{
-						this.Trays[i, j] = item;
+						this.Trays[trayNum, itemNum] = item;
 						return true;
 					}
 				}
@@ -236,20 +236,20 @@ namespace DNA.CastleMinerZ.Inventory
 		internal void Write(BinaryWriter writer)
 		{
 			writer.Write(2);
-			for (int i = 0; i < 2; i++)
+			for (int trayNum = 0; trayNum < 2; trayNum++)
 			{
 				writer.Write(8);
-				for (int j = 0; j < 8; j++)
+				for (int itemNum = 0; itemNum < 8; itemNum++)
 				{
-					InventoryItem inventoryItem = this.Trays[i, j];
-					if (inventoryItem == null)
+					InventoryItem item = this.Trays[trayNum, itemNum];
+					if (item == null)
 					{
 						writer.Write(false);
 					}
 					else
 					{
 						writer.Write(true);
-						inventoryItem.Write(writer);
+						item.Write(writer);
 					}
 				}
 			}
@@ -257,20 +257,20 @@ namespace DNA.CastleMinerZ.Inventory
 
 		internal void Read(BinaryReader reader)
 		{
-			int num = reader.ReadInt32();
-			for (int i = 0; i < num; i++)
+			int maxTrayCount = reader.ReadInt32();
+			for (int trayNum = 0; trayNum < maxTrayCount; trayNum++)
 			{
-				int num2 = reader.ReadInt32();
-				for (int j = 0; j < num2; j++)
+				int maxTrayItems = reader.ReadInt32();
+				for (int itemNum = 0; itemNum < maxTrayItems; itemNum++)
 				{
-					this.Trays[i, j];
-					this.Trays[i, j] = null;
+					this.Trays[trayNum, itemNum];
+					this.Trays[trayNum, itemNum] = null;
 					if (reader.ReadBoolean())
 					{
-						InventoryItem inventoryItem = InventoryItem.Create(reader);
-						if (inventoryItem != null && inventoryItem.IsValid())
+						InventoryItem item = InventoryItem.Create(reader);
+						if (item != null && item.IsValid())
 						{
-							this.Trays[i, j] = inventoryItem;
+							this.Trays[trayNum, itemNum] = item;
 						}
 					}
 				}
@@ -298,16 +298,16 @@ namespace DNA.CastleMinerZ.Inventory
 
 		internal InventoryItem Stack(InventoryItem sourceItem)
 		{
-			for (int i = 0; i < 2; i++)
+			for (int trayNum = 0; trayNum < 2; trayNum++)
 			{
-				for (int j = 0; j < 8; j++)
+				for (int itemNum = 0; itemNum < 8; itemNum++)
 				{
-					InventoryItem inventoryItem = this.Trays[i, j];
-					if (inventoryItem != null)
+					InventoryItem trayItem = this.Trays[trayNum, itemNum];
+					if (trayItem != null)
 					{
-						InventoryItem inventoryItem2 = sourceItem;
-						inventoryItem.Stack(inventoryItem2);
-						sourceItem = inventoryItem2;
+						InventoryItem selectedItem = sourceItem;
+						trayItem.Stack(selectedItem);
+						sourceItem = selectedItem;
 					}
 				}
 			}
@@ -316,13 +316,13 @@ namespace DNA.CastleMinerZ.Inventory
 
 		internal bool PlaceInEmptySlot(InventoryItem SelectedItem)
 		{
-			for (int i = 0; i < 2; i++)
+			for (int trayNum = 0; trayNum < 2; trayNum++)
 			{
-				for (int j = 0; j < 8; j++)
+				for (int itemNum = 0; itemNum < 8; itemNum++)
 				{
-					if (this.Trays[i, j] == null)
+					if (this.Trays[trayNum, itemNum] == null)
 					{
-						this.Trays[i, j] = SelectedItem;
+						this.Trays[trayNum, itemNum] = SelectedItem;
 						return true;
 					}
 				}
@@ -347,8 +347,8 @@ namespace DNA.CastleMinerZ.Inventory
 			{
 				for (int j = trays.GetLowerBound(1); j <= upperBound2; j++)
 				{
-					InventoryItem inventoryItem = trays[i, j];
-					if (inventoryItem == sourceItem)
+					InventoryItem item = trays[i, j];
+					if (item == sourceItem)
 					{
 						return true;
 					}

@@ -23,14 +23,14 @@ namespace DNA.CastleMinerZ.AI
 		{
 			if (effect is DNAEffect)
 			{
-				DNAEffect dnaeffect = (DNAEffect)effect;
-				if (dnaeffect.Parameters["LightDirection1"] != null)
+				DNAEffect dnaEffect = (DNAEffect)effect;
+				if (dnaEffect.Parameters["LightDirection1"] != null)
 				{
-					dnaeffect.Parameters["LightDirection1"].SetValue(BlockTerrain.Instance.VectorToSun);
-					dnaeffect.Parameters["LightColor1"].SetValue(BlockTerrain.Instance.SunlightColor.ToVector3());
-					dnaeffect.AmbientColor = ColorF.FromVector3(BlockTerrain.Instance.AmbientSunColor.ToVector3() * 0.5f);
+					dnaEffect.Parameters["LightDirection1"].SetValue(BlockTerrain.Instance.VectorToSun);
+					dnaEffect.Parameters["LightColor1"].SetValue(BlockTerrain.Instance.SunlightColor.ToVector3());
+					dnaEffect.AmbientColor = ColorF.FromVector3(BlockTerrain.Instance.AmbientSunColor.ToVector3() * 0.5f);
 				}
-				dnaeffect.DiffuseMap = this.DragonTexture;
+				dnaEffect.DiffuseMap = this.DragonTexture;
 			}
 			return base.SetEffectParams(mesh, effect, gameTime, world, view, projection);
 		}

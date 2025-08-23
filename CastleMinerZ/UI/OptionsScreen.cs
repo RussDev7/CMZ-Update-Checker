@@ -15,16 +15,16 @@ namespace DNA.CastleMinerZ.UI
 			: base(false)
 		{
 			this._inGame = inGame;
-			Color color = new Color(CMZColors.MenuGreen.ToVector4() * 0.8f);
+			Color btnColor = new Color(CMZColors.MenuGreen.ToVector4() * 0.8f);
 			this.tabControl.Font = this._game._medFont;
 			this.tabControl.Size = new Size(Screen.Adjuster.ScreenRect.Width, (int)(620f * Screen.Adjuster.ScaleFactor.Y));
 			this.tabControl.LocalPosition = new Point(Screen.Adjuster.ScreenRect.Left, Screen.Adjuster.ScreenRect.Top + (int)(100f * Screen.Adjuster.ScaleFactor.Y));
-			this.tabControl.TextColor = color;
-			this.tabControl.TextSelectedColor = color;
+			this.tabControl.TextColor = btnColor;
+			this.tabControl.TextSelectedColor = btnColor;
 			this.tabControl.TextHoverColor = Color.Gray;
 			this.tabControl.TextPressedColor = Color.Black;
-			this.tabControl.BarColor = color;
-			this.tabControl.BarSelectedColor = color;
+			this.tabControl.BarColor = btnColor;
+			this.tabControl.BarSelectedColor = btnColor;
 			this.tabControl.BarHoverColor = Color.Black;
 			this.tabControl.BarPressedColor = Color.Black;
 			this.tabControl.Size = new Size(960, 620);
@@ -46,7 +46,7 @@ namespace DNA.CastleMinerZ.UI
 			this._backButton.Font = this._game._medFont;
 			this._backButton.Frame = this._game.ButtonFrame;
 			this._backButton.Pressed += this._backButton_Pressed;
-			this._backButton.ButtonColor = color;
+			this._backButton.ButtonColor = btnColor;
 			base.Controls.Add(this._backButton);
 		}
 

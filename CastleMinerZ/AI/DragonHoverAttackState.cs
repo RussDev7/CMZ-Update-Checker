@@ -24,9 +24,9 @@ namespace DNA.CastleMinerZ.AI
 			{
 				DragonBaseState.SearchForNewTarget(entity, dt);
 			}
-			Vector3 vector;
-			float num = DragonBaseState.SteerTowardTarget(entity, out vector);
-			if (num < entity.EType.HoverDistance)
+			Vector3 vtotarget;
+			float dist = DragonBaseState.SteerTowardTarget(entity, out vtotarget);
+			if (dist < entity.EType.HoverDistance)
 			{
 				entity.StateMachine.ChangeState(DragonStates.Hover);
 			}

@@ -24,8 +24,8 @@ namespace DNA.CastleMinerZ
 		{
 			if (base.SetEffectParams(mesh, oeffect, gameTime, world, view, projection))
 			{
-				BasicEffect basicEffect = mesh.Effects[0] as BasicEffect;
-				if (basicEffect != null)
+				BasicEffect effect = mesh.Effects[0] as BasicEffect;
+				if (effect != null)
 				{
 					if (mesh.Name.Contains("recolor_"))
 					{
@@ -33,11 +33,11 @@ namespace DNA.CastleMinerZ
 						{
 							return false;
 						}
-						basicEffect.DiffuseColor = this.color.ToVector3();
+						effect.DiffuseColor = this.color.ToVector3();
 					}
 					else
 					{
-						basicEffect.DiffuseColor = Color.Gray.ToVector3();
+						effect.DiffuseColor = Color.Gray.ToVector3();
 					}
 				}
 				return true;

@@ -17,37 +17,37 @@ namespace DNA.CastleMinerZ.AI
 		{
 			if (!entity.IsNearAnimationEnd)
 			{
-				Vector3 vector = entity.Target.WorldPosition - entity.WorldPosition;
-				vector.Y = 0f;
-				if (vector.LengthSquared() > 0.2f)
+				Vector3 targetPos = entity.Target.WorldPosition - entity.WorldPosition;
+				targetPos.Y = 0f;
+				if (targetPos.LengthSquared() > 0.2f)
 				{
-					float num = (float)Math.Atan2((double)(-(double)vector.Z), (double)vector.X) + 1.5707964f;
-					entity.LocalRotation = Quaternion.CreateFromYawPitchRoll(base.MakeHeading(entity, num), 0f, 0f);
+					float heading = (float)Math.Atan2((double)(-(double)targetPos.Z), (double)targetPos.X) + 1.5707964f;
+					entity.LocalRotation = Quaternion.CreateFromYawPitchRoll(base.MakeHeading(entity, heading), 0f, 0f);
 				}
 				if (entity.CurrentPlayer.CurrentTime.TotalSeconds > 1.100000023841858 && entity.HitCount == 0)
 				{
 					entity.HitCount = 1;
-					Vector3 worldPosition = entity.WorldPosition;
-					Vector3 worldPosition2 = entity.Target.WorldPosition;
-					worldPosition.Y += 1.5f;
-					worldPosition2.Y += 0.5f;
-					Vector3 vector2;
-					if (!MathTools.CalculateInitialBallisticVector(worldPosition, worldPosition2, 25f, out vector2, -10f))
+					Vector3 pos = entity.WorldPosition;
+					Vector3 pos2 = entity.Target.WorldPosition;
+					pos.Y += 1.5f;
+					pos2.Y += 0.5f;
+					Vector3 vel;
+					if (!MathTools.CalculateInitialBallisticVector(pos, pos2, 25f, out vel, -10f))
 					{
-						vector2 = entity.Target.WorldPosition - entity.WorldPosition;
-						if (vector2.LengthSquared() < 0.001f)
+						vel = entity.Target.WorldPosition - entity.WorldPosition;
+						if (vel.LengthSquared() < 0.001f)
 						{
-							vector2 = Vector3.Up;
+							vel = Vector3.Up;
 						}
 						else
 						{
-							vector2.Normalize();
+							vel.Normalize();
 						}
-						vector2 *= 25f;
+						vel *= 25f;
 					}
-					Vector3 worldPosition3 = entity.WorldPosition;
-					worldPosition3.Y += 1.5f;
-					TracerManager.Instance.AddArrow(worldPosition3, vector2, entity.Target);
+					Vector3 pos3 = entity.WorldPosition;
+					pos3.Y += 1.5f;
+					TracerManager.Instance.AddArrow(pos3, vel, entity.Target);
 				}
 				return;
 			}

@@ -69,10 +69,10 @@ namespace DNA.CastleMinerZ.AI
 				base.Children.Add(this.FireBallEmitter);
 			}
 			base.LocalPosition = spawnposition;
-			Vector3 vector = target - spawnposition;
-			this.Velocity = vector * (this.EType.FireballVelocity / vector.Length());
-			float num = (float)Math.Atan2((double)(-(double)this.Velocity.X), (double)(-(double)this.Velocity.Z));
-			base.LocalRotation = Quaternion.CreateFromYawPitchRoll(num, 0f, 0f);
+			Vector3 v = target - spawnposition;
+			this.Velocity = v * (this.EType.FireballVelocity / v.Length());
+			float heading = (float)Math.Atan2((double)(-(double)this.Velocity.X), (double)(-(double)this.Velocity.Z));
+			base.LocalRotation = Quaternion.CreateFromYawPitchRoll(heading, 0f, 0f);
 			this.Detonated = false;
 			EnemyManager.Instance.AddFireball(this);
 			this.FireballCue = SoundManager.Instance.PlayInstance(this.ParticleDef._flightSoundName, this.SoundEmitter);
@@ -100,30 +100,30 @@ namespace DNA.CastleMinerZ.AI
 			{
 				return;
 			}
-			ParticleEmitter particleEmitter = this.ParticleDef._flashEffect.CreateEmitter(CastleMinerZGame.Instance);
-			particleEmitter.Reset();
-			particleEmitter.Emitting = true;
-			particleEmitter.LocalPosition = position;
-			particleEmitter.DrawPriority = 900;
-			scene.Children.Add(particleEmitter);
-			particleEmitter = this.ParticleDef._firePuffEffect.CreateEmitter(CastleMinerZGame.Instance);
-			particleEmitter.Reset();
-			particleEmitter.Emitting = true;
-			particleEmitter.LocalPosition = position;
-			particleEmitter.DrawPriority = 900;
-			scene.Children.Add(particleEmitter);
-			particleEmitter = this.ParticleDef._smokePuffEffect.CreateEmitter(CastleMinerZGame.Instance);
-			particleEmitter.Reset();
-			particleEmitter.Emitting = true;
-			particleEmitter.LocalPosition = position;
-			particleEmitter.DrawPriority = 900;
-			scene.Children.Add(particleEmitter);
-			particleEmitter = this.ParticleDef._rockBlastEffect.CreateEmitter(CastleMinerZGame.Instance);
-			particleEmitter.Reset();
-			particleEmitter.Emitting = true;
-			particleEmitter.LocalPosition = position;
-			particleEmitter.DrawPriority = 900;
-			scene.Children.Add(particleEmitter);
+			ParticleEmitter emitter = this.ParticleDef._flashEffect.CreateEmitter(CastleMinerZGame.Instance);
+			emitter.Reset();
+			emitter.Emitting = true;
+			emitter.LocalPosition = position;
+			emitter.DrawPriority = 900;
+			scene.Children.Add(emitter);
+			emitter = this.ParticleDef._firePuffEffect.CreateEmitter(CastleMinerZGame.Instance);
+			emitter.Reset();
+			emitter.Emitting = true;
+			emitter.LocalPosition = position;
+			emitter.DrawPriority = 900;
+			scene.Children.Add(emitter);
+			emitter = this.ParticleDef._smokePuffEffect.CreateEmitter(CastleMinerZGame.Instance);
+			emitter.Reset();
+			emitter.Emitting = true;
+			emitter.LocalPosition = position;
+			emitter.DrawPriority = 900;
+			scene.Children.Add(emitter);
+			emitter = this.ParticleDef._rockBlastEffect.CreateEmitter(CastleMinerZGame.Instance);
+			emitter.Reset();
+			emitter.Emitting = true;
+			emitter.LocalPosition = position;
+			emitter.DrawPriority = 900;
+			scene.Children.Add(emitter);
 		}
 
 		public override void Update(DNAGame game, GameTime gameTime)
@@ -145,20 +145,20 @@ namespace DNA.CastleMinerZ.AI
 			}
 			else
 			{
-				Vector3 vector = base.LocalPosition + this.Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
-				if (vector.Y < -66f)
+				Vector3 newPosition = base.LocalPosition + this.Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+				if (newPosition.Y < -66f)
 				{
 					EnemyManager.Instance.RemoveFireball(this);
 					return;
 				}
-				if (!BlockTerrain.Instance.IsInsideWorld(vector))
+				if (!BlockTerrain.Instance.IsInsideWorld(newPosition))
 				{
 					if (this.WasInLoadedArea)
 					{
 						EnemyManager.Instance.RemoveFireball(this);
 						return;
 					}
-					base.LocalPosition = vector;
+					base.LocalPosition = newPosition;
 					this.model.LocalRotation = Quaternion.CreateFromYawPitchRoll(0f, (float)gameTime.TotalGameTime.TotalSeconds * 3f % 6.2831855f, 0f);
 					base.Update(game, gameTime);
 					return;
@@ -166,12 +166,12 @@ namespace DNA.CastleMinerZ.AI
 				else
 				{
 					this.WasInLoadedArea = true;
-					this.TraceProbe.Init(base.LocalPosition, vector, this.FireballAABB);
-					Vector3 worldPosition = CastleMinerZGame.Instance.LocalPlayer.WorldPosition;
-					BoundingBox playerAABB = CastleMinerZGame.Instance.LocalPlayer.PlayerAABB;
-					playerAABB.Min += worldPosition;
-					playerAABB.Max += worldPosition;
-					this.TraceProbe.TestBoundBox(playerAABB);
+					this.TraceProbe.Init(base.LocalPosition, newPosition, this.FireballAABB);
+					Vector3 p = CastleMinerZGame.Instance.LocalPlayer.WorldPosition;
+					BoundingBox bb = CastleMinerZGame.Instance.LocalPlayer.PlayerAABB;
+					bb.Min += p;
+					bb.Max += p;
+					this.TraceProbe.TestBoundBox(bb);
 					if (!this.TraceProbe._collides)
 					{
 						this.TraceProbe.Reset();
@@ -188,7 +188,7 @@ namespace DNA.CastleMinerZ.AI
 					}
 					else
 					{
-						base.LocalPosition = vector;
+						base.LocalPosition = newPosition;
 						this.model.LocalRotation = Quaternion.CreateFromYawPitchRoll(0f, (float)gameTime.TotalGameTime.TotalSeconds * 3f % 6.2831855f, 0f);
 					}
 				}

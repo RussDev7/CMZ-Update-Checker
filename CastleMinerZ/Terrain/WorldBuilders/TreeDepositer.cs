@@ -13,57 +13,57 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 
 		public override void BuildColumn(BlockTerrain terrain, int worldX, int worldZ, int minY, float blender)
 		{
-			float num = this._noiseFunction.ComputeNoise((float)worldX * 0.4375f, (float)worldZ * 0.4375f);
-			if (num > 0.6f)
+			float treeNoise = this._noiseFunction.ComputeNoise((float)worldX * 0.4375f, (float)worldZ * 0.4375f);
+			if (treeNoise > 0.6f)
 			{
-				int i;
-				for (i = 124; i > 0; i--)
+				int groundHeight;
+				for (groundHeight = 124; groundHeight > 0; groundHeight--)
 				{
-					int num2 = i + minY;
-					IntVector3 intVector = new IntVector3(worldX, num2, worldZ);
-					int num3 = terrain.MakeIndexFromWorldIndexVector(intVector);
-					if (Block.GetTypeIndex(terrain._blocks[num3]) == BlockTypeEnum.Grass)
+					int worldY = groundHeight + minY;
+					IntVector3 worldPos = new IntVector3(worldX, worldY, worldZ);
+					int index = terrain.MakeIndexFromWorldIndexVector(worldPos);
+					if (Block.GetTypeIndex(terrain._blocks[index]) == BlockTypeEnum.Grass)
 					{
 						break;
 					}
 				}
-				if (i <= 1)
+				if (groundHeight <= 1)
 				{
 					return;
 				}
-				i++;
-				float num4 = 9f * (num - 0.6f);
-				int num5 = this.TreeHeight + (int)num4;
-				for (int j = 0; j < num5; j++)
+				groundHeight++;
+				float treeVar = 9f * (treeNoise - 0.6f);
+				int trunkHeight = this.TreeHeight + (int)treeVar;
+				for (int y = 0; y < trunkHeight; y++)
 				{
-					int num6 = i + j + minY;
-					IntVector3 intVector2 = new IntVector3(worldX, num6, worldZ);
-					int num7 = terrain.MakeIndexFromWorldIndexVector(intVector2);
-					BlockTypeEnum typeIndex = Block.GetTypeIndex(terrain._blocks[num7]);
-					if (typeIndex != BlockTypeEnum.Empty && typeIndex != BlockTypeEnum.NumberOfBlocks)
+					int worldY2 = groundHeight + y + minY;
+					IntVector3 worldPos2 = new IntVector3(worldX, worldY2, worldZ);
+					int index2 = terrain.MakeIndexFromWorldIndexVector(worldPos2);
+					BlockTypeEnum existing = Block.GetTypeIndex(terrain._blocks[index2]);
+					if (existing != BlockTypeEnum.Empty && existing != BlockTypeEnum.NumberOfBlocks)
 					{
-						num5 = j;
+						trunkHeight = y;
 						break;
 					}
-					terrain._blocks[num7] = Biome.LogBlock;
+					terrain._blocks[index2] = Biome.LogBlock;
 				}
-				int num8 = i + num5;
-				for (int k = -3; k <= 3; k++)
+				int endHeight = groundHeight + trunkHeight;
+				for (int x = -3; x <= 3; x++)
 				{
-					for (int l = -3; l <= 3; l++)
+					for (int z = -3; z <= 3; z++)
 					{
-						for (int m = -3; m <= 3; m++)
+						for (int y2 = -3; y2 <= 3; y2++)
 						{
-							IntVector3 intVector3 = new IntVector3(worldX + k, num8 + m + minY, worldZ + l);
-							int num9 = terrain.MakeIndexFromWorldIndexVector(intVector3);
-							BlockTypeEnum typeIndex2 = Block.GetTypeIndex(terrain._blocks[num9]);
-							if (typeIndex2 == BlockTypeEnum.Empty || typeIndex2 == BlockTypeEnum.NumberOfBlocks)
+							IntVector3 worldPos3 = new IntVector3(worldX + x, endHeight + y2 + minY, worldZ + z);
+							int index3 = terrain.MakeIndexFromWorldIndexVector(worldPos3);
+							BlockTypeEnum existing2 = Block.GetTypeIndex(terrain._blocks[index3]);
+							if (existing2 == BlockTypeEnum.Empty || existing2 == BlockTypeEnum.NumberOfBlocks)
 							{
-								float num10 = this._noiseFunction.ComputeNoise(intVector3 * 0.5f);
-								float num11 = 1f - (float)Math.Sqrt((double)(k * k + m * m + l * l)) / 3f;
-								if (num10 + num11 > 0.25f)
+								float noise = this._noiseFunction.ComputeNoise(worldPos3 * 0.5f);
+								float distBlender = 1f - (float)Math.Sqrt((double)(x * x + y2 * y2 + z * z)) / 3f;
+								if (noise + distBlender > 0.25f)
 								{
-									terrain._blocks[num9] = Biome.LeafBlock;
+									terrain._blocks[index3] = Biome.LeafBlock;
 								}
 							}
 						}

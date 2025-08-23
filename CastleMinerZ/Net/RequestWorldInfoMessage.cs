@@ -13,8 +13,8 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from)
 		{
-			RequestWorldInfoMessage sendInstance = Message.GetSendInstance<RequestWorldInfoMessage>();
-			sendInstance.DoSend(from, CastleMinerZGame.Instance.CurrentNetworkSession.Host);
+			RequestWorldInfoMessage Instance = Message.GetSendInstance<RequestWorldInfoMessage>();
+			Instance.DoSend(from, CastleMinerZGame.Instance.CurrentNetworkSession.Host);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType

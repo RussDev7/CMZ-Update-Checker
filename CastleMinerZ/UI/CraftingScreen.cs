@@ -89,49 +89,49 @@ namespace DNA.CastleMinerZ.UI
 			this._selectedItemIngredientsText.Color = CMZColors.MenuBlue;
 			this._selectedItemNameText.OutlineWidth = (this._selectedItemDescriptionText.OutlineWidth = 0);
 			this._selectedItemIngredientsText.OutlineWidth = 0;
-			Tier1Item tier1Item = new Tier1Item(Strings.Materials, new Vector2(14f, 29f), this._game._uiSprites["MaterialsIcon"], this);
-			tier1Item.SetItems(new List<Tier2Item>
+			Tier1Item Materials = new Tier1Item(Strings.Materials, new Vector2(14f, 29f), this._game._uiSprites["MaterialsIcon"], this);
+			Materials.SetItems(new List<Tier2Item>
 			{
-				new Tier2Item(Strings.Ores, Recipe.RecipeTypes.Ores, tier1Item, this),
-				new Tier2Item(Strings.Components, Recipe.RecipeTypes.Components, tier1Item, this)
+				new Tier2Item(Strings.Ores, Recipe.RecipeTypes.Ores, Materials, this),
+				new Tier2Item(Strings.Components, Recipe.RecipeTypes.Components, Materials, this)
 			});
-			this._tier1Items.Add(tier1Item);
-			this.SelectedTier1Item = tier1Item;
-			Tier1Item tier1Item2 = new Tier1Item(Strings.Tools, new Vector2(14f, 77f), this._game._uiSprites["ToolsIcon"], this);
-			tier1Item2.SetItems(new List<Tier2Item>
+			this._tier1Items.Add(Materials);
+			this.SelectedTier1Item = Materials;
+			Tier1Item Tools = new Tier1Item(Strings.Tools, new Vector2(14f, 77f), this._game._uiSprites["ToolsIcon"], this);
+			Tools.SetItems(new List<Tier2Item>
 			{
-				new Tier2Item(Strings.Pickaxes, Recipe.RecipeTypes.Pickaxes, tier1Item2, this),
-				new Tier2Item(Strings.Spades, Recipe.RecipeTypes.Spades, tier1Item2, this),
-				new Tier2Item(Strings.Axes, Recipe.RecipeTypes.Axes, tier1Item2, this),
-				new Tier2Item(Strings.Special, Recipe.RecipeTypes.SpecialTools, tier1Item2, this)
+				new Tier2Item(Strings.Pickaxes, Recipe.RecipeTypes.Pickaxes, Tools, this),
+				new Tier2Item(Strings.Spades, Recipe.RecipeTypes.Spades, Tools, this),
+				new Tier2Item(Strings.Axes, Recipe.RecipeTypes.Axes, Tools, this),
+				new Tier2Item(Strings.Special, Recipe.RecipeTypes.SpecialTools, Tools, this)
 			});
-			this._tier1Items.Add(tier1Item2);
-			Tier1Item tier1Item3 = new Tier1Item(Strings.Weapons, new Vector2(14f, 126f), this._game._uiSprites["WeaponsIcon"], this);
-			tier1Item3.SetItems(new List<Tier2Item>
+			this._tier1Items.Add(Tools);
+			Tier1Item Weapons = new Tier1Item(Strings.Weapons, new Vector2(14f, 126f), this._game._uiSprites["WeaponsIcon"], this);
+			Weapons.SetItems(new List<Tier2Item>
 			{
-				new Tier2Item(Strings.Ammo, Recipe.RecipeTypes.Ammo, tier1Item3, this),
-				new Tier2Item(Strings.Knives, Recipe.RecipeTypes.Knives, tier1Item3, this),
-				new Tier2Item(Strings.Pistols, Recipe.RecipeTypes.Pistols, tier1Item3, this),
-				new Tier2Item(Strings.Shotguns, Recipe.RecipeTypes.Shotguns, tier1Item3, this),
-				new Tier2Item(Strings.Rifles, Recipe.RecipeTypes.Rifles, tier1Item3, this),
-				new Tier2Item(Strings.Assault_Rifles, Recipe.RecipeTypes.AssaultRifles, tier1Item3, this),
-				new Tier2Item(Strings.SMG_s, Recipe.RecipeTypes.SMGs, tier1Item3, this),
-				new Tier2Item(Strings.LMG_s, Recipe.RecipeTypes.LMGs, tier1Item3, this),
-				new Tier2Item(Strings.RPG, Recipe.RecipeTypes.RPG, tier1Item3, this),
-				new Tier2Item(Strings.Explosives, Recipe.RecipeTypes.Explosives, tier1Item3, this),
-				new Tier2Item(Strings.Laser_Swords, Recipe.RecipeTypes.LaserSwords, tier1Item3, this)
+				new Tier2Item(Strings.Ammo, Recipe.RecipeTypes.Ammo, Weapons, this),
+				new Tier2Item(Strings.Knives, Recipe.RecipeTypes.Knives, Weapons, this),
+				new Tier2Item(Strings.Pistols, Recipe.RecipeTypes.Pistols, Weapons, this),
+				new Tier2Item(Strings.Shotguns, Recipe.RecipeTypes.Shotguns, Weapons, this),
+				new Tier2Item(Strings.Rifles, Recipe.RecipeTypes.Rifles, Weapons, this),
+				new Tier2Item(Strings.Assault_Rifles, Recipe.RecipeTypes.AssaultRifles, Weapons, this),
+				new Tier2Item(Strings.SMG_s, Recipe.RecipeTypes.SMGs, Weapons, this),
+				new Tier2Item(Strings.LMG_s, Recipe.RecipeTypes.LMGs, Weapons, this),
+				new Tier2Item(Strings.RPG, Recipe.RecipeTypes.RPG, Weapons, this),
+				new Tier2Item(Strings.Explosives, Recipe.RecipeTypes.Explosives, Weapons, this),
+				new Tier2Item(Strings.Laser_Swords, Recipe.RecipeTypes.LaserSwords, Weapons, this)
 			});
-			this._tier1Items.Add(tier1Item3);
-			Tier1Item tier1Item4 = new Tier1Item(Strings.Structures, new Vector2(14f, 172f), this._game._uiSprites["StructuresIcon"], this);
-			tier1Item4.SetItems(new List<Tier2Item>
+			this._tier1Items.Add(Weapons);
+			Tier1Item Structures = new Tier1Item(Strings.Structures, new Vector2(14f, 172f), this._game._uiSprites["StructuresIcon"], this);
+			Structures.SetItems(new List<Tier2Item>
 			{
-				new Tier2Item(Strings.Walls, Recipe.RecipeTypes.Walls, tier1Item4, this),
-				new Tier2Item(Strings.Containers, Recipe.RecipeTypes.Containers, tier1Item4, this),
-				new Tier2Item(Strings.Spawn_Points, Recipe.RecipeTypes.SpawnPoints, tier1Item4, this),
-				new Tier2Item(Strings.Other, Recipe.RecipeTypes.OtherStructure, tier1Item4, this),
-				new Tier2Item(Strings.Doors, Recipe.RecipeTypes.Doors, tier1Item4, this)
+				new Tier2Item(Strings.Walls, Recipe.RecipeTypes.Walls, Structures, this),
+				new Tier2Item(Strings.Containers, Recipe.RecipeTypes.Containers, Structures, this),
+				new Tier2Item(Strings.Spawn_Points, Recipe.RecipeTypes.SpawnPoints, Structures, this),
+				new Tier2Item(Strings.Other, Recipe.RecipeTypes.OtherStructure, Structures, this),
+				new Tier2Item(Strings.Doors, Recipe.RecipeTypes.Doors, Structures, this)
 			});
-			this._tier1Items.Add(tier1Item4);
+			this._tier1Items.Add(Structures);
 			this._popUpFadeOutTimer.Update(TimeSpan.FromSeconds(2.0));
 		}
 
@@ -169,69 +169,69 @@ namespace DNA.CastleMinerZ.UI
 			this._selectedItemIngredientsText.Draw(device, spriteBatch, gameTime, false);
 			spriteBatch.DrawOutlinedText(this._smallFont, this.CRAFTING, new Vector2((float)this._backgroundRectangle.X + (84f - this._smallFont.MeasureString(this.CRAFTING).X / 2f) * Screen.Adjuster.ScaleFactor.Y, (float)this._backgroundRectangle.Y + 5f * Screen.Adjuster.ScaleFactor.Y), CMZColors.MenuOrange, Color.Black, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
 			spriteBatch.DrawOutlinedText(this._smallFont, this.INVENTORY, new Vector2((float)this._backgroundRectangle.X + (717f - this._smallFont.MeasureString(this.INVENTORY).X / 2f) * Screen.Adjuster.ScaleFactor.Y, (float)this._backgroundRectangle.Y + 70f * Screen.Adjuster.ScaleFactor.Y), CMZColors.MenuOrange, Color.Black, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
-			PlayerInventory playerInventory = this._hud.PlayerInventory;
-			Vector2 vector = new Vector2((float)this._backgroundRectangle.X + 646f * Screen.Adjuster.ScaleFactor.Y, (float)this._backgroundRectangle.Y + 96f * Screen.Adjuster.ScaleFactor.Y);
-			float num = 59f * Screen.Adjuster.ScaleFactor.Y;
-			int num2 = (int)(64f * Screen.Adjuster.ScaleFactor.Y);
-			for (int j = 0; j < 8; j++)
+			PlayerInventory inventory = this._hud.PlayerInventory;
+			Vector2 inventoryOrigin = new Vector2((float)this._backgroundRectangle.X + 646f * Screen.Adjuster.ScaleFactor.Y, (float)this._backgroundRectangle.Y + 96f * Screen.Adjuster.ScaleFactor.Y);
+			float itemSpacing = 59f * Screen.Adjuster.ScaleFactor.Y;
+			int size = (int)(64f * Screen.Adjuster.ScaleFactor.Y);
+			for (int y = 0; y < 8; y++)
 			{
-				for (int k = 0; k < 4; k++)
+				for (int x = 0; x < 4; x++)
 				{
-					Vector2 vector2 = vector + num * new Vector2((float)k, (float)j);
-					this._inventoryItemLocations[k + j * 4] = new Rectangle((int)vector2.X, (int)vector2.Y, (int)num, (int)num);
-					InventoryItem inventoryItem = playerInventory.Inventory[j * 4 + k];
-					if (inventoryItem != null && inventoryItem != this._holdingItem)
+					Vector2 itemLocation = inventoryOrigin + itemSpacing * new Vector2((float)x, (float)y);
+					this._inventoryItemLocations[x + y * 4] = new Rectangle((int)itemLocation.X, (int)itemLocation.Y, (int)itemSpacing, (int)itemSpacing);
+					InventoryItem item = inventory.Inventory[y * 4 + x];
+					if (item != null && item != this._holdingItem)
 					{
-						inventoryItem.Draw2D(spriteBatch, new Rectangle((int)vector2.X, (int)vector2.Y, num2, num2));
+						item.Draw2D(spriteBatch, new Rectangle((int)itemLocation.X, (int)itemLocation.Y, size, size));
 					}
 				}
 			}
-			int num3 = 0;
-			int num4 = 2;
-			Rectangle[] array = new Rectangle[num4];
-			Size size = new Size((int)((float)this._gridSprite.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._gridSprite.Height * Screen.Adjuster.ScaleFactor.Y));
-			array[num3] = new Rectangle(Screen.Adjuster.ScreenRect.Center.X - size.Width, Screen.Adjuster.ScreenRect.Bottom - size.Height - (int)(5f * Screen.Adjuster.ScaleFactor.Y), size.Width, size.Height);
-			Rectangle rectangle = array[num3];
-			this._gridSprite.Draw(spriteBatch, rectangle, Color.White);
-			this.DrawItemTray(num3, 32, rectangle, num2, num, playerInventory, spriteBatch);
-			num3 = 1;
-			array[num3] = new Rectangle(Screen.Adjuster.ScreenRect.Center.X, Screen.Adjuster.ScreenRect.Bottom - size.Height - (int)(5f * Screen.Adjuster.ScaleFactor.Y), size.Width, size.Height);
-			rectangle = array[num3];
-			this._gridSprite.Draw(spriteBatch, rectangle, Color.White);
-			this.DrawItemTray(num3, 40, rectangle, num2, num, playerInventory, spriteBatch);
-			Vector2 vector3 = vector;
-			Rectangle rectangle2;
+			int trayIndex = 0;
+			int maxTrayCount = 2;
+			Rectangle[] gridRects = new Rectangle[maxTrayCount];
+			Size traySize = new Size((int)((float)this._gridSprite.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._gridSprite.Height * Screen.Adjuster.ScaleFactor.Y));
+			gridRects[trayIndex] = new Rectangle(Screen.Adjuster.ScreenRect.Center.X - traySize.Width, Screen.Adjuster.ScreenRect.Bottom - traySize.Height - (int)(5f * Screen.Adjuster.ScaleFactor.Y), traySize.Width, traySize.Height);
+			Rectangle gridRect = gridRects[trayIndex];
+			this._gridSprite.Draw(spriteBatch, gridRect, Color.White);
+			this.DrawItemTray(trayIndex, 32, gridRect, size, itemSpacing, inventory, spriteBatch);
+			trayIndex = 1;
+			gridRects[trayIndex] = new Rectangle(Screen.Adjuster.ScreenRect.Center.X, Screen.Adjuster.ScreenRect.Bottom - traySize.Height - (int)(5f * Screen.Adjuster.ScaleFactor.Y), traySize.Width, traySize.Height);
+			gridRect = gridRects[trayIndex];
+			this._gridSprite.Draw(spriteBatch, gridRect, Color.White);
+			this.DrawItemTray(trayIndex, 40, gridRect, size, itemSpacing, inventory, spriteBatch);
+			Vector2 selectorOrigin = inventoryOrigin;
+			Rectangle selectorLocation;
 			if (this._selectedLocation.Y < 8)
 			{
-				Vector2 vector4 = vector3 + num * new Vector2((float)this._selectedLocation.X, (float)this._selectedLocation.Y);
-				rectangle2 = new Rectangle((int)vector4.X, (int)vector4.Y, num2, num2);
+				Vector2 loc = selectorOrigin + itemSpacing * new Vector2((float)this._selectedLocation.X, (float)this._selectedLocation.Y);
+				selectorLocation = new Rectangle((int)loc.X, (int)loc.Y, size, size);
 			}
 			else
 			{
-				Rectangle rectangle3 = array[this.GetTrayIndexFromRow(this._selectedLocation.Y)];
-				rectangle2 = new Rectangle(rectangle3.Left + (int)(7f * Screen.Adjuster.ScaleFactor.Y + num * (float)this._selectedLocation.X), (int)((float)rectangle3.Top + 7f * Screen.Adjuster.ScaleFactor.Y), num2, num2);
+				Rectangle targetTrayGridRect = gridRects[this.GetTrayIndexFromRow(this._selectedLocation.Y)];
+				selectorLocation = new Rectangle(targetTrayGridRect.Left + (int)(7f * Screen.Adjuster.ScaleFactor.Y + itemSpacing * (float)this._selectedLocation.X), (int)((float)targetTrayGridRect.Top + 7f * Screen.Adjuster.ScaleFactor.Y), size, size);
 			}
 			if (this._hitTestTrue)
 			{
-				this._gridSelector.Draw(spriteBatch, rectangle2, (this._holdingItem == null) ? Color.White : Color.Red);
+				this._gridSelector.Draw(spriteBatch, selectorLocation, (this._holdingItem == null) ? Color.White : Color.Red);
 			}
 			if (this._holdingItem != null)
 			{
-				this._holdingItem.Draw2D(spriteBatch, new Rectangle((int)((float)this._mousePointerLocation.X - num / 2f), (int)((float)this._mousePointerLocation.Y - num / 2f), (int)num, (int)num));
+				this._holdingItem.Draw2D(spriteBatch, new Rectangle((int)((float)this._mousePointerLocation.X - itemSpacing / 2f), (int)((float)this._mousePointerLocation.Y - itemSpacing / 2f), (int)itemSpacing, (int)itemSpacing));
 			}
 			InventoryItem selectedItem = this.SelectedItem;
 			InventoryItem holdingItem = this._holdingItem;
 			if (this.SelectedItem != null && this._holdingItem == null && this._hitTestTrue && this._popUpTimer.Expired)
 			{
 				Color color = new Color(this._popUpFadeInTimer.PercentComplete, this._popUpFadeInTimer.PercentComplete, this._popUpFadeInTimer.PercentComplete, this._popUpFadeInTimer.PercentComplete);
-				Color color2 = new Color(0f, 0f, 0f, this._popUpFadeInTimer.PercentComplete);
-				spriteBatch.DrawOutlinedText(this._smallFont, this._popUpItem.Name, this._popUpLocation, color, color2, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
+				Color blackColor = new Color(0f, 0f, 0f, this._popUpFadeInTimer.PercentComplete);
+				spriteBatch.DrawOutlinedText(this._smallFont, this._popUpItem.Name, this._popUpLocation, color, blackColor, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
 			}
 			else if (!this._popUpFadeOutTimer.Expired)
 			{
-				Color color3 = new Color(1f - this._popUpFadeOutTimer.PercentComplete, 1f - this._popUpFadeOutTimer.PercentComplete, 1f - this._popUpFadeOutTimer.PercentComplete, 1f - this._popUpFadeOutTimer.PercentComplete);
-				Color color4 = new Color(0f, 0f, 0f, 1f - this._popUpFadeOutTimer.PercentComplete);
-				spriteBatch.DrawOutlinedText(this._smallFont, this._popUpItem.Name, this._popUpLocation, color3, color4, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
+				Color color2 = new Color(1f - this._popUpFadeOutTimer.PercentComplete, 1f - this._popUpFadeOutTimer.PercentComplete, 1f - this._popUpFadeOutTimer.PercentComplete, 1f - this._popUpFadeOutTimer.PercentComplete);
+				Color blackColor2 = new Color(0f, 0f, 0f, 1f - this._popUpFadeOutTimer.PercentComplete);
+				spriteBatch.DrawOutlinedText(this._smallFont, this._popUpItem.Name, this._popUpLocation, color2, blackColor2, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
 			}
 			spriteBatch.End();
 			base.Draw(device, spriteBatch, gameTime);
@@ -239,14 +239,14 @@ namespace DNA.CastleMinerZ.UI
 
 		private void DrawItemTray(int trayIndex, int columnOffset, Rectangle gridRect, int size, float itemSpacing, PlayerInventory inventory, SpriteBatch spriteBatch)
 		{
-			for (int i = 0; i < 8; i++)
+			for (int x = 0; x < 8; x++)
 			{
-				Vector2 vector = new Vector2(itemSpacing * (float)i + (float)gridRect.Left + 2f * Screen.Adjuster.ScaleFactor.Y, (float)gridRect.Top + 2f * Screen.Adjuster.ScaleFactor.Y);
-				this._inventoryItemLocations[i + columnOffset] = new Rectangle((int)vector.X, (int)vector.Y, size, size);
-				InventoryItem trayItem = inventory.TrayManager.GetTrayItem(trayIndex, i);
-				if (trayItem != null && trayItem != this._holdingItem)
+				Vector2 itemLocation = new Vector2(itemSpacing * (float)x + (float)gridRect.Left + 2f * Screen.Adjuster.ScaleFactor.Y, (float)gridRect.Top + 2f * Screen.Adjuster.ScaleFactor.Y);
+				this._inventoryItemLocations[x + columnOffset] = new Rectangle((int)itemLocation.X, (int)itemLocation.Y, size, size);
+				InventoryItem item = inventory.TrayManager.GetTrayItem(trayIndex, x);
+				if (item != null && item != this._holdingItem)
 				{
-					trayItem.Draw2D(spriteBatch, new Rectangle((int)vector.X, (int)vector.Y, size, size));
+					item.Draw2D(spriteBatch, new Rectangle((int)itemLocation.X, (int)itemLocation.Y, size, size));
 				}
 			}
 		}
@@ -316,15 +316,15 @@ namespace DNA.CastleMinerZ.UI
 						if (this._popUpTimer.Expired)
 						{
 							this._popUpItem = this.SelectedItem;
-							Vector2 vector = this._smallFont.MeasureString(this._popUpItem.Name) * Screen.Adjuster.ScaleFactor.Y;
-							this._popUpLocation = new Point(inputManager.Mouse.Position.X, inputManager.Mouse.Position.Y + (int)vector.Y);
-							if ((float)this._popUpLocation.Y + vector.Y > (float)Screen.Adjuster.ScreenRect.Bottom)
+							Vector2 size = this._smallFont.MeasureString(this._popUpItem.Name) * Screen.Adjuster.ScaleFactor.Y;
+							this._popUpLocation = new Point(inputManager.Mouse.Position.X, inputManager.Mouse.Position.Y + (int)size.Y);
+							if ((float)this._popUpLocation.Y + size.Y > (float)Screen.Adjuster.ScreenRect.Bottom)
 							{
-								this._popUpLocation.Y = this._popUpLocation.Y - (int)(vector.Y * 2f);
+								this._popUpLocation.Y = this._popUpLocation.Y - (int)(size.Y * 2f);
 							}
-							if ((float)this._popUpLocation.X + vector.X > (float)Screen.Adjuster.ScreenRect.Right)
+							if ((float)this._popUpLocation.X + size.X > (float)Screen.Adjuster.ScreenRect.Right)
 							{
-								this._popUpLocation.X = (int)((float)Screen.Adjuster.ScreenRect.Right - vector.X);
+								this._popUpLocation.X = (int)((float)Screen.Adjuster.ScreenRect.Right - size.X);
 							}
 						}
 					}
@@ -359,29 +359,29 @@ namespace DNA.CastleMinerZ.UI
 				{
 					if (this._selectedLocation.Y < 8)
 					{
-						int num = this._hud.PlayerInventory.AddItemToTray(this._holdingItem);
-						if (num == 0)
+						int leftoverStackCount = this._hud.PlayerInventory.AddItemToTray(this._holdingItem);
+						if (leftoverStackCount == 0)
 						{
 							this._holdingItem = null;
 							SoundManager.Instance.PlayInstance("Click");
 						}
-						else if (this._holdingItem.StackCount != num)
+						else if (this._holdingItem.StackCount != leftoverStackCount)
 						{
-							this._holdingItem.StackCount = num;
+							this._holdingItem.StackCount = leftoverStackCount;
 							SoundManager.Instance.PlayInstance("Click");
 						}
 					}
 					else
 					{
-						int num2 = this._hud.PlayerInventory.AddItemToInventory(this._holdingItem);
-						if (num2 == 0)
+						int leftoverStackCount2 = this._hud.PlayerInventory.AddItemToInventory(this._holdingItem);
+						if (leftoverStackCount2 == 0)
 						{
 							this._holdingItem = null;
 							SoundManager.Instance.PlayInstance("Click");
 						}
-						else if (this._holdingItem.StackCount != num2)
+						else if (this._holdingItem.StackCount != leftoverStackCount2)
 						{
-							this._holdingItem.StackCount = num2;
+							this._holdingItem.StackCount = leftoverStackCount2;
 							SoundManager.Instance.PlayInstance("Click");
 						}
 					}
@@ -390,29 +390,29 @@ namespace DNA.CastleMinerZ.UI
 				{
 					if (this._selectedLocation.Y < 8)
 					{
-						int num3 = this._hud.PlayerInventory.AddItemToTray(this.SelectedItem);
-						if (num3 == 0)
+						int leftoverStackCount3 = this._hud.PlayerInventory.AddItemToTray(this.SelectedItem);
+						if (leftoverStackCount3 == 0)
 						{
 							this.SelectedItem = null;
 							SoundManager.Instance.PlayInstance("Click");
 						}
-						else if (this.SelectedItem.StackCount != num3)
+						else if (this.SelectedItem.StackCount != leftoverStackCount3)
 						{
-							this.SelectedItem.StackCount = num3;
+							this.SelectedItem.StackCount = leftoverStackCount3;
 							SoundManager.Instance.PlayInstance("Click");
 						}
 					}
 					else
 					{
-						int num4 = this._hud.PlayerInventory.AddItemToInventory(this.SelectedItem);
-						if (num4 == 0)
+						int leftoverStackCount4 = this._hud.PlayerInventory.AddItemToInventory(this.SelectedItem);
+						if (leftoverStackCount4 == 0)
 						{
 							this.SelectedItem = null;
 							SoundManager.Instance.PlayInstance("Click");
 						}
-						else if (this.SelectedItem.StackCount != num4)
+						else if (this.SelectedItem.StackCount != leftoverStackCount4)
 						{
-							this.SelectedItem.StackCount = num4;
+							this.SelectedItem.StackCount = leftoverStackCount4;
 							SoundManager.Instance.PlayInstance("Click");
 						}
 					}
@@ -491,9 +491,9 @@ namespace DNA.CastleMinerZ.UI
 							}
 							else if (this.SelectedItem.StackCount > 1)
 							{
-								InventoryItem inventoryItem = this.SelectedItem.Split();
-								this._holdingItem.Stack(inventoryItem);
-								this.SelectedItem.Stack(inventoryItem);
+								InventoryItem item = this.SelectedItem.Split();
+								this._holdingItem.Stack(item);
+								this.SelectedItem.Stack(item);
 							}
 							else if (this._holdingItem.StackCount < this._holdingItem.MaxStackCount)
 							{
@@ -503,9 +503,9 @@ namespace DNA.CastleMinerZ.UI
 						}
 						else
 						{
-							InventoryItem selectedItem2 = this.SelectedItem;
+							InventoryItem item2 = this.SelectedItem;
 							this.SelectedItem = this._holdingItem;
-							this._holdingItem = selectedItem2;
+							this._holdingItem = item2;
 						}
 					}
 					else if (inputManager.Mouse.RightButtonPressed)
@@ -536,9 +536,9 @@ namespace DNA.CastleMinerZ.UI
 				SoundManager.Instance.PlayInstance("Click");
 				if (this._holdingItem != null)
 				{
-					Vector3 localPosition = this._game.LocalPlayer.LocalPosition;
-					localPosition.Y += 1f;
-					PickupManager.Instance.CreatePickup(this._holdingItem, localPosition, true, false);
+					Vector3 v = this._game.LocalPlayer.LocalPosition;
+					v.Y += 1f;
+					PickupManager.Instance.CreatePickup(this._holdingItem, v, true, false);
 					SoundManager.Instance.PlayInstance("dropitem");
 					this._holdingItem = null;
 				}
@@ -550,28 +550,28 @@ namespace DNA.CastleMinerZ.UI
 			else if (inputManager.Mouse.LeftButtonPressed && !this._backgroundRectangle.Contains(inputManager.Mouse.Position) && this._holdingItem != null)
 			{
 				SoundManager.Instance.PlayInstance("Click");
-				Vector3 localPosition2 = this._game.LocalPlayer.LocalPosition;
-				localPosition2.Y += 1f;
-				PickupManager.Instance.CreatePickup(this._holdingItem, localPosition2, true, false);
+				Vector3 v2 = this._game.LocalPlayer.LocalPosition;
+				v2.Y += 1f;
+				PickupManager.Instance.CreatePickup(this._holdingItem, v2, true, false);
 				SoundManager.Instance.PlayInstance("dropitem");
 				this._holdingItem = null;
 			}
 			else if (inputManager.Mouse.RightButtonPressed && !this._backgroundRectangle.Contains(inputManager.Mouse.Position) && this._holdingItem != null)
 			{
-				InventoryItem inventoryItem2;
+				InventoryItem dropItem;
 				if (this._holdingItem.StackCount > 1)
 				{
-					inventoryItem2 = this._holdingItem.PopOneItem();
+					dropItem = this._holdingItem.PopOneItem();
 				}
 				else
 				{
-					inventoryItem2 = this._holdingItem;
+					dropItem = this._holdingItem;
 					this._holdingItem = null;
 				}
 				SoundManager.Instance.PlayInstance("Click");
-				Vector3 localPosition3 = this._game.LocalPlayer.LocalPosition;
-				localPosition3.Y += 1f;
-				PickupManager.Instance.CreatePickup(inventoryItem2, localPosition3, true, false);
+				Vector3 v3 = this._game.LocalPlayer.LocalPosition;
+				v3.Y += 1f;
+				PickupManager.Instance.CreatePickup(dropItem, v3, true, false);
 				SoundManager.Instance.PlayInstance("dropitem");
 			}
 			else if (inputManager.Mouse.DeltaWheel < 0 && this.HitTest(inputManager.Mouse.Position) >= 0)
@@ -588,18 +588,18 @@ namespace DNA.CastleMinerZ.UI
 			if (inputManager.Mouse.Position != inputManager.Mouse.LastPosition)
 			{
 				this._mousePointerLocation = inputManager.Mouse.Position;
-				int num5 = this.HitTest(inputManager.Mouse.Position);
-				if (num5 >= 0)
+				int hoverItem = this.HitTest(inputManager.Mouse.Position);
+				if (hoverItem >= 0)
 				{
 					this._hitTestTrue = true;
-					this._selectedLocation.Y = num5 / 4;
+					this._selectedLocation.Y = hoverItem / 4;
 					if (this._selectedLocation.Y < 8)
 					{
-						this._selectedLocation.X = num5 % 4;
+						this._selectedLocation.X = hoverItem % 4;
 					}
 					else
 					{
-						this._selectedLocation.X = num5 % 8;
+						this._selectedLocation.X = hoverItem % 8;
 					}
 				}
 				else
@@ -700,8 +700,8 @@ namespace DNA.CastleMinerZ.UI
 				}
 				base.PopMe();
 			}
-			Size size = new Size((int)((float)this._background.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._background.Height * Screen.Adjuster.ScaleFactor.Y));
-			this._backgroundRectangle = new Rectangle(Screen.Adjuster.ScreenRect.Center.X - size.Width / 2, (int)(55f * Screen.Adjuster.ScaleFactor.Y), size.Width, size.Height);
+			Size bgRectSize = new Size((int)((float)this._background.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._background.Height * Screen.Adjuster.ScaleFactor.Y));
+			this._backgroundRectangle = new Rectangle(Screen.Adjuster.ScreenRect.Center.X - bgRectSize.Width / 2, (int)(55f * Screen.Adjuster.ScaleFactor.Y), bgRectSize.Width, bgRectSize.Height);
 			this._selectedItemNameText.Text = this.SelectedTier1Item.SelectedTier2Item.SelectedItem.Name;
 			this._selectedItemDescriptionText.Location = new Vector2((float)this._backgroundRectangle.X + 32f * Screen.Adjuster.ScaleFactor.Y, (float)this._backgroundRectangle.Y + (float)(367 + this._game._medFont.LineSpacing * this._selectedItemNameText.NumberOfLines) * Screen.Adjuster.ScaleFactor.Y);
 			this._selectedItemDescriptionText.Text = this.SelectedTier1Item.SelectedTier2Item.SelectedItem.Description;

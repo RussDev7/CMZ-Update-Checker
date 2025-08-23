@@ -14,8 +14,8 @@ namespace DNA.CastleMinerZ.UI
 	{
 		public static void DoWait(ScreenGroup group, string message)
 		{
-			WaitScreen waitScreen = new WaitScreen(message, null);
-			waitScreen.Start(group);
+			WaitScreen screen = new WaitScreen(message, null);
+			screen.Start(group);
 		}
 
 		public static void DoWait(ScreenGroup group, string message, ProgressCallback progress)
@@ -24,14 +24,14 @@ namespace DNA.CastleMinerZ.UI
 			{
 				return;
 			}
-			WaitScreen waitScreen = new WaitScreen(message, progress);
-			waitScreen.Start(group);
+			WaitScreen screen = new WaitScreen(message, progress);
+			screen.Start(group);
 		}
 
 		public static void DoWait(ScreenGroup group, string message, ThreadStart longOperation, ThreadStart onComplete)
 		{
-			WaitScreen waitScreen = new WaitScreen(message, longOperation, onComplete);
-			waitScreen.Start(group);
+			WaitScreen screen = new WaitScreen(message, longOperation, onComplete);
+			screen.Start(group);
 		}
 
 		public string Message
@@ -107,23 +107,23 @@ namespace DNA.CastleMinerZ.UI
 		protected override void OnDraw(GraphicsDevice device, SpriteBatch spriteBatch, GameTime gameTime)
 		{
 			SpriteFont largeFont = CastleMinerZGame.Instance._largeFont;
-			Vector2 vector = largeFont.MeasureString(this._message);
-			Vector2 vector2 = new Vector2((float)(Screen.Adjuster.ScreenRect.Width / 2) - vector.X / 2f, (float)(Screen.Adjuster.ScreenRect.Height / 2) + vector.Y / 2f);
+			Vector2 size = largeFont.MeasureString(this._message);
+			Vector2 position = new Vector2((float)(Screen.Adjuster.ScreenRect.Width / 2) - size.X / 2f, (float)(Screen.Adjuster.ScreenRect.Height / 2) + size.Y / 2f);
 			this.textFlashTimer.Update(gameTime.ElapsedGameTime);
-			Color color = Color.Lerp(CMZColors.MenuGreen, Color.White, this.textFlashTimer.PercentComplete);
+			Color currentColor = Color.Lerp(CMZColors.MenuGreen, Color.White, this.textFlashTimer.PercentComplete);
 			if (this.textFlashTimer.Expired)
 			{
 				this.textFlashTimer.Reset();
 			}
 			spriteBatch.Begin();
-			spriteBatch.DrawOutlinedText(largeFont, this._message, vector2, color, Color.Black, 1);
+			spriteBatch.DrawOutlinedText(largeFont, this._message, position, currentColor, Color.Black, 1);
 			if (this._drawProgress)
 			{
 				this.sbuilder.Length = 0;
 				this.sbuilder.Concat(this.Progress);
 				this.sbuilder.Append("%");
-				float num = vector2.X + largeFont.MeasureString(this._message).X + largeFont.MeasureString(" 100%").X - largeFont.MeasureString(this.sbuilder).X;
-				spriteBatch.DrawOutlinedText(largeFont, this.sbuilder, new Vector2(num, vector2.Y), color, Color.Black, 1);
+				float location = position.X + largeFont.MeasureString(this._message).X + largeFont.MeasureString(" 100%").X - largeFont.MeasureString(this.sbuilder).X;
+				spriteBatch.DrawOutlinedText(largeFont, this.sbuilder, new Vector2(location, position.Y), currentColor, Color.Black, 1);
 			}
 			spriteBatch.End();
 			base.OnDraw(device, spriteBatch, gameTime);

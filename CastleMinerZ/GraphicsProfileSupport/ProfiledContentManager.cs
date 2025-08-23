@@ -24,11 +24,11 @@ namespace DNA.CastleMinerZ.GraphicsProfileSupport
 			if (CastleMinerZArgs.Instance.TextureFolder != null)
 			{
 				this._checkUserTextures = false;
-				int num = CastleMinerZArgs.Instance.TextureFolder.Length + 1;
-				foreach (string text in ProfiledContentManager._cImageExtensions)
+				int flength = CastleMinerZArgs.Instance.TextureFolder.Length + 1;
+				foreach (string extension in ProfiledContentManager._cImageExtensions)
 				{
-					string[] array = PathTools.RecursivelyGetFiles(CastleMinerZArgs.Instance.TextureFolder, text);
-					if (array != null && array.Length > 0)
+					string[] textures = PathTools.RecursivelyGetFiles(CastleMinerZArgs.Instance.TextureFolder, extension);
+					if (textures != null && textures.Length > 0)
 					{
 						if (!this._checkUserTextures)
 						{
@@ -37,18 +37,18 @@ namespace DNA.CastleMinerZ.GraphicsProfileSupport
 							this._availableTextures = new Dictionary<string, string>();
 							this._preLoadedTextures = new Dictionary<string, Texture2D>();
 						}
-						foreach (string text2 in array)
+						foreach (string name in textures)
 						{
-							string text3 = Path.ChangeExtension(text2, null);
-							text3 = text3.Substring(num);
-							text3 = text3.ToLower();
-							if (text3.EndsWith("_m"))
+							string assetName = Path.ChangeExtension(name, null);
+							assetName = assetName.Substring(flength);
+							assetName = assetName.ToLower();
+							if (assetName.EndsWith("_m"))
 							{
-								text3 = text3.Substring(0, text3.Length - 2);
+								assetName = assetName.Substring(0, assetName.Length - 2);
 							}
-							if (!this._availableTextures.ContainsKey(text3))
+							if (!this._availableTextures.ContainsKey(assetName))
 							{
-								this._availableTextures.Add(text3, text2);
+								this._availableTextures.Add(assetName, name);
 							}
 						}
 					}
@@ -63,112 +63,112 @@ namespace DNA.CastleMinerZ.GraphicsProfileSupport
 
 		internal Texture[] LoadTerrain()
 		{
-			string text = Path.Combine(CastleMinerZArgs.Instance.TextureFolder, "terrain_" + (GraphicsProfileManager.Instance.IsHiDef ? "hidef.dat" : "reach.dat"));
-			if (!File.Exists(text))
+			string fname = Path.Combine(CastleMinerZArgs.Instance.TextureFolder, "terrain_" + (GraphicsProfileManager.Instance.IsHiDef ? "hidef.dat" : "reach.dat"));
+			if (!File.Exists(fname))
 			{
 				return null;
 			}
-			Texture[] array = null;
-			using (Stream stream = new FileStream(text, FileMode.Open, FileAccess.Read, FileShare.Read))
+			Texture[] result = null;
+			using (Stream stream = new FileStream(fname, FileMode.Open, FileAccess.Read, FileShare.Read))
 			{
-				BinaryReader binaryReader = new BinaryReader(stream);
-				array = new Texture[5];
-				int num = (GraphicsProfileManager.Instance.IsHiDef ? 2048 : 1024);
-				uint[] array2 = new uint[num * num];
-				byte[] array3 = binaryReader.ReadBytes(num * num * 4);
-				Buffer.BlockCopy(array3, 0, array2, 0, array3.Length);
-				Texture2D texture2D = new Texture2D(CastleMinerZGame.Instance.GraphicsDevice, num, num, false, SurfaceFormat.Color);
-				texture2D.SetData<uint>(array2);
-				array[0] = texture2D;
-				array3 = binaryReader.ReadBytes(num * num * 4);
-				Buffer.BlockCopy(array3, 0, array2, 0, array3.Length);
-				texture2D = new Texture2D(CastleMinerZGame.Instance.GraphicsDevice, num, num, false, SurfaceFormat.Color);
-				texture2D.SetData<uint>(array2);
-				array[1] = texture2D;
-				array3 = binaryReader.ReadBytes(num * num * 4);
-				Buffer.BlockCopy(array3, 0, array2, 0, array3.Length);
-				texture2D = new Texture2D(CastleMinerZGame.Instance.GraphicsDevice, num, num, false, SurfaceFormat.Color);
-				texture2D.SetData<uint>(array2);
-				array[2] = texture2D;
-				Texture2D texture2D2 = new Texture2D(CastleMinerZGame.Instance.GraphicsDevice, num / 2, num / 2, true, SurfaceFormat.Color);
-				array[4] = texture2D2;
-				Texture2D texture2D3 = new Texture2D(CastleMinerZGame.Instance.GraphicsDevice, num / 2, num / 2, true, SurfaceFormat.Color);
-				array[3] = texture2D3;
-				int num2 = num / 2;
-				int num3 = 0;
+				BinaryReader reader = new BinaryReader(stream);
+				result = new Texture[5];
+				int imageWidth = (GraphicsProfileManager.Instance.IsHiDef ? 2048 : 1024);
+				uint[] imgbyte4 = new uint[imageWidth * imageWidth];
+				byte[] imgbytes = reader.ReadBytes(imageWidth * imageWidth * 4);
+				Buffer.BlockCopy(imgbytes, 0, imgbyte4, 0, imgbytes.Length);
+				Texture2D texture = new Texture2D(CastleMinerZGame.Instance.GraphicsDevice, imageWidth, imageWidth, false, SurfaceFormat.Color);
+				texture.SetData<uint>(imgbyte4);
+				result[0] = texture;
+				imgbytes = reader.ReadBytes(imageWidth * imageWidth * 4);
+				Buffer.BlockCopy(imgbytes, 0, imgbyte4, 0, imgbytes.Length);
+				texture = new Texture2D(CastleMinerZGame.Instance.GraphicsDevice, imageWidth, imageWidth, false, SurfaceFormat.Color);
+				texture.SetData<uint>(imgbyte4);
+				result[1] = texture;
+				imgbytes = reader.ReadBytes(imageWidth * imageWidth * 4);
+				Buffer.BlockCopy(imgbytes, 0, imgbyte4, 0, imgbytes.Length);
+				texture = new Texture2D(CastleMinerZGame.Instance.GraphicsDevice, imageWidth, imageWidth, false, SurfaceFormat.Color);
+				texture.SetData<uint>(imgbyte4);
+				result[2] = texture;
+				Texture2D diffMips = new Texture2D(CastleMinerZGame.Instance.GraphicsDevice, imageWidth / 2, imageWidth / 2, true, SurfaceFormat.Color);
+				result[4] = diffMips;
+				Texture2D specMips = new Texture2D(CastleMinerZGame.Instance.GraphicsDevice, imageWidth / 2, imageWidth / 2, true, SurfaceFormat.Color);
+				result[3] = specMips;
+				int w = imageWidth / 2;
+				int mip = 0;
 				do
 				{
-					array2 = new uint[num2 * num2];
-					array3 = binaryReader.ReadBytes(num2 * num2 * 4);
-					Buffer.BlockCopy(array3, 0, array2, 0, array3.Length);
-					texture2D2.SetData<uint>(num3, null, array2, 0, array2.Length);
-					array3 = binaryReader.ReadBytes(num2 * num2 * 4);
-					Buffer.BlockCopy(array3, 0, array2, 0, array3.Length);
-					texture2D3.SetData<uint>(num3, null, array2, 0, array2.Length);
-					num3++;
-					num2 >>= 1;
+					imgbyte4 = new uint[w * w];
+					imgbytes = reader.ReadBytes(w * w * 4);
+					Buffer.BlockCopy(imgbytes, 0, imgbyte4, 0, imgbytes.Length);
+					diffMips.SetData<uint>(mip, null, imgbyte4, 0, imgbyte4.Length);
+					imgbytes = reader.ReadBytes(w * w * 4);
+					Buffer.BlockCopy(imgbytes, 0, imgbyte4, 0, imgbytes.Length);
+					specMips.SetData<uint>(mip, null, imgbyte4, 0, imgbyte4.Length);
+					mip++;
+					w >>= 1;
 				}
-				while (num2 != 0);
-				binaryReader.Close();
+				while (w != 0);
+				reader.Close();
 			}
-			return array;
+			return result;
 		}
 
 		private Texture2D TryLoadFromFile(string assetName)
 		{
-			Texture2D texture2D;
-			if (this._preLoadedTextures.TryGetValue(assetName, out texture2D))
+			Texture2D result;
+			if (this._preLoadedTextures.TryGetValue(assetName, out result))
 			{
-				return texture2D;
+				return result;
 			}
-			string text = assetName.ToLower();
-			string text2;
-			bool flag = this._availableTextures.TryGetValue(text, out text2);
-			if (!flag)
+			string lowerName = assetName.ToLower();
+			string filename;
+			bool foundName = this._availableTextures.TryGetValue(lowerName, out filename);
+			if (!foundName)
 			{
 				if (GraphicsProfileManager.Instance.IsHiDef)
 				{
-					flag = this._availableTextures.TryGetValue(Path.Combine(this._hiDefRootLower, text), out text2);
+					foundName = this._availableTextures.TryGetValue(Path.Combine(this._hiDefRootLower, lowerName), out filename);
 				}
 				else
 				{
-					flag = this._availableTextures.TryGetValue(Path.Combine(this._reachRootLower, text), out text2);
+					foundName = this._availableTextures.TryGetValue(Path.Combine(this._reachRootLower, lowerName), out filename);
 				}
 			}
-			if (!flag)
+			if (!foundName)
 			{
 				return null;
 			}
-			bool flag2 = false;
-			text = text2.ToLower();
-			bool flag3 = Path.ChangeExtension(text, null).EndsWith("_m");
-			bool flag4 = false;
-			if (flag3)
+			bool loaded = false;
+			lowerName = filename.ToLower();
+			bool makeMipmaps = Path.ChangeExtension(lowerName, null).EndsWith("_m");
+			bool normalizeMipmaps = false;
+			if (makeMipmaps)
 			{
-				flag4 = text.Contains("_nrm_") || text.Contains("_n_");
+				normalizeMipmaps = lowerName.Contains("_nrm_") || lowerName.Contains("_n_");
 			}
 			do
 			{
 				if (GraphicsDeviceLocker.Instance.TryLockDeviceTimed(ref this._loadingTimer))
 				{
-					flag2 = true;
+					loaded = true;
 					try
 					{
-						texture2D = TextureLoader.LoadFromFile(CastleMinerZGame.Instance.GraphicsDevice, text2, flag3, flag4);
+						result = TextureLoader.LoadFromFile(CastleMinerZGame.Instance.GraphicsDevice, filename, makeMipmaps, normalizeMipmaps);
 					}
 					finally
 					{
 						GraphicsDeviceLocker.Instance.UnlockDevice();
 					}
 				}
-				if (!flag2)
+				if (!loaded)
 				{
 					Thread.Sleep(10);
 				}
 			}
-			while (!flag2);
-			this._preLoadedTextures.Add(assetName, texture2D);
-			return texture2D;
+			while (!loaded);
+			this._preLoadedTextures.Add(assetName, result);
+			return result;
 		}
 
 		public static T Cast<T>(object v)
@@ -182,46 +182,46 @@ namespace DNA.CastleMinerZ.GraphicsProfileSupport
 
 		public override T Load<T>(string assetName)
 		{
-			Type typeFromHandle = typeof(T);
-			bool flag = typeFromHandle.IsSubclassOf(typeof(Texture)) || typeFromHandle == typeof(Texture);
-			T t = default(T);
+			Type templateType = typeof(T);
+			bool isTexture = templateType.IsSubclassOf(typeof(Texture)) || templateType == typeof(Texture);
+			T result = default(T);
 			this._loadingTimer.Restart();
-			if (this._checkUserTextures && flag)
+			if (this._checkUserTextures && isTexture)
 			{
-				t = ProfiledContentManager.Cast<T>(this.TryLoadFromFile(assetName));
-				if (t != null)
+				result = ProfiledContentManager.Cast<T>(this.TryLoadFromFile(assetName));
+				if (result != null)
 				{
-					return t;
+					return result;
 				}
 			}
-			List<string> list = new List<string>();
-			if (this.TextureLevel > 1 && flag)
+			List<string> pathsToTry = new List<string>();
+			if (this.TextureLevel > 1 && isTexture)
 			{
-				string text = "_L" + this.TextureLevel.ToString();
-				list.Add(assetName + text);
+				string levelSuffix = "_L" + this.TextureLevel.ToString();
+				pathsToTry.Add(assetName + levelSuffix);
 				if (GraphicsProfileManager.Instance.IsHiDef)
 				{
-					list.Add(this._hiDefRoot + "\\" + assetName + text);
+					pathsToTry.Add(this._hiDefRoot + "\\" + assetName + levelSuffix);
 				}
 				else
 				{
-					list.Add(this._reachRoot + "\\" + assetName + text);
+					pathsToTry.Add(this._reachRoot + "\\" + assetName + levelSuffix);
 				}
 			}
-			list.Add(assetName);
+			pathsToTry.Add(assetName);
 			if (GraphicsProfileManager.Instance.IsHiDef)
 			{
-				list.Add(this._hiDefRoot + "\\" + assetName);
+				pathsToTry.Add(this._hiDefRoot + "\\" + assetName);
 			}
 			else
 			{
-				list.Add(this._reachRoot + "\\" + assetName);
+				pathsToTry.Add(this._reachRoot + "\\" + assetName);
 			}
-			for (int i = 0; i < list.Count; i++)
+			for (int i = 0; i < pathsToTry.Count; i++)
 			{
 				try
 				{
-					return base.Load<T>(list[i]);
+					return base.Load<T>(pathsToTry[i]);
 				}
 				catch
 				{

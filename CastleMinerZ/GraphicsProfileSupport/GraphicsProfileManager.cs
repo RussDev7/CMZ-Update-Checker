@@ -41,15 +41,15 @@ namespace DNA.CastleMinerZ.GraphicsProfileSupport
 
 		public void ExamineGraphicsDevices(object sender, PreparingDeviceSettingsEventArgs args)
 		{
-			bool forceReachProfile = CommandLineArgs.Get<CastleMinerZArgs>().ForceReachProfile;
-			GraphicsAdapter graphicsAdapter = args.GraphicsDeviceInformation.Adapter;
-			if (graphicsAdapter == null)
+			bool forceReach = CommandLineArgs.Get<CastleMinerZArgs>().ForceReachProfile;
+			GraphicsAdapter ga = args.GraphicsDeviceInformation.Adapter;
+			if (ga == null)
 			{
-				graphicsAdapter = GraphicsAdapter.DefaultAdapter;
+				ga = GraphicsAdapter.DefaultAdapter;
 			}
-			if (graphicsAdapter != null)
+			if (ga != null)
 			{
-				if (!forceReachProfile && graphicsAdapter.IsProfileSupported(GraphicsProfile.HiDef))
+				if (!forceReach && ga.IsProfileSupported(GraphicsProfile.HiDef))
 				{
 					this._profile = GraphicsProfile.HiDef;
 				}
@@ -57,11 +57,11 @@ namespace DNA.CastleMinerZ.GraphicsProfileSupport
 				{
 					this._profile = GraphicsProfile.Reach;
 				}
-				args.GraphicsDeviceInformation.Adapter = graphicsAdapter;
+				args.GraphicsDeviceInformation.Adapter = ga;
 				args.GraphicsDeviceInformation.GraphicsProfile = this._profile;
 				return;
 			}
-			if (!forceReachProfile)
+			if (!forceReach)
 			{
 				for (int i = 0; i < GraphicsAdapter.Adapters.Count; i++)
 				{

@@ -73,9 +73,9 @@ namespace DNA.CastleMinerZ
 				this._fireEmitter.Emitting = true;
 				this._fireEmitter.DrawPriority = 900;
 				this._modelEnt.Children.Add(this._fireEmitter);
-				Matrix transform = this._modelEnt.Skeleton["Flame"].Transform;
-				this._smokeEmitter.LocalToParent = transform;
-				this._fireEmitter.LocalToParent = transform;
+				Matrix flameToTorch = this._modelEnt.Skeleton["Flame"].Transform;
+				this._smokeEmitter.LocalToParent = flameToTorch;
+				this._fireEmitter.LocalToParent = flameToTorch;
 			}
 		}
 
@@ -142,17 +142,17 @@ namespace DNA.CastleMinerZ
 
 			protected override bool SetEffectParams(ModelMesh mesh, Effect effect, GameTime gameTime, Matrix world, Matrix view, Matrix projection)
 			{
-				DNAEffect dnaeffect = effect as DNAEffect;
-				if (dnaeffect != null)
+				DNAEffect dnaEffect = effect as DNAEffect;
+				if (dnaEffect != null)
 				{
-					dnaeffect.EmissiveColor = Color.Black;
-					if (dnaeffect.Parameters["LightDirection1"] != null)
+					dnaEffect.EmissiveColor = Color.Black;
+					if (dnaEffect.Parameters["LightDirection1"] != null)
 					{
-						dnaeffect.Parameters["LightDirection1"].SetValue(-this.DirectLightDirection[0]);
-						dnaeffect.Parameters["LightColor1"].SetValue(this.DirectLightColor[0]);
-						dnaeffect.Parameters["LightDirection2"].SetValue(-this.DirectLightDirection[1]);
-						dnaeffect.Parameters["LightColor2"].SetValue(this.DirectLightColor[1]);
-						dnaeffect.AmbientColor = ColorF.FromVector3(this.AmbientLight);
+						dnaEffect.Parameters["LightDirection1"].SetValue(-this.DirectLightDirection[0]);
+						dnaEffect.Parameters["LightColor1"].SetValue(this.DirectLightColor[0]);
+						dnaEffect.Parameters["LightDirection2"].SetValue(-this.DirectLightDirection[1]);
+						dnaEffect.Parameters["LightColor2"].SetValue(this.DirectLightColor[1]);
+						dnaEffect.AmbientColor = ColorF.FromVector3(this.AmbientLight);
 					}
 				}
 				return base.SetEffectParams(mesh, effect, gameTime, world, view, projection);
@@ -160,8 +160,8 @@ namespace DNA.CastleMinerZ
 
 			protected override void OnUpdate(GameTime gameTime)
 			{
-				Vector3 vector = Vector3.Transform(new Vector3(0.1f, -0.3f, -0.25f), CastleMinerZGame.Instance.LocalPlayer.FPSCamera.LocalToWorld);
-				BlockTerrain.Instance.GetEnemyLighting(vector, ref this.DirectLightDirection[0], ref this.DirectLightColor[0], ref this.DirectLightDirection[1], ref this.DirectLightColor[1], ref this.AmbientLight);
+				Vector3 pos = Vector3.Transform(new Vector3(0.1f, -0.3f, -0.25f), CastleMinerZGame.Instance.LocalPlayer.FPSCamera.LocalToWorld);
+				BlockTerrain.Instance.GetEnemyLighting(pos, ref this.DirectLightDirection[0], ref this.DirectLightColor[0], ref this.DirectLightDirection[1], ref this.DirectLightColor[1], ref this.AmbientLight);
 				base.OnUpdate(gameTime);
 			}
 

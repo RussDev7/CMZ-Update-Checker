@@ -36,13 +36,13 @@ namespace DNA.CastleMinerZ.UI
 			this.adRect = new Rectangle((int)((float)Screen.Adjuster.ScreenRect.Width * 0.6f), Screen.Adjuster.ScreenRect.Height / 4, (int)((float)CastleMinerZGame.Instance.CMZREAd.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)CastleMinerZGame.Instance.CMZREAd.Height * Screen.Adjuster.ScaleFactor.Y));
 			Rectangle screenRect = Screen.Adjuster.ScreenRect;
 			spriteBatch.Begin();
-			string gamertag = Screen.CurrentGamer.Gamertag;
-			spriteBatch.DrawOutlinedText(this._game._myriadMed, gamertag, Vector2.Zero, Color.White, Color.Black, 1);
-			this._nameRect = new Rectangle(0, 0, (int)this._game._myriadMed.MeasureString(gamertag).X, (int)this._game._myriadMed.MeasureString(gamertag).Y);
-			int num = (int)(512f * Screen.Adjuster.ScaleFactor.Y);
-			int num2 = this._game.Logo.Height * num / this._game.Logo.Width;
-			this._game.Logo.Draw(spriteBatch, new Rectangle(Screen.Adjuster.ScreenRect.Center.X - num / 2, 0, num, num2), Color.White);
-			this.DrawArea = new Rectangle?(new Rectangle(0, (int)((double)num2 * 0.75), (int)((float)(Screen.Adjuster.ScreenRect.Width / 2) - 125f * Screen.Adjuster.ScaleFactor.X), Screen.Adjuster.ScreenRect.Height - num2));
+			string playerName = Screen.CurrentGamer.Gamertag;
+			spriteBatch.DrawOutlinedText(this._game._myriadMed, playerName, Vector2.Zero, Color.White, Color.Black, 1);
+			this._nameRect = new Rectangle(0, 0, (int)this._game._myriadMed.MeasureString(playerName).X, (int)this._game._myriadMed.MeasureString(playerName).Y);
+			int width = (int)(512f * Screen.Adjuster.ScaleFactor.Y);
+			int height = this._game.Logo.Height * width / this._game.Logo.Width;
+			this._game.Logo.Draw(spriteBatch, new Rectangle(Screen.Adjuster.ScreenRect.Center.X - width / 2, 0, width, height), Color.White);
+			this.DrawArea = new Rectangle?(new Rectangle(0, (int)((double)height * 0.75), (int)((float)(Screen.Adjuster.ScreenRect.Width / 2) - 125f * Screen.Adjuster.ScaleFactor.X), Screen.Adjuster.ScreenRect.Height - height));
 			spriteBatch.Draw(this.adSel ? CastleMinerZGame.Instance.CMZREAdSel : CastleMinerZGame.Instance.CMZREAd, this.adRect, Color.White);
 			spriteBatch.End();
 			base.OnDraw(device, spriteBatch, gameTime);
@@ -85,9 +85,9 @@ namespace DNA.CastleMinerZ.UI
 		protected override void OnUpdate(DNAGame game, GameTime gameTime)
 		{
 			this.purchaseControl.Visible = CastleMinerZGame.TrialMode;
-			bool flag = !CastleMinerZGame.TrialMode;
-			this.hostOnlineControl.TextColor = new Color?(flag ? CMZColors.MenuGreen : Color.Gray);
-			this.joinOnlineControl.TextColor = new Color?(flag ? CMZColors.MenuGreen : Color.Gray);
+			bool canPlayOnline = !CastleMinerZGame.TrialMode;
+			this.hostOnlineControl.TextColor = new Color?(canPlayOnline ? CMZColors.MenuGreen : Color.Gray);
+			this.joinOnlineControl.TextColor = new Color?(canPlayOnline ? CMZColors.MenuGreen : Color.Gray);
 			base.OnUpdate(game, gameTime);
 		}
 

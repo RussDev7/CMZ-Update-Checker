@@ -39,14 +39,14 @@ namespace DNA.CastleMinerZ.Achievements
 		{
 			get
 			{
-				int maxDaysSurvived = base.PlayerStats.MaxDaysSurvived;
-				if (this._lastAmount != maxDaysSurvived)
+				int total = base.PlayerStats.MaxDaysSurvived;
+				if (this._lastAmount != total)
 				{
-					this._lastAmount = maxDaysSurvived;
+					this._lastAmount = total;
 					this.lastString = string.Concat(new string[]
 					{
 						"(",
-						maxDaysSurvived.ToString(),
+						total.ToString(),
 						"/",
 						this._days.ToString(),
 						") ",

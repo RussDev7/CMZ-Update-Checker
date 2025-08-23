@@ -16,18 +16,18 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, Matrix m, Angle innacuracy, InventoryItemIDs item, bool addDropCompensation)
 		{
-			GunshotMessage sendInstance = Message.GetSendInstance<GunshotMessage>();
-			Vector3 vector = m.Forward;
+			GunshotMessage Instance = Message.GetSendInstance<GunshotMessage>();
+			Vector3 shot = m.Forward;
 			if (addDropCompensation)
 			{
-				vector += m.Up * 0.015f;
+				shot += m.Up * 0.015f;
 			}
-			Matrix matrix = Matrix.CreateRotationX(MathTools.RandomFloat(-innacuracy.Radians, innacuracy.Radians));
-			matrix *= Matrix.CreateRotationY(MathTools.RandomFloat(-innacuracy.Radians, innacuracy.Radians));
-			vector = Vector3.TransformNormal(vector, matrix);
-			sendInstance.Direction = Vector3.Normalize(vector);
-			sendInstance.ItemID = item;
-			sendInstance.DoSend(from);
+			Matrix mat = Matrix.CreateRotationX(MathTools.RandomFloat(-innacuracy.Radians, innacuracy.Radians));
+			mat *= Matrix.CreateRotationY(MathTools.RandomFloat(-innacuracy.Radians, innacuracy.Radians));
+			shot = Vector3.TransformNormal(shot, mat);
+			Instance.Direction = Vector3.Normalize(shot);
+			Instance.ItemID = item;
+			Instance.DoSend(from);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType

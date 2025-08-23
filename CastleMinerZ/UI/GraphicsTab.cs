@@ -13,9 +13,9 @@ namespace DNA.CastleMinerZ.UI
 	{
 		static GraphicsTab()
 		{
-			foreach (DisplayMode displayMode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
+			foreach (DisplayMode mode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
 			{
-				GraphicsTab._validResolutions[new Size(displayMode.Width, displayMode.Height)] = true;
+				GraphicsTab._validResolutions[new Size(mode.Width, mode.Height)] = true;
 			}
 		}
 
@@ -191,33 +191,33 @@ namespace DNA.CastleMinerZ.UI
 				this.prevScreenSize = Screen.Adjuster.ScreenRect;
 				this._fullScreen.Scale = (this._resolutionLabel.Scale = (this._resolutionDropList.Scale = (this._textureQualityLabel.Scale = (this._textureQualityDropList.Scale = (this._viewDistanceLabel.Scale = (this._viewDistanceDropList.Scale = (this._brightnessLabel.Scale = Screen.Adjuster.ScaleFactor.Y)))))));
 				this._musicVolumeLabel.Scale = (this._musicMute.Scale = (this._autoClimb.Scale = (this._fadeInactiveTray.Scale = Screen.Adjuster.ScaleFactor.Y)));
-				int num = (int)(50f * Screen.Adjuster.ScaleFactor.Y);
-				Point point = new Point(0, (int)(75f * Screen.Adjuster.ScaleFactor.Y));
-				int num2 = (int)(215f * Screen.Adjuster.ScaleFactor.Y);
-				this._resolutionLabel.LocalPosition = point;
-				this._resolutionDropList.LocalPosition = new Point(point.X + num2, point.Y);
-				this._fullScreen.LocalPosition = new Point(point.X + num2 * 2, point.Y);
-				point.Y += num;
-				this._autoClimb.LocalPosition = point;
-				point.X += num2;
-				this._fadeInactiveTray.LocalPosition = point;
-				point.X -= num2;
-				point.Y += num;
-				this._brightnessBar.Size = new Size((int)(185f * Screen.Adjuster.ScaleFactor.Y), num);
-				this._brightnessLabel.LocalPosition = point;
-				this._brightnessBar.LocalPosition = new Point(point.X + num2, point.Y + (int)(10f * Screen.Adjuster.ScaleFactor.Y));
-				this._brightnessBar.Size = new Size((int)(185f * Screen.Adjuster.ScaleFactor.Y), num);
-				point.Y += num;
-				this._viewDistanceLabel.LocalPosition = point;
-				this._viewDistanceDropList.LocalPosition = new Point(point.X + num2, point.Y);
-				point.Y += num;
-				this._textureQualityLabel.LocalPosition = point;
-				this._textureQualityDropList.LocalPosition = new Point(point.X + num2, point.Y);
-				point.Y += num;
-				this._musicVolumeLabel.LocalPosition = point;
-				this._musicVolumeTrack.LocalPosition = new Point(point.X + num2, point.Y + (int)(10f * Screen.Adjuster.ScaleFactor.Y));
-				this._musicVolumeTrack.Size = new Size((int)(185f * Screen.Adjuster.ScaleFactor.Y), num);
-				this._musicMute.LocalPosition = new Point(point.X + num2 * 2, point.Y + (int)(5f * Screen.Adjuster.ScaleFactor.Y));
+				int height = (int)(50f * Screen.Adjuster.ScaleFactor.Y);
+				Point loc = new Point(0, (int)(75f * Screen.Adjuster.ScaleFactor.Y));
+				int btnOffset = (int)(215f * Screen.Adjuster.ScaleFactor.Y);
+				this._resolutionLabel.LocalPosition = loc;
+				this._resolutionDropList.LocalPosition = new Point(loc.X + btnOffset, loc.Y);
+				this._fullScreen.LocalPosition = new Point(loc.X + btnOffset * 2, loc.Y);
+				loc.Y += height;
+				this._autoClimb.LocalPosition = loc;
+				loc.X += btnOffset;
+				this._fadeInactiveTray.LocalPosition = loc;
+				loc.X -= btnOffset;
+				loc.Y += height;
+				this._brightnessBar.Size = new Size((int)(185f * Screen.Adjuster.ScaleFactor.Y), height);
+				this._brightnessLabel.LocalPosition = loc;
+				this._brightnessBar.LocalPosition = new Point(loc.X + btnOffset, loc.Y + (int)(10f * Screen.Adjuster.ScaleFactor.Y));
+				this._brightnessBar.Size = new Size((int)(185f * Screen.Adjuster.ScaleFactor.Y), height);
+				loc.Y += height;
+				this._viewDistanceLabel.LocalPosition = loc;
+				this._viewDistanceDropList.LocalPosition = new Point(loc.X + btnOffset, loc.Y);
+				loc.Y += height;
+				this._textureQualityLabel.LocalPosition = loc;
+				this._textureQualityDropList.LocalPosition = new Point(loc.X + btnOffset, loc.Y);
+				loc.Y += height;
+				this._musicVolumeLabel.LocalPosition = loc;
+				this._musicVolumeTrack.LocalPosition = new Point(loc.X + btnOffset, loc.Y + (int)(10f * Screen.Adjuster.ScaleFactor.Y));
+				this._musicVolumeTrack.Size = new Size((int)(185f * Screen.Adjuster.ScaleFactor.Y), height);
+				this._musicMute.LocalPosition = new Point(loc.X + btnOffset * 2, loc.Y + (int)(5f * Screen.Adjuster.ScaleFactor.Y));
 			}
 			base.OnUpdate(game, gameTime);
 		}

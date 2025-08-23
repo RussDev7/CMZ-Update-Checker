@@ -29,27 +29,27 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public override Entity CreateEntity(ItemUse use, bool attachedToLocalPlayer)
 		{
-			CastleMinerToolModel castleMinerToolModel = new CastleMinerToolModel(this._model, use, attachedToLocalPlayer);
-			castleMinerToolModel.EnablePerPixelLighting();
+			CastleMinerToolModel ent = new CastleMinerToolModel(this._model, use, attachedToLocalPlayer);
+			ent.EnablePerPixelLighting();
 			switch (use)
 			{
 			case ItemUse.UI:
 			{
-				float num = 64f / castleMinerToolModel.GetLocalBoundingSphere().Radius;
-				castleMinerToolModel.LocalScale = new Vector3(num);
-				castleMinerToolModel.LocalRotation = Quaternion.Concatenate(Quaternion.CreateFromYawPitchRoll(-1.5f, 0f, -0.5f), Quaternion.CreateFromYawPitchRoll(1f, 0.2f, 0f));
-				castleMinerToolModel.LocalPosition = new Vector3(0f, 0f, 0f);
-				castleMinerToolModel.EnableDefaultLighting();
+				float scale = 64f / ent.GetLocalBoundingSphere().Radius;
+				ent.LocalScale = new Vector3(scale);
+				ent.LocalRotation = Quaternion.Concatenate(Quaternion.CreateFromYawPitchRoll(-1.5f, 0f, -0.5f), Quaternion.CreateFromYawPitchRoll(1f, 0.2f, 0f));
+				ent.LocalPosition = new Vector3(0f, 0f, 0f);
+				ent.EnableDefaultLighting();
 				break;
 			}
 			case ItemUse.Hand:
-				castleMinerToolModel.EnablePerPixelLighting();
+				ent.EnablePerPixelLighting();
 				break;
 			case ItemUse.Pickup:
-				castleMinerToolModel.EnablePerPixelLighting();
+				ent.EnablePerPixelLighting();
 				break;
 			}
-			return castleMinerToolModel;
+			return ent;
 		}
 
 		public GrenadeTypeEnum GrenadeType;

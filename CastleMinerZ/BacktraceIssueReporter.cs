@@ -78,17 +78,17 @@ namespace DNA.CastleMinerZ
 			{
 				if (!this._clientCreated)
 				{
-					BacktraceCredentials backtraceCredentials = new BacktraceCredentials("https://ddna.sp.backtrace.io:6098", "c1063bda6b0c2a2e5b0497799d94d290f3678bfd1a6b90f615869c63b61349a8");
-					BacktraceClientConfiguration backtraceClientConfiguration = new BacktraceClientConfiguration(backtraceCredentials);
-					Dictionary<string, object> dictionary = new Dictionary<string, object>();
-					dictionary["version"] = this._version.ToString();
-					dictionary["assembly"] = Assembly.GetExecutingAssembly().GetName().Name;
+					BacktraceCredentials credentials = new BacktraceCredentials("https://ddna.sp.backtrace.io:6098", "c1063bda6b0c2a2e5b0497799d94d290f3678bfd1a6b90f615869c63b61349a8");
+					BacktraceClientConfiguration cfg = new BacktraceClientConfiguration(credentials);
+					Dictionary<string, object> baseAttr = new Dictionary<string, object>();
+					baseAttr["version"] = this._version.ToString();
+					baseAttr["assembly"] = Assembly.GetExecutingAssembly().GetName().Name;
 					if (this._userID != 0UL)
 					{
-						dictionary["userid_hash"] = BacktraceIssueReporter.HashSteamId(this._userID);
+						baseAttr["userid_hash"] = BacktraceIssueReporter.HashSteamId(this._userID);
 					}
-					backtraceClientConfiguration.ClientAttributes = dictionary;
-					this._client = new BacktraceClient(backtraceClientConfiguration, null);
+					cfg.ClientAttributes = baseAttr;
+					this._client = new BacktraceClient(cfg, null);
 					this._clientCreated = true;
 				}
 			}
@@ -103,11 +103,11 @@ namespace DNA.CastleMinerZ
 					ex = new Exception("Unknown exception (null)");
 				}
 				this.EnsureClientCreated();
-				StackTrace stackTrace = new StackTrace(ex, true);
-				Dictionary<string, object> dictionary = new Dictionary<string, object>();
-				dictionary["managed_stack"] = stackTrace.ToString();
-				dictionary["exception_source"] = sourceTag;
-				this._client.Send(new BacktraceReport(ex, dictionary, null, true));
+				StackTrace st = new StackTrace(ex, true);
+				Dictionary<string, object> attrs = new Dictionary<string, object>();
+				attrs["managed_stack"] = st.ToString();
+				attrs["exception_source"] = sourceTag;
+				this._client.Send(new BacktraceReport(ex, attrs, null, true));
 			}
 			catch
 			{
@@ -116,20 +116,20 @@ namespace DNA.CastleMinerZ
 
 		private static string HashSteamId(ulong steamId)
 		{
-			string text = steamId.ToString() + "CastleMinerZSecretSalt2025";
-			string text2;
+			string input = steamId.ToString() + "CastleMinerZSecretSalt2025";
+			string text;
 			using (SHA256 sha = SHA256.Create())
 			{
-				byte[] bytes = Encoding.UTF8.GetBytes(text);
-				byte[] array = sha.ComputeHash(bytes);
-				StringBuilder stringBuilder = new StringBuilder(array.Length * 2);
-				foreach (byte b in array)
+				byte[] bytes = Encoding.UTF8.GetBytes(input);
+				byte[] hash = sha.ComputeHash(bytes);
+				StringBuilder sb = new StringBuilder(hash.Length * 2);
+				foreach (byte b in hash)
 				{
-					stringBuilder.Append(b.ToString("x2"));
+					sb.Append(b.ToString("x2"));
 				}
-				text2 = stringBuilder.ToString();
+				text = sb.ToString();
 			}
-			return text2;
+			return text;
 		}
 
 		private const string BacktraceUrl = "https://ddna.sp.backtrace.io:6098";

@@ -18,7 +18,7 @@ namespace DNA.CastleMinerZ.UI
 			this._inGame = inGame;
 			this._game = CastleMinerZGame.Instance;
 			this._controlsFont = this._game._medFont;
-			Color color = new Color(CMZColors.MenuGreen.ToVector4() * 0.8f);
+			Color btnColor = new Color(CMZColors.MenuGreen.ToVector4() * 0.8f);
 			this._restartDialog = new PCDialogScreen(Strings.Restart_Game, Strings.Are_you_sure_you_want_to_restart_this_game_, null, true, this._game.DialogScreenImage, this._game._myriadMed, true, this._game.ButtonFrame);
 			this._restartDialog.UseDefaultValues();
 			this._playerDropList.Frame = this._game.ButtonFrame;
@@ -48,7 +48,7 @@ namespace DNA.CastleMinerZ.UI
 			this._restartButton.Font = this._controlsFont;
 			this._restartButton.Frame = this._game.ButtonFrame;
 			this._restartButton.Pressed += this._restartButton_Pressed;
-			this._restartButton.ButtonColor = color;
+			this._restartButton.ButtonColor = btnColor;
 			base.Children.Add(this._restartButton);
 			this._pvpLabel = new TextControl("PVP:", this._controlsFont);
 			base.Children.Add(this._pvpLabel);
@@ -94,10 +94,10 @@ namespace DNA.CastleMinerZ.UI
 			this._playerDropList.Items.Add(new HostOptionsTab.PlayerItem(null));
 			for (int i = 0; i < this._game.CurrentNetworkSession.RemoteGamers.Count; i++)
 			{
-				NetworkGamer networkGamer = this._game.CurrentNetworkSession.RemoteGamers[i];
-				if (networkGamer.Tag != null)
+				NetworkGamer gamer = this._game.CurrentNetworkSession.RemoteGamers[i];
+				if (gamer.Tag != null)
 				{
-					Player player = (Player)networkGamer.Tag;
+					Player player = (Player)gamer.Tag;
 					this._playerDropList.Items.Add(new HostOptionsTab.PlayerItem(player));
 				}
 			}
@@ -157,26 +157,26 @@ namespace DNA.CastleMinerZ.UI
 			{
 				this.prevScreenSize = Screen.Adjuster.ScreenRect;
 				this._playerDropList.Scale = (this._kickPlayerButton.Scale = (this._banPlayerButton.Scale = (this._clearBanListButton.Scale = (this._restartButton.Scale = (this._pvpLabel.Scale = (this._pvpDropList.Scale = (this._passwordLabel.Scale = (this._passwordTextbox.Scale = (this._serverMessageLabel.Scale = (this._serverMessageTextbox.Scale = (this._whoCanJoinLabel.Scale = (this._whoCanJoinDropList.Scale = Screen.Adjuster.ScaleFactor.Y))))))))))));
-				int num = (int)(50f * Screen.Adjuster.ScaleFactor.Y);
-				Point point = new Point(0, (int)(75f * Screen.Adjuster.ScaleFactor.Y));
-				int num2 = (int)(210f * Screen.Adjuster.ScaleFactor.Y);
+				int height = (int)(50f * Screen.Adjuster.ScaleFactor.Y);
+				Point loc = new Point(0, (int)(75f * Screen.Adjuster.ScaleFactor.Y));
+				int btnOffset = (int)(210f * Screen.Adjuster.ScaleFactor.Y);
 				this._restartButton.LocalPosition = new Point((int)(140f * Screen.Adjuster.ScaleFactor.Y), this.Size.Height - (int)(40f * Screen.Adjuster.ScaleFactor.Y));
-				this._pvpLabel.LocalPosition = point;
-				this._pvpDropList.LocalPosition = new Point(point.X + num2, point.Y);
-				point.Y += num;
-				this._serverMessageLabel.LocalPosition = point;
-				this._serverMessageTextbox.LocalPosition = new Point(point.X + num2, point.Y);
-				point.Y += num;
-				this._passwordLabel.LocalPosition = point;
-				this._passwordTextbox.LocalPosition = new Point(point.X + num2, point.Y);
-				point.Y += num;
-				this._whoCanJoinLabel.LocalPosition = point;
-				this._whoCanJoinDropList.LocalPosition = new Point(point.X + num2, point.Y);
-				point.Y += num;
-				this._playerDropList.LocalPosition = point;
-				this._kickPlayerButton.LocalPosition = new Point(point.X + num2, point.Y);
-				this._banPlayerButton.LocalPosition = new Point(point.X + num2 * 2, point.Y);
-				this._clearBanListButton.LocalPosition = new Point(point.X + num2 * 3, point.Y);
+				this._pvpLabel.LocalPosition = loc;
+				this._pvpDropList.LocalPosition = new Point(loc.X + btnOffset, loc.Y);
+				loc.Y += height;
+				this._serverMessageLabel.LocalPosition = loc;
+				this._serverMessageTextbox.LocalPosition = new Point(loc.X + btnOffset, loc.Y);
+				loc.Y += height;
+				this._passwordLabel.LocalPosition = loc;
+				this._passwordTextbox.LocalPosition = new Point(loc.X + btnOffset, loc.Y);
+				loc.Y += height;
+				this._whoCanJoinLabel.LocalPosition = loc;
+				this._whoCanJoinDropList.LocalPosition = new Point(loc.X + btnOffset, loc.Y);
+				loc.Y += height;
+				this._playerDropList.LocalPosition = loc;
+				this._kickPlayerButton.LocalPosition = new Point(loc.X + btnOffset, loc.Y);
+				this._banPlayerButton.LocalPosition = new Point(loc.X + btnOffset * 2, loc.Y);
+				this._clearBanListButton.LocalPosition = new Point(loc.X + btnOffset * 3, loc.Y);
 			}
 			base.OnUpdate(game, gameTime);
 		}
@@ -196,20 +196,20 @@ namespace DNA.CastleMinerZ.UI
 		private void _pvpStr_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			this._game.PVPState = (CastleMinerZGame.PVPEnum)this._pvpDropList.SelectedIndex;
-			string text = "";
+			string txt = "";
 			switch (this._game.PVPState)
 			{
 			case CastleMinerZGame.PVPEnum.Off:
-				text = "PVP: " + Strings.Off;
+				txt = "PVP: " + Strings.Off;
 				break;
 			case CastleMinerZGame.PVPEnum.Everyone:
-				text = "PVP: " + Strings.Everyone;
+				txt = "PVP: " + Strings.Everyone;
 				break;
 			case CastleMinerZGame.PVPEnum.NotFriends:
-				text = "PVP: " + Strings.Non_Friends_Only;
+				txt = "PVP: " + Strings.Non_Friends_Only;
 				break;
 			}
-			BroadcastTextMessage.Send(this._game.MyNetworkGamer, text);
+			BroadcastTextMessage.Send(this._game.MyNetworkGamer, txt);
 		}
 
 		private void _restartButton_Pressed(object sender, EventArgs e)

@@ -35,8 +35,8 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public static Entity CreateEntity(InventoryItemIDs id, ItemUse use, bool attachedToLocalPlayer)
 		{
-			InventoryItem.InventoryItemClass @class = InventoryItem.GetClass(id);
-			return @class.CreateEntity(use, attachedToLocalPlayer);
+			InventoryItem.InventoryItemClass item = InventoryItem.GetClass(id);
+			return item.CreateEntity(use, attachedToLocalPlayer);
 		}
 
 		public static void Initalize(ContentManager content)
@@ -71,92 +71,92 @@ namespace DNA.CastleMinerZ.Inventory
 			InventoryItem.RegisterItemClass(new BlockInventoryItemClass(InventoryItemIDs.DiamondContainer, BlockTypeEnum.CrateDiamond, Strings.Used_for_storing_items, 0.1f));
 			InventoryItem.RegisterItemClass(new BlockInventoryItemClass(InventoryItemIDs.BloodstoneContainer, BlockTypeEnum.CrateBloodstone, Strings.Used_for_storing_items, 0.1f));
 			InventoryItem.RegisterItemClass(new BlockInventoryItemClass(InventoryItemIDs.LanternFancyBlock, BlockTypeEnum.LanternFancy, Strings.Lights_the_world + ". " + Strings.More_durable_than_a_torch, 0.075f));
-			Model model = content.Load<Model>("Props\\Tools\\PickAxe\\Model");
-			InventoryItem.RegisterItemClass(new PickInventoryItemClass(InventoryItemIDs.StonePickAxe, ToolMaterialTypes.Stone, model, Strings.Stone_PickAxe, Strings.Used_for_breaking_certain_stones_and_ores, 0.1f));
-			InventoryItem.RegisterItemClass(new PickInventoryItemClass(InventoryItemIDs.CopperPickAxe, ToolMaterialTypes.Copper, model, Strings.Copper_PickAxe, Strings.Used_for_breaking_certain_stones_and_ores, 0.2f));
-			InventoryItem.RegisterItemClass(new PickInventoryItemClass(InventoryItemIDs.IronPickAxe, ToolMaterialTypes.Iron, model, Strings.Iron_PickAxe, Strings.Used_for_breaking_certain_stones_and_ores, 0.4f));
-			InventoryItem.RegisterItemClass(new PickInventoryItemClass(InventoryItemIDs.GoldPickAxe, ToolMaterialTypes.Gold, model, Strings.Gold_PickAxe, Strings.Used_for_breaking_certain_stones_and_ores, 0.8f));
-			InventoryItem.RegisterItemClass(new PickInventoryItemClass(InventoryItemIDs.DiamondPickAxe, ToolMaterialTypes.Diamond, model, Strings.Diamond_PickAxe, Strings.Used_for_breaking_certain_stones_and_ores, 1.6f));
-			InventoryItem.RegisterItemClass(new PickInventoryItemClass(InventoryItemIDs.BloodstonePickAxe, ToolMaterialTypes.BloodStone, model, Strings.BloodStone_PickAxe, Strings.Used_for_breaking_certain_stones_and_ores, 3f));
-			Model model2 = content.Load<Model>("Props\\Weapons\\Space\\Saber\\Model");
-			InventoryItem.RegisterItemClass(new SaberInventoryItemClass(InventoryItemIDs.CopperLaserSword, ToolMaterialTypes.Copper, model2, Strings.Copper_Laser_Sword, Strings.Advanced_melee_and_mining_tool, 8f));
-			InventoryItem.RegisterItemClass(new SaberInventoryItemClass(InventoryItemIDs.IronLaserSword, ToolMaterialTypes.Iron, model2, Strings.Iron_Laser_Sword, Strings.Advanced_melee_and_mining_tool, 8f));
-			InventoryItem.RegisterItemClass(new SaberInventoryItemClass(InventoryItemIDs.GoldLaserSword, ToolMaterialTypes.Gold, model2, Strings.Gold_Laser_Sword, Strings.Advanced_melee_and_mining_tool, 8f));
-			InventoryItem.RegisterItemClass(new SaberInventoryItemClass(InventoryItemIDs.DiamondLaserSword, ToolMaterialTypes.Diamond, model2, Strings.Diamond_Laser_Sword, Strings.Advanced_melee_and_mining_tool, 8f));
-			InventoryItem.RegisterItemClass(new SaberInventoryItemClass(InventoryItemIDs.BloodStoneLaserSword, ToolMaterialTypes.BloodStone, model2, Strings.BloodStone_Laser_Sword, Strings.Advanced_melee_and_mining_tool, 8f));
-			Model model3 = content.Load<Model>("Props\\Tools\\Spade\\Model");
-			InventoryItem.RegisterItemClass(new SpadeInventoryClass(InventoryItemIDs.StoneSpade, ToolMaterialTypes.Stone, model3, Strings.Stone_Spade, Strings.Used_for_digging_dirt_and_sand + ". " + Strings.Also_removes_C4_and_TNT, 0.1f));
-			InventoryItem.RegisterItemClass(new SpadeInventoryClass(InventoryItemIDs.CopperSpade, ToolMaterialTypes.Copper, model3, Strings.Copper_Spade, Strings.Used_for_digging_dirt_and_sand + ". " + Strings.Also_removes_C4_and_TNT, 0.2f));
-			InventoryItem.RegisterItemClass(new SpadeInventoryClass(InventoryItemIDs.IronSpade, ToolMaterialTypes.Iron, model3, Strings.Iron_Spade, Strings.Used_for_digging_dirt_and_sand + ". " + Strings.Also_removes_C4_and_TNT, 0.4f));
-			InventoryItem.RegisterItemClass(new SpadeInventoryClass(InventoryItemIDs.GoldSpade, ToolMaterialTypes.Gold, model3, Strings.Gold_Spade, Strings.Used_for_digging_dirt_and_sand + ". " + Strings.Also_removes_C4_and_TNT, 0.8f));
-			InventoryItem.RegisterItemClass(new SpadeInventoryClass(InventoryItemIDs.DiamondSpade, ToolMaterialTypes.Diamond, model3, Strings.Diamond_Spade, Strings.Used_for_digging_dirt_and_sand + ". " + Strings.Also_removes_C4_and_TNT, 1.6f));
-			Model model4 = content.Load<Model>("Props\\Tools\\Axe\\Model");
-			InventoryItem.RegisterItemClass(new AxeInventoryClass(InventoryItemIDs.StoneAxe, ToolMaterialTypes.Stone, model4, Strings.Stone_Axe, Strings.Used_for_chopping_wood + ". " + Strings.Can_also_be_used_for_basic_melee_defense, 0.15f));
-			InventoryItem.RegisterItemClass(new AxeInventoryClass(InventoryItemIDs.CopperAxe, ToolMaterialTypes.Copper, model4, Strings.Copper_Axe, Strings.Used_for_chopping_wood + ". " + Strings.Can_also_be_used_for_basic_melee_defense, 0.3f));
-			InventoryItem.RegisterItemClass(new AxeInventoryClass(InventoryItemIDs.IronAxe, ToolMaterialTypes.Iron, model4, Strings.Iron_Axe, Strings.Used_for_chopping_wood + ". " + Strings.Can_also_be_used_for_basic_melee_defense, 0.5f));
-			InventoryItem.RegisterItemClass(new AxeInventoryClass(InventoryItemIDs.GoldAxe, ToolMaterialTypes.Gold, model4, Strings.Gold_Axe, Strings.Used_for_chopping_wood + ". " + Strings.Can_also_be_used_for_basic_melee_defense, 1f));
-			InventoryItem.RegisterItemClass(new AxeInventoryClass(InventoryItemIDs.DiamondAxe, ToolMaterialTypes.Diamond, model4, Strings.Diamond_Axe, Strings.Used_for_chopping_wood + ". " + Strings.Can_also_be_used_for_basic_melee_defense, 2f));
-			Model model5 = content.Load<Model>("Props\\Tools\\Chainsaw\\Model");
-			InventoryItem.RegisterItemClass(new ChainsawInventoryItemClass(InventoryItemIDs.Chainsaw1, ToolMaterialTypes.BloodStone, model5, Strings.Chainsaw_1, Strings.Used_for_chopping_wood + ". " + Strings.Can_also_be_used_for_basic_melee_defense, 5f));
-			Model model6 = content.Load<Model>("Props\\Items\\Ammo\\Model");
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.BrassCasing, model6, Strings.Brass_Casing, Strings.Used_for_making_ammunition, 5000, TimeSpan.FromSeconds(0.3), Color.Transparent, CMZColors.Brass));
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.IronCasing, model6, Strings.Iron_Casing, Strings.Used_for_making_ammunition, 5000, TimeSpan.FromSeconds(0.3), Color.Transparent, CMZColors.Iron));
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.GoldCasing, model6, Strings.Gold_Casing, Strings.Used_for_making_ammunition, 5000, TimeSpan.FromSeconds(0.3), Color.Transparent, CMZColors.Gold));
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.DiamondCasing, model6, Strings.Diamond_Casing, Strings.Used_for_making_ammunition, 5000, TimeSpan.FromSeconds(0.3), Color.Transparent, CMZColors.Diamond));
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.Bullets, model6, Strings.Bullets, Strings.Ammo_for_conventional_weapons, 5000, TimeSpan.FromSeconds(0.3), Color.DarkGray, CMZColors.Brass));
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.IronBullets, model6, Strings.Iron_Bullets, Strings.Ammo_for_gold_weapons, 5000, TimeSpan.FromSeconds(0.3), Color.LightGray, CMZColors.Brass));
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.GoldBullets, model6, Strings.Gold_Bullets, Strings.Ammo_for_diamond_weapons, 5000, TimeSpan.FromSeconds(0.3), new Color(255, 215, 0), CMZColors.Iron));
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.DiamondBullets, model6, Strings.Diamond_Bullets, Strings.Ammo_for_bloodstone, 5000, TimeSpan.FromSeconds(0.3), Color.Cyan, CMZColors.Gold));
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.BloodStoneBullets, model6, Strings.BloodStone_Bullets, "", 5000, TimeSpan.FromSeconds(0.3), Color.DarkRed, CMZColors.Diamond));
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.LaserBullets, model6, Strings.Laser_Bullets, Strings.Ammo_for_laser_weapons, 5000, TimeSpan.FromSeconds(0.3), Color.LimeGreen, CMZColors.Stone));
-			Model model7 = content.Load<Model>("Props\\Weapons\\Conventional\\RPG\\RPGGrenade");
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.RocketAmmo, model7, Strings.Rockets, Strings.Ammo_for_rocket_launchers, 5000, TimeSpan.FromSeconds(0.3), Color.DarkGray, CMZColors.Brass));
+			Model pickaxeModel = content.Load<Model>("Props\\Tools\\PickAxe\\Model");
+			InventoryItem.RegisterItemClass(new PickInventoryItemClass(InventoryItemIDs.StonePickAxe, ToolMaterialTypes.Stone, pickaxeModel, Strings.Stone_PickAxe, Strings.Used_for_breaking_certain_stones_and_ores, 0.1f));
+			InventoryItem.RegisterItemClass(new PickInventoryItemClass(InventoryItemIDs.CopperPickAxe, ToolMaterialTypes.Copper, pickaxeModel, Strings.Copper_PickAxe, Strings.Used_for_breaking_certain_stones_and_ores, 0.2f));
+			InventoryItem.RegisterItemClass(new PickInventoryItemClass(InventoryItemIDs.IronPickAxe, ToolMaterialTypes.Iron, pickaxeModel, Strings.Iron_PickAxe, Strings.Used_for_breaking_certain_stones_and_ores, 0.4f));
+			InventoryItem.RegisterItemClass(new PickInventoryItemClass(InventoryItemIDs.GoldPickAxe, ToolMaterialTypes.Gold, pickaxeModel, Strings.Gold_PickAxe, Strings.Used_for_breaking_certain_stones_and_ores, 0.8f));
+			InventoryItem.RegisterItemClass(new PickInventoryItemClass(InventoryItemIDs.DiamondPickAxe, ToolMaterialTypes.Diamond, pickaxeModel, Strings.Diamond_PickAxe, Strings.Used_for_breaking_certain_stones_and_ores, 1.6f));
+			InventoryItem.RegisterItemClass(new PickInventoryItemClass(InventoryItemIDs.BloodstonePickAxe, ToolMaterialTypes.BloodStone, pickaxeModel, Strings.BloodStone_PickAxe, Strings.Used_for_breaking_certain_stones_and_ores, 3f));
+			Model saberModel = content.Load<Model>("Props\\Weapons\\Space\\Saber\\Model");
+			InventoryItem.RegisterItemClass(new SaberInventoryItemClass(InventoryItemIDs.CopperLaserSword, ToolMaterialTypes.Copper, saberModel, Strings.Copper_Laser_Sword, Strings.Advanced_melee_and_mining_tool, 8f));
+			InventoryItem.RegisterItemClass(new SaberInventoryItemClass(InventoryItemIDs.IronLaserSword, ToolMaterialTypes.Iron, saberModel, Strings.Iron_Laser_Sword, Strings.Advanced_melee_and_mining_tool, 8f));
+			InventoryItem.RegisterItemClass(new SaberInventoryItemClass(InventoryItemIDs.GoldLaserSword, ToolMaterialTypes.Gold, saberModel, Strings.Gold_Laser_Sword, Strings.Advanced_melee_and_mining_tool, 8f));
+			InventoryItem.RegisterItemClass(new SaberInventoryItemClass(InventoryItemIDs.DiamondLaserSword, ToolMaterialTypes.Diamond, saberModel, Strings.Diamond_Laser_Sword, Strings.Advanced_melee_and_mining_tool, 8f));
+			InventoryItem.RegisterItemClass(new SaberInventoryItemClass(InventoryItemIDs.BloodStoneLaserSword, ToolMaterialTypes.BloodStone, saberModel, Strings.BloodStone_Laser_Sword, Strings.Advanced_melee_and_mining_tool, 8f));
+			Model spadeModel = content.Load<Model>("Props\\Tools\\Spade\\Model");
+			InventoryItem.RegisterItemClass(new SpadeInventoryClass(InventoryItemIDs.StoneSpade, ToolMaterialTypes.Stone, spadeModel, Strings.Stone_Spade, Strings.Used_for_digging_dirt_and_sand + ". " + Strings.Also_removes_C4_and_TNT, 0.1f));
+			InventoryItem.RegisterItemClass(new SpadeInventoryClass(InventoryItemIDs.CopperSpade, ToolMaterialTypes.Copper, spadeModel, Strings.Copper_Spade, Strings.Used_for_digging_dirt_and_sand + ". " + Strings.Also_removes_C4_and_TNT, 0.2f));
+			InventoryItem.RegisterItemClass(new SpadeInventoryClass(InventoryItemIDs.IronSpade, ToolMaterialTypes.Iron, spadeModel, Strings.Iron_Spade, Strings.Used_for_digging_dirt_and_sand + ". " + Strings.Also_removes_C4_and_TNT, 0.4f));
+			InventoryItem.RegisterItemClass(new SpadeInventoryClass(InventoryItemIDs.GoldSpade, ToolMaterialTypes.Gold, spadeModel, Strings.Gold_Spade, Strings.Used_for_digging_dirt_and_sand + ". " + Strings.Also_removes_C4_and_TNT, 0.8f));
+			InventoryItem.RegisterItemClass(new SpadeInventoryClass(InventoryItemIDs.DiamondSpade, ToolMaterialTypes.Diamond, spadeModel, Strings.Diamond_Spade, Strings.Used_for_digging_dirt_and_sand + ". " + Strings.Also_removes_C4_and_TNT, 1.6f));
+			Model axeModel = content.Load<Model>("Props\\Tools\\Axe\\Model");
+			InventoryItem.RegisterItemClass(new AxeInventoryClass(InventoryItemIDs.StoneAxe, ToolMaterialTypes.Stone, axeModel, Strings.Stone_Axe, Strings.Used_for_chopping_wood + ". " + Strings.Can_also_be_used_for_basic_melee_defense, 0.15f));
+			InventoryItem.RegisterItemClass(new AxeInventoryClass(InventoryItemIDs.CopperAxe, ToolMaterialTypes.Copper, axeModel, Strings.Copper_Axe, Strings.Used_for_chopping_wood + ". " + Strings.Can_also_be_used_for_basic_melee_defense, 0.3f));
+			InventoryItem.RegisterItemClass(new AxeInventoryClass(InventoryItemIDs.IronAxe, ToolMaterialTypes.Iron, axeModel, Strings.Iron_Axe, Strings.Used_for_chopping_wood + ". " + Strings.Can_also_be_used_for_basic_melee_defense, 0.5f));
+			InventoryItem.RegisterItemClass(new AxeInventoryClass(InventoryItemIDs.GoldAxe, ToolMaterialTypes.Gold, axeModel, Strings.Gold_Axe, Strings.Used_for_chopping_wood + ". " + Strings.Can_also_be_used_for_basic_melee_defense, 1f));
+			InventoryItem.RegisterItemClass(new AxeInventoryClass(InventoryItemIDs.DiamondAxe, ToolMaterialTypes.Diamond, axeModel, Strings.Diamond_Axe, Strings.Used_for_chopping_wood + ". " + Strings.Can_also_be_used_for_basic_melee_defense, 2f));
+			Model chainsawModel = content.Load<Model>("Props\\Tools\\Chainsaw\\Model");
+			InventoryItem.RegisterItemClass(new ChainsawInventoryItemClass(InventoryItemIDs.Chainsaw1, ToolMaterialTypes.BloodStone, chainsawModel, Strings.Chainsaw_1, Strings.Used_for_chopping_wood + ". " + Strings.Can_also_be_used_for_basic_melee_defense, 5f));
+			Model ammoModel = content.Load<Model>("Props\\Items\\Ammo\\Model");
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.BrassCasing, ammoModel, Strings.Brass_Casing, Strings.Used_for_making_ammunition, 5000, TimeSpan.FromSeconds(0.3), Color.Transparent, CMZColors.Brass));
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.IronCasing, ammoModel, Strings.Iron_Casing, Strings.Used_for_making_ammunition, 5000, TimeSpan.FromSeconds(0.3), Color.Transparent, CMZColors.Iron));
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.GoldCasing, ammoModel, Strings.Gold_Casing, Strings.Used_for_making_ammunition, 5000, TimeSpan.FromSeconds(0.3), Color.Transparent, CMZColors.Gold));
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.DiamondCasing, ammoModel, Strings.Diamond_Casing, Strings.Used_for_making_ammunition, 5000, TimeSpan.FromSeconds(0.3), Color.Transparent, CMZColors.Diamond));
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.Bullets, ammoModel, Strings.Bullets, Strings.Ammo_for_conventional_weapons, 5000, TimeSpan.FromSeconds(0.3), Color.DarkGray, CMZColors.Brass));
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.IronBullets, ammoModel, Strings.Iron_Bullets, Strings.Ammo_for_gold_weapons, 5000, TimeSpan.FromSeconds(0.3), Color.LightGray, CMZColors.Brass));
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.GoldBullets, ammoModel, Strings.Gold_Bullets, Strings.Ammo_for_diamond_weapons, 5000, TimeSpan.FromSeconds(0.3), new Color(255, 215, 0), CMZColors.Iron));
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.DiamondBullets, ammoModel, Strings.Diamond_Bullets, Strings.Ammo_for_bloodstone, 5000, TimeSpan.FromSeconds(0.3), Color.Cyan, CMZColors.Gold));
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.BloodStoneBullets, ammoModel, Strings.BloodStone_Bullets, "", 5000, TimeSpan.FromSeconds(0.3), Color.DarkRed, CMZColors.Diamond));
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.LaserBullets, ammoModel, Strings.Laser_Bullets, Strings.Ammo_for_laser_weapons, 5000, TimeSpan.FromSeconds(0.3), Color.LimeGreen, CMZColors.Stone));
+			Model rocketAmmo = content.Load<Model>("Props\\Weapons\\Conventional\\RPG\\RPGGrenade");
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.RocketAmmo, rocketAmmo, Strings.Rockets, Strings.Ammo_for_rocket_launchers, 5000, TimeSpan.FromSeconds(0.3), Color.DarkGray, CMZColors.Brass));
 			InventoryItem.RegisterItemClass(new RocketLauncherInventoryItemClass(InventoryItemIDs.RocketLauncher, Strings.Rocket_Launcher, Strings.Dumb_fired_projectile_grenade + ". " + Strings.Uses_Rockets, 100f, 1f, InventoryItem.GetClass(InventoryItemIDs.RocketAmmo)));
 			InventoryItem.RegisterItemClass(new RocketLauncherGuidedInventoryItemClass(InventoryItemIDs.RocketLauncherGuided, Strings.Anti_Dragon_Guided_Missile, Strings.Guided_missile_used_for_killing_dragons + ". " + Strings.Uses_Rockets, 100f, 1f, InventoryItem.GetClass(InventoryItemIDs.RocketAmmo)));
 			InventoryItem.RegisterItemClass(new RocketLauncherInventoryItemClass(InventoryItemIDs.RocketLauncherShotFired, "", "", 100f, 1f, InventoryItem.GetClass(InventoryItemIDs.RocketAmmo)));
 			InventoryItem.RegisterItemClass(new RocketLauncherInventoryItemClass(InventoryItemIDs.RocketLauncherGuidedShotFired, "", "", 100f, 1f, InventoryItem.GetClass(InventoryItemIDs.RocketAmmo)));
 			InventoryItem.RegisterItemClass(new GrenadeLauncherInventoryItemClass(InventoryItemIDs.BasicGrenadeLauncher, Strings.Grenade_Launcher, Strings.Dumb_fired_projectile_grenade + ". " + Strings.Uses_grenades_or_ball_projectiles_from_top_left_inventory_first, 100f, 1f, InventoryItem.GetClass(InventoryItemIDs.RocketAmmo)));
-			Model model8 = content.Load<Model>("Props\\Weapons\\Conventional\\Grenade\\Model");
-			InventoryItem.RegisterItemClass(new GrenadeInventoryItemClass(InventoryItemIDs.Grenade, model8, Strings.Grenade, Strings.Blow_up_Zombies, GrenadeTypeEnum.HE));
-			InventoryItem.RegisterItemClass(new GrenadeInventoryItemClass(InventoryItemIDs.StickyGrenade, model8, Strings.Sticky_Grenade, Strings.Sticks_to_terrain_and_zombies, GrenadeTypeEnum.Sticky));
-			InventoryItem.RegisterItemClass(new StickInventoryItemClass(InventoryItemIDs.Stick, Color.Gray, model, Strings.Wood_Stick, Strings.Use_this_to_make_various_items + ". " + Strings.Such_as_a_pickaxe_or_a_torch, 0.05f));
+			Model grenadeModel = content.Load<Model>("Props\\Weapons\\Conventional\\Grenade\\Model");
+			InventoryItem.RegisterItemClass(new GrenadeInventoryItemClass(InventoryItemIDs.Grenade, grenadeModel, Strings.Grenade, Strings.Blow_up_Zombies, GrenadeTypeEnum.HE));
+			InventoryItem.RegisterItemClass(new GrenadeInventoryItemClass(InventoryItemIDs.StickyGrenade, grenadeModel, Strings.Sticky_Grenade, Strings.Sticks_to_terrain_and_zombies, GrenadeTypeEnum.Sticky));
+			InventoryItem.RegisterItemClass(new StickInventoryItemClass(InventoryItemIDs.Stick, Color.Gray, pickaxeModel, Strings.Wood_Stick, Strings.Use_this_to_make_various_items + ". " + Strings.Such_as_a_pickaxe_or_a_torch, 0.05f));
 			InventoryItem.RegisterItemClass(new TorchInventoryItemClass());
 			InventoryItem.RegisterItemClass(new DoorInventoryItemClass(InventoryItemIDs.Door, BlockTypeEnum.NormalLowerDoor, DoorEntity.ModelNameEnum.Wood, Strings.Open_or_close_to_keep_monsters_out));
 			InventoryItem.RegisterItemClass(new DoorInventoryItemClass(InventoryItemIDs.IronDoor, BlockTypeEnum.StrongLowerDoor, DoorEntity.ModelNameEnum.Iron, Strings.Strong_Door_Description));
 			InventoryItem.RegisterItemClass(new DoorInventoryItemClass(InventoryItemIDs.DiamondDoor, BlockTypeEnum.StrongLowerDoor, DoorEntity.ModelNameEnum.Diamond, Strings.Strong_Door_Description));
 			InventoryItem.RegisterItemClass(new DoorInventoryItemClass(InventoryItemIDs.TechDoor, BlockTypeEnum.StrongLowerDoor, DoorEntity.ModelNameEnum.Tech, Strings.Strong_Door_Description));
-			Model model9 = content.Load<Model>("Props\\Items\\GunPowder\\Model");
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.GunPowder, model9, Strings.Gun_Powder, Strings.Used_to_craft_ammunition + ". " + Strings.This_is_a_raw_material_that_must_be_found, 64, TimeSpan.FromSeconds(0.30000001192092896), Color.Gray));
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.ExplosivePowder, model9, Strings.Explosive_Powder, Strings.Used_to_craft_explosives + ". " + Strings.Dropped_by_dragons_and_demons, 64, TimeSpan.FromSeconds(0.30000001192092896), Color.Red));
-			int num = 255;
-			Model model10 = content.Load<Model>("Props\\Items\\Ore\\Model");
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.Coal, model10, Strings.Coal, Strings.Used_to_craft_items + ". " + Strings.This_is_a_raw_material_that_must_be_found, num, TimeSpan.FromSeconds(0.30000001192092896), CMZColors.Coal, CMZColors.Coal));
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.IronOre, model10, Strings.Iron_Ore, Strings.Can_be_made_into_iron + ". " + Strings.This_is_a_raw_material_that_must_be_found, num, TimeSpan.FromSeconds(0.30000001192092896), CMZColors.IronOre, Color.Gray));
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.CopperOre, model10, Strings.Copper_Ore, Strings.Can_be_made_into_copper + ". " + Strings.This_is_a_raw_material_that_must_be_found, num, TimeSpan.FromSeconds(0.30000001192092896), CMZColors.CopperOre, Color.Gray));
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.GoldOre, model10, Strings.Gold_Ore, Strings.Can_be_made_into_gold + ". " + Strings.This_is_a_raw_material_that_must_be_found, num, TimeSpan.FromSeconds(0.30000001192092896), CMZColors.Gold, Color.Gray));
-			Model model11 = content.Load<Model>("Props\\Items\\Gems\\Model");
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.Diamond, model11, Strings.Diamond, Strings.Very_hard_substance + ". " + Strings.Used_to_make_diamond_tools, num, TimeSpan.FromSeconds(0.30000001192092896), CMZColors.Diamond, Color.Gray));
-			Model model12 = content.Load<Model>("Props\\Items\\Bars\\Model");
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.Iron, model12, Strings.Iron, Strings.Used_to_craft_items + ". " + Strings.Made_from_Iron_ore, num, TimeSpan.FromSeconds(0.30000001192092896), CMZColors.Iron, Color.Gray));
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.Copper, model12, Strings.Copper, Strings.Used_to_craft_items + ". " + Strings.Made_from_Copper_ore, num, TimeSpan.FromSeconds(0.30000001192092896), CMZColors.Copper, Color.Gray));
-			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.Gold, model12, Strings.Gold, Strings.Used_to_craft_items + ". " + Strings.Made_from_Gold_ore, num, TimeSpan.FromSeconds(0.30000001192092896), CMZColors.Gold, Color.Gray));
-			Model model13 = content.Load<Model>("Props\\Tools\\Compass\\Model");
-			InventoryItem.RegisterItemClass(new CompassInventoryItemClass(InventoryItemIDs.Compass, model13));
-			Model model14 = content.Load<Model>("Props\\Tools\\Locator\\Model");
-			Model model15 = content.Load<Model>("Props\\Tools\\Teleporter\\Model");
-			InventoryItem.RegisterItemClass(new GPSItemClass(InventoryItemIDs.GPS, model14, Strings.Locator, Strings.Show_the_direction_to_a_chosen_location_and_GPS_coordinates));
-			InventoryItem.RegisterItemClass(new GPSItemClass(InventoryItemIDs.TeleportGPS, model15, Strings.Teleporter, Strings.Show_the_direction_to_a_chosen_location_and_GPS_coordinates + ". " + Strings.Use_the_item_by_pressing_the_left_trigger_to_teleport_to_the_chosen_location));
+			Model gunPowderModel = content.Load<Model>("Props\\Items\\GunPowder\\Model");
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.GunPowder, gunPowderModel, Strings.Gun_Powder, Strings.Used_to_craft_ammunition + ". " + Strings.This_is_a_raw_material_that_must_be_found, 64, TimeSpan.FromSeconds(0.30000001192092896), Color.Gray));
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.ExplosivePowder, gunPowderModel, Strings.Explosive_Powder, Strings.Used_to_craft_explosives + ". " + Strings.Dropped_by_dragons_and_demons, 64, TimeSpan.FromSeconds(0.30000001192092896), Color.Red));
+			int oreStackLimit = 255;
+			Model oreModel = content.Load<Model>("Props\\Items\\Ore\\Model");
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.Coal, oreModel, Strings.Coal, Strings.Used_to_craft_items + ". " + Strings.This_is_a_raw_material_that_must_be_found, oreStackLimit, TimeSpan.FromSeconds(0.30000001192092896), CMZColors.Coal, CMZColors.Coal));
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.IronOre, oreModel, Strings.Iron_Ore, Strings.Can_be_made_into_iron + ". " + Strings.This_is_a_raw_material_that_must_be_found, oreStackLimit, TimeSpan.FromSeconds(0.30000001192092896), CMZColors.IronOre, Color.Gray));
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.CopperOre, oreModel, Strings.Copper_Ore, Strings.Can_be_made_into_copper + ". " + Strings.This_is_a_raw_material_that_must_be_found, oreStackLimit, TimeSpan.FromSeconds(0.30000001192092896), CMZColors.CopperOre, Color.Gray));
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.GoldOre, oreModel, Strings.Gold_Ore, Strings.Can_be_made_into_gold + ". " + Strings.This_is_a_raw_material_that_must_be_found, oreStackLimit, TimeSpan.FromSeconds(0.30000001192092896), CMZColors.Gold, Color.Gray));
+			Model gemModel = content.Load<Model>("Props\\Items\\Gems\\Model");
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.Diamond, gemModel, Strings.Diamond, Strings.Very_hard_substance + ". " + Strings.Used_to_make_diamond_tools, oreStackLimit, TimeSpan.FromSeconds(0.30000001192092896), CMZColors.Diamond, Color.Gray));
+			Model barModel = content.Load<Model>("Props\\Items\\Bars\\Model");
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.Iron, barModel, Strings.Iron, Strings.Used_to_craft_items + ". " + Strings.Made_from_Iron_ore, oreStackLimit, TimeSpan.FromSeconds(0.30000001192092896), CMZColors.Iron, Color.Gray));
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.Copper, barModel, Strings.Copper, Strings.Used_to_craft_items + ". " + Strings.Made_from_Copper_ore, oreStackLimit, TimeSpan.FromSeconds(0.30000001192092896), CMZColors.Copper, Color.Gray));
+			InventoryItem.RegisterItemClass(new ModelInventoryItemClass(InventoryItemIDs.Gold, barModel, Strings.Gold, Strings.Used_to_craft_items + ". " + Strings.Made_from_Gold_ore, oreStackLimit, TimeSpan.FromSeconds(0.30000001192092896), CMZColors.Gold, Color.Gray));
+			Model compassModel = content.Load<Model>("Props\\Tools\\Compass\\Model");
+			InventoryItem.RegisterItemClass(new CompassInventoryItemClass(InventoryItemIDs.Compass, compassModel));
+			Model locatorModel = content.Load<Model>("Props\\Tools\\Locator\\Model");
+			Model teleporterModel = content.Load<Model>("Props\\Tools\\Teleporter\\Model");
+			InventoryItem.RegisterItemClass(new GPSItemClass(InventoryItemIDs.GPS, locatorModel, Strings.Locator, Strings.Show_the_direction_to_a_chosen_location_and_GPS_coordinates));
+			InventoryItem.RegisterItemClass(new GPSItemClass(InventoryItemIDs.TeleportGPS, teleporterModel, Strings.Teleporter, Strings.Show_the_direction_to_a_chosen_location_and_GPS_coordinates + ". " + Strings.Use_the_item_by_pressing_the_left_trigger_to_teleport_to_the_chosen_location));
 			InventoryItem.RegisterItemClass(new BlockInventoryItemClass(InventoryItemIDs.SpawnBasic, BlockTypeEnum.SpawnPointBasic, Strings.Spawn_Point_Flavor, 0.1f));
 			InventoryItem.RegisterItemClass(new BlockInventoryItemClass(InventoryItemIDs.TeleportStation, BlockTypeEnum.TeleportStation, Strings.Teleport_Station_Description, 0.1f, 1));
-			Model model16 = content.Load<Model>("Props\\Tools\\Clock\\Model");
-			InventoryItem.RegisterItemClass(new ClockInventoryItemClass(InventoryItemIDs.Clock, model16));
+			Model clockModel = content.Load<Model>("Props\\Tools\\Clock\\Model");
+			InventoryItem.RegisterItemClass(new ClockInventoryItemClass(InventoryItemIDs.Clock, clockModel));
 			InventoryItem.RegisterItemClass(new LaserDrillInventoryItemClass(InventoryItemIDs.LaserDrill, ToolMaterialTypes.BloodStone, Strings.Laser_Drill, Strings.A_modified_Laser_Rifle_that_is_able_to_harvest_ore + "! " + Strings.Uses_Gold_Bullets, 0.2f, 0.0001f, InventoryItem.GetClass(InventoryItemIDs.GoldBullets)));
 			InventoryItem.RegisterItemClass(new BareHandInventoryItemClass());
-			Model model17 = content.Load<Model>("Props\\Weapons\\Conventional\\Knife\\Model");
-			InventoryItem.RegisterItemClass(new KnifeInventoryItemClass(InventoryItemIDs.Knife, model17, ToolMaterialTypes.Iron, Strings.Knife, Strings.Basic_Melee_Defense, 0.5f, 0.02f, TimeSpan.FromSeconds(0.5)));
-			InventoryItem.RegisterItemClass(new KnifeInventoryItemClass(InventoryItemIDs.GoldKnife, model17, ToolMaterialTypes.Gold, Strings.Gold_Knife, Strings.Basic_Melee_Defense, 1f, 0.01f, TimeSpan.FromSeconds(0.4)));
-			InventoryItem.RegisterItemClass(new KnifeInventoryItemClass(InventoryItemIDs.DiamondKnife, model17, ToolMaterialTypes.Diamond, Strings.Diamond_Knife, Strings.Basic_Melee_Defense, 2f, 0.005f, TimeSpan.FromSeconds(0.3)));
-			InventoryItem.RegisterItemClass(new KnifeInventoryItemClass(InventoryItemIDs.BloodStoneKnife, model17, ToolMaterialTypes.BloodStone, Strings.BloodStone_Knife, Strings.Basic_Melee_Defense, 4f, 0.0033333334f, TimeSpan.FromSeconds(0.25)));
+			Model knifeModel = content.Load<Model>("Props\\Weapons\\Conventional\\Knife\\Model");
+			InventoryItem.RegisterItemClass(new KnifeInventoryItemClass(InventoryItemIDs.Knife, knifeModel, ToolMaterialTypes.Iron, Strings.Knife, Strings.Basic_Melee_Defense, 0.5f, 0.02f, TimeSpan.FromSeconds(0.5)));
+			InventoryItem.RegisterItemClass(new KnifeInventoryItemClass(InventoryItemIDs.GoldKnife, knifeModel, ToolMaterialTypes.Gold, Strings.Gold_Knife, Strings.Basic_Melee_Defense, 1f, 0.01f, TimeSpan.FromSeconds(0.4)));
+			InventoryItem.RegisterItemClass(new KnifeInventoryItemClass(InventoryItemIDs.DiamondKnife, knifeModel, ToolMaterialTypes.Diamond, Strings.Diamond_Knife, Strings.Basic_Melee_Defense, 2f, 0.005f, TimeSpan.FromSeconds(0.3)));
+			InventoryItem.RegisterItemClass(new KnifeInventoryItemClass(InventoryItemIDs.BloodStoneKnife, knifeModel, ToolMaterialTypes.BloodStone, Strings.BloodStone_Knife, Strings.Basic_Melee_Defense, 4f, 0.0033333334f, TimeSpan.FromSeconds(0.25)));
 			InventoryItem.RegisterItemClass(new LaserARInventoryItemClass(InventoryItemIDs.IronSpaceAssultRifle, ToolMaterialTypes.Iron, Strings.Laser_Assault_Rifle, Strings.High_power_full_auto + ". " + Strings.Uses_Laser_Bullets, 15f, 0.0005f, InventoryItem.GetClass(InventoryItemIDs.LaserBullets)));
 			InventoryItem.RegisterItemClass(new LaserSMGClass(InventoryItemIDs.IronSpaceSMGGun, ToolMaterialTypes.Iron, Strings.Laser_Sub_Machine_Gun, Strings.High_rate_of_fire + ". " + Strings.Uses_Laser_Bullets, 10f, 0.0005f, InventoryItem.GetClass(InventoryItemIDs.LaserBullets)));
 			InventoryItem.RegisterItemClass(new LaserPistolClass(InventoryItemIDs.IronSpacePistol, ToolMaterialTypes.Iron, Strings.Laser_Pistol, Strings.Basic_semi_automatic_gun + ". " + Strings.Uses_Laser_Bullets, 10f, 0.0005f, InventoryItem.GetClass(InventoryItemIDs.LaserBullets)));
@@ -227,8 +227,8 @@ namespace DNA.CastleMinerZ.Inventory
 					InventoryItem._2DImagesLarge = null;
 				}
 			}
-			RasterizerState rasterizerState = device.RasterizerState;
-			DepthStencilState depthStencilState = device.DepthStencilState;
+			RasterizerState rs = device.RasterizerState;
+			DepthStencilState ds = device.DepthStencilState;
 			for (int i = 0; i < (GraphicsProfileManager.Instance.IsHiDef ? 2 : 1); i++)
 			{
 				if (i == 0)
@@ -241,35 +241,35 @@ namespace DNA.CastleMinerZ.Inventory
 					device.SetRenderTarget(InventoryItem._2DImagesLarge);
 					device.Viewport = new Viewport(0, 0, 1024, 2560);
 				}
-				Color color = new Color(0f, 0f, 0f, 0f);
-				device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, color, 1f, 0);
+				Color clearColor = new Color(0f, 0f, 0f, 0f);
+				device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, clearColor, 1f, 0);
 				device.RasterizerState = RasterizerState.CullCounterClockwise;
 				device.DepthStencilState = DepthStencilState.Default;
-				Matrix matrix = Matrix.CreateOrthographic(512f, 1280f, 0.1f, 500f);
+				Matrix projection = Matrix.CreateOrthographic(512f, 1280f, 0.1f, 500f);
 				GameTime gameTime = new GameTime();
-				BlockEntity.InitUIRendering(matrix);
-				foreach (InventoryItem.InventoryItemClass inventoryItemClass in InventoryItem.AllItems.Values)
+				BlockEntity.InitUIRendering(projection);
+				foreach (InventoryItem.InventoryItemClass item in InventoryItem.AllItems.Values)
 				{
-					int id = (int)inventoryItemClass.ID;
-					Entity entity = inventoryItemClass.CreateEntity(ItemUse.UI, false);
-					Vector3 vector = new Vector3((float)(-256 + (id & 7) * 64 + 32), (float)(-640 + id / 8 * 64 + 32), -200f);
-					vector.Y = -vector.Y;
-					entity.LocalPosition += vector;
+					int id = (int)item.ID;
+					Entity entity = item.CreateEntity(ItemUse.UI, false);
+					Vector3 position = new Vector3((float)(-256 + (id & 7) * 64 + 32), (float)(-640 + id / 8 * 64 + 32), -200f);
+					position.Y = -position.Y;
+					entity.LocalPosition += position;
 					entity.Update(CastleMinerZGame.Instance, gameTime);
-					entity.Draw(device, gameTime, Matrix.Identity, matrix);
+					entity.Draw(device, gameTime, Matrix.Identity, projection);
 				}
 			}
 			device.SetRenderTarget(CastleMinerZGame.Instance.OffScreenBuffer);
-			device.RasterizerState = rasterizerState;
-			device.DepthStencilState = depthStencilState;
+			device.RasterizerState = rs;
+			device.DepthStencilState = ds;
 		}
 
 		public static InventoryItem Create(BinaryReader reader)
 		{
-			InventoryItemIDs inventoryItemIDs = (InventoryItemIDs)reader.ReadInt16();
-			InventoryItem inventoryItem = InventoryItem.CreateItem(inventoryItemIDs, 0);
-			inventoryItem.Read(reader);
-			return inventoryItem;
+			InventoryItemIDs itemID = (InventoryItemIDs)reader.ReadInt16();
+			InventoryItem result = InventoryItem.CreateItem(itemID, 0);
+			result.Read(reader);
+			return result;
 		}
 
 		private bool ItemValidWithZeroStacks(InventoryItemIDs itemID)
@@ -360,16 +360,16 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public InventoryItem Split()
 		{
-			InventoryItem inventoryItem = InventoryItem.CreateItem(this.ItemClass.ID, this.StackCount / 2);
-			this.StackCount -= inventoryItem.StackCount;
-			return inventoryItem;
+			InventoryItem item = InventoryItem.CreateItem(this.ItemClass.ID, this.StackCount / 2);
+			this.StackCount -= item.StackCount;
+			return item;
 		}
 
 		public InventoryItem PopOneItem()
 		{
-			InventoryItem inventoryItem = InventoryItem.CreateItem(this.ItemClass.ID, 1);
+			InventoryItem item = InventoryItem.CreateItem(this.ItemClass.ID, 1);
 			this.StackCount--;
-			return inventoryItem;
+			return item;
 		}
 
 		public string Name
@@ -538,19 +538,19 @@ namespace DNA.CastleMinerZ.Inventory
 			}
 			if (controller.Use.Held || controller.Shoulder.Held)
 			{
-				BlockTypeEnum blockWithChanges = BlockTerrain.Instance.GetBlockWithChanges(hud.ConstructionProbe._worldIndex);
-				BlockType type = BlockType.GetType(blockWithChanges);
-				TimeSpan timeSpan = this.TimeToDig(type.ParentBlockType);
-				float num = (float)(this.DigTime.TotalSeconds / timeSpan.TotalSeconds);
-				CastleMinerZGame.Instance.GameScreen.CrackBox.CrackAmount = num;
-				if ((type._type == BlockTypeEnum.TNT || type._type == BlockTypeEnum.C4) && !(hud.ActiveInventoryItem.ItemClass is SpadeInventoryClass))
+				BlockTypeEnum bt = BlockTerrain.Instance.GetBlockWithChanges(hud.ConstructionProbe._worldIndex);
+				BlockType btt = BlockType.GetType(bt);
+				TimeSpan timeToDig = this.TimeToDig(btt.ParentBlockType);
+				float digblender = (float)(this.DigTime.TotalSeconds / timeToDig.TotalSeconds);
+				CastleMinerZGame.Instance.GameScreen.CrackBox.CrackAmount = digblender;
+				if ((btt._type == BlockTypeEnum.TNT || btt._type == BlockTypeEnum.C4) && !(hud.ActiveInventoryItem.ItemClass is SpadeInventoryClass))
 				{
 					if (controller.Use.Pressed || controller.Shoulder.Pressed)
 					{
-						hud.SetFuseForExplosive(hud.ConstructionProbe._worldIndex, (type._type == BlockTypeEnum.TNT) ? ExplosiveTypes.TNT : ExplosiveTypes.C4);
+						hud.SetFuseForExplosive(hud.ConstructionProbe._worldIndex, (btt._type == BlockTypeEnum.TNT) ? ExplosiveTypes.TNT : ExplosiveTypes.C4);
 					}
 				}
-				else if (type.IsItemEntity)
+				else if (btt.IsItemEntity)
 				{
 					CastleMinerZGame.Instance.GameScreen.CrackBox.CrackAmount = 0f;
 				}
@@ -573,7 +573,7 @@ namespace DNA.CastleMinerZ.Inventory
 						}
 						return;
 					}
-					if (this.DigTime >= timeSpan)
+					if (this.DigTime >= timeToDig)
 					{
 						hud.Dig(this, true);
 						this.DigTime = TimeSpan.Zero;
@@ -610,8 +610,8 @@ namespace DNA.CastleMinerZ.Inventory
 			{
 				this.sbuilder.Length = 0;
 				this.sbuilder.Concat(this.StackCount);
-				SpriteFont smallFont = CastleMinerZGame.Instance._smallFont;
-				spriteBatch.DrawOutlinedText(smallFont, this.sbuilder, new Vector2((float)(dest.X + 8), (float)(dest.Y + dest.Height - smallFont.LineSpacing)), Color.White, Color.Black, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
+				SpriteFont countFont = CastleMinerZGame.Instance._smallFont;
+				spriteBatch.DrawOutlinedText(countFont, this.sbuilder, new Vector2((float)(dest.X + 8), (float)(dest.Y + dest.Height - countFont.LineSpacing)), Color.White, Color.Black, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
 			}
 		}
 
@@ -833,19 +833,19 @@ namespace DNA.CastleMinerZ.Inventory
 					InventoryItem.FinishInitialization(batch.GraphicsDevice);
 				}
 				int id = (int)this.ID;
-				Texture2D texture2D;
-				Rectangle rectangle;
+				Texture2D texture;
+				Rectangle source;
 				if (InventoryItem._2DImagesLarge != null && (float)destRect.Width / 64f > 1.1f)
 				{
-					texture2D = InventoryItem._2DImagesLarge;
-					rectangle = new Rectangle((id & 7) * 64 * 2, id / 8 * 64 * 2, 128, 128);
+					texture = InventoryItem._2DImagesLarge;
+					source = new Rectangle((id & 7) * 64 * 2, id / 8 * 64 * 2, 128, 128);
 				}
 				else
 				{
-					texture2D = InventoryItem._2DImages;
-					rectangle = new Rectangle((id & 7) * 64, id / 8 * 64, 64, 64);
+					texture = InventoryItem._2DImages;
+					source = new Rectangle((id & 7) * 64, id / 8 * 64, 64, 64);
 				}
-				batch.Draw(texture2D, destRect, new Rectangle?(rectangle), color);
+				batch.Draw(texture, destRect, new Rectangle?(source), color);
 			}
 
 			public void Draw2D(SpriteBatch batch, Rectangle destRect)

@@ -14,12 +14,12 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, int enemyid, int targetid, byte killerid, InventoryItemIDs itemid)
 		{
-			KillEnemyMessage sendInstance = Message.GetSendInstance<KillEnemyMessage>();
-			sendInstance.EnemyID = enemyid;
-			sendInstance.TargetID = targetid;
-			sendInstance.WeaponID = itemid;
-			sendInstance.KillerID = killerid;
-			sendInstance.DoSend(from);
+			KillEnemyMessage Instance = Message.GetSendInstance<KillEnemyMessage>();
+			Instance.EnemyID = enemyid;
+			Instance.TargetID = targetid;
+			Instance.WeaponID = itemid;
+			Instance.KillerID = killerid;
+			Instance.DoSend(from);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType

@@ -13,10 +13,10 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, int enemyid, int targetid)
 		{
-			SpeedUpEnemyMessage sendInstance = Message.GetSendInstance<SpeedUpEnemyMessage>();
-			sendInstance.EnemyID = enemyid;
-			sendInstance.TargetID = targetid;
-			sendInstance.DoSend(from);
+			SpeedUpEnemyMessage Instance = Message.GetSendInstance<SpeedUpEnemyMessage>();
+			Instance.EnemyID = enemyid;
+			Instance.TargetID = targetid;
+			Instance.DoSend(from);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType

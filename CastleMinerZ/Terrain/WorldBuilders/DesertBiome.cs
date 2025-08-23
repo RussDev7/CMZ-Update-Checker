@@ -13,36 +13,36 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 
 		public override void BuildColumn(BlockTerrain terrain, int worldX, int worldZ, int minY, float blender)
 		{
-			int num = 1;
-			float num2 = 0f;
-			int num3 = 4;
-			for (int i = 0; i < num3; i++)
+			int freq = 1;
+			float noise = 0f;
+			int octives = 4;
+			for (int i = 0; i < octives; i++)
 			{
-				num2 += this._noiseFunction.ComputeNoise(0.009375f * (float)worldX * (float)num, 0.009375f * (float)worldZ * (float)num) / (float)num;
-				num *= 2;
+				noise += this._noiseFunction.ComputeNoise(0.009375f * (float)worldX * (float)freq, 0.009375f * (float)worldZ * (float)freq) / (float)freq;
+				freq *= 2;
 			}
-			int num4 = 66 + (int)(num2 * 16f);
-			if (num4 <= 66)
+			int groundLimit = 66 + (int)(noise * 16f);
+			if (groundLimit <= 66)
 			{
-				num4 = 66;
+				groundLimit = 66;
 			}
-			int num5 = num4 - 3;
-			for (int j = 0; j <= num4; j++)
+			int dirtLimit = groundLimit - 3;
+			for (int y = 0; y <= groundLimit; y++)
 			{
 				if (terrain._resetRequested)
 				{
 					return;
 				}
-				int num6 = j + minY;
-				IntVector3 intVector = new IntVector3(worldX, num6, worldZ);
-				int num7 = terrain.MakeIndexFromWorldIndexVector(intVector);
-				if (j <= num5)
+				int worldY = y + minY;
+				IntVector3 worldPos = new IntVector3(worldX, worldY, worldZ);
+				int index = terrain.MakeIndexFromWorldIndexVector(worldPos);
+				if (y <= dirtLimit)
 				{
-					terrain._blocks[num7] = Biome.rockblock;
+					terrain._blocks[index] = Biome.rockblock;
 				}
 				else
 				{
-					terrain._blocks[num7] = Biome.sandBlock;
+					terrain._blocks[index] = Biome.sandBlock;
 				}
 			}
 		}

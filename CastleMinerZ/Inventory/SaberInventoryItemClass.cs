@@ -39,21 +39,21 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public override Entity CreateEntity(ItemUse use, bool attachedToLocalPlayer)
 		{
-			SaberInventoryItemClass.SaberModelEntity saberModelEntity = new SaberInventoryItemClass.SaberModelEntity(this._model, use, attachedToLocalPlayer);
-			saberModelEntity.BeamColor = this.BeamColor;
+			SaberInventoryItemClass.SaberModelEntity ent = new SaberInventoryItemClass.SaberModelEntity(this._model, use, attachedToLocalPlayer);
+			ent.BeamColor = this.BeamColor;
 			switch (use)
 			{
 			case ItemUse.UI:
 			{
-				Quaternion quaternion = Quaternion.CreateFromYawPitchRoll(0f, 0f, -0.871792f) * Quaternion.CreateFromYawPitchRoll(-0.98174775f, 0f, 0f);
-				Matrix matrix = Matrix.Transform(Matrix.CreateScale(89.6f / saberModelEntity.GetLocalBoundingSphere().Radius), quaternion);
-				matrix.Translation += matrix.Translation + new Vector3(11f, -22f, 0f);
-				saberModelEntity.LocalToParent = matrix;
-				saberModelEntity.EnableDefaultLighting();
+				Quaternion mat = Quaternion.CreateFromYawPitchRoll(0f, 0f, -0.871792f) * Quaternion.CreateFromYawPitchRoll(-0.98174775f, 0f, 0f);
+				Matrix i = Matrix.Transform(Matrix.CreateScale(89.6f / ent.GetLocalBoundingSphere().Radius), mat);
+				i.Translation += i.Translation + new Vector3(11f, -22f, 0f);
+				ent.LocalToParent = i;
+				ent.EnableDefaultLighting();
 				break;
 			}
 			}
-			return saberModelEntity;
+			return ent;
 		}
 
 		private Color BeamColor;
@@ -72,49 +72,49 @@ namespace DNA.CastleMinerZ.Inventory
 			public override void Draw(GraphicsDevice device, GameTime gameTime, Matrix view, Matrix projection)
 			{
 				base.CalculateLighting();
-				int count = base.Model.Meshes.Count;
+				int meshCount = base.Model.Meshes.Count;
 				int i = 0;
 				IL_00C4:
-				while (i < count)
+				while (i < meshCount)
 				{
-					ModelMesh modelMesh = base.Model.Meshes[i];
-					Matrix matrix = this._worldBoneTransforms[modelMesh.ParentBone.Index];
-					int count2 = modelMesh.Effects.Count;
-					for (int j = 0; j < count2; j++)
+					ModelMesh mesh = base.Model.Meshes[i];
+					Matrix world = this._worldBoneTransforms[mesh.ParentBone.Index];
+					int effectCount = mesh.Effects.Count;
+					for (int j = 0; j < effectCount; j++)
 					{
-						if (!this.SetEffectParams(modelMesh, modelMesh.Effects[j], gameTime, matrix, view, projection))
+						if (!this.SetEffectParams(mesh, mesh.Effects[j], gameTime, world, view, projection))
 						{
 							IL_00C0:
 							i++;
 							goto IL_00C4;
 						}
 					}
-					if (modelMesh.Name.Contains("Beam"))
+					if (mesh.Name.Contains("Beam"))
 					{
-						BlendState blendState = device.BlendState;
+						BlendState oldBlendState = device.BlendState;
 						device.BlendState = BlendState.Additive;
-						modelMesh.Draw();
-						device.BlendState = blendState;
+						mesh.Draw();
+						device.BlendState = oldBlendState;
 						goto IL_00C0;
 					}
-					modelMesh.Draw();
+					mesh.Draw();
 					goto IL_00C0;
 				}
 			}
 
 			protected override bool SetEffectParams(ModelMesh mesh, Effect oeffect, GameTime gameTime, Matrix world, Matrix view, Matrix projection)
 			{
-				bool flag = base.SetEffectParams(mesh, oeffect, gameTime, world, view, projection);
-				DNAEffect dnaeffect = oeffect as DNAEffect;
-				if (dnaeffect != null && mesh.Name.Contains("Beam"))
+				bool result = base.SetEffectParams(mesh, oeffect, gameTime, world, view, projection);
+				DNAEffect effect = oeffect as DNAEffect;
+				if (effect != null && mesh.Name.Contains("Beam"))
 				{
 					if (this.ToolColor.A == 0)
 					{
 						return false;
 					}
-					dnaeffect.DiffuseColor = this.BeamColor;
+					effect.DiffuseColor = this.BeamColor;
 				}
-				return flag;
+				return result;
 			}
 
 			public Color BeamColor;

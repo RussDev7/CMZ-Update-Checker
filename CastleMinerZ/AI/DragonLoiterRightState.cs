@@ -7,17 +7,17 @@ namespace DNA.CastleMinerZ.AI
 	{
 		public override float GetNewYaw(DragonEntity entity, Vector3 dest)
 		{
-			float num = dest.Length();
-			float num2 = DragonBaseState.GetHeading(dest, 0f) - 1.5707964f;
-			if (num > entity.EType.LoiterDistance)
+			float dist = dest.Length();
+			float ty = DragonBaseState.GetHeading(dest, 0f) - 1.5707964f;
+			if (dist > entity.EType.LoiterDistance)
 			{
-				num2 -= Math.Min(1.5f, (num - entity.EType.LoiterDistance) / 30f);
+				ty -= Math.Min(1.5f, (dist - entity.EType.LoiterDistance) / 30f);
 			}
 			else
 			{
-				num2 += Math.Min(1.5f, (entity.EType.LoiterDistance - num) / 20f);
+				ty += Math.Min(1.5f, (entity.EType.LoiterDistance - dist) / 20f);
 			}
-			return MathHelper.WrapAngle(num2);
+			return MathHelper.WrapAngle(ty);
 		}
 	}
 }

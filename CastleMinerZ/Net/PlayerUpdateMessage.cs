@@ -47,20 +47,20 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, Player player, CastleMinerZControllerMapping input)
 		{
-			PlayerUpdateMessage sendInstance = Message.GetSendInstance<PlayerUpdateMessage>();
-			sendInstance.LocalPosition = player.LocalPosition;
-			sendInstance.WorldVelocity = player.PlayerPhysics.WorldVelocity;
-			sendInstance.LocalRotation = player.LocalRotation;
-			sendInstance.Movement = input.Movement;
-			sendInstance.TorsoPitch = player.TorsoPitch;
-			sendInstance.Using = player.UsingTool;
-			sendInstance.Shouldering = player.Shouldering;
-			sendInstance.Reloading = player.Reloading;
-			sendInstance.PlayerMode = player._playerMode;
-			sendInstance.Dead = player.Dead;
-			sendInstance.ThrowingGrenade = player.PlayGrenadeAnim;
-			sendInstance.ReadyToThrowGrenade = player.ReadyToThrowGrenade;
-			sendInstance.DoSend(from);
+			PlayerUpdateMessage Instance = Message.GetSendInstance<PlayerUpdateMessage>();
+			Instance.LocalPosition = player.LocalPosition;
+			Instance.WorldVelocity = player.PlayerPhysics.WorldVelocity;
+			Instance.LocalRotation = player.LocalRotation;
+			Instance.Movement = input.Movement;
+			Instance.TorsoPitch = player.TorsoPitch;
+			Instance.Using = player.UsingTool;
+			Instance.Shouldering = player.Shouldering;
+			Instance.Reloading = player.Reloading;
+			Instance.PlayerMode = player._playerMode;
+			Instance.Dead = player.Dead;
+			Instance.ThrowingGrenade = player.PlayGrenadeAnim;
+			Instance.ReadyToThrowGrenade = player.ReadyToThrowGrenade;
+			Instance.DoSend(from);
 		}
 
 		protected override SendDataOptions SendDataOptions
@@ -78,75 +78,75 @@ namespace DNA.CastleMinerZ.Net
 		protected override void RecieveData(BinaryReader reader)
 		{
 			this.LocalPosition = reader.ReadVector3();
-			byte b = reader.ReadByte();
-			byte b2 = reader.ReadByte();
-			this.LocalRotation = Quaternion.CreateFromYawPitchRoll(Angle.FromRevolutions((float)b2 / 255f).Radians, 0f, 0f);
-			this.TorsoPitch = Angle.FromRevolutions((float)b / 510f) - Angle.FromDegrees(90f);
-			byte b3 = reader.ReadByte();
+			byte torso = reader.ReadByte();
+			byte rot = reader.ReadByte();
+			this.LocalRotation = Quaternion.CreateFromYawPitchRoll(Angle.FromRevolutions((float)rot / 255f).Radians, 0f, 0f);
+			this.TorsoPitch = Angle.FromRevolutions((float)torso / 510f) - Angle.FromDegrees(90f);
+			byte flags = reader.ReadByte();
 			this.PlayerMode = (PlayerMode)reader.ReadByte();
-			this.Using = (b3 & 1) != 0;
-			this.Dead = (b3 & 2) != 0;
-			this.Shouldering = (b3 & 4) != 0;
-			this.Reloading = (b3 & 8) != 0;
-			this.ThrowingGrenade = (b3 & 16) != 0;
-			this.ReadyToThrowGrenade = (b3 & 32) != 0;
-			byte b4 = reader.ReadByte();
-			byte b5 = b4 & 15;
-			byte b6 = (byte)(b4 >> 4);
-			this.Movement.X = (float)b5 / 14f * 2f - 1f;
-			this.Movement.Y = (float)b6 / 14f * 2f - 1f;
-			HalfSingle halfSingle = default(HalfSingle);
-			halfSingle.PackedValue = reader.ReadUInt16();
-			this.WorldVelocity.X = halfSingle.ToSingle();
-			halfSingle.PackedValue = reader.ReadUInt16();
-			this.WorldVelocity.Y = halfSingle.ToSingle();
-			halfSingle.PackedValue = reader.ReadUInt16();
-			this.WorldVelocity.Z = halfSingle.ToSingle();
+			this.Using = (flags & 1) != 0;
+			this.Dead = (flags & 2) != 0;
+			this.Shouldering = (flags & 4) != 0;
+			this.Reloading = (flags & 8) != 0;
+			this.ThrowingGrenade = (flags & 16) != 0;
+			this.ReadyToThrowGrenade = (flags & 32) != 0;
+			byte movementByte = reader.ReadByte();
+			byte moveX = movementByte & 15;
+			byte moveY = (byte)(movementByte >> 4);
+			this.Movement.X = (float)moveX / 14f * 2f - 1f;
+			this.Movement.Y = (float)moveY / 14f * 2f - 1f;
+			HalfSingle hv = default(HalfSingle);
+			hv.PackedValue = reader.ReadUInt16();
+			this.WorldVelocity.X = hv.ToSingle();
+			hv.PackedValue = reader.ReadUInt16();
+			this.WorldVelocity.Y = hv.ToSingle();
+			hv.PackedValue = reader.ReadUInt16();
+			this.WorldVelocity.Z = hv.ToSingle();
 		}
 
 		protected override void SendData(BinaryWriter writer)
 		{
 			writer.Write(this.LocalPosition);
-			EulerAngle eulerAngle = new EulerAngle(this.LocalRotation);
-			float num = eulerAngle.Yaw.Revolutions;
-			num -= (float)Math.Floor((double)num);
-			byte b = (byte)Math.Round((double)(255f * num));
-			float num2 = (this.TorsoPitch + Angle.FromDegrees(90f)).Degrees / 180f;
-			num2 -= (float)Math.Floor((double)num);
-			byte b2 = (byte)Math.Round((double)(255f * num2));
-			byte b3 = 0;
+			EulerAngle rot = new EulerAngle(this.LocalRotation);
+			float rotFP = rot.Yaw.Revolutions;
+			rotFP -= (float)Math.Floor((double)rotFP);
+			byte rot4Bit = (byte)Math.Round((double)(255f * rotFP));
+			float tpFP = (this.TorsoPitch + Angle.FromDegrees(90f)).Degrees / 180f;
+			tpFP -= (float)Math.Floor((double)rotFP);
+			byte torso4Bit = (byte)Math.Round((double)(255f * tpFP));
+			byte flags = 0;
 			if (this.Using)
 			{
-				b3 |= 1;
+				flags |= 1;
 			}
 			if (this.Dead)
 			{
-				b3 |= 2;
+				flags |= 2;
 			}
 			if (this.Shouldering)
 			{
-				b3 |= 4;
+				flags |= 4;
 			}
 			if (this.Reloading)
 			{
-				b3 |= 8;
+				flags |= 8;
 			}
 			if (this.ThrowingGrenade)
 			{
-				b3 |= 16;
+				flags |= 16;
 			}
 			if (this.ReadyToThrowGrenade)
 			{
-				b3 |= 32;
+				flags |= 32;
 			}
-			writer.Write(b2);
-			writer.Write(b);
-			writer.Write(b3);
+			writer.Write(torso4Bit);
+			writer.Write(rot4Bit);
+			writer.Write(flags);
 			writer.Write((byte)this.PlayerMode);
-			byte b4 = (byte)((this.Movement.X + 1f) / 2f * 14f);
-			byte b5 = (byte)((this.Movement.Y + 1f) / 2f * 14f);
-			byte b6 = (byte)(((int)b5 << 4) | (int)b4);
-			writer.Write(b6);
+			byte moveX = (byte)((this.Movement.X + 1f) / 2f * 14f);
+			byte moveY = (byte)((this.Movement.Y + 1f) / 2f * 14f);
+			byte movementByte = (byte)(((int)moveY << 4) | (int)moveX);
+			writer.Write(movementByte);
 			writer.Write(new HalfSingle(this.WorldVelocity.X).PackedValue);
 			writer.Write(new HalfSingle(this.WorldVelocity.Y).PackedValue);
 			writer.Write(new HalfSingle(this.WorldVelocity.Z).PackedValue);

@@ -9,16 +9,16 @@ namespace DNA.CastleMinerZ.AI
 		{
 			entity.TimeLeftBeforeNextViewCheck = entity.EType.SlowViewCheckInterval;
 			entity.TargetVelocity = entity.EType.Speed;
-			Vector3 worldPosition = entity.WorldPosition;
-			Vector3 vector = DragonBaseState.MakeYawVector(entity.DefaultHeading);
-			float num = entity.EType.SpawnDistance;
+			Vector3 pos = entity.WorldPosition;
+			Vector3 yawVector = DragonBaseState.MakeYawVector(entity.DefaultHeading);
+			float spawnDistance = entity.EType.SpawnDistance;
 			if (entity.FirstTimeForDefaultState)
 			{
-				num *= 2f;
+				spawnDistance *= 2f;
 			}
 			entity.FirstTimeForDefaultState = false;
 			entity.Target = null;
-			entity.TravelTarget = worldPosition + vector * num;
+			entity.TravelTarget = pos + yawVector * spawnDistance;
 			entity.TargetYaw = entity.DefaultHeading;
 			entity.TargetAltitude = entity.EType.CruisingAltitude;
 			entity.HadTargetThisPass = false;
@@ -38,9 +38,9 @@ namespace DNA.CastleMinerZ.AI
 				entity.StateMachine.Update(dt);
 				return;
 			}
-			Vector3 vector;
-			float num = DragonBaseState.SteerTowardTarget(entity, out vector);
-			if (num < 10f)
+			Vector3 vtotarget;
+			float dist = DragonBaseState.SteerTowardTarget(entity, out vtotarget);
+			if (dist < 10f)
 			{
 				entity.Removed = true;
 				EnemyManager.Instance.RemoveDragon();

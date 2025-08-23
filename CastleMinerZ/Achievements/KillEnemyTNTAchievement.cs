@@ -34,11 +34,11 @@ namespace DNA.CastleMinerZ.Achievements
 		{
 			get
 			{
-				int enemiesKilledWithTNT = base.PlayerStats.EnemiesKilledWithTNT;
-				if (this._lastAmount != enemiesKilledWithTNT)
+				int total = base.PlayerStats.EnemiesKilledWithTNT;
+				if (this._lastAmount != total)
 				{
-					this._lastAmount = enemiesKilledWithTNT;
-					this.lastString = enemiesKilledWithTNT.ToString() + " " + ((enemiesKilledWithTNT == 1) ? Strings.Enemy_Killed : Strings.Enemies_Killed);
+					this._lastAmount = total;
+					this.lastString = total.ToString() + " " + ((total == 1) ? Strings.Enemy_Killed : Strings.Enemies_Killed);
 				}
 				return this.lastString;
 			}

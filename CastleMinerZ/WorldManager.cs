@@ -10,19 +10,19 @@ namespace DNA.CastleMinerZ
 	{
 		public WorldInfo[] GetWorlds()
 		{
-			WorldInfo[] array = new WorldInfo[this.SavedWorlds.Count];
-			this.SavedWorlds.Values.CopyTo(array, 0);
-			return array;
+			WorldInfo[] worlds = new WorldInfo[this.SavedWorlds.Count];
+			this.SavedWorlds.Values.CopyTo(worlds, 0);
+			return worlds;
 		}
 
 		public WorldManager(SignedInGamer gamer, SaveDevice device)
 		{
 			this._device = device;
 			this._gamer = gamer;
-			WorldInfo[] array = WorldInfo.LoadWorldInfo(this._device);
-			foreach (WorldInfo worldInfo in array)
+			WorldInfo[] infos = WorldInfo.LoadWorldInfo(this._device);
+			foreach (WorldInfo info in infos)
 			{
-				this.SavedWorlds[worldInfo.WorldID] = worldInfo;
+				this.SavedWorlds[info.WorldID] = info;
 			}
 		}
 
@@ -50,11 +50,11 @@ namespace DNA.CastleMinerZ
 
 		public void RegisterNetworkWorld(WorldInfo newWorld)
 		{
-			WorldInfo worldInfo;
-			if (this.SavedWorlds.TryGetValue(newWorld.WorldID, out worldInfo))
+			WorldInfo oldInfo;
+			if (this.SavedWorlds.TryGetValue(newWorld.WorldID, out oldInfo))
 			{
-				newWorld.LastPosition = worldInfo.LastPosition;
-				newWorld.SavePath = worldInfo.SavePath;
+				newWorld.LastPosition = oldInfo.LastPosition;
+				newWorld.SavePath = oldInfo.SavePath;
 			}
 			else
 			{

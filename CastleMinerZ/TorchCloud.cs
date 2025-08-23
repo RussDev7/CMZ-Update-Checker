@@ -16,26 +16,26 @@ namespace DNA.CastleMinerZ
 			TorchCloud._torchModel.CopyAbsoluteBoneTransformsTo(TorchCloud.instancedModelBones);
 			TorchCloud._smokeEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\TorchSmoke");
 			TorchCloud._fireEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\TorchFire");
-			ModelEntity modelEntity = new ModelEntity(TorchCloud._torchModel);
-			Matrix transform = modelEntity.Skeleton["Flame"].Transform;
+			ModelEntity modelEnt = new ModelEntity(TorchCloud._torchModel);
+			Matrix flameTrans = modelEnt.Skeleton["Flame"].Transform;
 			TorchCloud.Offsets[4].Offset = new Vector3(0f, -0.5f, 0f);
 			TorchCloud.Offsets[4].TorchRotation = Quaternion.Identity;
-			TorchCloud.Offsets[4].SetFlameOffset(transform);
+			TorchCloud.Offsets[4].SetFlameOffset(flameTrans);
 			TorchCloud.Offsets[2].Offset = new Vector3(0.5f, -0.25f, 0f);
 			TorchCloud.Offsets[2].TorchRotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 0.7853982f);
-			TorchCloud.Offsets[2].SetFlameOffset(transform);
+			TorchCloud.Offsets[2].SetFlameOffset(flameTrans);
 			TorchCloud.Offsets[1].Offset = new Vector3(0f, -0.25f, 0.5f);
 			TorchCloud.Offsets[1].TorchRotation = Quaternion.CreateFromAxisAngle(Vector3.UnitX, -0.7853982f);
-			TorchCloud.Offsets[1].SetFlameOffset(transform);
+			TorchCloud.Offsets[1].SetFlameOffset(flameTrans);
 			TorchCloud.Offsets[0].Offset = new Vector3(-0.5f, -0.25f, 0f);
 			TorchCloud.Offsets[0].TorchRotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, -0.7853982f);
-			TorchCloud.Offsets[0].SetFlameOffset(transform);
+			TorchCloud.Offsets[0].SetFlameOffset(flameTrans);
 			TorchCloud.Offsets[3].Offset = new Vector3(0f, -0.25f, -0.5f);
 			TorchCloud.Offsets[3].TorchRotation = Quaternion.CreateFromAxisAngle(Vector3.UnitX, 0.7853982f);
-			TorchCloud.Offsets[3].SetFlameOffset(transform);
+			TorchCloud.Offsets[3].SetFlameOffset(flameTrans);
 			TorchCloud.Offsets[5].Offset = new Vector3(0f, 0.5f, 0f);
 			TorchCloud.Offsets[5].TorchRotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 3.1415927f);
-			TorchCloud.Offsets[5].SetFlameOffset(transform);
+			TorchCloud.Offsets[5].SetFlameOffset(flameTrans);
 		}
 
 		public TorchCloud(DNAGame game)
@@ -47,10 +47,10 @@ namespace DNA.CastleMinerZ
 			this._fireEmitter = TorchCloud._fireEffect.CreateEmitter(game);
 			this._fireEmitter.DrawPriority = 900;
 			this._fireEmitter.Emitting = true;
-			ModelEntity modelEntity = new ModelEntity(TorchCloud._torchModel);
-			Matrix matrix = modelEntity.Skeleton["Flame"].Transform * modelEntity.LocalToParent;
-			this._smokeEmitter.LocalToParent = matrix;
-			this._fireEmitter.LocalToParent = matrix;
+			ModelEntity modelEnt = new ModelEntity(TorchCloud._torchModel);
+			Matrix flameToParent = modelEnt.Skeleton["Flame"].Transform * modelEnt.LocalToParent;
+			this._smokeEmitter.LocalToParent = flameToParent;
+			this._fireEmitter.LocalToParent = flameToParent;
 			base.Children.Add(this._smokeEmitter);
 			base.Children.Add(this._fireEmitter);
 		}
@@ -86,12 +86,12 @@ namespace DNA.CastleMinerZ
 			{
 				if ((double)Vector3.DistanceSquared(blockCenter, this.TorchReferences[i].Position) < 0.0625)
 				{
-					int num = this.TorchReferences.Count - 1;
-					if (i < num)
+					int c = this.TorchReferences.Count - 1;
+					if (i < c)
 					{
-						this.TorchReferences[i] = this.TorchReferences[num];
+						this.TorchReferences[i] = this.TorchReferences[c];
 					}
-					this.TorchReferences.RemoveAt(num);
+					this.TorchReferences.RemoveAt(c);
 					this._listsDirty = true;
 				}
 			}
@@ -106,15 +106,15 @@ namespace DNA.CastleMinerZ
 			}
 			if (count != 0)
 			{
-				Matrix[] array = new Matrix[count];
+				Matrix[] effectPos = new Matrix[count];
 				for (int i = 0; i < count; i++)
 				{
-					TorchReference torchReference = this.TorchReferences[i];
-					TorchCloud.TorchOffset torchOffset = TorchCloud.Offsets[(int)torchReference.Facing];
-					array[i] = Matrix.CreateTranslation(torchReference.Position + torchOffset.FlameOffset + new Vector3(0f, -0.5f, 0f));
-					Matrix matrix = Matrix.CreateFromQuaternion(torchOffset.TorchRotation);
-					matrix.Translation = torchReference.Position + torchOffset.Offset;
-					this.torchMats[i] = matrix;
+					TorchReference tref = this.TorchReferences[i];
+					TorchCloud.TorchOffset offset = TorchCloud.Offsets[(int)tref.Facing];
+					effectPos[i] = Matrix.CreateTranslation(tref.Position + offset.FlameOffset + new Vector3(0f, -0.5f, 0f));
+					Matrix worldPos = Matrix.CreateFromQuaternion(offset.TorchRotation);
+					worldPos.Translation = tref.Position + offset.Offset;
+					this.torchMats[i] = worldPos;
 				}
 				if (this.instanceVertexBuffer == null || this.torchMats.Length > this.instanceVertexBuffer.VertexCount)
 				{
@@ -125,7 +125,7 @@ namespace DNA.CastleMinerZ
 					this.instanceVertexBuffer = new VertexBuffer(CastleMinerZGame.Instance.GraphicsDevice, TorchCloud.instanceVertexDeclaration, this.torchMats.Length, BufferUsage.WriteOnly);
 				}
 				this.instanceVertexBuffer.SetData<Matrix>(this.torchMats, 0, count);
-				this._fireEmitter.Instances = (this._smokeEmitter.Instances = array);
+				this._fireEmitter.Instances = (this._smokeEmitter.Instances = effectPos);
 			}
 			else
 			{
@@ -150,29 +150,29 @@ namespace DNA.CastleMinerZ
 			{
 				return;
 			}
-			foreach (ModelMesh modelMesh in TorchCloud._torchModel.Meshes)
+			foreach (ModelMesh mesh in TorchCloud._torchModel.Meshes)
 			{
-				foreach (ModelMeshPart modelMeshPart in modelMesh.MeshParts)
+				foreach (ModelMeshPart meshPart in mesh.MeshParts)
 				{
 					device.SetVertexBuffers(new VertexBufferBinding[]
 					{
-						new VertexBufferBinding(modelMeshPart.VertexBuffer, modelMeshPart.VertexOffset, 0),
+						new VertexBufferBinding(meshPart.VertexBuffer, meshPart.VertexOffset, 0),
 						new VertexBufferBinding(this.instanceVertexBuffer, 0, 1)
 					});
-					device.Indices = modelMeshPart.IndexBuffer;
-					DNAEffect dnaeffect = (DNAEffect)modelMeshPart.Effect;
-					dnaeffect.World = TorchCloud.instancedModelBones[modelMesh.ParentBone.Index];
-					dnaeffect.View = view;
-					dnaeffect.Projection = projection;
-					dnaeffect.AmbientColor = ColorF.FromARGB(1f, 0.75f, 0.75f, 0.75f);
-					dnaeffect.DiffuseColor = Color.Gray;
-					dnaeffect.CurrentTechnique = dnaeffect.Techniques["HardwareInstancing"];
-					foreach (EffectPass effectPass in dnaeffect.CurrentTechnique.Passes)
+					device.Indices = meshPart.IndexBuffer;
+					DNAEffect effect = (DNAEffect)meshPart.Effect;
+					effect.World = TorchCloud.instancedModelBones[mesh.ParentBone.Index];
+					effect.View = view;
+					effect.Projection = projection;
+					effect.AmbientColor = ColorF.FromARGB(1f, 0.75f, 0.75f, 0.75f);
+					effect.DiffuseColor = Color.Gray;
+					effect.CurrentTechnique = effect.Techniques["HardwareInstancing"];
+					foreach (EffectPass pass in effect.CurrentTechnique.Passes)
 					{
-						effectPass.Apply();
-						device.DrawInstancedPrimitives(PrimitiveType.TriangleList, 0, 0, modelMeshPart.NumVertices, modelMeshPart.StartIndex, modelMeshPart.PrimitiveCount, this.torchMats.Length);
+						pass.Apply();
+						device.DrawInstancedPrimitives(PrimitiveType.TriangleList, 0, 0, meshPart.NumVertices, meshPart.StartIndex, meshPart.PrimitiveCount, this.torchMats.Length);
 					}
-					dnaeffect.CurrentTechnique = dnaeffect.Techniques["NoInstancing"];
+					effect.CurrentTechnique = effect.Techniques["NoInstancing"];
 				}
 			}
 			base.Draw(device, gameTime, view, projection);

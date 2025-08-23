@@ -80,16 +80,16 @@ namespace DNA.CastleMinerZ.UI
 			{
 				if (this._keyboardInputScreen.OptionSelected != -1)
 				{
-					string textInput = this._keyboardInputScreen.TextInput;
-					if (textInput != null)
+					string nameText = this._keyboardInputScreen.TextInput;
+					if (nameText != null)
 					{
-						if (textInput.Length > 25)
+						if (nameText.Length > 25)
 						{
-							selected.World.Name = textInput.Substring(0, 25);
+							selected.World.Name = nameText.Substring(0, 25);
 						}
 						else
 						{
-							selected.World.Name = textInput;
+							selected.World.Name = nameText;
 						}
 						selected.World.SaveToStorage(Screen.CurrentGamer, CastleMinerZGame.Instance.SaveDevice);
 						this._resetSortButtonText();
@@ -125,7 +125,7 @@ namespace DNA.CastleMinerZ.UI
 			: base(false, new Size(700, 60), new Rectangle(10, 60, Screen.Adjuster.ScreenRect.Width - 10, Screen.Adjuster.ScreenRect.Height - 60))
 		{
 			this.ClickSound = "Click";
-			Color color = new Color(CMZColors.MenuGreen.ToVector4() * 0.8f);
+			Color transpGreen = new Color(CMZColors.MenuGreen.ToVector4() * 0.8f);
 			this._deleteStorageDialog = new PCDialogScreen(Strings.Erase_Storage, Strings.Are_you_sure_you_want_to_delete_everything_, null, true, this._game.DialogScreenImage, this._game._myriadMed, true, this._game.ButtonFrame);
 			this._deleteStorageDialog.UseDefaultValues();
 			this._eraseSaves.Size = new Size(300, 40);
@@ -133,7 +133,7 @@ namespace DNA.CastleMinerZ.UI
 			this._eraseSaves.Font = this._game._medFont;
 			this._eraseSaves.Frame = this._game.ButtonFrame;
 			this._eraseSaves.Pressed += this._eraseSaves_Pressed;
-			this._eraseSaves.ButtonColor = color;
+			this._eraseSaves.ButtonColor = transpGreen;
 			base.Controls.Add(this._eraseSaves);
 			base.SelectButton = new FrameButtonControl
 			{
@@ -142,7 +142,7 @@ namespace DNA.CastleMinerZ.UI
 				Text = Strings.Start_Game,
 				Font = this._game._medFont,
 				Frame = this._game.ButtonFrame,
-				ButtonColor = color
+				ButtonColor = transpGreen
 			};
 			this.DeleteButton = new FrameButtonControl
 			{
@@ -151,7 +151,7 @@ namespace DNA.CastleMinerZ.UI
 				Text = Strings.Delete_World,
 				Font = this._game._medFont,
 				Frame = this._game.ButtonFrame,
-				ButtonColor = color
+				ButtonColor = transpGreen
 			};
 			this.RenameButton = new FrameButtonControl
 			{
@@ -160,7 +160,7 @@ namespace DNA.CastleMinerZ.UI
 				Text = Strings.Rename_World,
 				Font = this._game._medFont,
 				Frame = this._game.ButtonFrame,
-				ButtonColor = color
+				ButtonColor = transpGreen
 			};
 			this.NewWorldButton = new FrameButtonControl
 			{
@@ -169,7 +169,7 @@ namespace DNA.CastleMinerZ.UI
 				Text = Strings.New_World,
 				Font = this._game._medFont,
 				Frame = this._game.ButtonFrame,
-				ButtonColor = color
+				ButtonColor = transpGreen
 			};
 			base.BackButton = new ImageButtonControl
 			{
@@ -177,10 +177,10 @@ namespace DNA.CastleMinerZ.UI
 				Font = this._game._medFont,
 				LocalPosition = new Point(15, 15),
 				Text = " " + Strings.Back,
-				ImageDefaultColor = color
+				ImageDefaultColor = transpGreen
 			};
-			Point point = new Point(40, 100);
-			this._nameButton.LocalPosition = point;
+			Point loc = new Point(40, 100);
+			this._nameButton.LocalPosition = loc;
 			this._nameButton.Size = new Size(217, 18);
 			this._nameButton.Text = "SERVER NAME";
 			this._nameButton.Font = this._game._smallFont;
@@ -188,8 +188,8 @@ namespace DNA.CastleMinerZ.UI
 			this._nameButton.Frame = this._game.ButtonFrame;
 			this._nameButton.Pressed += this._nameButton_Pressed;
 			base.Controls.Add(this._nameButton);
-			point.X += this._nameButton.Size.Width + 1;
-			this._dateButton.LocalPosition = point;
+			loc.X += this._nameButton.Size.Width + 1;
+			this._dateButton.LocalPosition = loc;
 			this._dateButton.Size = new Size(160, 18);
 			this._dateButton.Text = "DATE \u02c5";
 			this._dateButton.Font = this._game._smallFont;
@@ -197,8 +197,8 @@ namespace DNA.CastleMinerZ.UI
 			this._dateButton.Frame = this._game.ButtonFrame;
 			this._dateButton.Pressed += this._dateButton_Pressed;
 			base.Controls.Add(this._dateButton);
-			point.X += this._dateButton.Size.Width + 1;
-			this._creatorButton.LocalPosition = point;
+			loc.X += this._dateButton.Size.Width + 1;
+			this._creatorButton.LocalPosition = loc;
 			this._creatorButton.Size = new Size(160, 18);
 			this._creatorButton.Text = "CREATED BY";
 			this._creatorButton.Font = this._game._smallFont;
@@ -206,8 +206,8 @@ namespace DNA.CastleMinerZ.UI
 			this._creatorButton.Frame = this._game.ButtonFrame;
 			this._creatorButton.Pressed += this._creatorButton_Pressed;
 			base.Controls.Add(this._creatorButton);
-			point.X += this._creatorButton.Size.Width + 1;
-			this._ownerButton.LocalPosition = point;
+			loc.X += this._creatorButton.Size.Width + 1;
+			this._ownerButton.LocalPosition = loc;
 			this._ownerButton.Size = new Size(160, 18);
 			this._ownerButton.Text = "HOST";
 			this._ownerButton.Font = this._game._smallFont;
@@ -256,42 +256,42 @@ namespace DNA.CastleMinerZ.UI
 		public void Populate()
 		{
 			WorldInfo[] worlds = this.WorldManager.GetWorlds();
-			List<ListItemControl> list = new List<ListItemControl>();
-			foreach (WorldInfo worldInfo in worlds)
+			List<ListItemControl> items = new List<ListItemControl>();
+			foreach (WorldInfo info in worlds)
 			{
-				if (worldInfo.InfiniteResourceMode == this._game.InfiniteResourceMode || this._game.InfiniteResourceMode)
+				if (info.InfiniteResourceMode == this._game.InfiniteResourceMode || this._game.InfiniteResourceMode)
 				{
-					list.Add(new ChooseSavedWorldScreen.SavedWorldItem(worldInfo, this._itemSize));
+					items.Add(new ChooseSavedWorldScreen.SavedWorldItem(info, this._itemSize));
 				}
 			}
 			switch (this._currentSort)
 			{
 			case ChooseSavedWorldScreen.SortBy.DateAsc:
-				this._sortByDate(ChooseSavedWorldScreen.SortBy.DateDesc, list);
+				this._sortByDate(ChooseSavedWorldScreen.SortBy.DateDesc, items);
 				break;
 			case ChooseSavedWorldScreen.SortBy.DateDesc:
-				this._sortByDate(ChooseSavedWorldScreen.SortBy.DateAsc, list);
+				this._sortByDate(ChooseSavedWorldScreen.SortBy.DateAsc, items);
 				break;
 			case ChooseSavedWorldScreen.SortBy.NameAsc:
-				this._sortByName(ChooseSavedWorldScreen.SortBy.NameDesc, list);
+				this._sortByName(ChooseSavedWorldScreen.SortBy.NameDesc, items);
 				break;
 			case ChooseSavedWorldScreen.SortBy.NameDesc:
-				this._sortByName(ChooseSavedWorldScreen.SortBy.NameAsc, list);
+				this._sortByName(ChooseSavedWorldScreen.SortBy.NameAsc, items);
 				break;
 			case ChooseSavedWorldScreen.SortBy.CreatorAsc:
-				this._sortByCreator(ChooseSavedWorldScreen.SortBy.CreatorDesc, list);
+				this._sortByCreator(ChooseSavedWorldScreen.SortBy.CreatorDesc, items);
 				break;
 			case ChooseSavedWorldScreen.SortBy.CreatorDesc:
-				this._sortByCreator(ChooseSavedWorldScreen.SortBy.CreatorAsc, list);
+				this._sortByCreator(ChooseSavedWorldScreen.SortBy.CreatorAsc, items);
 				break;
 			case ChooseSavedWorldScreen.SortBy.OwnerAsc:
-				this._sortByOwner(ChooseSavedWorldScreen.SortBy.OwnerDesc, list);
+				this._sortByOwner(ChooseSavedWorldScreen.SortBy.OwnerDesc, items);
 				break;
 			case ChooseSavedWorldScreen.SortBy.OwnerDesc:
-				this._sortByOwner(ChooseSavedWorldScreen.SortBy.OwnerAsc, list);
+				this._sortByOwner(ChooseSavedWorldScreen.SortBy.OwnerAsc, items);
 				break;
 			}
-			this.Items = list;
+			this.Items = items;
 			if (this.Items.Count == 0)
 			{
 				this._creatorButton.Visible = (this._nameButton.Visible = (this._dateButton.Visible = (this._ownerButton.Visible = (this._deleteButton.Visible = (this._renameButton.Visible = (this._eraseSaves.Visible = false))))));
@@ -403,9 +403,9 @@ namespace DNA.CastleMinerZ.UI
 				{
 					return 1;
 				}
-				ChooseSavedWorldScreen.SavedWorldItem savedWorldItem = (ChooseSavedWorldScreen.SavedWorldItem)a;
-				ChooseSavedWorldScreen.SavedWorldItem savedWorldItem2 = (ChooseSavedWorldScreen.SavedWorldItem)b;
-				return string.Compare(savedWorldItem.World.Name, savedWorldItem2.World.Name, true);
+				ChooseSavedWorldScreen.SavedWorldItem one = (ChooseSavedWorldScreen.SavedWorldItem)a;
+				ChooseSavedWorldScreen.SavedWorldItem two = (ChooseSavedWorldScreen.SavedWorldItem)b;
+				return string.Compare(one.World.Name, two.World.Name, true);
 			}
 		}
 
@@ -425,9 +425,9 @@ namespace DNA.CastleMinerZ.UI
 				{
 					return 1;
 				}
-				ChooseSavedWorldScreen.SavedWorldItem savedWorldItem = (ChooseSavedWorldScreen.SavedWorldItem)a;
-				ChooseSavedWorldScreen.SavedWorldItem savedWorldItem2 = (ChooseSavedWorldScreen.SavedWorldItem)b;
-				return string.Compare(savedWorldItem.World.CreatorGamerTag, savedWorldItem2.World.CreatorGamerTag, true);
+				ChooseSavedWorldScreen.SavedWorldItem one = (ChooseSavedWorldScreen.SavedWorldItem)a;
+				ChooseSavedWorldScreen.SavedWorldItem two = (ChooseSavedWorldScreen.SavedWorldItem)b;
+				return string.Compare(one.World.CreatorGamerTag, two.World.CreatorGamerTag, true);
 			}
 		}
 
@@ -447,11 +447,11 @@ namespace DNA.CastleMinerZ.UI
 				{
 					return 1;
 				}
-				ChooseSavedWorldScreen.SavedWorldItem savedWorldItem = (ChooseSavedWorldScreen.SavedWorldItem)a;
-				ChooseSavedWorldScreen.SavedWorldItem savedWorldItem2 = (ChooseSavedWorldScreen.SavedWorldItem)b;
-				if (savedWorldItem.World.OwnerGamerTag == Screen.CurrentGamer.Gamertag)
+				ChooseSavedWorldScreen.SavedWorldItem one = (ChooseSavedWorldScreen.SavedWorldItem)a;
+				ChooseSavedWorldScreen.SavedWorldItem two = (ChooseSavedWorldScreen.SavedWorldItem)b;
+				if (one.World.OwnerGamerTag == Screen.CurrentGamer.Gamertag)
 				{
-					if (savedWorldItem2.World.OwnerGamerTag == Screen.CurrentGamer.Gamertag)
+					if (two.World.OwnerGamerTag == Screen.CurrentGamer.Gamertag)
 					{
 						return 0;
 					}
@@ -459,11 +459,11 @@ namespace DNA.CastleMinerZ.UI
 				}
 				else
 				{
-					if (savedWorldItem2.World.OwnerGamerTag == Screen.CurrentGamer.Gamertag)
+					if (two.World.OwnerGamerTag == Screen.CurrentGamer.Gamertag)
 					{
 						return -1;
 					}
-					return string.Compare(savedWorldItem.World.OwnerGamerTag, savedWorldItem2.World.OwnerGamerTag, true);
+					return string.Compare(one.World.OwnerGamerTag, two.World.OwnerGamerTag, true);
 				}
 			}
 		}
@@ -484,9 +484,9 @@ namespace DNA.CastleMinerZ.UI
 				{
 					return 1;
 				}
-				ChooseSavedWorldScreen.SavedWorldItem savedWorldItem = (ChooseSavedWorldScreen.SavedWorldItem)a;
-				ChooseSavedWorldScreen.SavedWorldItem savedWorldItem2 = (ChooseSavedWorldScreen.SavedWorldItem)b;
-				return DateTime.Compare(savedWorldItem.World.LastPlayedDate, savedWorldItem2.World.LastPlayedDate);
+				ChooseSavedWorldScreen.SavedWorldItem one = (ChooseSavedWorldScreen.SavedWorldItem)a;
+				ChooseSavedWorldScreen.SavedWorldItem two = (ChooseSavedWorldScreen.SavedWorldItem)b;
+				return DateTime.Compare(one.World.LastPlayedDate, two.World.LastPlayedDate);
 			}
 		}
 
@@ -501,27 +501,27 @@ namespace DNA.CastleMinerZ.UI
 			if (Screen.Adjuster.ScreenRect != this.prevScreenRect)
 			{
 				this.prevScreenRect = Screen.Adjuster.ScreenRect;
-				int num = (int)(540f * Screen.Adjuster.ScaleFactor.X);
+				int areaWidth = (int)(540f * Screen.Adjuster.ScaleFactor.X);
 				this._selectButton.Scale = (this._deleteButton.Scale = (this._newWorldButton.Scale = (this._eraseSaves.Scale = (this._renameButton.Scale = (this._nameButton.Scale = (this._dateButton.Scale = (this._creatorButton.Scale = (this._ownerButton.Scale = Screen.Adjuster.ScaleFactor.X))))))));
-				Point point = new Point(40, 100);
-				this._nameButton.LocalPosition = point;
-				point.X += this._nameButton.Size.Width + 1;
-				this._dateButton.LocalPosition = point;
-				point.X += this._dateButton.Size.Width + 1;
-				this._creatorButton.LocalPosition = point;
-				point.X += this._creatorButton.Size.Width + 1;
-				this._ownerButton.LocalPosition = point;
-				int num2 = (int)(740f * Screen.Adjuster.ScaleFactor.X) + num / 2 - this._deleteButton.Size.Width / 2;
-				int num3 = this._selectButton.Size.Height + (int)(5f * Screen.Adjuster.ScaleFactor.X);
-				this._selectButton.LocalPosition = new Point(num2, this._selectButton.LocalPosition.Y);
-				this._newWorldButton.LocalPosition = new Point(num2, this._selectButton.LocalPosition.Y + num3);
-				this._deleteButton.LocalPosition = new Point(num2, this._newWorldButton.LocalPosition.Y + num3);
-				this._renameButton.LocalPosition = new Point(num2, this._deleteButton.LocalPosition.Y + num3);
-				this._eraseSaves.LocalPosition = new Point(num2, this._renameButton.LocalPosition.Y + num3);
+				Point loc = new Point(40, 100);
+				this._nameButton.LocalPosition = loc;
+				loc.X += this._nameButton.Size.Width + 1;
+				this._dateButton.LocalPosition = loc;
+				loc.X += this._dateButton.Size.Width + 1;
+				this._creatorButton.LocalPosition = loc;
+				loc.X += this._creatorButton.Size.Width + 1;
+				this._ownerButton.LocalPosition = loc;
+				int xLoc = (int)(740f * Screen.Adjuster.ScaleFactor.X) + areaWidth / 2 - this._deleteButton.Size.Width / 2;
+				int scaledHeight = this._selectButton.Size.Height + (int)(5f * Screen.Adjuster.ScaleFactor.X);
+				this._selectButton.LocalPosition = new Point(xLoc, this._selectButton.LocalPosition.Y);
+				this._newWorldButton.LocalPosition = new Point(xLoc, this._selectButton.LocalPosition.Y + scaledHeight);
+				this._deleteButton.LocalPosition = new Point(xLoc, this._newWorldButton.LocalPosition.Y + scaledHeight);
+				this._renameButton.LocalPosition = new Point(xLoc, this._deleteButton.LocalPosition.Y + scaledHeight);
+				this._eraseSaves.LocalPosition = new Point(xLoc, this._renameButton.LocalPosition.Y + scaledHeight);
 				this._itemSize.Width = (int)(700f * Screen.Adjuster.ScaleFactor.X);
 				this._itemSize.Height = (int)(60f * Screen.Adjuster.ScaleFactor.X);
-				int num4 = this._nameButton.LocalPosition.Y + this._nameButton.Size.Height + (int)(5f * Screen.Adjuster.ScaleFactor.X);
-				this._drawArea = new Rectangle((int)(10f * Screen.Adjuster.ScaleFactor.X), num4, (int)((float)Screen.Adjuster.ScreenRect.Width - 10f * Screen.Adjuster.ScaleFactor.X), Screen.Adjuster.ScreenRect.Height - num4);
+				int yloc = this._nameButton.LocalPosition.Y + this._nameButton.Size.Height + (int)(5f * Screen.Adjuster.ScaleFactor.X);
+				this._drawArea = new Rectangle((int)(10f * Screen.Adjuster.ScaleFactor.X), yloc, (int)((float)Screen.Adjuster.ScreenRect.Width - 10f * Screen.Adjuster.ScaleFactor.X), Screen.Adjuster.ScreenRect.Height - yloc);
 				for (int i = 0; i < this.Items.Count; i++)
 				{
 					this.Items[i].Size = this._itemSize;
@@ -533,23 +533,23 @@ namespace DNA.CastleMinerZ.UI
 
 		protected override void OnDraw(GraphicsDevice device, SpriteBatch spriteBatch, GameTime gameTime)
 		{
-			SpriteFont largeFont = this._game._largeFont;
+			SpriteFont font = this._game._largeFont;
 			spriteBatch.Begin();
 			if (this.Items.Count == 0)
 			{
-				string text = "No Saved Worlds";
-				Vector2 vector = largeFont.MeasureString(text);
-				int lineSpacing = largeFont.LineSpacing;
-				spriteBatch.DrawOutlinedText(largeFont, text, new Vector2(75f * Screen.Adjuster.ScaleFactor.X, 170f), CMZColors.MenuGreen, Color.Black, 2);
+				string msg = "No Saved Worlds";
+				Vector2 size = font.MeasureString(msg);
+				int lineSpacing = font.LineSpacing;
+				spriteBatch.DrawOutlinedText(font, msg, new Vector2(75f * Screen.Adjuster.ScaleFactor.X, 170f), CMZColors.MenuGreen, Color.Black, 2);
 			}
 			else
 			{
-				string text = Strings.Choose_A_Server;
-				Vector2 vector = largeFont.MeasureString(text);
-				int lineSpacing2 = largeFont.LineSpacing;
-				spriteBatch.DrawOutlinedText(largeFont, text, new Vector2((float)(Screen.Adjuster.ScreenRect.Width / 2) - vector.X / 2f, 10f), CMZColors.MenuGreen, Color.Black, 1);
-				ChooseSavedWorldScreen.SavedWorldItem savedWorldItem = (ChooseSavedWorldScreen.SavedWorldItem)base.SelectedItem;
-				savedWorldItem.DrawSelectedInfo(spriteBatch, new Vector2((float)this._eraseSaves.LocalPosition.X, (float)(this._eraseSaves.LocalPosition.Y + this._eraseSaves.Size.Height + 5)));
+				string msg = Strings.Choose_A_Server;
+				Vector2 size = font.MeasureString(msg);
+				int lineSpacing2 = font.LineSpacing;
+				spriteBatch.DrawOutlinedText(font, msg, new Vector2((float)(Screen.Adjuster.ScreenRect.Width / 2) - size.X / 2f, 10f), CMZColors.MenuGreen, Color.Black, 1);
+				ChooseSavedWorldScreen.SavedWorldItem selected = (ChooseSavedWorldScreen.SavedWorldItem)base.SelectedItem;
+				selected.DrawSelectedInfo(spriteBatch, new Vector2((float)this._eraseSaves.LocalPosition.X, (float)(this._eraseSaves.LocalPosition.Y + this._eraseSaves.Size.Height + 5)));
 			}
 			spriteBatch.End();
 			base.OnDraw(device, spriteBatch, gameTime);
@@ -620,18 +620,18 @@ namespace DNA.CastleMinerZ.UI
 				{
 					color = this.TextHoverColor;
 				}
-				Vector2 vector = new Vector2((float)base.LocalPosition.X + 10f * Screen.Adjuster.ScaleFactor.X, (float)base.LocalPosition.Y + 5f * Screen.Adjuster.ScaleFactor.X);
-				spriteBatch.DrawString(this._medFont, this.World.Name, vector, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
-				vector.Y += (float)this._medFont.LineSpacing * Screen.Adjuster.ScaleFactor.X;
-				int num = (int)(215f * Screen.Adjuster.ScaleFactor.X);
-				vector.X += (float)num;
-				spriteBatch.DrawString(this._smallFont, this._lastPlayedDate, vector, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
-				vector.X += (float)((int)(161f * Screen.Adjuster.ScaleFactor.X));
-				spriteBatch.DrawString(this._smallFont, this.World.CreatorGamerTag, vector, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
-				vector.X += (float)((int)(161f * Screen.Adjuster.ScaleFactor.X));
-				if ((float)this.Size.Width > vector.X)
+				Vector2 loc = new Vector2((float)base.LocalPosition.X + 10f * Screen.Adjuster.ScaleFactor.X, (float)base.LocalPosition.Y + 5f * Screen.Adjuster.ScaleFactor.X);
+				spriteBatch.DrawString(this._medFont, this.World.Name, loc, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
+				loc.Y += (float)this._medFont.LineSpacing * Screen.Adjuster.ScaleFactor.X;
+				int hostSize = (int)(215f * Screen.Adjuster.ScaleFactor.X);
+				loc.X += (float)hostSize;
+				spriteBatch.DrawString(this._smallFont, this._lastPlayedDate, loc, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
+				loc.X += (float)((int)(161f * Screen.Adjuster.ScaleFactor.X));
+				spriteBatch.DrawString(this._smallFont, this.World.CreatorGamerTag, loc, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
+				loc.X += (float)((int)(161f * Screen.Adjuster.ScaleFactor.X));
+				if ((float)this.Size.Width > loc.X)
 				{
-					spriteBatch.DrawString(this._smallFont, this.World.OwnerGamerTag, vector, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
+					spriteBatch.DrawString(this._smallFont, this.World.OwnerGamerTag, loc, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
 				}
 			}
 

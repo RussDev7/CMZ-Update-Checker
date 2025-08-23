@@ -22,8 +22,8 @@ namespace DNA.CastleMinerZ.AI
 
 		public override bool TouchesBlock(float inT, ref Vector3 inNormal, bool startsIn, BlockFace inFace, float outT, ref Vector3 outNormal, bool endsIn, BlockFace outFace, IntVector3 worldindex)
 		{
-			float num = (outT - inT) * this.TotalDistance;
-			if (num <= 0f)
+			float localDist = (outT - inT) * this.TotalDistance;
+			if (localDist <= 0f)
 			{
 				return true;
 			}
@@ -32,13 +32,13 @@ namespace DNA.CastleMinerZ.AI
 				this.TotalDamageMultiplier = 0f;
 				return false;
 			}
-			float num2 = 1f - BlockType.GetType(this._currentTestingBlockType).DamageTransmision;
-			if (num2 <= 0f)
+			float damageblock = 1f - BlockType.GetType(this._currentTestingBlockType).DamageTransmision;
+			if (damageblock <= 0f)
 			{
 				return true;
 			}
-			num2 *= num;
-			this.TotalDamageMultiplier *= (1f - num2).Clamp(0f, 1f);
+			damageblock *= localDist;
+			this.TotalDamageMultiplier *= (1f - damageblock).Clamp(0f, 1f);
 			return this.TotalDamageMultiplier > 0f;
 		}
 

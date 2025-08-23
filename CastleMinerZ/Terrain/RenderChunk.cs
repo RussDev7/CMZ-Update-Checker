@@ -17,60 +17,60 @@ namespace DNA.CastleMinerZ.Terrain
 
 		public void FillFaceColors(ref int[] vxsun, ref int[] vxtorch, ref float[] sun, ref float[] torch)
 		{
-			int num = 0;
+			int nindex = 0;
 			for (int i = 0; i < 4; i++)
 			{
-				float num2 = 0f;
-				float num3 = 0f;
-				float num4 = 0f;
-				int num5 = 0;
+				float count = 0f;
+				float sunlight = 0f;
+				float torchlight = 0f;
+				int cornerCount = 0;
 				for (int j = 0; j < 4; j++)
 				{
-					int num6 = RenderChunk._lightNeighborIndexes[num++];
-					if (j != 3 || num5 != 2)
+					int cur = RenderChunk._lightNeighborIndexes[nindex++];
+					if (j != 3 || cornerCount != 2)
 					{
-						if (sun[num6] >= 0f)
+						if (sun[cur] >= 0f)
 						{
-							num2 += 1f;
-							num3 += sun[num6];
-							num4 += torch[num6];
+							count += 1f;
+							sunlight += sun[cur];
+							torchlight += torch[cur];
 						}
 					}
 					else
 					{
-						num5++;
+						cornerCount++;
 					}
 				}
-				if (num2 == 0f)
+				if (count == 0f)
 				{
 					vxsun[i] = 0;
 					vxtorch[i] = 0;
 				}
 				else
 				{
-					float num7 = num3 / (num2 * 15f);
-					vxsun[i] = (int)Math.Floor((double)(num7 * 255f + 0.5f));
-					num7 = num4 / (num2 * 15f);
-					vxtorch[i] = (int)Math.Floor((double)(num7 * 255f + 0.5f));
+					float k = sunlight / (count * 15f);
+					vxsun[i] = (int)Math.Floor((double)(k * 255f + 0.5f));
+					k = torchlight / (count * 15f);
+					vxtorch[i] = (int)Math.Floor((double)(k * 255f + 0.5f));
 				}
 			}
 		}
 
 		public void MakeFace(IntVector3 iv, IntVector3 chunkLocal, IntVector3 local, BlockFace face, BlockType t, BlockBuildData bd, int block)
 		{
-			bool needsFancyLighting = t.NeedsFancyLighting;
-			int num = 0;
+			bool fancy = t.NeedsFancyLighting;
+			int aoface = 0;
 			bd._min.SetToMin(iv);
 			bd._max.SetToMax(iv);
 			BlockTerrain.Instance.FillFaceLightTable(local, face, ref bd._sun, ref bd._torch);
 			if (t.LightAsTranslucent)
 			{
-				float num2 = (float)Block.GetSunLightLevel(block);
-				float num3 = (float)Block.GetTorchLightLevel(block);
+				float sl = (float)Block.GetSunLightLevel(block);
+				float tl = (float)Block.GetTorchLightLevel(block);
 				for (int i = 0; i < 9; i++)
 				{
-					bd._sun[i] = Math.Max(bd._sun[i], num2);
-					bd._torch[i] = Math.Max(bd._torch[i], num3);
+					bd._sun[i] = Math.Max(bd._sun[i], sl);
+					bd._torch[i] = Math.Max(bd._torch[i], tl);
 				}
 			}
 			for (int j = 0; j < 9; j++)
@@ -79,99 +79,99 @@ namespace DNA.CastleMinerZ.Terrain
 				{
 					if (j < 4)
 					{
-						num |= 1 << j;
+						aoface |= 1 << j;
 					}
 					else if (j > 4)
 					{
-						num |= 1 << j - 1;
+						aoface |= 1 << j - 1;
 					}
 				}
 			}
 			this.FillFaceColors(ref bd._vxsun, ref bd._vxtorch, ref bd._sun, ref bd._torch);
 			for (int k = 0; k < 4; k++)
 			{
-				bd.AddVertex(new BlockVertex(chunkLocal, face, k, t, bd._vxsun[k], bd._vxtorch[k], num), needsFancyLighting);
+				bd.AddVertex(new BlockVertex(chunkLocal, face, k, t, bd._vxsun[k], bd._vxtorch[k], aoface), fancy);
 			}
 		}
 
 		public void AddBlock(IntVector3 iv, BlockBuildData bd)
 		{
-			int safeBlockAtABS = BlockTerrain.Instance.GetSafeBlockAtABS(iv);
-			BlockType type = Block.GetType(safeBlockAtABS);
-			bool interiorFaces = type.InteriorFaces;
-			if (type[BlockFace.NEGY] == -1)
+			int b = BlockTerrain.Instance.GetSafeBlockAtABS(iv);
+			BlockType t = Block.GetType(b);
+			bool interiorFaces = t.InteriorFaces;
+			if (t[BlockFace.NEGY] == -1)
 			{
 				return;
 			}
-			IntVector3 intVector = IntVector3.Subtract(iv, BlockTerrain.Instance._worldMin);
-			IntVector3 intVector2 = IntVector3.Subtract(iv, this._worldMin);
-			if (!Block.HasAlpha(safeBlockAtABS))
+			IntVector3 localIV = IntVector3.Subtract(iv, BlockTerrain.Instance._worldMin);
+			IntVector3 chunkLocalIV = IntVector3.Subtract(iv, this._worldMin);
+			if (!Block.HasAlpha(b))
 			{
-				for (BlockFace blockFace = BlockFace.POSX; blockFace < BlockFace.NUM_FACES; blockFace++)
+				for (BlockFace i = BlockFace.POSX; i < BlockFace.NUM_FACES; i++)
 				{
-					IntVector3 intVector3 = IntVector3.Add(intVector, BlockTerrain._faceNeighbors[(int)blockFace]);
-					int num = intVector3.Y.Clamp(0, 127) + intVector3.X.Clamp(0, 383) * 128 + intVector3.Z.Clamp(0, 383) * 128 * 384;
-					if (Block.HasAlpha(BlockTerrain.Instance._blocks[num]))
+					IntVector3 ni = IntVector3.Add(localIV, BlockTerrain._faceNeighbors[(int)i]);
+					int blockIndex = ni.Y.Clamp(0, 127) + ni.X.Clamp(0, 383) * 128 + ni.Z.Clamp(0, 383) * 128 * 384;
+					if (Block.HasAlpha(BlockTerrain.Instance._blocks[blockIndex]))
 					{
-						this.MakeFace(iv, intVector2, intVector, blockFace, type, bd, safeBlockAtABS);
+						this.MakeFace(iv, chunkLocalIV, localIV, i, t, bd, b);
 					}
 				}
 				return;
 			}
 			if (interiorFaces)
 			{
-				for (BlockFace blockFace2 = BlockFace.POSX; blockFace2 < BlockFace.NUM_FACES; blockFace2++)
+				for (BlockFace j = BlockFace.POSX; j < BlockFace.NUM_FACES; j++)
 				{
-					this.MakeFace(iv, intVector2, intVector, blockFace2, type, bd, safeBlockAtABS);
-					IntVector3 intVector4 = IntVector3.Add(intVector, BlockTerrain._faceNeighbors[(int)blockFace2]);
-					int num2 = intVector4.Y.Clamp(0, 127) + intVector4.X.Clamp(0, 383) * 128 + intVector4.Z.Clamp(0, 383) * 128 * 384;
-					int num3 = BlockTerrain.Instance._blocks[num2];
-					BlockType type2 = Block.GetType(num3);
-					if (type2[BlockFace.NEGY] == -1)
+					this.MakeFace(iv, chunkLocalIV, localIV, j, t, bd, b);
+					IntVector3 ni2 = IntVector3.Add(localIV, BlockTerrain._faceNeighbors[(int)j]);
+					int blockIndex2 = ni2.Y.Clamp(0, 127) + ni2.X.Clamp(0, 383) * 128 + ni2.Z.Clamp(0, 383) * 128 * 384;
+					int k = BlockTerrain.Instance._blocks[blockIndex2];
+					BlockType nt = Block.GetType(k);
+					if (nt[BlockFace.NEGY] == -1)
 					{
-						this.MakeFace(IntVector3.Add(iv, BlockTerrain._faceNeighbors[(int)blockFace2]), IntVector3.Add(intVector2, BlockTerrain._faceNeighbors[(int)blockFace2]), intVector4, Block.OpposingFace[(int)blockFace2], type, bd, num3);
+						this.MakeFace(IntVector3.Add(iv, BlockTerrain._faceNeighbors[(int)j]), IntVector3.Add(chunkLocalIV, BlockTerrain._faceNeighbors[(int)j]), ni2, Block.OpposingFace[(int)j], t, bd, k);
 					}
 				}
 				return;
 			}
-			for (BlockFace blockFace3 = BlockFace.POSX; blockFace3 < BlockFace.NUM_FACES; blockFace3++)
+			for (BlockFace l = BlockFace.POSX; l < BlockFace.NUM_FACES; l++)
 			{
-				IntVector3 intVector5 = IntVector3.Add(intVector, BlockTerrain._faceNeighbors[(int)blockFace3]);
-				int num4 = intVector5.Y.Clamp(0, 127) + intVector5.X.Clamp(0, 383) * 128 + intVector5.Z.Clamp(0, 383) * 128 * 384;
-				if (Block.GetType(BlockTerrain.Instance._blocks[num4]) != type)
+				IntVector3 ni3 = IntVector3.Add(localIV, BlockTerrain._faceNeighbors[(int)l]);
+				int blockIndex3 = ni3.Y.Clamp(0, 127) + ni3.X.Clamp(0, 383) * 128 + ni3.Z.Clamp(0, 383) * 128 * 384;
+				if (Block.GetType(BlockTerrain.Instance._blocks[blockIndex3]) != t)
 				{
-					this.MakeFace(iv, intVector2, intVector, blockFace3, type, bd, safeBlockAtABS);
+					this.MakeFace(iv, chunkLocalIV, localIV, l, t, bd, b);
 				}
 			}
 		}
 
 		public bool BuildFaces(GraphicsDevice gd)
 		{
-			BlockBuildData blockBuildData = BlockBuildData.Alloc();
-			IntVector3 worldMin = this._worldMin;
-			IntVector3 intVector = IntVector3.Add(new IntVector3(16, 128, 16), this._worldMin);
-			worldMin.Y = intVector.Y - 1;
-			while (worldMin.Y >= this._worldMin.Y)
+			BlockBuildData bd = BlockBuildData.Alloc();
+			IntVector3 offset = this._worldMin;
+			IntVector3 lasts = IntVector3.Add(new IntVector3(16, 128, 16), this._worldMin);
+			offset.Y = lasts.Y - 1;
+			while (offset.Y >= this._worldMin.Y)
 			{
 				if (!BlockTerrain.Instance.IsReady)
 				{
-					blockBuildData.Release();
+					bd.Release();
 					return false;
 				}
-				worldMin.Z = this._worldMin.Z;
-				while (worldMin.Z < intVector.Z)
+				offset.Z = this._worldMin.Z;
+				while (offset.Z < lasts.Z)
 				{
-					worldMin.X = this._worldMin.X;
-					while (worldMin.X < intVector.X)
+					offset.X = this._worldMin.X;
+					while (offset.X < lasts.X)
 					{
-						this.AddBlock(worldMin, blockBuildData);
-						worldMin.X++;
+						this.AddBlock(offset, bd);
+						offset.X++;
 					}
-					worldMin.Z++;
+					offset.Z++;
 				}
-				worldMin.Y--;
+				offset.Y--;
 			}
-			if (blockBuildData.HasVertexes)
+			if (bd.HasVertexes)
 			{
 				if (this._vbs == null)
 				{
@@ -181,12 +181,12 @@ namespace DNA.CastleMinerZ.Terrain
 				{
 					this._fancyVBs = new List<VertexBufferKeeper>();
 				}
-				blockBuildData._max = IntVector3.Add(new IntVector3(1, 1, 1), blockBuildData._max);
-				IntVector3.FillBoundingCorners(blockBuildData._min, blockBuildData._max, ref this._boundingCorners);
-				this._pendingBuildData = blockBuildData;
+				bd._max = IntVector3.Add(new IntVector3(1, 1, 1), bd._max);
+				IntVector3.FillBoundingCorners(bd._min, bd._max, ref this._boundingCorners);
+				this._pendingBuildData = bd;
 				return true;
 			}
-			blockBuildData.Release();
+			bd.Release();
 			return false;
 		}
 
@@ -232,22 +232,22 @@ namespace DNA.CastleMinerZ.Terrain
 			{
 				for (int i = 0; i < this._vbs.Count; i++)
 				{
-					VertexBuffer buffer = this._vbs[i].Buffer;
-					int numVertexesUsed = this._vbs[i].NumVertexesUsed;
-					gd.SetVertexBuffer(buffer);
+					VertexBuffer vb = this._vbs[i].Buffer;
+					int numVertexes = this._vbs[i].NumVertexesUsed;
+					gd.SetVertexBuffer(vb);
 					effect.CurrentTechnique.Passes[2].Apply();
-					gd.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, numVertexesUsed, 0, numVertexesUsed / 2);
+					gd.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, numVertexes, 0, numVertexes / 2);
 				}
 			}
 			if (this._fancyVBs != null && this._fancyVBs.Count > 0)
 			{
 				for (int j = 0; j < this._fancyVBs.Count; j++)
 				{
-					VertexBuffer buffer2 = this._fancyVBs[j].Buffer;
-					int numVertexesUsed2 = this._fancyVBs[j].NumVertexesUsed;
-					gd.SetVertexBuffer(buffer2);
+					VertexBuffer vb2 = this._fancyVBs[j].Buffer;
+					int numVertexes2 = this._fancyVBs[j].NumVertexesUsed;
+					gd.SetVertexBuffer(vb2);
 					effect.CurrentTechnique.Passes[2].Apply();
-					gd.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, numVertexesUsed2, 0, numVertexesUsed2 / 2);
+					gd.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, numVertexes2, 0, numVertexes2 / 2);
 				}
 			}
 		}
@@ -261,11 +261,11 @@ namespace DNA.CastleMinerZ.Terrain
 				{
 					for (int i = 0; i < this._fancyVBs.Count; i++)
 					{
-						VertexBuffer buffer = this._fancyVBs[i].Buffer;
-						int numVertexesUsed = this._fancyVBs[i].NumVertexesUsed;
-						gd.SetVertexBuffer(buffer);
+						VertexBuffer vb = this._fancyVBs[i].Buffer;
+						int numVertexes = this._fancyVBs[i].NumVertexesUsed;
+						gd.SetVertexBuffer(vb);
 						effect.CurrentTechnique.Passes[1].Apply();
-						gd.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, numVertexesUsed, 0, numVertexesUsed / 2);
+						gd.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, numVertexes, 0, numVertexes / 2);
 					}
 					return;
 				}
@@ -274,20 +274,20 @@ namespace DNA.CastleMinerZ.Terrain
 			{
 				for (int j = 0; j < this._vbs.Count; j++)
 				{
-					VertexBuffer buffer2 = this._vbs[j].Buffer;
-					int numVertexesUsed2 = this._vbs[j].NumVertexesUsed;
-					gd.SetVertexBuffer(buffer2);
+					VertexBuffer vb2 = this._vbs[j].Buffer;
+					int numVertexes2 = this._vbs[j].NumVertexesUsed;
+					gd.SetVertexBuffer(vb2);
 					effect.CurrentTechnique.Passes[0].Apply();
-					gd.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, numVertexesUsed2, 0, numVertexesUsed2 / 2);
+					gd.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, numVertexes2, 0, numVertexes2 / 2);
 				}
 			}
 		}
 
 		public static RenderChunk Alloc()
 		{
-			RenderChunk renderChunk = RenderChunk._cache.Get();
-			renderChunk._refcount = 1;
-			return renderChunk;
+			RenderChunk result = RenderChunk._cache.Get();
+			result._refcount = 1;
+			return result;
 		}
 
 		public void Release()

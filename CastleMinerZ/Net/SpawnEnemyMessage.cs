@@ -16,20 +16,20 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, Vector3 pos, EnemyTypeEnum enemyType, float midnight, int id, int seed, Vector3 spawnerPos, int spawnValue = 0, string playerName = null)
 		{
-			SpawnEnemyMessage sendInstance = Message.GetSendInstance<SpawnEnemyMessage>();
-			sendInstance.SpawnPosition = pos;
-			sendInstance.SpawnerPosition = spawnerPos;
-			sendInstance.EnemyTypeID = enemyType;
-			sendInstance.EnemyID = id;
-			sendInstance.SpawnValue = spawnValue;
-			sendInstance.RandomSeed = seed;
+			SpawnEnemyMessage Instance = Message.GetSendInstance<SpawnEnemyMessage>();
+			Instance.SpawnPosition = pos;
+			Instance.SpawnerPosition = spawnerPos;
+			Instance.EnemyTypeID = enemyType;
+			Instance.EnemyID = id;
+			Instance.SpawnValue = spawnValue;
+			Instance.RandomSeed = seed;
 			if (playerName == null)
 			{
 				playerName = "";
 			}
-			sendInstance.PlayerName = playerName;
-			sendInstance.InitPkg = EnemyType.Types[(int)enemyType].CreateInitPackage(midnight);
-			sendInstance.DoSend(from);
+			Instance.PlayerName = playerName;
+			Instance.InitPkg = EnemyType.Types[(int)enemyType].CreateInitPackage(midnight);
+			Instance.DoSend(from);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType

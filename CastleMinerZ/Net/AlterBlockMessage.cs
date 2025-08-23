@@ -14,10 +14,10 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, IntVector3 blockLocaion, BlockTypeEnum blockType)
 		{
-			AlterBlockMessage sendInstance = Message.GetSendInstance<AlterBlockMessage>();
-			sendInstance.BlockLocation = blockLocaion;
-			sendInstance.BlockType = blockType;
-			sendInstance.DoSend(from);
+			AlterBlockMessage Instance = Message.GetSendInstance<AlterBlockMessage>();
+			Instance.BlockLocation = blockLocaion;
+			Instance.BlockType = blockType;
+			Instance.DoSend(from);
 		}
 
 		protected override SendDataOptions SendDataOptions

@@ -16,12 +16,12 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, bool placing, Vector3 location, Vector3 direction, BlockTypeEnum blockDug)
 		{
-			DigMessage sendInstance = Message.GetSendInstance<DigMessage>();
-			sendInstance.Placing = placing;
-			sendInstance.Location = location;
-			sendInstance.Direction = direction;
-			sendInstance.BlockType = blockDug;
-			sendInstance.DoSend(from);
+			DigMessage Instance = Message.GetSendInstance<DigMessage>();
+			Instance.Placing = placing;
+			Instance.Location = location;
+			Instance.Direction = direction;
+			Instance.BlockType = blockDug;
+			Instance.DoSend(from);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType

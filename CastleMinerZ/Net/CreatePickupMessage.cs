@@ -16,14 +16,14 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, Vector3 pos, Vector3 vec, int pickupID, InventoryItem item, bool dropped, bool displayOnPickup)
 		{
-			CreatePickupMessage sendInstance = Message.GetSendInstance<CreatePickupMessage>();
-			sendInstance.SpawnPosition = pos;
-			sendInstance.SpawnVector = vec;
-			sendInstance.Item = item;
-			sendInstance.Dropped = dropped;
-			sendInstance.DisplayOnPickup = displayOnPickup;
-			sendInstance.PickupID = pickupID;
-			sendInstance.DoSend(from);
+			CreatePickupMessage Instance = Message.GetSendInstance<CreatePickupMessage>();
+			Instance.SpawnPosition = pos;
+			Instance.SpawnVector = vec;
+			Instance.Item = item;
+			Instance.Dropped = dropped;
+			Instance.DisplayOnPickup = displayOnPickup;
+			Instance.PickupID = pickupID;
+			Instance.DoSend(from);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType

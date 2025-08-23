@@ -13,9 +13,9 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, string message)
 		{
-			BroadcastTextMessage sendInstance = DNA.Net.Message.GetSendInstance<BroadcastTextMessage>();
-			sendInstance.Message = message;
-			sendInstance.DoSend(from);
+			BroadcastTextMessage Instance = DNA.Net.Message.GetSendInstance<BroadcastTextMessage>();
+			Instance.Message = message;
+			Instance.DoSend(from);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType

@@ -7,15 +7,15 @@ namespace DNA.CastleMinerZ.Inventory
 	{
 		public static List<Recipe> GetRecipes(Recipe.RecipeTypes type)
 		{
-			List<Recipe> list = new List<Recipe>();
+			List<Recipe> recipes = new List<Recipe>();
 			foreach (Recipe recipe in Recipe.CookBook)
 			{
 				if (recipe.Type == type)
 				{
-					list.Add(recipe);
+					recipes.Add(recipe);
 				}
 			}
-			return list;
+			return recipes;
 		}
 
 		public List<InventoryItem> Ingredients

@@ -15,11 +15,11 @@ namespace DNA.CastleMinerZ.UI
 
 		protected override void OnDraw(GraphicsDevice device, SpriteBatch spriteBatch, GameTime gameTime)
 		{
-			Rectangle screenRect = Screen.Adjuster.ScreenRect;
+			Rectangle Destination = Screen.Adjuster.ScreenRect;
 			try
 			{
 				spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
-				spriteBatch.Draw(this._game.MenuBackdrop, screenRect, Color.White);
+				spriteBatch.Draw(this._game.MenuBackdrop, Destination, Color.White);
 				spriteBatch.End();
 			}
 			catch

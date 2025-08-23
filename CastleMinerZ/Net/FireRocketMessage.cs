@@ -16,12 +16,12 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, Matrix orientation, InventoryItemIDs weaponType, bool guided)
 		{
-			FireRocketMessage sendInstance = Message.GetSendInstance<FireRocketMessage>();
-			sendInstance.Direction = orientation.Forward;
-			sendInstance.Position = orientation.Translation + sendInstance.Direction;
-			sendInstance.WeaponType = weaponType;
-			sendInstance.Guided = guided;
-			sendInstance.DoSend(from);
+			FireRocketMessage Instance = Message.GetSendInstance<FireRocketMessage>();
+			Instance.Direction = orientation.Forward;
+			Instance.Position = orientation.Translation + Instance.Direction;
+			Instance.WeaponType = weaponType;
+			Instance.Guided = guided;
+			Instance.DoSend(from);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType

@@ -45,27 +45,27 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public override Entity CreateEntity(ItemUse use, bool attachedToLocalPlayer)
 		{
-			CastleMinerToolModel castleMinerToolModel = new CastleMinerToolModel(this._model, use, attachedToLocalPlayer);
-			castleMinerToolModel.EnablePerPixelLighting();
-			castleMinerToolModel.ToolColor = this.ToolColor;
-			castleMinerToolModel.EmissiveColor = this.EmissiveColor;
+			CastleMinerToolModel ent = new CastleMinerToolModel(this._model, use, attachedToLocalPlayer);
+			ent.EnablePerPixelLighting();
+			ent.ToolColor = this.ToolColor;
+			ent.EmissiveColor = this.EmissiveColor;
 			switch (use)
 			{
 			case ItemUse.UI:
 			{
-				Quaternion quaternion = Quaternion.CreateFromYawPitchRoll(0f, 0f, -0.7853982f);
-				Matrix matrix = Matrix.Transform(Matrix.CreateScale(25.6f / castleMinerToolModel.GetLocalBoundingSphere().Radius), quaternion);
-				matrix.Translation += new Vector3(-4f, -4f, 0f);
-				castleMinerToolModel.LocalToParent = matrix;
-				castleMinerToolModel.EnableDefaultLighting();
+				Quaternion mat = Quaternion.CreateFromYawPitchRoll(0f, 0f, -0.7853982f);
+				Matrix i = Matrix.Transform(Matrix.CreateScale(25.6f / ent.GetLocalBoundingSphere().Radius), mat);
+				i.Translation += new Vector3(-4f, -4f, 0f);
+				ent.LocalToParent = i;
+				ent.EnableDefaultLighting();
 				break;
 			}
 			case ItemUse.Hand:
-				castleMinerToolModel.LocalRotation = Quaternion.CreateFromAxisAngle(Vector3.UnitX, 1.5707964f) * Quaternion.CreateFromAxisAngle(Vector3.UnitY, 0.7853982f);
-				castleMinerToolModel.LocalPosition = new Vector3(0f, 0.11126215f, 0f);
+				ent.LocalRotation = Quaternion.CreateFromAxisAngle(Vector3.UnitX, 1.5707964f) * Quaternion.CreateFromAxisAngle(Vector3.UnitY, 0.7853982f);
+				ent.LocalPosition = new Vector3(0f, 0.11126215f, 0f);
 				break;
 			}
-			return castleMinerToolModel;
+			return ent;
 		}
 
 		public override InventoryItem CreateItem(int stackCount)

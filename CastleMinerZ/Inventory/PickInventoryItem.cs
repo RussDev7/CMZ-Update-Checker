@@ -10,8 +10,8 @@ namespace DNA.CastleMinerZ.Inventory
 		public PickInventoryItem(InventoryItem.InventoryItemClass cls, int stackCount)
 			: base(cls, stackCount)
 		{
-			PickInventoryItemClass pickInventoryItemClass = (PickInventoryItemClass)base.ItemClass;
-			if (pickInventoryItemClass.ID == InventoryItemIDs.IronLaserSword || pickInventoryItemClass.ID == InventoryItemIDs.GoldLaserSword || pickInventoryItemClass.ID == InventoryItemIDs.DiamondLaserSword || pickInventoryItemClass.ID == InventoryItemIDs.BloodStoneLaserSword || pickInventoryItemClass.ID == InventoryItemIDs.CopperLaserSword)
+			PickInventoryItemClass pcls = (PickInventoryItemClass)base.ItemClass;
+			if (pcls.ID == InventoryItemIDs.IronLaserSword || pcls.ID == InventoryItemIDs.GoldLaserSword || pcls.ID == InventoryItemIDs.DiamondLaserSword || pcls.ID == InventoryItemIDs.BloodStoneLaserSword || pcls.ID == InventoryItemIDs.CopperLaserSword)
 			{
 				this._useSound = "LightSaberSwing";
 			}
@@ -28,75 +28,75 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public override InventoryItem CreatesWhenDug(BlockTypeEnum block, IntVector3 location)
 		{
-			PickInventoryItemClass pickInventoryItemClass = (PickInventoryItemClass)base.ItemClass;
-			InventoryItemIDs outputFromBlock = this.GetOutputFromBlock(block);
-			int pickaxeBlockTier = this.GetPickaxeBlockTier(block);
-			int toolTier = this.GetToolTier(pickInventoryItemClass);
-			int num = 1;
-			if (toolTier >= pickaxeBlockTier && outputFromBlock != InventoryItemIDs.BareHands)
+			PickInventoryItemClass pcls = (PickInventoryItemClass)base.ItemClass;
+			InventoryItemIDs output = this.GetOutputFromBlock(block);
+			int blockTier = this.GetPickaxeBlockTier(block);
+			int toolTier = this.GetToolTier(pcls);
+			int quantity = 1;
+			if (toolTier >= blockTier && output != InventoryItemIDs.BareHands)
 			{
-				return InventoryItem.CreateItem(outputFromBlock, num);
+				return InventoryItem.CreateItem(output, quantity);
 			}
 			return base.CreatesWhenDug(block, location);
 		}
 
 		private InventoryItemIDs MatchOutputFromList(BlockTypeEnum block, BlockTypeEnum[] harvestList)
 		{
-			InventoryItemIDs inventoryItemIDs = InventoryItemIDs.RockBlock;
+			InventoryItemIDs output = InventoryItemIDs.RockBlock;
 			for (int i = 0; i < harvestList.Length; i++)
 			{
 				if (harvestList[i] == block)
 				{
-					inventoryItemIDs = this.GetOutputFromBlock(block);
+					output = this.GetOutputFromBlock(block);
 				}
 			}
-			return inventoryItemIDs;
+			return output;
 		}
 
 		private InventoryItemIDs GetOutputFromBlock(BlockTypeEnum block)
 		{
-			InventoryItemIDs inventoryItemIDs = InventoryItemIDs.BareHands;
+			InventoryItemIDs output = InventoryItemIDs.BareHands;
 			switch (block)
 			{
 			case BlockTypeEnum.GoldOre:
-				inventoryItemIDs = InventoryItemIDs.GoldOre;
+				output = InventoryItemIDs.GoldOre;
 				break;
 			case BlockTypeEnum.IronOre:
-				inventoryItemIDs = InventoryItemIDs.IronOre;
+				output = InventoryItemIDs.IronOre;
 				break;
 			case BlockTypeEnum.CopperOre:
-				inventoryItemIDs = InventoryItemIDs.CopperOre;
+				output = InventoryItemIDs.CopperOre;
 				break;
 			case BlockTypeEnum.CoalOre:
-				inventoryItemIDs = InventoryItemIDs.Coal;
+				output = InventoryItemIDs.Coal;
 				break;
 			case BlockTypeEnum.DiamondOre:
-				inventoryItemIDs = InventoryItemIDs.Diamond;
+				output = InventoryItemIDs.Diamond;
 				break;
 			default:
 				switch (block)
 				{
 				case BlockTypeEnum.IronWall:
-					inventoryItemIDs = InventoryItemIDs.IronWall;
+					output = InventoryItemIDs.IronWall;
 					break;
 				case BlockTypeEnum.CopperWall:
-					inventoryItemIDs = InventoryItemIDs.CopperWall;
+					output = InventoryItemIDs.CopperWall;
 					break;
 				case BlockTypeEnum.GoldenWall:
-					inventoryItemIDs = InventoryItemIDs.GoldenWall;
+					output = InventoryItemIDs.GoldenWall;
 					break;
 				case BlockTypeEnum.DiamondWall:
-					inventoryItemIDs = InventoryItemIDs.DiamondWall;
+					output = InventoryItemIDs.DiamondWall;
 					break;
 				}
 				break;
 			}
-			return inventoryItemIDs;
+			return output;
 		}
 
 		private int GetPickaxeBlockTier(BlockTypeEnum blockType)
 		{
-			int num = int.MaxValue;
+			int blockTier = int.MaxValue;
 			switch (blockType)
 			{
 			case BlockTypeEnum.Dirt:
@@ -106,7 +106,7 @@ namespace DNA.CastleMinerZ.Inventory
 			case BlockTypeEnum.Snow:
 			case BlockTypeEnum.Leaves:
 			case BlockTypeEnum.Wood:
-				num = 0;
+				blockTier = 0;
 				break;
 			case BlockTypeEnum.Lantern:
 			case BlockTypeEnum.FixedLantern:
@@ -116,264 +116,264 @@ namespace DNA.CastleMinerZ.Inventory
 			case BlockTypeEnum.Log:
 				break;
 			case BlockTypeEnum.GoldOre:
-				num = 5;
+				blockTier = 5;
 				break;
 			case BlockTypeEnum.IronOre:
-				num = 3;
+				blockTier = 3;
 				break;
 			case BlockTypeEnum.CopperOre:
-				num = 2;
+				blockTier = 2;
 				break;
 			case BlockTypeEnum.CoalOre:
-				num = 1;
+				blockTier = 1;
 				break;
 			case BlockTypeEnum.DiamondOre:
-				num = 6;
+				blockTier = 6;
 				break;
 			case BlockTypeEnum.Ice:
-				num = 0;
+				blockTier = 0;
 				break;
 			case BlockTypeEnum.BloodStone:
-				num = 8;
+				blockTier = 8;
 				break;
 			case BlockTypeEnum.SpaceRock:
-				num = 9;
+				blockTier = 9;
 				break;
 			case BlockTypeEnum.IronWall:
-				num = 3;
+				blockTier = 3;
 				break;
 			case BlockTypeEnum.CopperWall:
-				num = 2;
+				blockTier = 2;
 				break;
 			case BlockTypeEnum.GoldenWall:
-				num = 4;
+				blockTier = 4;
 				break;
 			case BlockTypeEnum.DiamondWall:
-				num = 5;
+				blockTier = 5;
 				break;
 			default:
 				switch (blockType)
 				{
 				case BlockTypeEnum.Slime:
-					num = 10;
+					blockTier = 10;
 					break;
 				case BlockTypeEnum.SpaceRockInventory:
-					num = 9;
+					blockTier = 9;
 					break;
 				default:
 					switch (blockType)
 					{
 					case BlockTypeEnum.LootBlock:
-						num = 3;
+						blockTier = 3;
 						break;
 					case BlockTypeEnum.LuckyLootBlock:
-						num = 6;
+						blockTier = 6;
 						break;
 					}
 					break;
 				}
 				break;
 			}
-			return num;
+			return blockTier;
 		}
 
 		private int GetToolTier(PickInventoryItemClass pcls)
 		{
-			int num = 0;
+			int toolTier = 0;
 			if (pcls.ID == InventoryItemIDs.IronLaserSword || pcls.ID == InventoryItemIDs.GoldLaserSword || pcls.ID == InventoryItemIDs.DiamondLaserSword || pcls.ID == InventoryItemIDs.BloodStoneLaserSword || pcls.ID == InventoryItemIDs.CopperLaserSword)
 			{
-				num = 12;
+				toolTier = 12;
 			}
 			else
 			{
 				switch (pcls.Material)
 				{
 				case ToolMaterialTypes.Wood:
-					num = 1;
+					toolTier = 1;
 					break;
 				case ToolMaterialTypes.Stone:
-					num = 3;
+					toolTier = 3;
 					break;
 				case ToolMaterialTypes.Copper:
-					num = 4;
+					toolTier = 4;
 					break;
 				case ToolMaterialTypes.Iron:
-					num = 5;
+					toolTier = 5;
 					break;
 				case ToolMaterialTypes.Gold:
-					num = 6;
+					toolTier = 6;
 					break;
 				case ToolMaterialTypes.Diamond:
-					num = 8;
+					toolTier = 8;
 					break;
 				case ToolMaterialTypes.BloodStone:
-					num = 10;
+					toolTier = 10;
 					break;
 				}
 			}
-			return num;
+			return toolTier;
 		}
 
 		private float GetBlockDifficultyModifier(int blockTier)
 		{
-			float num = 5f;
+			float digTime = 5f;
 			switch (blockTier)
 			{
 			case 0:
-				num = 0.1f;
+				digTime = 0.1f;
 				break;
 			case 1:
-				num = 0.25f;
+				digTime = 0.25f;
 				break;
 			case 2:
-				num = 0.5f;
+				digTime = 0.5f;
 				break;
 			case 3:
-				num = 1f;
+				digTime = 1f;
 				break;
 			case 4:
-				num = 1.5f;
+				digTime = 1.5f;
 				break;
 			case 5:
-				num = 2f;
+				digTime = 2f;
 				break;
 			case 6:
-				num = 3f;
+				digTime = 3f;
 				break;
 			case 7:
-				num = 4.5f;
+				digTime = 4.5f;
 				break;
 			case 8:
-				num = 6f;
+				digTime = 6f;
 				break;
 			case 9:
-				num = 8f;
+				digTime = 8f;
 				break;
 			case 10:
-				num = 10f;
+				digTime = 10f;
 				break;
 			}
-			return num;
+			return digTime;
 		}
 
 		private float GetDifficultyRatio(int diff)
 		{
-			float num = 1f;
+			float diffRatio = 1f;
 			switch (diff)
 			{
 			case 0:
-				num = 1f;
+				diffRatio = 1f;
 				break;
 			case 1:
-				num = 0.75f;
+				diffRatio = 0.75f;
 				break;
 			case 2:
-				num = 0.5f;
+				diffRatio = 0.5f;
 				break;
 			case 3:
-				num = 0.35f;
+				diffRatio = 0.35f;
 				break;
 			case 4:
-				num = 0.25f;
+				diffRatio = 0.25f;
 				break;
 			case 5:
-				num = 0.2f;
+				diffRatio = 0.2f;
 				break;
 			case 6:
-				num = 0.17f;
+				diffRatio = 0.17f;
 				break;
 			case 7:
-				num = 0.15f;
+				diffRatio = 0.15f;
 				break;
 			case 8:
-				num = 0.14f;
+				diffRatio = 0.14f;
 				break;
 			case 9:
-				num = 0.13f;
+				diffRatio = 0.13f;
 				break;
 			case 10:
-				num = 0.12f;
+				diffRatio = 0.12f;
 				break;
 			}
-			return num;
+			return diffRatio;
 		}
 
 		private float GetAverageDigTimeForToolTier(int toolTier)
 		{
-			float num = 20f;
+			float digTime = 20f;
 			switch (toolTier)
 			{
 			case 0:
-				num = 16f;
+				digTime = 16f;
 				break;
 			case 1:
-				num = 14f;
+				digTime = 14f;
 				break;
 			case 2:
-				num = 12f;
+				digTime = 12f;
 				break;
 			case 3:
-				num = 10f;
+				digTime = 10f;
 				break;
 			case 4:
-				num = 9f;
+				digTime = 9f;
 				break;
 			case 5:
-				num = 6f;
+				digTime = 6f;
 				break;
 			case 6:
-				num = 4f;
+				digTime = 4f;
 				break;
 			case 7:
-				num = 3f;
+				digTime = 3f;
 				break;
 			case 8:
-				num = 2f;
+				digTime = 2f;
 				break;
 			case 9:
-				num = 1.5f;
+				digTime = 1.5f;
 				break;
 			case 10:
-				num = 1f;
+				digTime = 1f;
 				break;
 			case 12:
-				num = 0.5f;
+				digTime = 0.5f;
 				break;
 			}
-			return num;
+			return digTime;
 		}
 
 		public override TimeSpan TimeToDig(BlockTypeEnum blockType)
 		{
-			PickInventoryItemClass pickInventoryItemClass = (PickInventoryItemClass)base.ItemClass;
-			int pickaxeBlockTier = this.GetPickaxeBlockTier(blockType);
-			int toolTier = this.GetToolTier(pickInventoryItemClass);
-			if (pickaxeBlockTier > toolTier)
+			PickInventoryItemClass pcls = (PickInventoryItemClass)base.ItemClass;
+			int blockTier = this.GetPickaxeBlockTier(blockType);
+			int toolTier = this.GetToolTier(pcls);
+			if (blockTier > toolTier)
 			{
 				return base.TimeToDig(blockType);
 			}
-			float num = this.ComputeDigTime(toolTier, pickaxeBlockTier);
-			return TimeSpan.FromSeconds((double)num);
+			float seconds = this.ComputeDigTime(toolTier, blockTier);
+			return TimeSpan.FromSeconds((double)seconds);
 		}
 
 		private float ComputeDigTime(int toolTier, int blockTier)
 		{
-			int num = toolTier - blockTier;
-			float num2 = this.GetAverageDigTimeForToolTier(toolTier);
-			float blockDifficultyModifier = this.GetBlockDifficultyModifier(blockTier);
-			num2 *= blockDifficultyModifier;
-			num2 *= this.GetDifficultyRatio(num);
-			if (num2 < 0.01f)
+			int diff = toolTier - blockTier;
+			float seconds = this.GetAverageDigTimeForToolTier(toolTier);
+			float digRatio = this.GetBlockDifficultyModifier(blockTier);
+			seconds *= digRatio;
+			seconds *= this.GetDifficultyRatio(diff);
+			if (seconds < 0.01f)
 			{
-				num2 = 0.01f;
+				seconds = 0.01f;
 			}
-			return num2;
+			return seconds;
 		}
 
 		public TimeSpan TimeToDigOld(BlockTypeEnum blockType)
 		{
-			PickInventoryItemClass pickInventoryItemClass = (PickInventoryItemClass)base.ItemClass;
-			if (pickInventoryItemClass.ID == InventoryItemIDs.IronLaserSword || pickInventoryItemClass.ID == InventoryItemIDs.GoldLaserSword || pickInventoryItemClass.ID == InventoryItemIDs.DiamondLaserSword || pickInventoryItemClass.ID == InventoryItemIDs.BloodStoneLaserSword || pickInventoryItemClass.ID == InventoryItemIDs.CopperLaserSword)
+			PickInventoryItemClass pcls = (PickInventoryItemClass)base.ItemClass;
+			if (pcls.ID == InventoryItemIDs.IronLaserSword || pcls.ID == InventoryItemIDs.GoldLaserSword || pcls.ID == InventoryItemIDs.DiamondLaserSword || pcls.ID == InventoryItemIDs.BloodStoneLaserSword || pcls.ID == InventoryItemIDs.CopperLaserSword)
 			{
 				switch (blockType)
 				{
@@ -427,7 +427,7 @@ namespace DNA.CastleMinerZ.Inventory
 					break;
 				}
 			}
-			switch (pickInventoryItemClass.Material)
+			switch (pcls.Material)
 			{
 			case ToolMaterialTypes.Wood:
 				return base.TimeToDig(blockType);

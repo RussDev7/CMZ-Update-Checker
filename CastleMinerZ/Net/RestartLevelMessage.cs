@@ -21,8 +21,8 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from)
 		{
-			RestartLevelMessage sendInstance = Message.GetSendInstance<RestartLevelMessage>();
-			sendInstance.DoSend(from);
+			RestartLevelMessage Instance = Message.GetSendInstance<RestartLevelMessage>();
+			Instance.DoSend(from);
 		}
 
 		protected override SendDataOptions SendDataOptions

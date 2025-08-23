@@ -24,19 +24,19 @@ namespace DNA.CastleMinerZ.Utils.Trace
 
 		public void Init(Vector3 start, Vector3 end, BoundingBox box)
 		{
-			Vector3 vector = Vector3.Multiply(box.Min + box.Max, 0.5f);
-			this._offsetToRay = Vector3.Negate(vector);
-			this._start = start + vector;
-			this._end = end + vector;
-			this._halfVec = box.Max - vector;
+			Vector3 boxCenter = Vector3.Multiply(box.Min + box.Max, 0.5f);
+			this._offsetToRay = Vector3.Negate(boxCenter);
+			this._start = start + boxCenter;
+			this._end = end + boxCenter;
+			this._halfVec = box.Max - boxCenter;
 			this._halfVec.X = Math.Abs(this._halfVec.X);
 			this._halfVec.Y = Math.Abs(this._halfVec.Y);
 			this._halfVec.Z = Math.Abs(this._halfVec.Z);
-			Vector3 vector2 = Vector3.Min(this._start, this._end);
-			vector2 -= this._halfVec;
-			Vector3 vector3 = Vector3.Max(this._start, this._end);
-			vector3 += this._halfVec;
-			this._bounds = new BoundingBox(vector2, vector3);
+			Vector3 min = Vector3.Min(this._start, this._end);
+			min -= this._halfVec;
+			Vector3 max = Vector3.Max(this._start, this._end);
+			max += this._halfVec;
+			this._bounds = new BoundingBox(min, max);
 			this._direction = this._start - this._end;
 			this.hasDirection = this._direction.LengthSquared() > 0f;
 			this._direction.Normalize();
@@ -59,69 +59,69 @@ namespace DNA.CastleMinerZ.Utils.Trace
 
 		public override bool TestShape(Plane[] planes, IntVector3 worldIndex)
 		{
-			float num = 0f;
-			float num2 = 1f;
-			bool flag = true;
-			bool flag2 = true;
-			int num3 = 0;
-			int num4 = 0;
+			float inT = 0f;
+			float outT = 1f;
+			bool startsIn = true;
+			bool endsIn = true;
+			int inPlane = 0;
+			int outPlane = 0;
 			for (int i = 0; i < planes.Length; i++)
 			{
-				Vector3 vector = Vector3.Multiply(this._halfVec, planes[i].Normal);
-				float num5 = -(Math.Abs(vector.X) + Math.Abs(vector.Y) + Math.Abs(vector.Z));
-				float num6 = planes[i].DotCoordinate(this._start) + num5;
-				float num7 = planes[i].DotCoordinate(this._end) + num5;
-				bool flag3;
-				if (num6 > -0.0001f)
+				Vector3 offsetVector = Vector3.Multiply(this._halfVec, planes[i].Normal);
+				float offset = -(Math.Abs(offsetVector.X) + Math.Abs(offsetVector.Y) + Math.Abs(offsetVector.Z));
+				float dStart = planes[i].DotCoordinate(this._start) + offset;
+				float dEnd = planes[i].DotCoordinate(this._end) + offset;
+				bool startIsOut;
+				if (dStart > -0.0001f)
 				{
-					flag3 = true;
-					num6 = Math.Max(num6, 0f);
+					startIsOut = true;
+					dStart = Math.Max(dStart, 0f);
 				}
 				else
 				{
-					flag3 = false;
+					startIsOut = false;
 				}
-				bool flag4;
-				if (num7 > -0.0001f)
+				bool endIsOut;
+				if (dEnd > -0.0001f)
 				{
-					flag4 = true;
-					num7 = Math.Max(num7, 0f);
+					endIsOut = true;
+					dEnd = Math.Max(dEnd, 0f);
 				}
 				else
 				{
-					flag4 = false;
+					endIsOut = false;
 				}
-				if (flag3 && flag4)
+				if (startIsOut && endIsOut)
 				{
 					return false;
 				}
-				if (flag3 != flag4)
+				if (startIsOut != endIsOut)
 				{
-					if (num6 > num7)
+					if (dStart > dEnd)
 					{
-						float num8 = num6 / (num6 - num7);
-						if (num8 >= num)
+						float t = dStart / (dStart - dEnd);
+						if (t >= inT)
 						{
-							flag = false;
-							num3 = i;
-							num = num8;
+							startsIn = false;
+							inPlane = i;
+							inT = t;
 						}
 					}
 					else
 					{
-						float num9 = -num6 / (num7 - num6);
-						if (num9 <= num2)
+						float t2 = -dStart / (dEnd - dStart);
+						if (t2 <= outT)
 						{
-							flag2 = false;
-							num4 = i;
-							num2 = num9;
+							endsIn = false;
+							outPlane = i;
+							outT = t2;
 						}
 					}
 				}
 			}
-			if (num <= num2 && (!this.hasDirection || Math.Abs(Vector3.Dot(this._direction, planes[num3].Normal)) > 1E-05f || (flag && (this.SimulateSlopedSides || !this.SkipEmbedded))))
+			if (inT <= outT && (!this.hasDirection || Math.Abs(Vector3.Dot(this._direction, planes[inPlane].Normal)) > 1E-05f || (startsIn && (this.SimulateSlopedSides || !this.SkipEmbedded))))
 			{
-				base.SetIntersection(num, ref planes[num3].Normal, flag, (BlockFace)num3, num2, ref planes[num4].Normal, flag2, (BlockFace)num4, worldIndex);
+				base.SetIntersection(inT, ref planes[inPlane].Normal, startsIn, (BlockFace)inPlane, outT, ref planes[outPlane].Normal, endsIn, (BlockFace)outPlane, worldIndex);
 			}
 			return true;
 		}

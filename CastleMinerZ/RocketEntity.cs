@@ -91,18 +91,18 @@ namespace DNA.CastleMinerZ
 				}
 				return;
 			}
-			bool flag = false;
-			float num = (float)gameTime.ElapsedGameTime.TotalSeconds;
-			this._runningTime += num;
-			Vector3 vector = Vector3.Zero;
-			float num2 = 0f;
+			bool validTarget = false;
+			float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+			this._runningTime += deltaTime;
+			Vector3 ballisticPosition = Vector3.Zero;
+			float speed = 0f;
 			if (this._runningTime < this._timeToFullGuidance)
 			{
-				float num3 = this._runningTime + 0.25f;
-				vector = this._startPoint + Vector3.Multiply(this._startingVelocity, num3) + Vector3.Multiply(Vector3.Down, 4.9f * num3 * num3);
+				float absTime = this._runningTime + 0.25f;
+				ballisticPosition = this._startPoint + Vector3.Multiply(this._startingVelocity, absTime) + Vector3.Multiply(Vector3.Down, 4.9f * absTime * absTime);
 			}
-			Vector3 vector5;
-			Vector3 vector6;
+			Vector3 pointingDirection;
+			Vector3 newPosition;
 			if (this._runningTime >= 0f)
 			{
 				if (this._fireEmitter != null && this._smokeEmitter != null)
@@ -110,101 +110,101 @@ namespace DNA.CastleMinerZ
 					this._fireEmitter.Emitting = true;
 					this._smokeEmitter.Emitting = true;
 				}
-				Vector3 vector4;
+				Vector3 newDirection;
 				if (this._guided)
 				{
-					Vector3 vector2;
+					Vector3 targetLocation;
 					if (EnemyManager.Instance != null && EnemyManager.Instance.DragonIsAlive)
 					{
-						flag = true;
-						vector2 = EnemyManager.Instance.DragonPosition;
+						validTarget = true;
+						targetLocation = EnemyManager.Instance.DragonPosition;
 					}
 					else
 					{
-						vector2 = base.WorldPosition + base.LocalToWorld.Forward;
+						targetLocation = base.WorldPosition + base.LocalToWorld.Forward;
 					}
-					Vector3 vector3 = Vector3.Normalize(vector2 - base.WorldPosition);
+					Vector3 targetDirection = Vector3.Normalize(targetLocation - base.WorldPosition);
 					if (this._runningTime >= this._timeToFullGuidance)
 					{
-						vector4 = vector3;
-						vector5 = vector4;
+						newDirection = targetDirection;
+						pointingDirection = newDirection;
 					}
 					else
 					{
-						float num4 = this._runningTime / this._timeToFullGuidance;
-						vector4 = Vector3.Normalize(Vector3.Lerp(this._emittedDirection, vector3, num4));
-						vector5 = Vector3.Normalize(Vector3.Lerp(this._emittedDirection, vector3, (float)Math.Sqrt((double)num4)));
+						float lerpValue = this._runningTime / this._timeToFullGuidance;
+						newDirection = Vector3.Normalize(Vector3.Lerp(this._emittedDirection, targetDirection, lerpValue));
+						pointingDirection = Vector3.Normalize(Vector3.Lerp(this._emittedDirection, targetDirection, (float)Math.Sqrt((double)lerpValue)));
 					}
 				}
 				else
 				{
-					vector4 = this._emittedDirection;
-					vector5 = this._emittedDirection;
+					newDirection = this._emittedDirection;
+					pointingDirection = this._emittedDirection;
 				}
 				if (this._runningTime < this._timeToMaxSpeed)
 				{
-					float num5 = (float)Math.Sqrt((double)(this._runningTime / this._timeToMaxSpeed));
-					num2 = num5 * this._maxSpeed;
-					this._guidedPosition += vector4 * (num2 * num);
-					vector6 = Vector3.Lerp(vector, this._guidedPosition, num5);
+					float lerpValue2 = (float)Math.Sqrt((double)(this._runningTime / this._timeToMaxSpeed));
+					speed = lerpValue2 * this._maxSpeed;
+					this._guidedPosition += newDirection * (speed * deltaTime);
+					newPosition = Vector3.Lerp(ballisticPosition, this._guidedPosition, lerpValue2);
 				}
 				else
 				{
-					num2 = this._maxSpeed;
-					this._guidedPosition += vector4 * (num2 * num);
-					vector6 = this._guidedPosition;
+					speed = this._maxSpeed;
+					this._guidedPosition += newDirection * (speed * deltaTime);
+					newPosition = this._guidedPosition;
 				}
 			}
 			else
 			{
-				vector6 = vector;
-				vector5 = this._emittedDirection;
+				newPosition = ballisticPosition;
+				pointingDirection = this._emittedDirection;
 			}
-			if (num2 > 0f)
+			if (speed > 0f)
 			{
-				Quaternion quaternion = Quaternion.CreateFromYawPitchRoll(0f, 0f, num * 0.5f * num2);
-				this._rocket.LocalRotation = Quaternion.Concatenate(this._rocket.LocalRotation, quaternion);
+				Quaternion q = Quaternion.CreateFromYawPitchRoll(0f, 0f, deltaTime * 0.5f * speed);
+				this._rocket.LocalRotation = Quaternion.Concatenate(this._rocket.LocalRotation, q);
 			}
-			Vector3 worldPosition = base.WorldPosition;
-			base.LocalToParent = MathTools.CreateWorld(vector6, vector5);
-			bool flag2 = false;
-			if (!flag && (BlockTerrain.Instance == null || !BlockTerrain.Instance.IsTracerStillInWorld(vector6)))
+			Vector3 lastPosition = base.WorldPosition;
+			base.LocalToParent = MathTools.CreateWorld(newPosition, pointingDirection);
+			bool deactivate = false;
+			if (!validTarget && (BlockTerrain.Instance == null || !BlockTerrain.Instance.IsTracerStillInWorld(newPosition)))
 			{
-				flag2 = true;
+				deactivate = true;
 			}
 			else
 			{
-				IShootableEnemy shootableEnemy = null;
-				Vector3 vector7 = base.WorldPosition;
-				bool flag3 = false;
+				IShootableEnemy z = null;
+				Vector3 detonationPosition = base.WorldPosition;
+				bool explode = false;
 				if (this._runningTime > 10f)
 				{
-					flag3 = true;
+					explode = true;
 				}
 				else
 				{
-					RocketEntity.tp.Init(worldPosition, base.WorldPosition);
-					shootableEnemy = EnemyManager.Instance.Trace(RocketEntity.tp, false);
+					RocketEntity.tp.Init(lastPosition, base.WorldPosition);
+					z = EnemyManager.Instance.Trace(RocketEntity.tp, false);
 					if (RocketEntity.tp._collides)
 					{
-						flag3 = true;
-						vector7 = RocketEntity.tp.GetIntersection();
+						explode = true;
+						detonationPosition = RocketEntity.tp.GetIntersection();
 					}
 				}
-				if (flag3)
+				if (explode)
 				{
-					flag2 = true;
+					deactivate = true;
 					if (this._doExplosion)
 					{
-						bool flag4 = shootableEnemy is DragonClientEntity;
-						DetonateRocketMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, vector7, ExplosiveTypes.Rocket, this._weaponType, flag4);
-						Explosive.FindBlocksToRemove(IntVector3.FromVector3(vector7), ExplosiveTypes.Rocket, false);
+						bool hitDragon = z is DragonClientEntity;
+						DetonateRocketMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, detonationPosition, ExplosiveTypes.Rocket, this._weaponType, hitDragon);
+						Explosive.FindBlocksToRemove(IntVector3.FromVector3(detonationPosition), ExplosiveTypes.Rocket, false);
 					}
 				}
 			}
 			this._audioEmitter.Forward = this._guidedPosition;
 			this._audioEmitter.Position = base.LocalPosition;
-			if (flag2)
+			if (deactivate)
 			{
 				if (this._fireEmitter != null && this._smokeEmitter != null)
 				{

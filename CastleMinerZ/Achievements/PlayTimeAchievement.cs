@@ -39,14 +39,14 @@ namespace DNA.CastleMinerZ.Achievements
 		{
 			get
 			{
-				int num = (int)base.PlayerStats.TimeOnline.TotalHours;
-				if (this._lastAmount != num)
+				int total = (int)base.PlayerStats.TimeOnline.TotalHours;
+				if (this._lastAmount != total)
 				{
-					this._lastAmount = num;
+					this._lastAmount = total;
 					this.lastString = string.Concat(new string[]
 					{
 						"(",
-						num.ToString(),
+						total.ToString(),
 						"/",
 						this._hours.ToString(),
 						") ",

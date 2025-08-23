@@ -26,22 +26,22 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public override Entity CreateEntity(ItemUse use, bool attachedToLocalPlayer)
 		{
-			CastleMinerToolModel castleMinerToolModel = new CastleMinerToolModel(this._model, use, attachedToLocalPlayer);
-			castleMinerToolModel.EnablePerPixelLighting();
-			castleMinerToolModel.ToolColor = this.ToolColor;
+			CastleMinerToolModel ent = new CastleMinerToolModel(this._model, use, attachedToLocalPlayer);
+			ent.EnablePerPixelLighting();
+			ent.ToolColor = this.ToolColor;
 			switch (use)
 			{
 			case ItemUse.UI:
 			{
-				Quaternion quaternion = Quaternion.CreateFromYawPitchRoll(0f, 0f, 0.31415927f) * Quaternion.CreateFromYawPitchRoll(0f, -1.5707964f, 0f);
-				Matrix matrix = Matrix.Transform(Matrix.CreateScale(35.2f / castleMinerToolModel.GetLocalBoundingSphere().Radius), quaternion);
-				matrix.Translation = new Vector3(16f, -19f, -16f);
-				castleMinerToolModel.LocalToParent = matrix;
-				castleMinerToolModel.EnableDefaultLighting();
+				Quaternion mat = Quaternion.CreateFromYawPitchRoll(0f, 0f, 0.31415927f) * Quaternion.CreateFromYawPitchRoll(0f, -1.5707964f, 0f);
+				Matrix i = Matrix.Transform(Matrix.CreateScale(35.2f / ent.GetLocalBoundingSphere().Radius), mat);
+				i.Translation = new Vector3(16f, -19f, -16f);
+				ent.LocalToParent = i;
+				ent.EnableDefaultLighting();
 				break;
 			}
 			}
-			return castleMinerToolModel;
+			return ent;
 		}
 
 		public ToolMaterialTypes Material;

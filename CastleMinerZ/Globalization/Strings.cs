@@ -8,8 +8,8 @@ using System.Runtime.CompilerServices;
 
 namespace DNA.CastleMinerZ.Globalization
 {
-	[DebuggerNonUserCode]
 	[GeneratedCode("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+	[DebuggerNonUserCode]
 	[CompilerGenerated]
 	internal class Strings
 	{
@@ -24,8 +24,8 @@ namespace DNA.CastleMinerZ.Globalization
 			{
 				if (object.ReferenceEquals(Strings.resourceMan, null))
 				{
-					ResourceManager resourceManager = new ResourceManager("DNA.CastleMinerZ.Globalization.Strings", typeof(Strings).Assembly);
-					Strings.resourceMan = resourceManager;
+					ResourceManager temp = new ResourceManager("DNA.CastleMinerZ.Globalization.Strings", typeof(Strings).Assembly);
+					Strings.resourceMan = temp;
 				}
 				return Strings.resourceMan;
 			}

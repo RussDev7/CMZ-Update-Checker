@@ -22,17 +22,17 @@ namespace DNA.CastleMinerZ
 		{
 			if (this.Context != ItemUse.UI)
 			{
-				Vector3 vector = base.WorldPosition;
+				Vector3 pos = base.WorldPosition;
 				if (this.AttachedToLocalPlayer)
 				{
-					vector = Vector3.Transform(new Vector3(0.1f, -0.3f, -0.25f), CastleMinerZGame.Instance.LocalPlayer.FPSCamera.LocalToWorld);
+					pos = Vector3.Transform(new Vector3(0.1f, -0.3f, -0.25f), CastleMinerZGame.Instance.LocalPlayer.FPSCamera.LocalToWorld);
 				}
-				BlockTerrain.Instance.GetEnemyLighting(vector, ref this.DirectLightDirection[0], ref this.DirectLightColor[0], ref this.DirectLightDirection[1], ref this.DirectLightColor[1], ref this.AmbientLight);
+				BlockTerrain.Instance.GetEnemyLighting(pos, ref this.DirectLightDirection[0], ref this.DirectLightColor[0], ref this.DirectLightDirection[1], ref this.DirectLightColor[1], ref this.AmbientLight);
 				if (this.Context == ItemUse.Pickup)
 				{
-					float num = (float)Math.IEEERemainder(CastleMinerZGame.Instance.CurrentGameTime.TotalGameTime.TotalSeconds, 1.0) * 3.1415927f * 2f;
-					num = 0.55f + 0.45f * (float)Math.Sin((double)num);
-					this.AmbientLight = Vector3.Lerp(this.AmbientLight, Vector3.One, num);
+					float pulse = (float)Math.IEEERemainder(CastleMinerZGame.Instance.CurrentGameTime.TotalGameTime.TotalSeconds, 1.0) * 3.1415927f * 2f;
+					pulse = 0.55f + 0.45f * (float)Math.Sin((double)pulse);
+					this.AmbientLight = Vector3.Lerp(this.AmbientLight, Vector3.One, pulse);
 				}
 			}
 		}
@@ -47,8 +47,8 @@ namespace DNA.CastleMinerZ
 		{
 			if (base.SetEffectParams(mesh, oeffect, gameTime, world, view, projection))
 			{
-				BasicEffect basicEffect = oeffect as BasicEffect;
-				if (basicEffect != null)
+				BasicEffect effect = oeffect as BasicEffect;
+				if (effect != null)
 				{
 					if (mesh.Name.Contains("recolor_"))
 					{
@@ -56,7 +56,7 @@ namespace DNA.CastleMinerZ
 						{
 							return false;
 						}
-						basicEffect.DiffuseColor = this.ToolColor.ToVector3();
+						effect.DiffuseColor = this.ToolColor.ToVector3();
 					}
 					else if (mesh.Name.Contains("recolor2_"))
 					{
@@ -64,26 +64,26 @@ namespace DNA.CastleMinerZ
 						{
 							return false;
 						}
-						basicEffect.DiffuseColor = this.ToolColor2.ToVector3();
+						effect.DiffuseColor = this.ToolColor2.ToVector3();
 					}
 					else
 					{
-						basicEffect.DiffuseColor = Color.White.ToVector3();
+						effect.DiffuseColor = Color.White.ToVector3();
 					}
 				}
 				else
 				{
-					DNAEffect dnaeffect = oeffect as DNAEffect;
-					if (dnaeffect != null)
+					DNAEffect dnaEffect = oeffect as DNAEffect;
+					if (dnaEffect != null)
 					{
-						dnaeffect.EmissiveColor = this.EmissiveColor;
+						dnaEffect.EmissiveColor = this.EmissiveColor;
 						if (mesh.Name.Contains("recolor_"))
 						{
 							if (this.ToolColor.A == 0)
 							{
 								return false;
 							}
-							dnaeffect.DiffuseColor = this.ToolColor;
+							dnaEffect.DiffuseColor = this.ToolColor;
 						}
 						else if (mesh.Name.Contains("recolor2_"))
 						{
@@ -91,19 +91,19 @@ namespace DNA.CastleMinerZ
 							{
 								return false;
 							}
-							dnaeffect.DiffuseColor = this.ToolColor2;
+							dnaEffect.DiffuseColor = this.ToolColor2;
 						}
 						else
 						{
-							dnaeffect.DiffuseColor = this.DiffuseColor;
+							dnaEffect.DiffuseColor = this.DiffuseColor;
 						}
-						if (dnaeffect.Parameters["LightDirection1"] != null)
+						if (dnaEffect.Parameters["LightDirection1"] != null)
 						{
-							dnaeffect.Parameters["LightDirection1"].SetValue(-this.DirectLightDirection[0]);
-							dnaeffect.Parameters["LightColor1"].SetValue(this.DirectLightColor[0]);
-							dnaeffect.Parameters["LightDirection2"].SetValue(-this.DirectLightDirection[1]);
-							dnaeffect.Parameters["LightColor2"].SetValue(this.DirectLightColor[1]);
-							dnaeffect.AmbientColor = ColorF.FromVector3(this.AmbientLight);
+							dnaEffect.Parameters["LightDirection1"].SetValue(-this.DirectLightDirection[0]);
+							dnaEffect.Parameters["LightColor1"].SetValue(this.DirectLightColor[0]);
+							dnaEffect.Parameters["LightDirection2"].SetValue(-this.DirectLightDirection[1]);
+							dnaEffect.Parameters["LightColor2"].SetValue(this.DirectLightColor[1]);
+							dnaEffect.AmbientColor = ColorF.FromVector3(this.AmbientLight);
 						}
 					}
 				}

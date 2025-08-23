@@ -30,13 +30,13 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public bool IsSlotLocked(int index)
 		{
-			foreach (NetworkGamer networkGamer in CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers)
+			foreach (NetworkGamer gamer in CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers)
 			{
-				if (networkGamer.Tag != null)
+				if (gamer.Tag != null)
 				{
-					Player player = (Player)networkGamer.Tag;
-					int num = player.FocusCrateItem.X + player.FocusCrateItem.Y * 8;
-					if (player.FocusCrate == this.Location && num == index)
+					Player player = (Player)gamer.Tag;
+					int playerLockedIndex = player.FocusCrateItem.X + player.FocusCrateItem.Y * 8;
+					if (player.FocusCrate == this.Location && playerLockedIndex == index)
 					{
 						return true;
 					}

@@ -20,16 +20,16 @@ namespace DNA.CastleMinerZ.Utils.Threading
 
 		public static LambdaProxy Alloc(WaitCallback callback)
 		{
-			LambdaProxy lambdaProxy = LambdaProxy._cache.Get();
-			lambdaProxy._oneArgumentCallback = callback;
-			return lambdaProxy;
+			LambdaProxy result = LambdaProxy._cache.Get();
+			result._oneArgumentCallback = callback;
+			return result;
 		}
 
 		public static LambdaProxy Alloc(ThreadStart callback)
 		{
-			LambdaProxy lambdaProxy = LambdaProxy._cache.Get();
-			lambdaProxy._zeroArgumentCallback = callback;
-			return lambdaProxy;
+			LambdaProxy result = LambdaProxy._cache.Get();
+			result._zeroArgumentCallback = callback;
+			return result;
 		}
 
 		public void Release()

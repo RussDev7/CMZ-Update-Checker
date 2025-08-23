@@ -70,28 +70,28 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public override Entity CreateEntity(ItemUse use, bool attachedToLocalPlayer)
 		{
-			GunEntity gunEntity = new GunEntity(this._model, use, attachedToLocalPlayer);
-			gunEntity.EnablePerPixelLighting();
-			gunEntity.ToolColor = this.ToolColor;
-			gunEntity.EmissiveColor = this.EmissiveColor;
+			GunEntity ent = new GunEntity(this._model, use, attachedToLocalPlayer);
+			ent.EnablePerPixelLighting();
+			ent.ToolColor = this.ToolColor;
+			ent.EmissiveColor = this.EmissiveColor;
 			switch (use)
 			{
 			case ItemUse.UI:
 			{
-				Quaternion quaternion = Quaternion.CreateFromYawPitchRoll(0f, 0f, -0.7853982f);
-				Matrix matrix = Matrix.Transform(Matrix.CreateScale(32f / gunEntity.GetLocalBoundingSphere().Radius), quaternion);
-				gunEntity.LocalToParent = matrix;
-				gunEntity.EnableDefaultLighting();
+				Quaternion mat = Quaternion.CreateFromYawPitchRoll(0f, 0f, -0.7853982f);
+				Matrix i = Matrix.Transform(Matrix.CreateScale(32f / ent.GetLocalBoundingSphere().Radius), mat);
+				ent.LocalToParent = i;
+				ent.EnableDefaultLighting();
 				break;
 			}
 			case ItemUse.Hand:
-				gunEntity.EnablePerPixelLighting();
+				ent.EnablePerPixelLighting();
 				break;
 			case ItemUse.Pickup:
-				gunEntity.EnablePerPixelLighting();
+				ent.EnablePerPixelLighting();
 				break;
 			}
-			return gunEntity;
+			return ent;
 		}
 
 		private string _reloadSound;

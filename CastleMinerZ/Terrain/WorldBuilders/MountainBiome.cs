@@ -14,65 +14,65 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 
 		public override void BuildColumn(BlockTerrain terrain, int worldX, int worldZ, int minY, float blender)
 		{
-			int num = (int)MathHelper.Lerp(0f, 32f, blender);
-			int num2 = (int)MathHelper.Lerp(32f, 86f, blender);
-			int num3 = 1;
-			float num4 = 0f;
-			int num5 = 4;
-			for (int i = 0; i < num5; i++)
+			int adjustedHillHeight = (int)MathHelper.Lerp(0f, 32f, blender);
+			int adjustedGround = (int)MathHelper.Lerp(32f, 86f, blender);
+			int freq = 1;
+			float noise = 0f;
+			int octives = 4;
+			for (int i = 0; i < octives; i++)
 			{
-				num4 += this._noiseFunction.ComputeNoise(0.021875f * (float)worldX * (float)num3, 0.021875f * (float)worldZ * (float)num3) / (float)num3;
-				num3 *= 2;
+				noise += this._noiseFunction.ComputeNoise(0.021875f * (float)worldX * (float)freq, 0.021875f * (float)worldZ * (float)freq) / (float)freq;
+				freq *= 2;
 			}
-			int num6 = num2 + (int)(num4 * (float)num);
-			num3 = 1;
-			num4 = 0f;
-			num5 = 6;
-			Vector2 vector = new Vector2((float)worldX * 0.00625f, (float)worldZ * 0.00625f);
-			for (int j = 0; j < num5; j++)
+			int groundLimit = adjustedGround + (int)(noise * (float)adjustedHillHeight);
+			freq = 1;
+			noise = 0f;
+			octives = 6;
+			Vector2 wv = new Vector2((float)worldX * 0.00625f, (float)worldZ * 0.00625f);
+			for (int j = 0; j < octives; j++)
 			{
-				num4 += this._noiseFunction.ComputeNoise(vector * (float)num3) / (float)num3;
-				num3 *= 2;
+				noise += this._noiseFunction.ComputeNoise(wv * (float)freq) / (float)freq;
+				freq *= 2;
 			}
-			num4 = (num4 + 1f) / 2f;
-			float num7 = num4;
-			num7 -= (float)Math.Floor((double)num7);
-			num7 -= 0.5f;
-			num4 = (float)Math.Pow(2.0, (double)(-(double)num7 * num7 * 1000f));
-			num6 -= (int)(num4 * (float)num);
-			bool flag = false;
-			if (num6 <= 65)
+			noise = (noise + 1f) / 2f;
+			float impulseinput = noise;
+			impulseinput -= (float)Math.Floor((double)impulseinput);
+			impulseinput -= 0.5f;
+			noise = (float)Math.Pow(2.0, (double)(-(double)impulseinput * impulseinput * 1000f));
+			groundLimit -= (int)(noise * (float)adjustedHillHeight);
+			bool inValley = false;
+			if (groundLimit <= 65)
 			{
-				num6 = 65;
-				flag = true;
+				groundLimit = 65;
+				inValley = true;
 			}
-			num4 = this._noiseFunction.ComputeNoise(vector + new Vector2(1000f, 1000f)) * blender;
-			num6 += (int)(num4 * 10f);
-			int num8 = (int)(this._noiseFunction.ComputeNoise((float)worldX * 0.5f, (float)worldZ * 0.5f) * 4f);
-			int num9 = num6 - 4;
-			int num10 = 98;
-			if (num9 < num10)
+			noise = this._noiseFunction.ComputeNoise(wv + new Vector2(1000f, 1000f)) * blender;
+			groundLimit += (int)(noise * 10f);
+			int landBias = (int)(this._noiseFunction.ComputeNoise((float)worldX * 0.5f, (float)worldZ * 0.5f) * 4f);
+			int snowLimit = groundLimit - 4;
+			int snowAlt = 98;
+			if (snowLimit < snowAlt)
 			{
-				num9 = num10;
+				snowLimit = snowAlt;
 			}
-			num9 += num8;
-			if (num6 >= 128)
+			snowLimit += landBias;
+			if (groundLimit >= 128)
 			{
-				num6 = 127;
+				groundLimit = 127;
 			}
-			for (int k = 0; k <= num6; k++)
+			for (int y = 0; y <= groundLimit; y++)
 			{
-				int num11 = k + minY;
-				IntVector3 intVector = new IntVector3(worldX, num11, worldZ);
-				int num12 = terrain.MakeIndexFromWorldIndexVector(intVector);
-				terrain._blocks[num12] = Biome.rockblock;
-				if (flag || k >= num9)
+				int worldY = y + minY;
+				IntVector3 worldPos = new IntVector3(worldX, worldY, worldZ);
+				int index = terrain.MakeIndexFromWorldIndexVector(worldPos);
+				terrain._blocks[index] = Biome.rockblock;
+				if (inValley || y >= snowLimit)
 				{
-					terrain._blocks[num12] = Biome.snowBlock;
+					terrain._blocks[index] = Biome.snowBlock;
 				}
 				else
 				{
-					terrain._blocks[num12] = Biome.rockblock;
+					terrain._blocks[index] = Biome.rockblock;
 				}
 			}
 		}

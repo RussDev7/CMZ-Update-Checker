@@ -21,7 +21,7 @@ namespace DNA.CastleMinerZ.UI
 			base.MenuItems.Add(this.ControllerSensitivityBar);
 			this.MusicVolumeBar = new BarSettingItem(Strings.Music_Volume, this._game.PlayerStats.musicVolume);
 			base.MenuItems.Add(this.MusicVolumeBar);
-			List<object> list = new List<object>
+			List<object> drawDistances = new List<object>
 			{
 				Strings.Lowest,
 				Strings.Low,
@@ -29,7 +29,7 @@ namespace DNA.CastleMinerZ.UI
 				Strings.High,
 				Strings.Ultra
 			};
-			this.DrawDistanceBar = new ListSettingItem(Strings.Graphics, list, this._game.PlayerStats.DrawDistance);
+			this.DrawDistanceBar = new ListSettingItem(Strings.Graphics, drawDistances, this._game.PlayerStats.DrawDistance);
 			base.MenuItems.Add(this.DrawDistanceBar);
 			this.InvertYaxis = new BoolSettingItem(Strings.Invert_Y_Axis, this._game.PlayerStats.InvertYAxis, Strings.Inverted, Strings.Regular);
 			base.MenuItems.Add(this.InvertYaxis);
@@ -39,17 +39,17 @@ namespace DNA.CastleMinerZ.UI
 			base.MenuItems.Add(this.AutoClimb);
 			this.FullScreen = new BoolSettingItem(Strings.Full_Screen, this._game.IsFullScreen, Strings.On, Strings.Off);
 			base.MenuItems.Add(this.FullScreen);
-			ImageButtonControl imageButtonControl = new ImageButtonControl();
-			imageButtonControl.Image = this._game._uiSprites["BackArrow"];
-			imageButtonControl.Font = this._game._medFont;
-			imageButtonControl.LocalPosition = new Point(15, 15);
-			imageButtonControl.Pressed += this._backButton_Pressed;
-			imageButtonControl.Text = " " + Strings.Back;
-			imageButtonControl.ImageDefaultColor = new Color(CMZColors.MenuGreen.ToVector4() * 0.8f);
-			base.Controls.Add(imageButtonControl);
-			int num = (int)(Screen.Adjuster.ScaleFactor.Y * 25f);
-			int num2 = (int)(Screen.Adjuster.ScaleFactor.X * 25f);
-			this.DrawArea = new Rectangle?(new Rectangle(Screen.Adjuster.ScreenRect.X + num2, Screen.Adjuster.ScreenRect.Y + num, Screen.Adjuster.ScreenRect.Width - num2 * 2, Screen.Adjuster.ScreenRect.Height - num * 2));
+			ImageButtonControl _backButton = new ImageButtonControl();
+			_backButton.Image = this._game._uiSprites["BackArrow"];
+			_backButton.Font = this._game._medFont;
+			_backButton.LocalPosition = new Point(15, 15);
+			_backButton.Pressed += this._backButton_Pressed;
+			_backButton.Text = " " + Strings.Back;
+			_backButton.ImageDefaultColor = new Color(CMZColors.MenuGreen.ToVector4() * 0.8f);
+			base.Controls.Add(_backButton);
+			int yoffset = (int)(Screen.Adjuster.ScaleFactor.Y * 25f);
+			int xoffset = (int)(Screen.Adjuster.ScaleFactor.X * 25f);
+			this.DrawArea = new Rectangle?(new Rectangle(Screen.Adjuster.ScreenRect.X + xoffset, Screen.Adjuster.ScreenRect.Y + yoffset, Screen.Adjuster.ScreenRect.Width - xoffset * 2, Screen.Adjuster.ScreenRect.Height - yoffset * 2));
 			this.SelectedColor = CMZColors.MenuGreen;
 		}
 

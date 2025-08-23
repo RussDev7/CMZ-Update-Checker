@@ -17,16 +17,16 @@ namespace DNA.CastleMinerZ.Inventory
 		{
 			try
 			{
-				string directoryName = Path.GetDirectoryName(path);
-				if (!saveDevice.DirectoryExists(directoryName))
+				string directory = Path.GetDirectoryName(path);
+				if (!saveDevice.DirectoryExists(directory))
 				{
-					saveDevice.CreateDirectory(directoryName);
+					saveDevice.CreateDirectory(directory);
 				}
 				saveDevice.Save(path, true, true, delegate(Stream stream)
 				{
-					BinaryWriter binaryWriter = new BinaryWriter(stream);
-					this.Save(binaryWriter);
-					binaryWriter.Flush();
+					BinaryWriter writer = new BinaryWriter(stream);
+					this.Save(writer);
+					writer.Flush();
 				});
 			}
 			catch
@@ -38,8 +38,8 @@ namespace DNA.CastleMinerZ.Inventory
 		{
 			saveDevice.Load(path, delegate(Stream stream)
 			{
-				BinaryReader binaryReader = new BinaryReader(stream);
-				this.Load(binaryReader);
+				BinaryReader reader = new BinaryReader(stream);
+				this.Load(reader);
 			});
 		}
 
@@ -100,9 +100,9 @@ namespace DNA.CastleMinerZ.Inventory
 			{
 				throw new Exception("Invalid Inv File");
 			}
-			int num = reader.ReadInt32();
-			PlayerInventory.PlayerInventoryVersion playerInventoryVersion = (PlayerInventory.PlayerInventoryVersion)num;
-			if (num < 0 || playerInventoryVersion > PlayerInventory.PlayerInventoryVersion.CurrentVersion)
+			int fileVersionInt = reader.ReadInt32();
+			PlayerInventory.PlayerInventoryVersion fileVersion = (PlayerInventory.PlayerInventoryVersion)fileVersionInt;
+			if (fileVersionInt < 0 || fileVersion > PlayerInventory.PlayerInventoryVersion.CurrentVersion)
 			{
 				return;
 			}
@@ -121,7 +121,7 @@ namespace DNA.CastleMinerZ.Inventory
 					this.Inventory[i] = null;
 				}
 			}
-			if (playerInventoryVersion > PlayerInventory.PlayerInventoryVersion.MultiTray)
+			if (fileVersion > PlayerInventory.PlayerInventoryVersion.MultiTray)
 			{
 				this.TrayManager.Read(reader);
 			}
@@ -129,27 +129,27 @@ namespace DNA.CastleMinerZ.Inventory
 			{
 				this.TrayManager.ReadLegacy(reader);
 			}
-			if (playerInventoryVersion > PlayerInventory.PlayerInventoryVersion.TeleportStations)
+			if (fileVersion > PlayerInventory.PlayerInventoryVersion.TeleportStations)
 			{
-				int num2 = reader.ReadInt32();
-				for (int j = 0; j < num2; j++)
+				int listCount = reader.ReadInt32();
+				for (int j = 0; j < listCount; j++)
 				{
 					if (reader.ReadBoolean())
 					{
-						BlockInventoryItem blockInventoryItem = InventoryItem.Create(reader) as BlockInventoryItem;
-						this.TeleportStationObjects.Add(blockInventoryItem);
+						BlockInventoryItem blockInvItem = InventoryItem.Create(reader) as BlockInventoryItem;
+						this.TeleportStationObjects.Add(blockInvItem);
 						if (this.TeleportStationObjects[j] != null && !this.TeleportStationObjects[j].IsValid())
 						{
 							this.TeleportStationObjects[j] = null;
 						}
 						else
 						{
-							AlterBlockMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, IntVector3.FromVector3(blockInventoryItem.PointToLocation), blockInventoryItem.BlockTypeID);
+							AlterBlockMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, IntVector3.FromVector3(blockInvItem.PointToLocation), blockInvItem.BlockTypeID);
 						}
 					}
 				}
 			}
-			if (playerInventoryVersion > PlayerInventory.PlayerInventoryVersion.RespawnBeacon)
+			if (fileVersion > PlayerInventory.PlayerInventoryVersion.RespawnBeacon)
 			{
 				if (reader.ReadBoolean())
 				{
@@ -170,37 +170,37 @@ namespace DNA.CastleMinerZ.Inventory
 		public void DiscoverRecipies()
 		{
 			this.DiscoveredRecipies.Clear();
-			LinkedList<Recipe> linkedList = new LinkedList<Recipe>();
-			Dictionary<Recipe, bool> dictionary = new Dictionary<Recipe, bool>();
-			foreach (Recipe recipe in Recipe.CookBook)
+			LinkedList<Recipe> toParse = new LinkedList<Recipe>();
+			Dictionary<Recipe, bool> discovered = new Dictionary<Recipe, bool>();
+			foreach (Recipe r in Recipe.CookBook)
 			{
-				if (this.Discovered(recipe) && this.CanCraft(recipe))
+				if (this.Discovered(r) && this.CanCraft(r))
 				{
-					this.DiscoveredRecipies.Add(recipe);
-					linkedList.AddLast(recipe);
-					dictionary[recipe] = true;
+					this.DiscoveredRecipies.Add(r);
+					toParse.AddLast(r);
+					discovered[r] = true;
 				}
 			}
-			foreach (Recipe recipe2 in Recipe.CookBook)
+			foreach (Recipe r2 in Recipe.CookBook)
 			{
-				if (this.Discovered(recipe2) && !this.CanCraft(recipe2))
+				if (this.Discovered(r2) && !this.CanCraft(r2))
 				{
-					this.DiscoveredRecipies.Add(recipe2);
-					linkedList.AddLast(recipe2);
-					dictionary[recipe2] = true;
+					this.DiscoveredRecipies.Add(r2);
+					toParse.AddLast(r2);
+					discovered[r2] = true;
 				}
 			}
-			for (LinkedListNode<Recipe> linkedListNode = linkedList.First; linkedListNode != null; linkedListNode = linkedListNode.Next)
+			for (LinkedListNode<Recipe> current = toParse.First; current != null; current = current.Next)
 			{
-				foreach (InventoryItem inventoryItem in linkedListNode.Value.Ingredients)
+				foreach (InventoryItem item in current.Value.Ingredients)
 				{
-					foreach (Recipe recipe3 in Recipe.CookBook)
+					foreach (Recipe r3 in Recipe.CookBook)
 					{
-						if (recipe3.Result.ItemClass == inventoryItem.ItemClass && !dictionary.ContainsKey(recipe3))
+						if (r3.Result.ItemClass == item.ItemClass && !discovered.ContainsKey(r3))
 						{
-							dictionary[recipe3] = true;
-							linkedList.AddLast(recipe3);
-							this.DiscoveredRecipies.Add(recipe3);
+							discovered[r3] = true;
+							toParse.AddLast(r3);
+							this.DiscoveredRecipies.Add(r3);
 						}
 					}
 				}
@@ -215,22 +215,22 @@ namespace DNA.CastleMinerZ.Inventory
 		{
 			for (int i = 0; i < this.Inventory.Length; i++)
 			{
-				InventoryItem inventoryItem = this.Inventory[i];
-				bool flag = this.DoesItemUnlockRecipe(inventoryItem, recipe);
-				if (flag)
+				InventoryItem item = this.Inventory[i];
+				bool discovered = this.DoesItemUnlockRecipe(item, recipe);
+				if (discovered)
 				{
 					return true;
 				}
 			}
-			int upperBound = this.TrayManager.Trays.GetUpperBound(0);
-			int upperBound2 = this.TrayManager.Trays.GetUpperBound(1);
-			for (int j = 0; j <= upperBound; j++)
+			int bound0 = this.TrayManager.Trays.GetUpperBound(0);
+			int bound = this.TrayManager.Trays.GetUpperBound(1);
+			for (int row = 0; row <= bound0; row++)
 			{
-				for (int k = 0; k <= upperBound2; k++)
+				for (int col = 0; col <= bound; col++)
 				{
-					InventoryItem inventoryItem2 = this.TrayManager.Trays[j, k];
-					bool flag = this.DoesItemUnlockRecipe(inventoryItem2, recipe);
-					if (flag)
+					InventoryItem item2 = this.TrayManager.Trays[row, col];
+					bool discovered = this.DoesItemUnlockRecipe(item2, recipe);
+					if (discovered)
 					{
 						return true;
 					}
@@ -249,8 +249,8 @@ namespace DNA.CastleMinerZ.Inventory
 				}
 				if (item.ItemClass is GunInventoryItemClass)
 				{
-					GunInventoryItemClass gunInventoryItemClass = (GunInventoryItemClass)item.ItemClass;
-					if (recipe.Result.ItemClass == gunInventoryItemClass.AmmoType)
+					GunInventoryItemClass ginv = (GunInventoryItemClass)item.ItemClass;
+					if (recipe.Result.ItemClass == ginv.AmmoType)
 					{
 						return true;
 					}
@@ -268,15 +268,15 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public int CountItems(InventoryItem.InventoryItemClass itemClass)
 		{
-			int num = 0;
+			int count = 0;
 			for (int i = 0; i < this.Inventory.Length; i++)
 			{
 				if (this.Inventory[i] != null && itemClass == this.Inventory[i].ItemClass)
 				{
-					num += this.Inventory[i].StackCount;
+					count += this.Inventory[i].StackCount;
 				}
 			}
-			return num + this.TrayManager.GetItemClassCount(itemClass);
+			return count + this.TrayManager.GetItemClassCount(itemClass);
 		}
 
 		public bool CanCraft(Recipe recipe)
@@ -287,8 +287,8 @@ namespace DNA.CastleMinerZ.Inventory
 			}
 			for (int i = 0; i < recipe.Ingredients.Count; i++)
 			{
-				int num = this.CountItems(recipe.Ingredients[i].ItemClass);
-				if (num < recipe.Ingredients[i].StackCount)
+				int count = this.CountItems(recipe.Ingredients[i].ItemClass);
+				if (count < recipe.Ingredients[i].StackCount)
 				{
 					return false;
 				}
@@ -300,40 +300,40 @@ namespace DNA.CastleMinerZ.Inventory
 		{
 			if (CastleMinerZGame.Instance.InfiniteResourceMode)
 			{
-				InventoryItem inventoryItem = recipe.Result.ItemClass.CreateItem(recipe.Result.StackCount);
-				this.AddInventoryItem(inventoryItem, false);
+				InventoryItem invitem = recipe.Result.ItemClass.CreateItem(recipe.Result.StackCount);
+				this.AddInventoryItem(invitem, false);
 				return;
 			}
 			for (int i = 0; i < recipe.Ingredients.Count; i++)
 			{
-				InventoryItem inventoryItem2 = recipe.Ingredients[i];
-				int stackCount = inventoryItem2.StackCount;
+				InventoryItem ingredient = recipe.Ingredients[i];
+				int required = ingredient.StackCount;
 				for (int j = 0; j < this.Inventory.Length; j++)
 				{
-					InventoryItem inventoryItem3 = this.Inventory[j];
-					this.DeductFromItemStack(ref inventoryItem3, ref stackCount, inventoryItem2.ItemClass);
-					if (inventoryItem3 == null)
+					InventoryItem invItem = this.Inventory[j];
+					this.DeductFromItemStack(ref invItem, ref required, ingredient.ItemClass);
+					if (invItem == null)
 					{
 						this.Inventory[j] = null;
 					}
 				}
-				int upperBound = this.TrayManager.Trays.GetUpperBound(0);
-				int upperBound2 = this.TrayManager.Trays.GetUpperBound(1);
-				for (int k = 0; k <= upperBound; k++)
+				int bound0 = this.TrayManager.Trays.GetUpperBound(0);
+				int bound = this.TrayManager.Trays.GetUpperBound(1);
+				for (int row = 0; row <= bound0; row++)
 				{
-					for (int l = 0; l <= upperBound2; l++)
+					for (int col = 0; col <= bound; col++)
 					{
-						InventoryItem inventoryItem3 = this.TrayManager.Trays[k, l];
-						this.DeductFromItemStack(ref inventoryItem3, ref stackCount, inventoryItem2.ItemClass);
-						if (inventoryItem3 == null)
+						InventoryItem invItem = this.TrayManager.Trays[row, col];
+						this.DeductFromItemStack(ref invItem, ref required, ingredient.ItemClass);
+						if (invItem == null)
 						{
-							this.TrayManager.Trays[k, l] = null;
+							this.TrayManager.Trays[row, col] = null;
 						}
 					}
 				}
 			}
-			InventoryItem inventoryItem4 = recipe.Result.ItemClass.CreateItem(recipe.Result.StackCount);
-			this.AddInventoryItem(inventoryItem4, false);
+			InventoryItem item = recipe.Result.ItemClass.CreateItem(recipe.Result.StackCount);
+			this.AddInventoryItem(item, false);
 		}
 
 		private void DeductFromItemStack(ref InventoryItem item, ref int required, InventoryItem.InventoryItemClass itemClass)
@@ -411,16 +411,16 @@ namespace DNA.CastleMinerZ.Inventory
 			{
 				return true;
 			}
-			InventoryItem inventoryItem = null;
+			InventoryItem item = null;
 			int upperBound = this.TrayManager.Trays.GetUpperBound(0);
 			int upperBound2 = this.TrayManager.Trays.GetUpperBound(1);
 			for (int i = 0; i <= upperBound; i++)
 			{
 				for (int j = 0; j <= upperBound2; j++)
 				{
-					inventoryItem = this.TrayManager.Trays[i, j];
-					this.DeductFromItemStack(ref inventoryItem, ref amount, itemClass);
-					if (inventoryItem == null)
+					item = this.TrayManager.Trays[i, j];
+					this.DeductFromItemStack(ref item, ref amount, itemClass);
+					if (item == null)
 					{
 						this.TrayManager.Trays[i, j] = null;
 					}
@@ -428,9 +428,9 @@ namespace DNA.CastleMinerZ.Inventory
 			}
 			for (int k = 0; k < this.Inventory.Length; k++)
 			{
-				inventoryItem = this.Inventory[k];
-				this.DeductFromItemStack(ref inventoryItem, ref amount, itemClass);
-				if (inventoryItem == null)
+				item = this.Inventory[k];
+				this.DeductFromItemStack(ref item, ref amount, itemClass);
+				if (item == null)
 				{
 					this.Inventory[k] = null;
 				}
@@ -452,8 +452,8 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public bool CanAdd(InventoryItem item)
 		{
-			bool flag = this.TrayManager.CanAdd(item);
-			if (flag)
+			bool result = this.TrayManager.CanAdd(item);
+			if (result)
 			{
 				return true;
 			}
@@ -551,24 +551,24 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public void ShowTeleportStationMenu(Vector3 worldIndex)
 		{
-			BlockInventoryItem teleportAtWorldIndex = this.GetTeleportAtWorldIndex(worldIndex);
-			List<string> list = new List<string>();
-			if (teleportAtWorldIndex == null)
+			BlockInventoryItem currentlyUsedStation = this.GetTeleportAtWorldIndex(worldIndex);
+			List<string> teleportNames = new List<string>();
+			if (currentlyUsedStation == null)
 			{
 				return;
 			}
-			int num = -1;
+			int sourceIndex = -1;
 			for (int i = 0; i < this.TeleportStationObjects.Count; i++)
 			{
-				BlockInventoryItem blockInventoryItem = this.TeleportStationObjects[i];
-				if (blockInventoryItem == teleportAtWorldIndex)
+				BlockInventoryItem tpStation = this.TeleportStationObjects[i];
+				if (tpStation == currentlyUsedStation)
 				{
-					num = i;
+					sourceIndex = i;
 				}
-				list.Add(blockInventoryItem.CustomBlockName);
+				teleportNames.Add(tpStation.CustomBlockName);
 			}
-			this.InitSelectionScreen(teleportAtWorldIndex);
-			this._teleportSelectionScreen.Init(num, list);
+			this.InitSelectionScreen(currentlyUsedStation);
+			this._teleportSelectionScreen.Init(sourceIndex, teleportNames);
 			CastleMinerZGame.Instance.GameScreen._uiGroup.ShowPCDialogScreen(this._teleportSelectionScreen, delegate
 			{
 				if (this._teleportSelectionScreen.OptionSelected != -1)
@@ -583,10 +583,10 @@ namespace DNA.CastleMinerZ.Inventory
 		{
 			for (int i = 0; i < this.TeleportStationObjects.Count; i++)
 			{
-				BlockInventoryItem blockInventoryItem = this.TeleportStationObjects[i];
-				if (blockInventoryItem.PointToLocation == worldIndex)
+				BlockInventoryItem tpStation = this.TeleportStationObjects[i];
+				if (tpStation.PointToLocation == worldIndex)
 				{
-					return blockInventoryItem;
+					return tpStation;
 				}
 			}
 			return null;
@@ -594,18 +594,18 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public void DropOneSelectedTrayItem()
 		{
-			InventoryItem itemFromCurrentTray = this.TrayManager.GetItemFromCurrentTray(this.SelectedInventoryIndex);
-			if (itemFromCurrentTray != null)
+			InventoryItem selectedTrayItem = this.TrayManager.GetItemFromCurrentTray(this.SelectedInventoryIndex);
+			if (selectedTrayItem != null)
 			{
 				SoundManager.Instance.PlayInstance("dropitem");
-				if (itemFromCurrentTray.StackCount == 1)
+				if (selectedTrayItem.StackCount == 1)
 				{
-					this.CreateAndPlacePickup(itemFromCurrentTray, this._player.LocalPosition);
-					this.TrayManager.RemoveItem(itemFromCurrentTray);
+					this.CreateAndPlacePickup(selectedTrayItem, this._player.LocalPosition);
+					this.TrayManager.RemoveItem(selectedTrayItem);
 					return;
 				}
-				InventoryItem inventoryItem = itemFromCurrentTray.PopOneItem();
-				this.CreateAndPlacePickup(inventoryItem, this._player.LocalPosition);
+				InventoryItem item = selectedTrayItem.PopOneItem();
+				this.CreateAndPlacePickup(item, this._player.LocalPosition);
 			}
 		}
 
@@ -617,31 +617,31 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public void DropAll(bool dropTray)
 		{
-			Vector3 localPosition = this._player.LocalPosition;
-			localPosition.Y += 1f;
+			Vector3 v = this._player.LocalPosition;
+			v.Y += 1f;
 			if (dropTray)
 			{
-				int upperBound = this.TrayManager.Trays.GetUpperBound(0);
-				int upperBound2 = this.TrayManager.Trays.GetUpperBound(1);
-				for (int i = 0; i <= upperBound; i++)
+				int bound0 = this.TrayManager.Trays.GetUpperBound(0);
+				int bound = this.TrayManager.Trays.GetUpperBound(1);
+				for (int row = 0; row <= bound0; row++)
 				{
-					for (int j = 0; j <= upperBound2; j++)
+					for (int col = 0; col <= bound; col++)
 					{
-						InventoryItem inventoryItem = this.TrayManager.Trays[i, j];
-						if (inventoryItem != null)
+						InventoryItem item = this.TrayManager.Trays[row, col];
+						if (item != null)
 						{
-							PickupManager.Instance.CreatePickup(inventoryItem, localPosition, true, false);
-							this.TrayManager.Trays[i, j] = null;
+							PickupManager.Instance.CreatePickup(item, v, true, false);
+							this.TrayManager.Trays[row, col] = null;
 						}
 					}
 				}
 			}
-			for (int k = 0; k < this.Inventory.Length; k++)
+			for (int i = 0; i < this.Inventory.Length; i++)
 			{
-				if (this.Inventory[k] != null)
+				if (this.Inventory[i] != null)
 				{
-					PickupManager.Instance.CreatePickup(this.Inventory[k], localPosition, true, false);
-					this.Inventory[k] = null;
+					PickupManager.Instance.CreatePickup(this.Inventory[i], v, true, false);
+					this.Inventory[i] = null;
 				}
 			}
 			this.DiscoverRecipies();
@@ -730,13 +730,13 @@ namespace DNA.CastleMinerZ.Inventory
 		{
 			get
 			{
-				InventoryItem itemFromCurrentTray = this.TrayManager.GetItemFromCurrentTray(this.SelectedInventoryIndex);
-				if (itemFromCurrentTray == null)
+				InventoryItem item = this.TrayManager.GetItemFromCurrentTray(this.SelectedInventoryIndex);
+				if (item == null)
 				{
 					this._player.currentAnimState = Player.AnimationState.Unshouldered;
 					return this._bareHands;
 				}
-				return itemFromCurrentTray;
+				return item;
 			}
 		}
 

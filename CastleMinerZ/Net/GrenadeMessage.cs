@@ -15,12 +15,12 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, Matrix orientation, GrenadeTypeEnum grenadeType, float secondsLeft)
 		{
-			GrenadeMessage sendInstance = Message.GetSendInstance<GrenadeMessage>();
-			sendInstance.Direction = orientation.Forward;
-			sendInstance.Position = orientation.Translation + sendInstance.Direction;
-			sendInstance.GrenadeType = grenadeType;
-			sendInstance.SecondsLeft = secondsLeft;
-			sendInstance.DoSend(from);
+			GrenadeMessage Instance = Message.GetSendInstance<GrenadeMessage>();
+			Instance.Direction = orientation.Forward;
+			Instance.Position = orientation.Translation + Instance.Direction;
+			Instance.GrenadeType = grenadeType;
+			Instance.SecondsLeft = secondsLeft;
+			Instance.DoSend(from);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType

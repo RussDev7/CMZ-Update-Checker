@@ -25,25 +25,25 @@ namespace DNA.CastleMinerZ
 			TracerManager._smokeEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\SmokeEffect");
 			TracerManager._sparkEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\SparksEffect");
 			TracerManager._dragonFlashEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\FlashEffect");
-			short[] array = new short[]
+			short[] ibbatch = new short[]
 			{
 				1, 0, 2, 3, 0, 1, 2, 0, 3, 1,
 				4, 3, 2, 4, 1, 3, 4, 2
 			};
-			short[] array2 = new short[360];
-			short num = 0;
-			int num2 = 0;
+			short[] ibs = new short[360];
+			short baseVertex = 0;
+			int idx = 0;
 			int i = 0;
 			while (i < 20)
 			{
-				for (int j = 0; j < array.Length; j++)
+				for (int j = 0; j < ibbatch.Length; j++)
 				{
-					array2[num2++] = array[j] + num;
+					ibs[idx++] = ibbatch[j] + baseVertex;
 				}
 				i++;
-				num += 5;
+				baseVertex += 5;
 			}
-			bool flag = false;
+			bool created = false;
 			do
 			{
 				if (GraphicsDeviceLocker.Instance.TryLockDevice())
@@ -53,20 +53,20 @@ namespace DNA.CastleMinerZ
 						TracerManager._vb1 = new DynamicVertexBuffer(CastleMinerZGame.Instance.GraphicsDevice, typeof(TracerManager.TracerVertex), 100, BufferUsage.WriteOnly);
 						TracerManager._vb2 = new DynamicVertexBuffer(CastleMinerZGame.Instance.GraphicsDevice, typeof(TracerManager.TracerVertex), 100, BufferUsage.WriteOnly);
 						TracerManager._ib = new IndexBuffer(CastleMinerZGame.Instance.GraphicsDevice, IndexElementSize.SixteenBits, 360, BufferUsage.WriteOnly);
-						TracerManager._ib.SetData<short>(array2);
+						TracerManager._ib.SetData<short>(ibs);
 					}
 					finally
 					{
 						GraphicsDeviceLocker.Instance.UnlockDevice();
 					}
-					flag = true;
+					created = true;
 				}
-				if (!flag)
+				if (!created)
 				{
 					Thread.Sleep(10);
 				}
 			}
-			while (!flag);
+			while (!created);
 		}
 
 		public TracerManager()
@@ -83,44 +83,44 @@ namespace DNA.CastleMinerZ
 
 		private TracerManager.Tracer GetTracer()
 		{
-			int num = this._unusedTracers.Count;
-			TracerManager.Tracer tracer;
-			if (num != 0)
+			int c = this._unusedTracers.Count;
+			TracerManager.Tracer t;
+			if (c != 0)
 			{
-				num--;
-				tracer = this._unusedTracers[num];
-				this._unusedTracers.RemoveAt(num);
+				c--;
+				t = this._unusedTracers[c];
+				this._unusedTracers.RemoveAt(c);
 			}
 			else
 			{
 				this._unusedTracers.Add(new TracerManager.Tracer());
-				tracer = new TracerManager.Tracer();
+				t = new TracerManager.Tracer();
 			}
-			return tracer;
+			return t;
 		}
 
 		public void AddTracer(Vector3 position, Vector3 velocity, InventoryItemIDs item, byte shooterID)
 		{
-			TracerManager.Tracer tracer = this.GetTracer();
-			tracer.Init(position, velocity, item, shooterID);
-			this._tracers.Add(tracer);
+			TracerManager.Tracer t = this.GetTracer();
+			t.Init(position, velocity, item, shooterID);
+			this._tracers.Add(t);
 			EnemyManager.Instance.RegisterGunShot(position);
 		}
 
 		public void AddArrow(Vector3 position, Vector3 velocity, Player target)
 		{
-			TracerManager.Tracer tracer = this.GetTracer();
-			tracer.Init(position, velocity, target, Color.Pink);
-			this._tracers.Add(tracer);
+			TracerManager.Tracer t = this.GetTracer();
+			t.Init(position, velocity, target, Color.Pink);
+			this._tracers.Add(t);
 		}
 
 		protected override void OnUpdate(GameTime gameTime)
 		{
-			int count = this._tracers.Count;
-			float num = (float)gameTime.ElapsedGameTime.TotalSeconds;
-			for (int i = 0; i < count; i++)
+			int tcount = this._tracers.Count;
+			float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+			for (int i = 0; i < tcount; i++)
 			{
-				this._tracers[i].Update(num);
+				this._tracers[i].Update(dt);
 			}
 			base.OnUpdate(gameTime);
 		}
@@ -154,47 +154,47 @@ namespace DNA.CastleMinerZ
 
 		public override void Draw(GraphicsDevice device, GameTime gameTime, Matrix view, Matrix projection)
 		{
-			int num = this._tracers.Count;
+			int tcount = this._tracers.Count;
 			double totalSeconds = gameTime.ElapsedGameTime.TotalSeconds;
-			int num2 = 0;
-			bool flag = true;
-			BlendState blendState = device.BlendState;
-			RasterizerState rasterizerState = device.RasterizerState;
+			int numInCache = 0;
+			bool firstDrawCall = true;
+			BlendState oldState = device.BlendState;
+			RasterizerState oldRs = device.RasterizerState;
 			DepthStencilState depthStencilState = device.DepthStencilState;
 			int i = 0;
-			while (i < num)
+			while (i < tcount)
 			{
-				num2 = this._tracers[i].AddToDrawCache(this._vertexCache, num2);
-				if (num2 == 20)
+				numInCache = this._tracers[i].AddToDrawCache(this._vertexCache, numInCache);
+				if (numInCache == 20)
 				{
-					this.FlushTracers(this._vertexCache, num2, flag, device, view, projection);
-					flag = false;
-					num2 = 0;
+					this.FlushTracers(this._vertexCache, numInCache, firstDrawCall, device, view, projection);
+					firstDrawCall = false;
+					numInCache = 0;
 				}
 				if (this._tracers[i].RemoveAfterDraw)
 				{
 					this._unusedTracers.Add(this._tracers[i]);
-					num--;
-					if (num != i)
+					tcount--;
+					if (tcount != i)
 					{
-						this._tracers[i] = this._tracers[num];
+						this._tracers[i] = this._tracers[tcount];
 					}
-					this._tracers.RemoveAt(num);
+					this._tracers.RemoveAt(tcount);
 				}
 				else
 				{
 					i++;
 				}
 			}
-			if (num2 != 0)
+			if (numInCache != 0)
 			{
-				this.FlushTracers(this._vertexCache, num2, flag, device, view, projection);
-				flag = false;
+				this.FlushTracers(this._vertexCache, numInCache, firstDrawCall, device, view, projection);
+				firstDrawCall = false;
 			}
-			if (!flag)
+			if (!firstDrawCall)
 			{
-				device.RasterizerState = rasterizerState;
-				device.BlendState = blendState;
+				device.RasterizerState = oldRs;
+				device.BlendState = oldState;
 			}
 			base.Draw(device, gameTime, view, projection);
 		}
@@ -270,8 +270,8 @@ namespace DNA.CastleMinerZ
 		{
 			public override bool TestThisType(BlockTypeEnum e)
 			{
-				BlockType type = BlockType.GetType(e);
-				return type.CanBeTouched && type.BlockPlayer;
+				BlockType bt = BlockType.GetType(e);
+				return bt.CanBeTouched && bt.BlockPlayer;
 			}
 		}
 
@@ -281,9 +281,9 @@ namespace DNA.CastleMinerZ
 			{
 				this.ItemClass = (GunInventoryItemClass)InventoryItem.GetClass(item);
 				this.Head = (this.Tail = pos + dir * 0.5f);
-				float velocity = this.ItemClass.Velocity;
+				float vel = this.ItemClass.Velocity;
 				this.TracerColor = this.ItemClass.TracerColor;
-				this.HeadVelocity = (this.TailVelocity = dir * velocity);
+				this.HeadVelocity = (this.TailVelocity = dir * vel);
 				this.itemID = item;
 				this.TailTime = this.ItemClass.FlightTime - 0.2f;
 				this.TimeLeft = this.ItemClass.FlightTime;
@@ -295,16 +295,16 @@ namespace DNA.CastleMinerZ
 
 			public void Init(Vector3 pos, Vector3 vel, Player target, Color color)
 			{
-				Vector3 vector;
+				Vector3 dir;
 				if (vel.LengthSquared() < 0.001f)
 				{
-					vector = Vector3.Normalize(vel);
+					dir = Vector3.Normalize(vel);
 				}
 				else
 				{
-					vector = Vector3.Up;
+					dir = Vector3.Up;
 				}
-				this.Head = (this.Tail = pos + vector * 0.5f);
+				this.Head = (this.Tail = pos + dir * 0.5f);
 				this.TracerColor = color.ToVector4();
 				this.HeadVelocity = (this.TailVelocity = vel);
 				this.itemID = InventoryItemIDs.Coal;
@@ -338,38 +338,38 @@ namespace DNA.CastleMinerZ
 				TracerManager.Tracer.tp.Init(this.Tail, this.Head);
 				if (this.Target != null)
 				{
-					bool flag = false;
-					bool flag2 = false;
-					float num = 2f;
-					Vector3 vector = Vector3.Zero;
+					bool hitTarget = false;
+					bool collision = false;
+					float targetT = 2f;
+					Vector3 hitLocation = Vector3.Zero;
 					if (this.Target.ValidLivingGamer)
 					{
-						Vector3 worldPosition = this.Target.WorldPosition;
-						BoundingBox playerAABB = this.Target.PlayerAABB;
-						playerAABB.Min += worldPosition;
-						playerAABB.Max += worldPosition;
-						TracerManager.Tracer.tp.TestBoundBox(playerAABB);
+						Vector3 p = this.Target.WorldPosition;
+						BoundingBox bb = this.Target.PlayerAABB;
+						bb.Min += p;
+						bb.Max += p;
+						TracerManager.Tracer.tp.TestBoundBox(bb);
 					}
 					if (TracerManager.Tracer.tp._collides)
 					{
-						vector = TracerManager.Tracer.tp.GetIntersection();
-						flag = true;
-						flag2 = true;
-						num = TracerManager.Tracer.tp._inT;
+						hitLocation = TracerManager.Tracer.tp.GetIntersection();
+						hitTarget = true;
+						collision = true;
+						targetT = TracerManager.Tracer.tp._inT;
 					}
 					TracerManager.Tracer.tp.Reset();
 					BlockTerrain.Instance.Trace(TracerManager.Tracer.tp);
-					if (TracerManager.Tracer.tp._collides && TracerManager.Tracer.tp._inT < num)
+					if (TracerManager.Tracer.tp._collides && TracerManager.Tracer.tp._inT < targetT)
 					{
-						flag = false;
-						flag2 = true;
-						vector = TracerManager.Tracer.tp.GetIntersection();
+						hitTarget = false;
+						collision = true;
+						hitLocation = TracerManager.Tracer.tp.GetIntersection();
 					}
-					if (flag2)
+					if (collision)
 					{
-						this.Head = vector;
+						this.Head = hitLocation;
 						this.RemoveAfterDraw = true;
-						if (flag)
+						if (hitTarget)
 						{
 							if (this.Target.IsLocal)
 							{
@@ -383,18 +383,18 @@ namespace DNA.CastleMinerZ
 						}
 						if (CastleMinerZGame.Instance.IsActive)
 						{
-							ParticleEmitter particleEmitter = TracerManager._smokeEffect.CreateEmitter(CastleMinerZGame.Instance);
-							particleEmitter.Reset();
-							particleEmitter.Emitting = true;
-							TracerManager.Instance.Scene.Children.Add(particleEmitter);
-							particleEmitter.LocalPosition = vector;
-							particleEmitter.DrawPriority = 900;
+							ParticleEmitter smokeEmitter = TracerManager._smokeEffect.CreateEmitter(CastleMinerZGame.Instance);
+							smokeEmitter.Reset();
+							smokeEmitter.Emitting = true;
+							TracerManager.Instance.Scene.Children.Add(smokeEmitter);
+							smokeEmitter.LocalPosition = hitLocation;
+							smokeEmitter.DrawPriority = 900;
 						}
 					}
 					else if (!this.PlayedSound)
 					{
-						float num2 = Vector3.DistanceSquared(this.Head, this.Target.WorldPosition);
-						if (num2 < 25f)
+						float dstsq = Vector3.DistanceSquared(this.Head, this.Target.WorldPosition);
+						if (dstsq < 25f)
 						{
 							this.PlayedSound = true;
 							SoundManager.Instance.PlayInstance("arrow", this.SoundEmitter);
@@ -405,129 +405,129 @@ namespace DNA.CastleMinerZ
 				{
 					if (CastleMinerZGame.Instance.CurrentNetworkSession != null && CastleMinerZGame.Instance.PVPState != CastleMinerZGame.PVPEnum.Off)
 					{
-						bool flag3 = false;
-						bool flag4 = false;
-						float num3 = 2.1474836E+09f;
-						Vector3 vector2 = Vector3.Zero;
-						Player player = null;
+						bool hitTarget2 = false;
+						bool collision2 = false;
+						float targetT2 = 2.1474836E+09f;
+						Vector3 hitLocation2 = Vector3.Zero;
+						Player playerHit = null;
 						for (int i = 0; i < CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers.Count; i++)
 						{
-							NetworkGamer networkGamer = CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers[i];
-							if (networkGamer.Tag != null)
+							NetworkGamer gamer = CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers[i];
+							if (gamer.Tag != null)
 							{
-								Player player2 = (Player)networkGamer.Tag;
-								if (player2.ValidLivingGamer)
+								Player player = (Player)gamer.Tag;
+								if (player.ValidLivingGamer)
 								{
-									Vector3 worldPosition2 = player2.WorldPosition;
-									BoundingBox playerAABB2 = player2.PlayerAABB;
-									playerAABB2.Min += worldPosition2;
-									playerAABB2.Max += worldPosition2;
+									Vector3 p2 = player.WorldPosition;
+									BoundingBox bb2 = player.PlayerAABB;
+									bb2.Min += p2;
+									bb2.Max += p2;
 									TracerManager.Tracer.tp.Reset();
-									TracerManager.Tracer.tp.TestBoundBox(playerAABB2);
-									if (TracerManager.Tracer.tp._collides && TracerManager.Tracer.tp._inT < num3)
+									TracerManager.Tracer.tp.TestBoundBox(bb2);
+									if (TracerManager.Tracer.tp._collides && TracerManager.Tracer.tp._inT < targetT2)
 									{
-										player = player2;
-										vector2 = TracerManager.Tracer.tp.GetIntersection();
-										flag3 = true;
-										flag4 = true;
-										num3 = TracerManager.Tracer.tp._inT;
+										playerHit = player;
+										hitLocation2 = TracerManager.Tracer.tp.GetIntersection();
+										hitTarget2 = true;
+										collision2 = true;
+										targetT2 = TracerManager.Tracer.tp._inT;
 									}
 								}
 							}
 						}
 						TracerManager.Tracer.tp.Reset();
 						BlockTerrain.Instance.Trace(TracerManager.Tracer.tp);
-						if (TracerManager.Tracer.tp._collides && TracerManager.Tracer.tp._inT < num3)
+						if (TracerManager.Tracer.tp._collides && TracerManager.Tracer.tp._inT < targetT2)
 						{
-							flag3 = false;
-							flag4 = true;
-							vector2 = TracerManager.Tracer.tp.GetIntersection();
+							hitTarget2 = false;
+							collision2 = true;
+							hitLocation2 = TracerManager.Tracer.tp.GetIntersection();
 						}
-						if (flag4)
+						if (collision2)
 						{
-							this.Head = vector2;
+							this.Head = hitLocation2;
 							this.RemoveAfterDraw = true;
-							if (flag3)
+							if (hitTarget2)
 							{
-								if (player.IsLocal && this.ShooterID != player.Gamer.Id)
+								if (playerHit.IsLocal && this.ShooterID != playerHit.Gamer.Id)
 								{
-									LocalNetworkGamer localNetworkGamer = (LocalNetworkGamer)player.Gamer;
-									if (CastleMinerZGame.Instance.PVPState == CastleMinerZGame.PVPEnum.Everyone || (!localNetworkGamer.IsHost && !localNetworkGamer.SignedInGamer.IsFriend(CastleMinerZGame.Instance.CurrentNetworkSession.Host)))
+									LocalNetworkGamer localgamer = (LocalNetworkGamer)playerHit.Gamer;
+									if (CastleMinerZGame.Instance.PVPState == CastleMinerZGame.PVPEnum.Everyone || (!localgamer.IsHost && !localgamer.SignedInGamer.IsFriend(CastleMinerZGame.Instance.CurrentNetworkSession.Host)))
 									{
 										InGameHUD.Instance.ApplyDamage(0.21f, this.Head);
 									}
 								}
-								SoundManager.Instance.PlayInstance("BulletHitHuman", player.SoundEmitter);
+								SoundManager.Instance.PlayInstance("BulletHitHuman", playerHit.SoundEmitter);
 							}
 						}
 					}
-					IShootableEnemy shootableEnemy = EnemyManager.Instance.Trace(TracerManager.Tracer.tp, false);
+					IShootableEnemy z = EnemyManager.Instance.Trace(TracerManager.Tracer.tp, false);
 					if (TracerManager.Tracer.tp._collides)
 					{
 						this.Head = TracerManager.Tracer.tp.GetIntersection();
 						this.RemoveAfterDraw = true;
-						if (shootableEnemy != null)
+						if (z != null)
 						{
-							shootableEnemy.TakeDamage(this.Head, Vector3.Normalize(this.HeadVelocity), this.ItemClass, this.ShooterID);
-							if (shootableEnemy is BaseZombie)
+							z.TakeDamage(this.Head, Vector3.Normalize(this.HeadVelocity), this.ItemClass, this.ShooterID);
+							if (z is BaseZombie)
 							{
-								SoundManager.Instance.PlayInstance("BulletHitHuman", ((BaseZombie)shootableEnemy).SoundEmitter);
+								SoundManager.Instance.PlayInstance("BulletHitHuman", ((BaseZombie)z).SoundEmitter);
 							}
 						}
 						else
 						{
 							SoundManager.Instance.PlayInstance("BulletHitDirt", this.SoundEmitter);
 						}
-						Vector3 intersection = TracerManager.Tracer.tp.GetIntersection();
+						Vector3 hitPosition = TracerManager.Tracer.tp.GetIntersection();
 						if (CastleMinerZGame.Instance.IsActive)
 						{
-							if (shootableEnemy is DragonClientEntity)
+							if (z is DragonClientEntity)
 							{
-								ParticleEmitter particleEmitter2 = TracerManager._dragonFlashEffect.CreateEmitter(CastleMinerZGame.Instance);
-								particleEmitter2.Reset();
-								particleEmitter2.Emitting = true;
-								TracerManager.Instance.Scene.Children.Add(particleEmitter2);
-								particleEmitter2.LocalPosition = intersection;
-								particleEmitter2.DrawPriority = 900;
+								ParticleEmitter flashEmitter = TracerManager._dragonFlashEffect.CreateEmitter(CastleMinerZGame.Instance);
+								flashEmitter.Reset();
+								flashEmitter.Emitting = true;
+								TracerManager.Instance.Scene.Children.Add(flashEmitter);
+								flashEmitter.LocalPosition = hitPosition;
+								flashEmitter.DrawPriority = 900;
 							}
-							ParticleEmitter particleEmitter3 = TracerManager._smokeEffect.CreateEmitter(CastleMinerZGame.Instance);
-							particleEmitter3.Reset();
-							particleEmitter3.Emitting = true;
-							TracerManager.Instance.Scene.Children.Add(particleEmitter3);
-							particleEmitter3.LocalPosition = intersection;
-							particleEmitter3.DrawPriority = 900;
-							if (shootableEnemy == null)
+							ParticleEmitter smokeEmitter2 = TracerManager._smokeEffect.CreateEmitter(CastleMinerZGame.Instance);
+							smokeEmitter2.Reset();
+							smokeEmitter2.Emitting = true;
+							TracerManager.Instance.Scene.Children.Add(smokeEmitter2);
+							smokeEmitter2.LocalPosition = hitPosition;
+							smokeEmitter2.DrawPriority = 900;
+							if (z == null)
 							{
-								ParticleEmitter particleEmitter4 = TracerManager._sparkEffect.CreateEmitter(CastleMinerZGame.Instance);
-								particleEmitter4.Reset();
-								particleEmitter4.Emitting = true;
-								TracerManager.Instance.Scene.Children.Add(particleEmitter4);
-								particleEmitter4.LocalPosition = intersection;
-								particleEmitter4.DrawPriority = 900;
+								ParticleEmitter sparkEmitter = TracerManager._sparkEffect.CreateEmitter(CastleMinerZGame.Instance);
+								sparkEmitter.Reset();
+								sparkEmitter.Emitting = true;
+								TracerManager.Instance.Scene.Children.Add(sparkEmitter);
+								sparkEmitter.LocalPosition = hitPosition;
+								sparkEmitter.DrawPriority = 900;
 							}
 						}
-						BlockTypeEnum blockWithChanges = BlockTerrain.Instance.GetBlockWithChanges(TracerManager.Tracer.tp._worldIndex);
-						if (blockWithChanges == BlockTypeEnum.TNT || blockWithChanges == BlockTypeEnum.C4)
+						BlockTypeEnum blockType = BlockTerrain.Instance.GetBlockWithChanges(TracerManager.Tracer.tp._worldIndex);
+						if (blockType == BlockTypeEnum.TNT || blockType == BlockTypeEnum.C4)
 						{
-							DetonateExplosiveMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, TracerManager.Tracer.tp._worldIndex, true, (blockWithChanges == BlockTypeEnum.TNT) ? ExplosiveTypes.TNT : ExplosiveTypes.C4);
+							DetonateExplosiveMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, TracerManager.Tracer.tp._worldIndex, true, (blockType == BlockTypeEnum.TNT) ? ExplosiveTypes.TNT : ExplosiveTypes.C4);
 						}
 					}
 				}
-				Vector3 vector3 = Vector3.Normalize(this.HeadVelocity);
-				Vector3 vector4;
-				if (vector3.Y == 1f)
+				Vector3 nml = Vector3.Normalize(this.HeadVelocity);
+				Vector3 up;
+				if (nml.Y == 1f)
 				{
-					vector4 = Vector3.UnitX;
+					up = Vector3.UnitX;
 				}
 				else
 				{
-					vector4 = Vector3.UnitY;
+					up = Vector3.UnitY;
 				}
-				Vector3 vector5 = Vector3.Cross(vector4, vector3);
-				vector4 = Vector3.Cross(vector3, vector5);
+				Vector3 over = Vector3.Cross(up, nml);
+				up = Vector3.Cross(nml, over);
 				this.SoundEmitter.Position = this.Head;
-				this.SoundEmitter.Forward = vector3;
-				this.SoundEmitter.Up = Vector3.Normalize(vector4);
+				this.SoundEmitter.Forward = nml;
+				this.SoundEmitter.Up = Vector3.Normalize(up);
 				this.SoundEmitter.Velocity = this.HeadVelocity;
 				if (!TracerManager.Tracer.tp._collides && !BlockTerrain.Instance.IsTracerStillInWorld(this.Head))
 				{
@@ -537,36 +537,36 @@ namespace DNA.CastleMinerZ
 
 			public int AddToDrawCache(TracerManager.TracerVertex[] vertexCache, int index)
 			{
-				Vector3 vector = this.Tail - this.Head;
-				if (vector.LengthSquared() < 0.01f)
+				Vector3 nml = this.Tail - this.Head;
+				if (nml.LengthSquared() < 0.01f)
 				{
 					return index;
 				}
-				vector.Normalize();
-				int num = index * 5;
-				vertexCache[num].Position = this.Head;
-				vertexCache[num++].Color = this.TracerColor;
-				Vector3 vector2;
-				if (vector.Y == 1f)
+				nml.Normalize();
+				int idx = index * 5;
+				vertexCache[idx].Position = this.Head;
+				vertexCache[idx++].Color = this.TracerColor;
+				Vector3 up;
+				if (nml.Y == 1f)
 				{
-					vector2 = Vector3.UnitX;
+					up = Vector3.UnitX;
 				}
 				else
 				{
-					vector2 = Vector3.UnitY;
+					up = Vector3.UnitY;
 				}
-				Vector3 vector3 = Vector3.Cross(vector2, vector);
-				vector3.Normalize();
-				vector2 = Vector3.Cross(vector, vector3);
-				Vector3 vector4 = Vector3.Lerp(this.Head, this.Tail, 0.1f);
-				vertexCache[num].Position = vector4 + vector2 * 0.025f;
-				vertexCache[num++].Color = this.TracerColor;
-				vertexCache[num].Position = vector4 - vector2 * 0.025f * 0.5f - vector3 * 0.025f * 0.866f;
-				vertexCache[num++].Color = this.TracerColor;
-				vertexCache[num].Position = vector4 - vector2 * 0.025f * 0.5f + vector3 * 0.025f * 0.866f;
-				vertexCache[num++].Color = this.TracerColor;
-				vertexCache[num].Position = this.Tail;
-				vertexCache[num].Color = TracerManager.Tracer.TailColor;
+				Vector3 over = Vector3.Cross(up, nml);
+				over.Normalize();
+				up = Vector3.Cross(nml, over);
+				Vector3 ptmid = Vector3.Lerp(this.Head, this.Tail, 0.1f);
+				vertexCache[idx].Position = ptmid + up * 0.025f;
+				vertexCache[idx++].Color = this.TracerColor;
+				vertexCache[idx].Position = ptmid - up * 0.025f * 0.5f - over * 0.025f * 0.866f;
+				vertexCache[idx++].Color = this.TracerColor;
+				vertexCache[idx].Position = ptmid - up * 0.025f * 0.5f + over * 0.025f * 0.866f;
+				vertexCache[idx++].Color = this.TracerColor;
+				vertexCache[idx].Position = this.Tail;
+				vertexCache[idx].Color = TracerManager.Tracer.TailColor;
 				return ++index;
 			}
 

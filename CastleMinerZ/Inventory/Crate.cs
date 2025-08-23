@@ -26,8 +26,8 @@ namespace DNA.CastleMinerZ.Inventory
 			{
 				if (this.Inventory[i] != null && !this.IsSlotLocked(i))
 				{
-					Vector3 vector = IntVector3.ToVector3(this.Location) + new Vector3(0.5f);
-					PickupManager.Instance.CreateUpwardPickup(this.Inventory[i], vector, 3f, false);
+					Vector3 v = IntVector3.ToVector3(this.Location) + new Vector3(0.5f);
+					PickupManager.Instance.CreateUpwardPickup(this.Inventory[i], v, 3f, false);
 					this.Inventory[i] = null;
 				}
 			}
@@ -35,13 +35,13 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public bool IsSlotLocked(int index)
 		{
-			foreach (NetworkGamer networkGamer in CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers)
+			foreach (NetworkGamer gamer in CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers)
 			{
-				if (networkGamer.Tag != null)
+				if (gamer.Tag != null)
 				{
-					Player player = (Player)networkGamer.Tag;
-					int num = player.FocusCrateItem.X + player.FocusCrateItem.Y * 8;
-					if (player.FocusCrate == this.Location && num == index)
+					Player player = (Player)gamer.Tag;
+					int playerLockedIndex = player.FocusCrateItem.X + player.FocusCrateItem.Y * 8;
+					if (player.FocusCrate == this.Location && playerLockedIndex == index)
 					{
 						return true;
 					}

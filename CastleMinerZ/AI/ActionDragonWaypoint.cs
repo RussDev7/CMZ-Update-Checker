@@ -9,12 +9,12 @@ namespace DNA.CastleMinerZ.AI
 	{
 		public static ActionDragonWaypoint ReadActionWaypoint(BinaryReader reader)
 		{
-			ActionDragonWaypoint actionDragonWaypoint;
-			actionDragonWaypoint.BaseWpt = BaseDragonWaypoint.ReadBaseWaypoint(reader);
-			actionDragonWaypoint.Action = (DragonWaypointActionEnum)reader.ReadByte();
-			actionDragonWaypoint.ActionPosition = reader.ReadVector3();
-			actionDragonWaypoint.FireballIndex = 0;
-			return actionDragonWaypoint;
+			ActionDragonWaypoint result;
+			result.BaseWpt = BaseDragonWaypoint.ReadBaseWaypoint(reader);
+			result.Action = (DragonWaypointActionEnum)reader.ReadByte();
+			result.ActionPosition = reader.ReadVector3();
+			result.FireballIndex = 0;
+			return result;
 		}
 
 		public void Write(BinaryWriter writer)
@@ -36,22 +36,22 @@ namespace DNA.CastleMinerZ.AI
 
 		public static ActionDragonWaypoint CreateFromBase(BaseDragonWaypoint wpt)
 		{
-			ActionDragonWaypoint actionDragonWaypoint;
-			actionDragonWaypoint.BaseWpt = wpt;
-			actionDragonWaypoint.Action = DragonWaypointActionEnum.GOTO;
-			actionDragonWaypoint.ActionPosition = Vector3.Zero;
-			actionDragonWaypoint.FireballIndex = 0;
-			return actionDragonWaypoint;
+			ActionDragonWaypoint result;
+			result.BaseWpt = wpt;
+			result.Action = DragonWaypointActionEnum.GOTO;
+			result.ActionPosition = Vector3.Zero;
+			result.FireballIndex = 0;
+			return result;
 		}
 
 		public static ActionDragonWaypoint Create(BaseDragonWaypoint wpt, Vector3 target, DragonWaypointActionEnum action, int index)
 		{
-			ActionDragonWaypoint actionDragonWaypoint;
-			actionDragonWaypoint.BaseWpt = wpt;
-			actionDragonWaypoint.Action = action;
-			actionDragonWaypoint.ActionPosition = target;
-			actionDragonWaypoint.FireballIndex = index;
-			return actionDragonWaypoint;
+			ActionDragonWaypoint result;
+			result.BaseWpt = wpt;
+			result.Action = action;
+			result.ActionPosition = target;
+			result.FireballIndex = index;
+			return result;
 		}
 
 		public BaseDragonWaypoint BaseWpt;

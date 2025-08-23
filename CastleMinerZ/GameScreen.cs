@@ -19,11 +19,11 @@ namespace DNA.CastleMinerZ
 	{
 		public void AddExplosiveFlashModel(IntVector3 position)
 		{
-			ExplosiveFlashEntity explosiveFlashEntity = new ExplosiveFlashEntity(position);
-			if (!this._explosiveFlashEntities.Contains(explosiveFlashEntity))
+			ExplosiveFlashEntity flash = new ExplosiveFlashEntity(position);
+			if (!this._explosiveFlashEntities.Contains(flash))
 			{
-				this._explosiveFlashEntities.Add(explosiveFlashEntity);
-				this.mainScene.Children.Add(explosiveFlashEntity);
+				this._explosiveFlashEntities.Add(flash);
+				this.mainScene.Children.Add(flash);
 			}
 		}
 
@@ -68,34 +68,34 @@ namespace DNA.CastleMinerZ
 		{
 			get
 			{
-				float num = this._sky.TimeOfDay * 24f;
-				float num2 = (num - (float)((int)num)) / 2f;
-				int num3 = (int)num;
-				if (num3 <= 5 || num3 >= 21)
+				float hourf = this._sky.TimeOfDay * 24f;
+				float blender = (hourf - (float)((int)hourf)) / 2f;
+				int hour = (int)hourf;
+				if (hour <= 5 || hour >= 21)
 				{
 					return 1f;
 				}
-				if (num3 >= 9 && num3 <= 17)
+				if (hour >= 9 && hour <= 17)
 				{
 					return 0f;
 				}
-				if (num3 == 7 || num3 == 19)
+				if (hour == 7 || hour == 19)
 				{
 					return 0.5f;
 				}
-				if (num3 == 6)
+				if (hour == 6)
 				{
-					return 1f - num2;
+					return 1f - blender;
 				}
-				if (num3 == 8)
+				if (hour == 8)
 				{
-					return 0.5f - num2;
+					return 0.5f - blender;
 				}
-				if (num3 == 18)
+				if (hour == 18)
 				{
-					return num2;
+					return blender;
 				}
-				return 0.5f + num2;
+				return 0.5f + blender;
 			}
 		}
 
@@ -108,99 +108,99 @@ namespace DNA.CastleMinerZ
 			set
 			{
 				this._sky.Day = value;
-				float num = value + 1.625f;
-				num -= (float)Math.Floor((double)num);
-				float num2 = num * 6.2831855f;
-				float num3 = 0.2f + 0.8f * (float)Math.Abs(Math.Sin((double)num2));
-				float num4 = (float)Math.Sqrt((double)(1f - num3 * num3));
-				num2 -= 0.236f;
-				float num5 = -(float)Math.Sin((double)num2) * num4;
-				float num6 = (float)Math.Cos((double)num2) * num4;
-				Vector3 vector = new Vector3(num5, num3, num6);
-				this._terrain.VectorToSun = vector;
-				float num7 = this._sky.TimeOfDay * 24f;
-				float num8 = num7 - (float)((int)num7);
-				int num9 = (int)num7;
-				float num10 = (this._sky.TimeOfDay + 0.96f + 0.5f) % 1f * 2f;
-				if (num10 > 1f)
+				float dayT = value + 1.625f;
+				dayT -= (float)Math.Floor((double)dayT);
+				float angle = dayT * 6.2831855f;
+				float elev = 0.2f + 0.8f * (float)Math.Abs(Math.Sin((double)angle));
+				float offset = (float)Math.Sqrt((double)(1f - elev * elev));
+				angle -= 0.236f;
+				float offx = -(float)Math.Sin((double)angle) * offset;
+				float offz = (float)Math.Cos((double)angle) * offset;
+				Vector3 vecToSun = new Vector3(offx, elev, offz);
+				this._terrain.VectorToSun = vecToSun;
+				float hourf = this._sky.TimeOfDay * 24f;
+				float blender = hourf - (float)((int)hourf);
+				int hour = (int)hourf;
+				float percentMidnight = (this._sky.TimeOfDay + 0.96f + 0.5f) % 1f * 2f;
+				if (percentMidnight > 1f)
 				{
-					num10 = 2f - num10;
+					percentMidnight = 2f - percentMidnight;
 				}
-				float num11;
-				float num12;
-				GameScreen.LightColorPack lightColorPack;
-				if (num9 <= 5 || num9 >= 21)
+				float dayAmount;
+				float nightAmount;
+				GameScreen.LightColorPack finalColors;
+				if (hour <= 5 || hour >= 21)
 				{
-					num11 = 0f;
-					num12 = 1f;
-					lightColorPack = this.nightColors;
+					dayAmount = 0f;
+					nightAmount = 1f;
+					finalColors = this.nightColors;
 				}
-				else if (num9 >= 9 && num9 <= 17)
+				else if (hour >= 9 && hour <= 17)
 				{
-					num11 = 1f;
-					num12 = 0f;
-					lightColorPack = this.dayColors;
+					dayAmount = 1f;
+					nightAmount = 0f;
+					finalColors = this.dayColors;
 				}
-				else if (num9 == 6)
+				else if (hour == 6)
 				{
-					num11 = 0f;
-					num12 = 1f - num8;
-					lightColorPack = new GameScreen.LightColorPack(num8, ref this.nightColors, ref this.dawnColors);
+					dayAmount = 0f;
+					nightAmount = 1f - blender;
+					finalColors = new GameScreen.LightColorPack(blender, ref this.nightColors, ref this.dawnColors);
 				}
-				else if (num9 == 7)
+				else if (hour == 7)
 				{
-					num11 = 0.5f;
-					num12 = 0.5f;
-					lightColorPack = this.dawnColors;
+					dayAmount = 0.5f;
+					nightAmount = 0.5f;
+					finalColors = this.dawnColors;
 				}
-				else if (num9 == 8)
+				else if (hour == 8)
 				{
-					num11 = num8;
-					num12 = 0f;
-					lightColorPack = new GameScreen.LightColorPack(num8, ref this.dawnColors, ref this.dayColors);
+					dayAmount = blender;
+					nightAmount = 0f;
+					finalColors = new GameScreen.LightColorPack(blender, ref this.dawnColors, ref this.dayColors);
 				}
-				else if (num9 == 18)
+				else if (hour == 18)
 				{
-					num11 = 1f - num8;
-					num12 = 0f;
-					lightColorPack = new GameScreen.LightColorPack(num8, ref this.dayColors, ref this.duskColors);
+					dayAmount = 1f - blender;
+					nightAmount = 0f;
+					finalColors = new GameScreen.LightColorPack(blender, ref this.dayColors, ref this.duskColors);
 				}
-				else if (num9 == 19)
+				else if (hour == 19)
 				{
-					num11 = 0.5f;
-					num12 = 0.5f;
-					lightColorPack = this.duskColors;
+					dayAmount = 0.5f;
+					nightAmount = 0.5f;
+					finalColors = this.duskColors;
 				}
 				else
 				{
-					num11 = 0f;
-					num12 = num8;
-					this._game.SetAudio(0f, num8, 0f, 0f);
-					lightColorPack = new GameScreen.LightColorPack(num8, ref this.duskColors, ref this.nightColors);
+					dayAmount = 0f;
+					nightAmount = blender;
+					this._game.SetAudio(0f, blender, 0f, 0f);
+					finalColors = new GameScreen.LightColorPack(blender, ref this.duskColors, ref this.nightColors);
 				}
-				float num13 = (CastleMinerZGame.Instance.LocalPlayer.LocalPosition.Y + 32f) / 8f;
-				if (num13 < 0f)
+				float tintAmount = (CastleMinerZGame.Instance.LocalPlayer.LocalPosition.Y + 32f) / 8f;
+				if (tintAmount < 0f)
 				{
-					num13 = 0f;
+					tintAmount = 0f;
 				}
-				if (num13 > 1f)
+				if (tintAmount > 1f)
 				{
-					num13 = 1f;
+					tintAmount = 1f;
 				}
-				num13 = 1f - num13;
-				this._terrain.FogColor = Color.Lerp(lightColorPack.fog, Color.Black, num13);
-				this._terrain.AmbientSunColor = lightColorPack.ambient;
-				this._terrain.SunlightColor = lightColorPack.direct;
-				this._terrain.SunSpecular = lightColorPack.specular;
-				this._terrain.PercentMidnight = num10;
-				int num14 = this._terrain.DepthUnderGround(this._game.LocalPlayer.LocalPosition);
-				float num15 = Math.Min(1f, (float)num14 / 15f);
-				float num16 = 0f;
+				tintAmount = 1f - tintAmount;
+				this._terrain.FogColor = Color.Lerp(finalColors.fog, Color.Black, tintAmount);
+				this._terrain.AmbientSunColor = finalColors.ambient;
+				this._terrain.SunlightColor = finalColors.direct;
+				this._terrain.SunSpecular = finalColors.specular;
+				this._terrain.PercentMidnight = percentMidnight;
+				int depth = this._terrain.DepthUnderGround(this._game.LocalPlayer.LocalPosition);
+				float caveblender = Math.Min(1f, (float)depth / 15f);
+				float hellblender = 0f;
 				if (this._game.LocalPlayer.LocalPosition.Y <= -37f)
 				{
-					num16 = Math.Min(1f, (-37f - this._game.LocalPlayer.LocalPosition.Y) / 10f);
+					hellblender = Math.Min(1f, (-37f - this._game.LocalPlayer.LocalPosition.Y) / 10f);
 				}
-				this._game.SetAudio(num11 * (1f - num15), num12 * (1f - num15), num15 * (1f - num16), num16);
+				this._game.SetAudio(dayAmount * (1f - caveblender), nightAmount * (1f - caveblender), caveblender * (1f - hellblender), hellblender);
 			}
 		}
 
@@ -237,13 +237,13 @@ namespace DNA.CastleMinerZ
 			this._optionsScreen = new OptionsScreen(true, this._uiGroup);
 			this._inGameMenu = new InGameMenu(this._game);
 			this._inGameMenu.MenuItemSelected += this._inGameMenu_MenuItemSelected;
-			SceneScreen sceneScreen = new SceneScreen(false, false);
-			base.PushScreen(sceneScreen);
+			SceneScreen gameScreen = new SceneScreen(false, false);
+			base.PushScreen(gameScreen);
 			base.PushScreen(this._uiGroup);
 			this._uiGroup.PushScreen(this._inGameUI);
-			sceneScreen.AfterDraw += this.gameScreen_AfterDraw;
+			gameScreen.AfterDraw += this.gameScreen_AfterDraw;
 			this.mainScene = new Scene();
-			sceneScreen.Scenes.Add(this.mainScene);
+			gameScreen.Scenes.Add(this.mainScene);
 			this._sky = new CastleMinerSky();
 			this.mainScene.Children.Add(this._terrain);
 			this.mainScene.Children.Add(this._localPlayer);
@@ -270,14 +270,14 @@ namespace DNA.CastleMinerZ
 			this._postProcessView = new PostProcessView(this._game, this._game.OffScreenBuffer);
 			this.mainView = new CameraView(this._game, this._postProcessView.OffScreenTarget, this._localPlayer.FPSCamera);
 			this.mainView.BeforeDraw += this.PreDrawMain;
-			sceneScreen.Views.Add(this.mainView);
+			gameScreen.Views.Add(this.mainView);
 			this._fpsScene = new Scene();
-			sceneScreen.Scenes.Add(this._fpsScene);
+			gameScreen.Scenes.Add(this._fpsScene);
 			this._localPlayer.FPSMode = true;
 			this._fpsScene.Children.Add(this._localPlayer.FPSNode);
 			this._fpsView = new CameraView(this._game, this._postProcessView.OffScreenTarget, this._localPlayer.GunEyePointCamera);
-			sceneScreen.Views.Add(this._fpsView);
-			sceneScreen.Views.Add(this._postProcessView);
+			gameScreen.Views.Add(this._fpsView);
+			gameScreen.Views.Add(this._postProcessView);
 		}
 
 		public void PopToHUD()
@@ -290,9 +290,9 @@ namespace DNA.CastleMinerZ
 
 		protected override void OnDraw(GraphicsDevice device, SpriteBatch spriteBatch, GameTime gameTime)
 		{
-			PresentationParameters presentationParameters = device.PresentationParameters;
-			Size size = new Size(presentationParameters.BackBufferWidth, presentationParameters.BackBufferHeight);
-			if (this._lastScreenSize != size)
+			PresentationParameters pp = device.PresentationParameters;
+			Size screenSize = new Size(pp.BackBufferWidth, pp.BackBufferHeight);
+			if (this._lastScreenSize != screenSize)
 			{
 				this._postProcessView.SetDestinationTarget(this._game.OffScreenBuffer);
 				this.mainView.SetDestinationTarget(this._postProcessView.OffScreenTarget);
@@ -346,28 +346,28 @@ namespace DNA.CastleMinerZ
 			}
 			if (this._game.CurrentNetworkSession != null)
 			{
-				Matrix view = this.mainView.Camera.View;
-				Matrix projection = this.mainView.Camera.GetProjection(e.Device);
-				Matrix matrix = view * projection;
+				Matrix viewMat = this.mainView.Camera.View;
+				Matrix projMat = this.mainView.Camera.GetProjection(e.Device);
+				Matrix viewProj = viewMat * projMat;
 				this.spriteBatch.Begin();
 				for (int i = 0; i < this._game.CurrentNetworkSession.AllGamers.Count; i++)
 				{
-					NetworkGamer networkGamer = this._game.CurrentNetworkSession.AllGamers[i];
-					if (networkGamer.Tag != null && !networkGamer.IsLocal)
+					NetworkGamer gamer = this._game.CurrentNetworkSession.AllGamers[i];
+					if (gamer.Tag != null && !gamer.IsLocal)
 					{
-						Player player = (Player)networkGamer.Tag;
+						Player player = (Player)gamer.Tag;
 						if (player.Visible)
 						{
-							Vector3 vector = player.LocalPosition + new Vector3(0f, 2f, 0f);
-							Vector4 vector2 = Vector4.Transform(vector, matrix);
-							if (vector2.Z > 0f)
+							Vector3 worldPos = player.LocalPosition + new Vector3(0f, 2f, 0f);
+							Vector4 spos = Vector4.Transform(worldPos, viewProj);
+							if (spos.Z > 0f)
 							{
-								Vector3 vector3 = new Vector3(vector2.X / vector2.W, vector2.Y / vector2.W, vector2.Z / vector2.W);
-								vector3 *= new Vector3(0.5f, -0.5f, 1f);
-								vector3 += new Vector3(0.5f, 0.5f, 0f);
-								vector3 *= new Vector3((float)Screen.Adjuster.ScreenRect.Width, (float)Screen.Adjuster.ScreenRect.Height, 1f);
-								Vector2 vector4 = this._game._nameTagFont.MeasureString(networkGamer.Gamertag);
-								this.spriteBatch.DrawOutlinedText(this._game._nameTagFont, networkGamer.Gamertag, new Vector2(vector3.X, vector3.Y) - vector4 / 2f, Color.White, Color.Black, 1);
+								Vector3 screenPos = new Vector3(spos.X / spos.W, spos.Y / spos.W, spos.Z / spos.W);
+								screenPos *= new Vector3(0.5f, -0.5f, 1f);
+								screenPos += new Vector3(0.5f, 0.5f, 0f);
+								screenPos *= new Vector3((float)Screen.Adjuster.ScreenRect.Width, (float)Screen.Adjuster.ScreenRect.Height, 1f);
+								Vector2 textSize = this._game._nameTagFont.MeasureString(gamer.Gamertag);
+								this.spriteBatch.DrawOutlinedText(this._game._nameTagFont, gamer.Gamertag, new Vector2(screenPos.X, screenPos.Y) - textSize / 2f, Color.White, Color.Black, 1);
 							}
 						}
 					}
@@ -434,8 +434,8 @@ namespace DNA.CastleMinerZ
 				{
 					if (this._serverPasswordScreen.OptionSelected != -1)
 					{
-						string textInput = this._serverPasswordScreen.TextInput;
-						if (string.IsNullOrWhiteSpace(textInput))
+						string password = this._serverPasswordScreen.TextInput;
+						if (string.IsNullOrWhiteSpace(password))
 						{
 							if (this._game.IsOnlineGame)
 							{
@@ -449,8 +449,8 @@ namespace DNA.CastleMinerZ
 						{
 							this._game.CurrentNetworkSession.UpdateHostSession(null, new bool?(true), null, null);
 						}
-						this._game.CurrentWorld.ServerPassword = textInput;
-						this._game.CurrentNetworkSession.Password = textInput;
+						this._game.CurrentWorld.ServerPassword = password;
+						this._game.CurrentNetworkSession.Password = password;
 					}
 				});
 				return;
@@ -490,10 +490,10 @@ namespace DNA.CastleMinerZ
 				{
 					if (this._serverNameScreen.OptionSelected != -1)
 					{
-						string textInput2 = this._serverNameScreen.TextInput;
-						if (!string.IsNullOrWhiteSpace(textInput2))
+						string name = this._serverNameScreen.TextInput;
+						if (!string.IsNullOrWhiteSpace(name))
 						{
-							this._game.ServerMessage = textInput2.Trim();
+							this._game.ServerMessage = name.Trim();
 						}
 					}
 				});
@@ -501,27 +501,27 @@ namespace DNA.CastleMinerZ
 			case HostOptionItems.PVP:
 			{
 				this._game.PVPState = (this._game.PVPState + 1) % (CastleMinerZGame.PVPEnum)3;
-				string text = "";
+				string txt = "";
 				switch (this._game.PVPState)
 				{
 				case CastleMinerZGame.PVPEnum.Off:
-					text = "PVP: " + Strings.Off;
+					txt = "PVP: " + Strings.Off;
 					break;
 				case CastleMinerZGame.PVPEnum.Everyone:
-					text = "PVP: " + Strings.Everyone;
+					txt = "PVP: " + Strings.Everyone;
 					break;
 				case CastleMinerZGame.PVPEnum.NotFriends:
-					text = "PVP: " + Strings.Non_Friends_Only;
+					txt = "PVP: " + Strings.Non_Friends_Only;
 					break;
 				}
-				BroadcastTextMessage.Send(this._game.MyNetworkGamer, text);
+				BroadcastTextMessage.Send(this._game.MyNetworkGamer, txt);
 				return;
 			}
 			case HostOptionItems.ChangeJoinPolicy:
 			{
-				int num = (int)(this._game.JoinGamePolicy + 1);
-				num %= 3;
-				this._game.JoinGamePolicy = (JoinGamePolicy)num;
+				int joinpolicy = (int)(this._game.JoinGamePolicy + 1);
+				joinpolicy %= 3;
+				this._game.JoinGamePolicy = (JoinGamePolicy)joinpolicy;
 				return;
 			}
 			default:
@@ -557,13 +557,13 @@ namespace DNA.CastleMinerZ
 			}
 			float day = this.Day;
 			this.Day += (float)(gameTime.ElapsedGameTime.TotalSeconds / GameScreen.LengthOfDay.TotalSeconds);
-			float simpleSunlightAtPoint = BlockTerrain.Instance.GetSimpleSunlightAtPoint(this._localPlayer.WorldPosition + new Vector3(0f, 1.2f, 0f));
-			BloomSettings bloomSettings = BloomSettings.Lerp(this.DayBloomSettings, this.NightBloomSettings, this.DayNightBlender);
-			BloomSettings bloomSettings2 = BloomSettings.Lerp(this.InDoorBloomSettings, bloomSettings, simpleSunlightAtPoint);
-			this._postProcessView.BloomSettings = bloomSettings2;
+			float sunLightLevel = BlockTerrain.Instance.GetSimpleSunlightAtPoint(this._localPlayer.WorldPosition + new Vector3(0f, 1.2f, 0f));
+			BloomSettings outDoorBloomSettings = BloomSettings.Lerp(this.DayBloomSettings, this.NightBloomSettings, this.DayNightBlender);
+			BloomSettings baseBloomSettings = BloomSettings.Lerp(this.InDoorBloomSettings, outDoorBloomSettings, sunLightLevel);
+			this._postProcessView.BloomSettings = baseBloomSettings;
 			if (this._uiGroup.CurrentScreen == this.HUD || this.HUD.IsChatting)
 			{
-				this._postProcessView.BloomSettings = BloomSettings.Lerp(this.DeathBloomSettings, bloomSettings2, this.HUD.PlayerHealth);
+				this._postProcessView.BloomSettings = BloomSettings.Lerp(this.DeathBloomSettings, baseBloomSettings, this.HUD.PlayerHealth);
 			}
 			else
 			{

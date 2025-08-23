@@ -23,8 +23,8 @@ namespace DNA.CastleMinerZ
 			{
 				return;
 			}
-			string text = "https://graph.facebook.com/me/feed?access_token=" + this.AccessToken;
-			string text2 = string.Concat(new string[]
+			string url = "https://graph.facebook.com/me/feed?access_token=" + this.AccessToken;
+			string parameters = string.Concat(new string[]
 			{
 				"?name=name",
 				this.AppendQueryString("link", this.Link),
@@ -34,44 +34,44 @@ namespace DNA.CastleMinerZ
 				this.AppendQueryString("actions", string.Concat(new string[] { "{\"name\": \"", this.ActionName, "\", \"link\": \"", this.ActionURL, "\"}" })),
 				this.AppendQueryString("message", this.Message)
 			});
-			WebRequest webRequest = WebRequest.Create(text);
+			WebRequest webRequest = WebRequest.Create(url);
 			webRequest.ContentType = "application/x-www-form-urlencoded";
 			webRequest.Method = "POST";
-			byte[] bytes = Encoding.ASCII.GetBytes(text2);
+			byte[] bytes = Encoding.ASCII.GetBytes(parameters);
 			webRequest.ContentLength = (long)bytes.Length;
-			Stream requestStream = webRequest.GetRequestStream();
-			requestStream.Write(bytes, 0, bytes.Length);
-			requestStream.Close();
+			Stream os = webRequest.GetRequestStream();
+			os.Write(bytes, 0, bytes.Length);
+			os.Close();
 			try
 			{
-				WebResponse response = webRequest.GetResponse();
-				StreamReader streamReader = null;
+				WebResponse webResponse = webRequest.GetResponse();
+				StreamReader sr = null;
 				try
 				{
-					streamReader = new StreamReader(response.GetResponseStream());
-					this.PostID = streamReader.ReadToEnd();
+					sr = new StreamReader(webResponse.GetResponseStream());
+					this.PostID = sr.ReadToEnd();
 				}
 				finally
 				{
-					if (streamReader != null)
+					if (sr != null)
 					{
-						streamReader.Close();
+						sr.Close();
 					}
 				}
 			}
 			catch (WebException ex)
 			{
-				StreamReader streamReader2 = null;
+				StreamReader errorStream = null;
 				try
 				{
-					streamReader2 = new StreamReader(ex.Response.GetResponseStream());
-					this.ErrorMessage = streamReader2.ReadToEnd();
+					errorStream = new StreamReader(ex.Response.GetResponseStream());
+					this.ErrorMessage = errorStream.ReadToEnd();
 				}
 				finally
 				{
-					if (streamReader2 != null)
+					if (errorStream != null)
 					{
-						streamReader2.Close();
+						errorStream.Close();
 					}
 				}
 			}

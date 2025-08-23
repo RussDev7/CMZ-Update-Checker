@@ -11,11 +11,11 @@ namespace DNA.CastleMinerZ
 			: base(Selector._selectorModel)
 		{
 			base.RasterizerState = RasterizerState.CullNone;
-			DepthStencilState depthStencilState = new DepthStencilState();
-			depthStencilState.DepthBufferFunction = CompareFunction.Less;
-			depthStencilState.DepthBufferWriteEnable = false;
+			DepthStencilState state = new DepthStencilState();
+			state.DepthBufferFunction = CompareFunction.Less;
+			state.DepthBufferWriteEnable = false;
 			base.BlendState = BlendState.AlphaBlend;
-			base.DepthStencilState = depthStencilState;
+			base.DepthStencilState = state;
 			this.DrawPriority = 400;
 		}
 

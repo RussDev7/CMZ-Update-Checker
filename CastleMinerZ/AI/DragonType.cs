@@ -44,7 +44,7 @@ namespace DNA.CastleMinerZ.AI
 					new DragonType(DragonTypeEnum.SKELETON, DragonType.TextureNameEnum.SKELETON, 1000f, 60f, 0.4f, DragonDamageType.DESTRUCTION)
 				};
 				DragonType.BreakLookup = new bool[DragonType.Types.Length, 95];
-				BlockTypeEnum[][] array = new BlockTypeEnum[][]
+				BlockTypeEnum[][] breaklists = new BlockTypeEnum[][]
 				{
 					new BlockTypeEnum[]
 					{
@@ -108,19 +108,19 @@ namespace DNA.CastleMinerZ.AI
 						BlockTypeEnum.DiamondWall
 					}
 				};
-				for (int i = 0; i < DragonType.Types.Length; i++)
+				for (int dnum = 0; dnum < DragonType.Types.Length; dnum++)
 				{
-					DragonType.BreakLookup[i, 0] = true;
-					DragonType.BreakLookup[i, 5] = true;
-					DragonType.BreakLookup[i, 14] = true;
-					DragonType.BreakLookup[i, 20] = true;
-					DragonType.BreakLookup[i, 21] = true;
-					DragonType.BreakLookup[i, 44] = true;
-					DragonType.BreakLookup[i, 43] = true;
-					DragonType.BreakLookup[i, 94] = true;
-					for (int j = 0; j < array[i].Length; j++)
+					DragonType.BreakLookup[dnum, 0] = true;
+					DragonType.BreakLookup[dnum, 5] = true;
+					DragonType.BreakLookup[dnum, 14] = true;
+					DragonType.BreakLookup[dnum, 20] = true;
+					DragonType.BreakLookup[dnum, 21] = true;
+					DragonType.BreakLookup[dnum, 44] = true;
+					DragonType.BreakLookup[dnum, 43] = true;
+					DragonType.BreakLookup[dnum, 94] = true;
+					for (int mnum = 0; mnum < breaklists[dnum].Length; mnum++)
 					{
-						DragonType.BreakLookup[i, (int)array[i][j]] = true;
+						DragonType.BreakLookup[dnum, (int)breaklists[dnum][mnum]] = true;
 					}
 				}
 			}

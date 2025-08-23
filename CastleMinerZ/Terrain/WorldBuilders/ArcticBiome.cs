@@ -13,49 +13,49 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 
 		public override void BuildColumn(BlockTerrain terrain, int worldX, int worldZ, int minY, float blender)
 		{
-			int num = 1;
-			float num2 = 0f;
-			int num3 = 4;
-			for (int i = 0; i < num3; i++)
+			int freq = 1;
+			float noise = 0f;
+			int octives = 4;
+			for (int i = 0; i < octives; i++)
 			{
-				num2 += this._noiseFunction.ComputeNoise(0.009375f * (float)worldX * (float)num, 0.009375f * (float)worldZ * (float)num) / (float)num;
-				num *= 2;
+				noise += this._noiseFunction.ComputeNoise(0.009375f * (float)worldX * (float)freq, 0.009375f * (float)worldZ * (float)freq) / (float)freq;
+				freq *= 2;
 			}
-			int num4 = 64 + (int)(num2 * 16f);
-			bool flag = false;
-			if (num4 <= 54)
+			int groundLimit = 64 + (int)(noise * 16f);
+			bool inValley = false;
+			if (groundLimit <= 54)
 			{
-				num4 = 54;
-				flag = true;
+				groundLimit = 54;
+				inValley = true;
 			}
-			int num5 = num4 - 3;
-			for (int j = 0; j < 128; j++)
+			int dirtLimit = groundLimit - 3;
+			for (int y = 0; y < 128; y++)
 			{
-				int num6 = j + minY;
-				IntVector3 intVector = new IntVector3(worldX, num6, worldZ);
-				int num7 = terrain.MakeIndexFromWorldIndexVector(intVector);
-				if (j == num4)
+				int worldY = y + minY;
+				IntVector3 worldPos = new IntVector3(worldX, worldY, worldZ);
+				int index = terrain.MakeIndexFromWorldIndexVector(worldPos);
+				if (y == groundLimit)
 				{
-					if (flag)
+					if (inValley)
 					{
-						terrain._blocks[num7] = Biome.iceBlock;
+						terrain._blocks[index] = Biome.iceBlock;
 					}
 					else
 					{
-						terrain._blocks[num7] = Biome.snowBlock;
+						terrain._blocks[index] = Biome.snowBlock;
 					}
 				}
-				else if (j == num4 - 1)
+				else if (y == groundLimit - 1)
 				{
-					terrain._blocks[num7] = Biome.iceBlock;
+					terrain._blocks[index] = Biome.iceBlock;
 				}
-				else if (j <= num4)
+				else if (y <= groundLimit)
 				{
-					terrain._blocks[num7] = Biome.rockblock;
+					terrain._blocks[index] = Biome.rockblock;
 				}
-				else if (j <= num5)
+				else if (y <= dirtLimit)
 				{
-					terrain._blocks[num7] = Biome.snowBlock;
+					terrain._blocks[index] = Biome.snowBlock;
 				}
 			}
 		}

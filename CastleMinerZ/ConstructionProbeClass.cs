@@ -39,17 +39,17 @@ namespace DNA.CastleMinerZ
 				{
 					for (int i = 0; i < CastleMinerZGame.Instance.CurrentNetworkSession.RemoteGamers.Count; i++)
 					{
-						NetworkGamer networkGamer = CastleMinerZGame.Instance.CurrentNetworkSession.RemoteGamers[i];
-						if (networkGamer.Tag != null)
+						NetworkGamer gamer = CastleMinerZGame.Instance.CurrentNetworkSession.RemoteGamers[i];
+						if (gamer.Tag != null)
 						{
-							Player player = (Player)networkGamer.Tag;
+							Player player = (Player)gamer.Tag;
 							if (player.ValidLivingGamer)
 							{
-								Vector3 worldPosition = player.WorldPosition;
-								BoundingBox playerAABB = player.PlayerAABB;
-								playerAABB.Min += worldPosition;
-								playerAABB.Max += worldPosition;
-								this.TestBoundBox(playerAABB);
+								Vector3 p = player.WorldPosition;
+								BoundingBox bb = player.PlayerAABB;
+								bb.Min += p;
+								bb.Max += p;
+								this.TestBoundBox(bb);
 								if (this._collides && this._inT < 0.5f)
 								{
 									this.PlayerHit = player;
@@ -60,10 +60,10 @@ namespace DNA.CastleMinerZ
 						}
 					}
 				}
-				IShootableEnemy shootableEnemy = EnemyManager.Instance.Trace(this, true);
-				if (shootableEnemy is BaseZombie)
+				IShootableEnemy hit = EnemyManager.Instance.Trace(this, true);
+				if (hit is BaseZombie)
 				{
-					this.EnemyHit = (BaseZombie)shootableEnemy;
+					this.EnemyHit = (BaseZombie)hit;
 					this.HitZombie = true;
 					return;
 				}

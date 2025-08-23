@@ -45,11 +45,11 @@ namespace DNA.CastleMinerZ.Net
 		public static void Send(LocalNetworkGamer from, InventoryItem item, Crate crate, int index)
 		{
 			crate.Inventory[index] = item;
-			ItemCrateMessage sendInstance = Message.GetSendInstance<ItemCrateMessage>();
-			sendInstance.Location = crate.Location;
-			sendInstance.Index = index;
-			sendInstance.Item = item;
-			sendInstance.DoSend(from);
+			ItemCrateMessage Instance = Message.GetSendInstance<ItemCrateMessage>();
+			Instance.Location = crate.Location;
+			Instance.Index = index;
+			Instance.Item = item;
+			Instance.DoSend(from);
 		}
 
 		protected override void SendData(BinaryWriter writer)

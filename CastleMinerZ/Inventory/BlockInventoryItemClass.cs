@@ -23,19 +23,19 @@ namespace DNA.CastleMinerZ.Inventory
 			}
 			if (door != null)
 			{
-				InventoryItem.InventoryItemClass inventoryItemClass;
-				if (BlockInventoryItemClass.DoorClasses.TryGetValue(door.ModelName, out inventoryItemClass))
+				InventoryItem.InventoryItemClass blockClass;
+				if (BlockInventoryItemClass.DoorClasses.TryGetValue(door.ModelName, out blockClass))
 				{
-					return inventoryItemClass.CreateItem(stackCount);
+					return blockClass.CreateItem(stackCount);
 				}
 				return null;
 			}
 			else
 			{
-				InventoryItem.InventoryItemClass inventoryItemClass;
-				if (BlockInventoryItemClass.BlockClasses.TryGetValue(BlockType.GetType(blockType).ParentBlockType, out inventoryItemClass))
+				InventoryItem.InventoryItemClass blockClass;
+				if (BlockInventoryItemClass.BlockClasses.TryGetValue(BlockType.GetType(blockType).ParentBlockType, out blockClass))
 				{
-					return inventoryItemClass.CreateItem(stackCount);
+					return blockClass.CreateItem(stackCount);
 				}
 				return null;
 			}
@@ -71,28 +71,28 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public override Entity CreateEntity(ItemUse use, bool attachedToLocalPlayer)
 		{
-			BlockEntity blockEntity = new BlockEntity(this.BlockType._type, use, attachedToLocalPlayer);
+			BlockEntity entity = new BlockEntity(this.BlockType._type, use, attachedToLocalPlayer);
 			switch (use)
 			{
 			case ItemUse.UI:
 			{
-				Matrix matrix = Matrix.CreateFromYawPitchRoll(3.1415927f, -0.2617994f, 0.2617994f);
-				blockEntity.LocalToParent = matrix;
-				blockEntity.UIObject();
-				blockEntity.Scale = 38.4f;
+				Matrix i = Matrix.CreateFromYawPitchRoll(3.1415927f, -0.2617994f, 0.2617994f);
+				entity.LocalToParent = i;
+				entity.UIObject();
+				entity.Scale = 38.4f;
 				break;
 			}
 			case ItemUse.Hand:
-				blockEntity.LocalRotation = new Quaternion(-0.02067951f, -0.007977718f, 0.03257636f, 0.9992235f);
-				blockEntity.LocalPosition = new Vector3(0f, 0.06533548f, 0f);
-				blockEntity.Scale = 0.1f;
+				entity.LocalRotation = new Quaternion(-0.02067951f, -0.007977718f, 0.03257636f, 0.9992235f);
+				entity.LocalPosition = new Vector3(0f, 0.06533548f, 0f);
+				entity.Scale = 0.1f;
 				break;
 			case ItemUse.Pickup:
-				blockEntity.Scale = 0.2f;
+				entity.Scale = 0.2f;
 				break;
 			}
-			blockEntity.Update(CastleMinerZGame.Instance, new GameTime());
-			return blockEntity;
+			entity.Update(CastleMinerZGame.Instance, new GameTime());
+			return entity;
 		}
 
 		public static Dictionary<BlockTypeEnum, InventoryItem.InventoryItemClass> BlockClasses = new Dictionary<BlockTypeEnum, InventoryItem.InventoryItemClass>();

@@ -27,17 +27,17 @@ namespace DNA.CastleMinerZ.AI
 			}
 			if (DragonBaseState.DoViewCheck(entity, dt, entity.EType.FastViewCheckInterval) && entity.Target != null)
 			{
-				Vector3 worldPosition = entity.Target.WorldPosition;
-				worldPosition.Y += 1.5f;
-				if (DragonBaseState.CanSeePosition(entity, worldPosition))
+				Vector3 target = entity.Target.WorldPosition;
+				target.Y += 1.5f;
+				if (DragonBaseState.CanSeePosition(entity, target))
 				{
 					entity.TravelTarget = entity.Target.WorldPosition;
 				}
 			}
-			Vector3 worldPosition2 = entity.WorldPosition;
+			Vector3 pos = entity.WorldPosition;
 			entity.TargetAltitude = entity.EType.HuntingAltitude;
-			Vector3 vector = entity.TravelTarget - worldPosition2;
-			entity.TargetYaw = MathHelper.WrapAngle(DragonBaseState.GetHeading(vector, entity.TargetYaw));
+			Vector3 dest = entity.TravelTarget - pos;
+			entity.TargetYaw = MathHelper.WrapAngle(DragonBaseState.GetHeading(dest, entity.TargetYaw));
 			entity.ShootTarget = entity.TravelTarget;
 			if (!entity.ShotPending)
 			{

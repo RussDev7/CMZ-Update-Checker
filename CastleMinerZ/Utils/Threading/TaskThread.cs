@@ -58,12 +58,12 @@ namespace DNA.CastleMinerZ.Utils.Threading
 
 		public BaseTask GetTask()
 		{
-			BaseTask baseTask = this._taskList.Dequeue();
-			if (baseTask == null && !this._dormant)
+			BaseTask result = this._taskList.Dequeue();
+			if (result == null && !this._dormant)
 			{
-				baseTask = TaskDispatcher.Instance.GetTask();
+				result = TaskDispatcher.Instance.GetTask();
 			}
-			return baseTask;
+			return result;
 		}
 
 		public void DoTask(BaseTask task)
@@ -72,19 +72,19 @@ namespace DNA.CastleMinerZ.Utils.Threading
 			{
 				task.DoWork(this);
 			}
-			catch (Exception ex)
+			catch (Exception e)
 			{
-				CastleMinerZGame.Instance.CrashGame(ex);
+				CastleMinerZGame.Instance.CrashGame(e);
 			}
 		}
 
 		public void DrainTaskList()
 		{
-			BaseTask baseTask = this.GetTask();
-			while (!this._timeToQuit && baseTask != null)
+			BaseTask currentTask = this.GetTask();
+			while (!this._timeToQuit && currentTask != null)
 			{
-				this.DoTask(baseTask);
-				baseTask = this.GetTask();
+				this.DoTask(currentTask);
+				currentTask = this.GetTask();
 			}
 		}
 

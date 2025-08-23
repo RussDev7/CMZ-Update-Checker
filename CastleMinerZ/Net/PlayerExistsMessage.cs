@@ -13,12 +13,12 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, AvatarDescription description, bool requestResponse)
 		{
-			PlayerExistsMessage sendInstance = Message.GetSendInstance<PlayerExistsMessage>();
-			sendInstance.AvatarDescriptionData = description.Description;
-			sendInstance.RequestResponse = requestResponse;
-			sendInstance.Gamer.Gamertag = from.Gamertag;
-			sendInstance.Gamer.PlayerID = from.PlayerID;
-			sendInstance.DoSend(from);
+			PlayerExistsMessage Instance = Message.GetSendInstance<PlayerExistsMessage>();
+			Instance.AvatarDescriptionData = description.Description;
+			Instance.RequestResponse = requestResponse;
+			Instance.Gamer.Gamertag = from.Gamertag;
+			Instance.Gamer.PlayerID = from.PlayerID;
+			Instance.DoSend(from);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType
@@ -40,8 +40,8 @@ namespace DNA.CastleMinerZ.Net
 		protected override void RecieveData(BinaryReader reader)
 		{
 			this.RequestResponse = reader.ReadBoolean();
-			int num = reader.ReadInt32();
-			this.AvatarDescriptionData = reader.ReadBytes(num);
+			int length = reader.ReadInt32();
+			this.AvatarDescriptionData = reader.ReadBytes(length);
 			this.Gamer.Gamertag = reader.ReadString();
 			this.Gamer.PlayerID.Read(reader);
 		}

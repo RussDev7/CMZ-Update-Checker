@@ -32,12 +32,12 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, Vector3 location, ExplosiveTypes explosiveType, InventoryItemIDs itemType, bool hitDragon)
 		{
-			DetonateRocketMessage sendInstance = Message.GetSendInstance<DetonateRocketMessage>();
-			sendInstance.Location = location;
-			sendInstance.HitDragon = hitDragon;
-			sendInstance.ExplosiveType = explosiveType;
-			sendInstance.ItemType = itemType;
-			sendInstance.DoSend(from);
+			DetonateRocketMessage Instance = Message.GetSendInstance<DetonateRocketMessage>();
+			Instance.Location = location;
+			Instance.HitDragon = hitDragon;
+			Instance.ExplosiveType = explosiveType;
+			Instance.ItemType = itemType;
+			Instance.DoSend(from);
 		}
 
 		protected override void SendData(BinaryWriter writer)

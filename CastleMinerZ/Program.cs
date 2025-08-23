@@ -17,16 +17,16 @@ namespace DNA.CastleMinerZ
 		private static void Main(string[] args)
 		{
 			Version version = Assembly.GetExecutingAssembly().GetName().Version;
-			BacktraceIssueReporter backtraceIssueReporter = new BacktraceIssueReporter(version, 0UL, "");
+			BacktraceIssueReporter reporter = new BacktraceIssueReporter(version, 0UL, "");
 			if (!Debugger.IsAttached)
 			{
-				backtraceIssueReporter.RegisterGlobalHandlers();
+				reporter.RegisterGlobalHandlers();
 			}
 			else
 			{
 				Application.SetUnhandledExceptionMode(UnhandledExceptionMode.ThrowException);
 			}
-			SteamOnlineServices steamOnlineServices;
+			SteamOnlineServices licenseServices;
 			try
 			{
 				Application.EnableVisualStyles();
@@ -37,47 +37,47 @@ namespace DNA.CastleMinerZ
 					MessageBox.Show(CommandLineArgs.Get<CastleMinerZArgs>().GetErrorUsageAndDescription());
 					return;
 				}
-				Guid guid = Guid.Parse("FAE62948-F4E6-4F18-9D73-ED507466057F");
-				uint num = 253430U;
+				Guid productID = Guid.Parse("FAE62948-F4E6-4F18-9D73-ED507466057F");
+				uint SteamAppID = 253430U;
 				CommonAssembly.Initalize();
-				steamOnlineServices = new SteamOnlineServices(guid, num);
-				if (!steamOnlineServices.OperationWasSuccessful)
+				licenseServices = new SteamOnlineServices(productID, SteamAppID);
+				if (!licenseServices.OperationWasSuccessful)
 				{
-					SteamErrorCode errorCode = steamOnlineServices.ErrorCode;
-					backtraceIssueReporter.ReportCrash(new Exception("Steam init failed: " + errorCode));
-					steamOnlineServices.Dispose();
-					string text = "Unspecified Error";
-					SteamErrorCode steamErrorCode = errorCode;
+					SteamErrorCode steamError = licenseServices.ErrorCode;
+					reporter.ReportCrash(new Exception("Steam init failed: " + steamError));
+					licenseServices.Dispose();
+					string errorMsg = "Unspecified Error";
+					SteamErrorCode steamErrorCode = steamError;
 					if (steamErrorCode == SteamErrorCode.CantInitAPI)
 					{
-						text = "Steam may not be running";
+						errorMsg = "Steam may not be running";
 					}
-					MessageBox.Show(text, "Error Running Program");
+					MessageBox.Show(errorMsg, "Error Running Program");
 					return;
 				}
-				backtraceIssueReporter.UpdateIdentity(steamOnlineServices.SteamUserID, steamOnlineServices.Username);
+				reporter.UpdateIdentity(licenseServices.SteamUserID, licenseServices.Username);
 				CastleMinerZGame.GlobalSettings.Load();
-				NetworkSession.StaticProvider = new SteamNetworkSessionStaticProvider(steamOnlineServices.SteamAPI);
-				NetworkSession.NetworkSessionServices = new SteamNetworkSessionServices(steamOnlineServices.SteamAPI, guid, 4);
+				NetworkSession.StaticProvider = new SteamNetworkSessionStaticProvider(licenseServices.SteamAPI);
+				NetworkSession.NetworkSessionServices = new SteamNetworkSessionServices(licenseServices.SteamAPI, productID, 4);
 				CastleMinerZGame.TrialMode = false;
 			}
-			catch (Exception ex)
+			catch (Exception fatal)
 			{
-				backtraceIssueReporter.ReportCrash(ex);
+				reporter.ReportCrash(fatal);
 				throw;
 			}
 			if (Debugger.IsAttached)
 			{
-				DNAGame.Run<CastleMinerZGame>(backtraceIssueReporter, steamOnlineServices);
+				DNAGame.Run<CastleMinerZGame>(reporter, licenseServices);
 				return;
 			}
 			try
 			{
-				DNAGame.Run<CastleMinerZGame>(backtraceIssueReporter, steamOnlineServices);
+				DNAGame.Run<CastleMinerZGame>(reporter, licenseServices);
 			}
-			catch (Exception ex2)
+			catch (Exception exRun)
 			{
-				backtraceIssueReporter.ReportCrash(ex2);
+				reporter.ReportCrash(exRun);
 			}
 		}
 	}

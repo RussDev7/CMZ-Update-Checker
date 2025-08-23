@@ -14,12 +14,12 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, byte newClientID, DragonTypeEnum enemyType, bool forBiome, float currentHealth)
 		{
-			ExistingDragonMessage sendInstance = Message.GetSendInstance<ExistingDragonMessage>();
-			sendInstance.EnemyTypeID = enemyType;
-			sendInstance.NewClientID = newClientID;
-			sendInstance.ForBiome = forBiome;
-			sendInstance.CurrentHealth = currentHealth;
-			sendInstance.DoSend(from);
+			ExistingDragonMessage Instance = Message.GetSendInstance<ExistingDragonMessage>();
+			Instance.EnemyTypeID = enemyType;
+			Instance.NewClientID = newClientID;
+			Instance.ForBiome = forBiome;
+			Instance.CurrentHealth = currentHealth;
+			Instance.DoSend(from);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType

@@ -20,7 +20,7 @@ namespace DNA.CastleMinerZ.UI
 			this._serverPasswordScreen = new PCKeyboardInputScreen(this._game, Strings.Server_Password, Strings.Enter_a_password_for_this_server + ": ", this._game.DialogScreenImage, this._game._myriadMed, true, this._game.ButtonFrame);
 			this._serverPasswordScreen.ClickSound = "Click";
 			this._serverPasswordScreen.OpenSound = "Popup";
-			Color color = new Color(CMZColors.MenuGreen.ToVector4() * 0.8f);
+			Color transpGreen = new Color(CMZColors.MenuGreen.ToVector4() * 0.8f);
 			base.SelectButton = new FrameButtonControl
 			{
 				LocalPosition = new Point(900, 125),
@@ -28,7 +28,7 @@ namespace DNA.CastleMinerZ.UI
 				Text = Strings.Join_Game,
 				Font = this._game._medFont,
 				Frame = this._game.ButtonFrame,
-				ButtonColor = color
+				ButtonColor = transpGreen
 			};
 			this._refreshButton = new FrameButtonControl();
 			this._refreshButton.LocalPosition = new Point(900, 170);
@@ -37,7 +37,7 @@ namespace DNA.CastleMinerZ.UI
 			this._refreshButton.Font = this._game._medFont;
 			this._refreshButton.Frame = this._game.ButtonFrame;
 			this._refreshButton.Pressed += this._refreshButton_Pressed;
-			this._refreshButton.ButtonColor = color;
+			this._refreshButton.ButtonColor = transpGreen;
 			base.Controls.Add(this._refreshButton);
 			base.BackButton = new ImageButtonControl
 			{
@@ -45,20 +45,20 @@ namespace DNA.CastleMinerZ.UI
 				Font = this._game._medFont,
 				LocalPosition = new Point(15, 15),
 				Text = " " + Strings.Back,
-				ImageDefaultColor = color
+				ImageDefaultColor = transpGreen
 			};
-			int num = 237;
-			Point point = new Point(40, 100);
-			this._nameButton.LocalPosition = point;
-			this._nameButton.Size = new Size(num - 1, 18);
+			int hostSize = 237;
+			Point loc = new Point(40, 100);
+			this._nameButton.LocalPosition = loc;
+			this._nameButton.Size = new Size(hostSize - 1, 18);
 			this._nameButton.Text = "SERVER NAME";
 			this._nameButton.Font = this._game._smallFont;
 			this._nameButton.TextAlignment = FrameButtonControl.Alignment.Left;
 			this._nameButton.Frame = this._game.ButtonFrame;
 			this._nameButton.Pressed += this._nameButton_Pressed;
 			base.Controls.Add(this._nameButton);
-			point.X += num;
-			this._dateButton.LocalPosition = point;
+			loc.X += hostSize;
+			this._dateButton.LocalPosition = loc;
 			this._dateButton.Size = new Size(149, 18);
 			this._dateButton.Text = "DATE \u02c5";
 			this._dateButton.Font = this._game._smallFont;
@@ -66,8 +66,8 @@ namespace DNA.CastleMinerZ.UI
 			this._dateButton.Frame = this._game.ButtonFrame;
 			this._dateButton.Pressed += this._dateButton_Pressed;
 			base.Controls.Add(this._dateButton);
-			point.X += 150;
-			this._numPLayersButton.LocalPosition = point;
+			loc.X += 150;
+			this._numPLayersButton.LocalPosition = loc;
 			this._numPLayersButton.Size = new Size(74, 18);
 			this._numPLayersButton.Text = "PLAYERS";
 			this._numPLayersButton.Font = this._game._smallFont;
@@ -75,8 +75,8 @@ namespace DNA.CastleMinerZ.UI
 			this._numPLayersButton.Frame = this._game.ButtonFrame;
 			this._numPLayersButton.Pressed += this._numPLayersButton_Pressed;
 			base.Controls.Add(this._numPLayersButton);
-			point.X += 75;
-			this._MaxPlayersButton.LocalPosition = point;
+			loc.X += 75;
+			this._MaxPlayersButton.LocalPosition = loc;
 			this._MaxPlayersButton.Size = new Size(54, 18);
 			this._MaxPlayersButton.Text = "MAX";
 			this._MaxPlayersButton.Font = this._game._smallFont;
@@ -84,8 +84,8 @@ namespace DNA.CastleMinerZ.UI
 			this._MaxPlayersButton.Frame = this._game.ButtonFrame;
 			this._MaxPlayersButton.Pressed += this._MaxPlayersButton_Pressed;
 			base.Controls.Add(this._MaxPlayersButton);
-			point.X += 55;
-			this._modeButton.LocalPosition = point;
+			loc.X += 55;
+			this._modeButton.LocalPosition = loc;
 			this._modeButton.Size = new Size(105, 18);
 			this._modeButton.Text = "GAME MODE";
 			this._modeButton.Font = this._game._smallFont;
@@ -93,8 +93,8 @@ namespace DNA.CastleMinerZ.UI
 			this._modeButton.Frame = this._game.ButtonFrame;
 			this._modeButton.Pressed += this._modeButton_Pressed;
 			base.Controls.Add(this._modeButton);
-			point.X += 106;
-			this._numberFriendsButton.LocalPosition = point;
+			loc.X += 106;
+			this._numberFriendsButton.LocalPosition = loc;
 			this._numberFriendsButton.Size = new Size(70, 18);
 			this._numberFriendsButton.Text = "FRIENDS";
 			this._numberFriendsButton.Font = this._game._smallFont;
@@ -148,41 +148,41 @@ namespace DNA.CastleMinerZ.UI
 			}
 			for (int i = 0; i < this.Items.Count; i++)
 			{
-				ChooseOnlineGameScreen.OnlineGameMenuItem onlineGameMenuItem = this.Items[i] as ChooseOnlineGameScreen.OnlineGameMenuItem;
-				if (onlineGameMenuItem != null)
+				ChooseOnlineGameScreen.OnlineGameMenuItem item = this.Items[i] as ChooseOnlineGameScreen.OnlineGameMenuItem;
+				if (item != null)
 				{
-					onlineGameMenuItem.UpdateServerInfo(this._hostDiscovery);
+					item.UpdateServerInfo(this._hostDiscovery);
 				}
 			}
 			if (Screen.Adjuster.ScreenRect != this.prevScreenRect)
 			{
 				this.prevScreenRect = Screen.Adjuster.ScreenRect;
-				int num = (int)(540f * Screen.Adjuster.ScaleFactor.X);
+				int areaWidth = (int)(540f * Screen.Adjuster.ScaleFactor.X);
 				this._selectButton.Scale = (this._refreshButton.Scale = (this._MaxPlayersButton.Scale = (this._numPLayersButton.Scale = (this._nameButton.Scale = (this._dateButton.Scale = (this._modeButton.Scale = (this._numberFriendsButton.Scale = Screen.Adjuster.ScaleFactor.X)))))));
-				Point point = new Point(40, 100);
-				this._nameButton.LocalPosition = point;
-				point.X += this._nameButton.Size.Width + 1;
-				this._dateButton.LocalPosition = point;
-				point.X += this._dateButton.Size.Width + 1;
-				this._numPLayersButton.LocalPosition = point;
-				point.X += this._numPLayersButton.Size.Width + 1;
-				this._MaxPlayersButton.LocalPosition = point;
-				point.X += this._MaxPlayersButton.Size.Width + 1;
-				this._modeButton.LocalPosition = point;
-				point.X += this._modeButton.Size.Width + 1;
-				this._numberFriendsButton.LocalPosition = point;
-				int num2 = (int)(740f * Screen.Adjuster.ScaleFactor.X) + num / 2 - this._selectButton.Size.Width / 2;
-				int num3 = this._selectButton.Size.Height + (int)(5f * Screen.Adjuster.ScaleFactor.X);
-				this._selectButton.LocalPosition = new Point(num2, this._selectButton.LocalPosition.Y);
-				this._refreshButton.LocalPosition = new Point(num2, this._selectButton.LocalPosition.Y + num3);
+				Point loc = new Point(40, 100);
+				this._nameButton.LocalPosition = loc;
+				loc.X += this._nameButton.Size.Width + 1;
+				this._dateButton.LocalPosition = loc;
+				loc.X += this._dateButton.Size.Width + 1;
+				this._numPLayersButton.LocalPosition = loc;
+				loc.X += this._numPLayersButton.Size.Width + 1;
+				this._MaxPlayersButton.LocalPosition = loc;
+				loc.X += this._MaxPlayersButton.Size.Width + 1;
+				this._modeButton.LocalPosition = loc;
+				loc.X += this._modeButton.Size.Width + 1;
+				this._numberFriendsButton.LocalPosition = loc;
+				int xLoc = (int)(740f * Screen.Adjuster.ScaleFactor.X) + areaWidth / 2 - this._selectButton.Size.Width / 2;
+				int scaledHeight = this._selectButton.Size.Height + (int)(5f * Screen.Adjuster.ScaleFactor.X);
+				this._selectButton.LocalPosition = new Point(xLoc, this._selectButton.LocalPosition.Y);
+				this._refreshButton.LocalPosition = new Point(xLoc, this._selectButton.LocalPosition.Y + scaledHeight);
 				this._itemSize.Width = (int)(700f * Screen.Adjuster.ScaleFactor.X);
 				this._itemSize.Height = (int)(60f * Screen.Adjuster.ScaleFactor.X);
 				for (int j = 0; j < this.Items.Count; j++)
 				{
 					this.Items[j].Size = this._itemSize;
 				}
-				int num4 = this._nameButton.LocalPosition.Y + this._nameButton.Size.Height + (int)(5f * Screen.Adjuster.ScaleFactor.X);
-				this._drawArea = new Rectangle((int)(10f * Screen.Adjuster.ScaleFactor.X), num4, (int)((float)Screen.Adjuster.ScreenRect.Width - 10f * Screen.Adjuster.ScaleFactor.X), Screen.Adjuster.ScreenRect.Height - num4);
+				int yloc = this._nameButton.LocalPosition.Y + this._nameButton.Size.Height + (int)(5f * Screen.Adjuster.ScaleFactor.X);
+				this._drawArea = new Rectangle((int)(10f * Screen.Adjuster.ScaleFactor.X), yloc, (int)((float)Screen.Adjuster.ScreenRect.Width - 10f * Screen.Adjuster.ScaleFactor.X), Screen.Adjuster.ScreenRect.Height - yloc);
 				base._updateControlsOnSort();
 			}
 			base.OnUpdate(game, gameTime);
@@ -198,10 +198,10 @@ namespace DNA.CastleMinerZ.UI
 				{
 					if (this._serverPasswordScreen.OptionSelected != -1)
 					{
-						string textInput = this._serverPasswordScreen.TextInput;
-						if (!string.IsNullOrWhiteSpace(textInput))
+						string password = this._serverPasswordScreen.TextInput;
+						if (!string.IsNullOrWhiteSpace(password))
 						{
-							item.Password = textInput;
+							item.Password = password;
 						}
 						this.<>n__FabricatedMethod5();
 					}
@@ -213,54 +213,54 @@ namespace DNA.CastleMinerZ.UI
 
 		public void Populate(AvailableNetworkSessionCollection sessions)
 		{
-			List<ListItemControl> list = new List<ListItemControl>();
-			foreach (AvailableNetworkSession availableNetworkSession in sessions)
+			List<ListItemControl> items = new List<ListItemControl>();
+			foreach (AvailableNetworkSession sess in sessions)
 			{
-				if (availableNetworkSession.HostGamertag != Screen.CurrentGamer.Gamertag)
+				if (sess.HostGamertag != Screen.CurrentGamer.Gamertag)
 				{
-					list.Add(new ChooseOnlineGameScreen.OnlineGameMenuItem(availableNetworkSession, this._itemSize));
+					items.Add(new ChooseOnlineGameScreen.OnlineGameMenuItem(sess, this._itemSize));
 				}
 			}
 			switch (this._currentSort)
 			{
 			case ChooseOnlineGameScreen.SortBy.DateAsc:
-				this._sortByDate(ChooseOnlineGameScreen.SortBy.DateDesc, list);
+				this._sortByDate(ChooseOnlineGameScreen.SortBy.DateDesc, items);
 				break;
 			case ChooseOnlineGameScreen.SortBy.DateDesc:
-				this._sortByDate(ChooseOnlineGameScreen.SortBy.DateAsc, list);
+				this._sortByDate(ChooseOnlineGameScreen.SortBy.DateAsc, items);
 				break;
 			case ChooseOnlineGameScreen.SortBy.NumPlayersAsc:
-				this._sortByNumPlayers(ChooseOnlineGameScreen.SortBy.NumPlayersDesc, list);
+				this._sortByNumPlayers(ChooseOnlineGameScreen.SortBy.NumPlayersDesc, items);
 				break;
 			case ChooseOnlineGameScreen.SortBy.NumPlayersDesc:
-				this._sortByNumPlayers(ChooseOnlineGameScreen.SortBy.NumPlayersAsc, list);
+				this._sortByNumPlayers(ChooseOnlineGameScreen.SortBy.NumPlayersAsc, items);
 				break;
 			case ChooseOnlineGameScreen.SortBy.ModeAsc:
-				this._sortByMode(ChooseOnlineGameScreen.SortBy.ModeDesc, list);
+				this._sortByMode(ChooseOnlineGameScreen.SortBy.ModeDesc, items);
 				break;
 			case ChooseOnlineGameScreen.SortBy.ModeDesc:
-				this._sortByMode(ChooseOnlineGameScreen.SortBy.ModeAsc, list);
+				this._sortByMode(ChooseOnlineGameScreen.SortBy.ModeAsc, items);
 				break;
 			case ChooseOnlineGameScreen.SortBy.NameAsc:
-				this._sortByName(ChooseOnlineGameScreen.SortBy.NameDesc, list);
+				this._sortByName(ChooseOnlineGameScreen.SortBy.NameDesc, items);
 				break;
 			case ChooseOnlineGameScreen.SortBy.NameDesc:
-				this._sortByName(ChooseOnlineGameScreen.SortBy.NameAsc, list);
+				this._sortByName(ChooseOnlineGameScreen.SortBy.NameAsc, items);
 				break;
 			case ChooseOnlineGameScreen.SortBy.MaxPlayersAsc:
-				this._sortByMaxPLayers(ChooseOnlineGameScreen.SortBy.MaxPlayersDesc, list);
+				this._sortByMaxPLayers(ChooseOnlineGameScreen.SortBy.MaxPlayersDesc, items);
 				break;
 			case ChooseOnlineGameScreen.SortBy.MaxPlayersDesc:
-				this._sortByMaxPLayers(ChooseOnlineGameScreen.SortBy.MaxPlayersAsc, list);
+				this._sortByMaxPLayers(ChooseOnlineGameScreen.SortBy.MaxPlayersAsc, items);
 				break;
 			case ChooseOnlineGameScreen.SortBy.NumFriendsAsc:
-				this._sortByFriendCount(ChooseOnlineGameScreen.SortBy.NumFriendsDesc, list);
+				this._sortByFriendCount(ChooseOnlineGameScreen.SortBy.NumFriendsDesc, items);
 				break;
 			case ChooseOnlineGameScreen.SortBy.NumFriendsDesc:
-				this._sortByFriendCount(ChooseOnlineGameScreen.SortBy.NumFriendsAsc, list);
+				this._sortByFriendCount(ChooseOnlineGameScreen.SortBy.NumFriendsAsc, items);
 				break;
 			}
-			this.Items = list;
+			this.Items = items;
 			if (this.Items.Count == 0)
 			{
 				this._modeButton.Visible = (this._nameButton.Visible = (this._dateButton.Visible = (this._numPLayersButton.Visible = (this._MaxPlayersButton.Visible = (this._numberFriendsButton.Visible = false)))));
@@ -404,7 +404,7 @@ namespace DNA.CastleMinerZ.UI
 
 		private static bool SortCheckForNulls(ListItemControl a, ListItemControl b, out int comp)
 		{
-			bool flag = true;
+			bool result = true;
 			if (a == null)
 			{
 				if (b == null)
@@ -422,10 +422,10 @@ namespace DNA.CastleMinerZ.UI
 			}
 			else
 			{
-				flag = false;
+				result = false;
 				comp = 0;
 			}
-			return flag;
+			return result;
 		}
 
 		private static int SortSubSort(ChooseOnlineGameScreen.OnlineGameMenuItem one, ChooseOnlineGameScreen.OnlineGameMenuItem two, int comp)
@@ -449,15 +449,15 @@ namespace DNA.CastleMinerZ.UI
 
 		private static int SortByName(ListItemControl a, ListItemControl b, ChooseOnlineGameScreen.SortDirection direction)
 		{
-			int num;
-			if (!ChooseOnlineGameScreen.SortCheckForNulls(a, b, out num))
+			int result;
+			if (!ChooseOnlineGameScreen.SortCheckForNulls(a, b, out result))
 			{
-				ChooseOnlineGameScreen.OnlineGameMenuItem onlineGameMenuItem = (ChooseOnlineGameScreen.OnlineGameMenuItem)a;
-				ChooseOnlineGameScreen.OnlineGameMenuItem onlineGameMenuItem2 = (ChooseOnlineGameScreen.OnlineGameMenuItem)b;
-				num = string.Compare(onlineGameMenuItem.NetworkSession.ServerMessage, onlineGameMenuItem2.NetworkSession.ServerMessage, true) * (int)direction;
-				num = ChooseOnlineGameScreen.SortSubSort(onlineGameMenuItem, onlineGameMenuItem2, num);
+				ChooseOnlineGameScreen.OnlineGameMenuItem one = (ChooseOnlineGameScreen.OnlineGameMenuItem)a;
+				ChooseOnlineGameScreen.OnlineGameMenuItem two = (ChooseOnlineGameScreen.OnlineGameMenuItem)b;
+				result = string.Compare(one.NetworkSession.ServerMessage, two.NetworkSession.ServerMessage, true) * (int)direction;
+				result = ChooseOnlineGameScreen.SortSubSort(one, two, result);
 			}
-			return num;
+			return result;
 		}
 
 		private static int SortByDateAsc(ListItemControl a, ListItemControl b)
@@ -472,15 +472,15 @@ namespace DNA.CastleMinerZ.UI
 
 		private static int SortByDate(ListItemControl a, ListItemControl b, ChooseOnlineGameScreen.SortDirection direction)
 		{
-			int num;
-			if (!ChooseOnlineGameScreen.SortCheckForNulls(a, b, out num))
+			int result;
+			if (!ChooseOnlineGameScreen.SortCheckForNulls(a, b, out result))
 			{
-				ChooseOnlineGameScreen.OnlineGameMenuItem onlineGameMenuItem = (ChooseOnlineGameScreen.OnlineGameMenuItem)a;
-				ChooseOnlineGameScreen.OnlineGameMenuItem onlineGameMenuItem2 = (ChooseOnlineGameScreen.OnlineGameMenuItem)b;
-				num = DateTime.Compare(onlineGameMenuItem.NetworkSession.DateCreated, onlineGameMenuItem2.NetworkSession.DateCreated) * (int)direction;
-				num = ChooseOnlineGameScreen.SortSubSort(onlineGameMenuItem, onlineGameMenuItem2, num);
+				ChooseOnlineGameScreen.OnlineGameMenuItem one = (ChooseOnlineGameScreen.OnlineGameMenuItem)a;
+				ChooseOnlineGameScreen.OnlineGameMenuItem two = (ChooseOnlineGameScreen.OnlineGameMenuItem)b;
+				result = DateTime.Compare(one.NetworkSession.DateCreated, two.NetworkSession.DateCreated) * (int)direction;
+				result = ChooseOnlineGameScreen.SortSubSort(one, two, result);
 			}
-			return num;
+			return result;
 		}
 
 		private static int SortByFriendCountAsc(ListItemControl a, ListItemControl b)
@@ -495,15 +495,15 @@ namespace DNA.CastleMinerZ.UI
 
 		private static int SortByFriendCount(ListItemControl a, ListItemControl b, ChooseOnlineGameScreen.SortDirection direction)
 		{
-			int num;
-			if (!ChooseOnlineGameScreen.SortCheckForNulls(a, b, out num))
+			int result;
+			if (!ChooseOnlineGameScreen.SortCheckForNulls(a, b, out result))
 			{
-				ChooseOnlineGameScreen.OnlineGameMenuItem onlineGameMenuItem = (ChooseOnlineGameScreen.OnlineGameMenuItem)a;
-				ChooseOnlineGameScreen.OnlineGameMenuItem onlineGameMenuItem2 = (ChooseOnlineGameScreen.OnlineGameMenuItem)b;
-				num = Math.Sign(onlineGameMenuItem.NumFriends - onlineGameMenuItem2.NumFriends) * (int)direction;
-				num = ChooseOnlineGameScreen.SortSubSort(onlineGameMenuItem, onlineGameMenuItem2, num);
+				ChooseOnlineGameScreen.OnlineGameMenuItem one = (ChooseOnlineGameScreen.OnlineGameMenuItem)a;
+				ChooseOnlineGameScreen.OnlineGameMenuItem two = (ChooseOnlineGameScreen.OnlineGameMenuItem)b;
+				result = Math.Sign(one.NumFriends - two.NumFriends) * (int)direction;
+				result = ChooseOnlineGameScreen.SortSubSort(one, two, result);
 			}
-			return num;
+			return result;
 		}
 
 		private static int SortByPlayersAsc(ListItemControl a, ListItemControl b)
@@ -518,15 +518,15 @@ namespace DNA.CastleMinerZ.UI
 
 		private static int SortByPlayers(ListItemControl a, ListItemControl b, ChooseOnlineGameScreen.SortDirection direction)
 		{
-			int num;
-			if (!ChooseOnlineGameScreen.SortCheckForNulls(a, b, out num))
+			int result;
+			if (!ChooseOnlineGameScreen.SortCheckForNulls(a, b, out result))
 			{
-				ChooseOnlineGameScreen.OnlineGameMenuItem onlineGameMenuItem = (ChooseOnlineGameScreen.OnlineGameMenuItem)a;
-				ChooseOnlineGameScreen.OnlineGameMenuItem onlineGameMenuItem2 = (ChooseOnlineGameScreen.OnlineGameMenuItem)b;
-				num = Math.Sign(onlineGameMenuItem.NetworkSession.CurrentGamerCount - onlineGameMenuItem2.NetworkSession.CurrentGamerCount) * (int)direction;
-				num = ChooseOnlineGameScreen.SortSubSort(onlineGameMenuItem, onlineGameMenuItem2, num);
+				ChooseOnlineGameScreen.OnlineGameMenuItem one = (ChooseOnlineGameScreen.OnlineGameMenuItem)a;
+				ChooseOnlineGameScreen.OnlineGameMenuItem two = (ChooseOnlineGameScreen.OnlineGameMenuItem)b;
+				result = Math.Sign(one.NetworkSession.CurrentGamerCount - two.NetworkSession.CurrentGamerCount) * (int)direction;
+				result = ChooseOnlineGameScreen.SortSubSort(one, two, result);
 			}
-			return num;
+			return result;
 		}
 
 		private static int SortByMaxAsc(ListItemControl a, ListItemControl b)
@@ -541,15 +541,15 @@ namespace DNA.CastleMinerZ.UI
 
 		private static int SortByMax(ListItemControl a, ListItemControl b, ChooseOnlineGameScreen.SortDirection direction)
 		{
-			int num;
-			if (!ChooseOnlineGameScreen.SortCheckForNulls(a, b, out num))
+			int result;
+			if (!ChooseOnlineGameScreen.SortCheckForNulls(a, b, out result))
 			{
-				ChooseOnlineGameScreen.OnlineGameMenuItem onlineGameMenuItem = (ChooseOnlineGameScreen.OnlineGameMenuItem)a;
-				ChooseOnlineGameScreen.OnlineGameMenuItem onlineGameMenuItem2 = (ChooseOnlineGameScreen.OnlineGameMenuItem)b;
-				num = Math.Sign(onlineGameMenuItem.NetworkSession.MaxGamerCount - onlineGameMenuItem2.NetworkSession.MaxGamerCount) * (int)direction;
-				num = ChooseOnlineGameScreen.SortSubSort(onlineGameMenuItem, onlineGameMenuItem2, num);
+				ChooseOnlineGameScreen.OnlineGameMenuItem one = (ChooseOnlineGameScreen.OnlineGameMenuItem)a;
+				ChooseOnlineGameScreen.OnlineGameMenuItem two = (ChooseOnlineGameScreen.OnlineGameMenuItem)b;
+				result = Math.Sign(one.NetworkSession.MaxGamerCount - two.NetworkSession.MaxGamerCount) * (int)direction;
+				result = ChooseOnlineGameScreen.SortSubSort(one, two, result);
 			}
-			return num;
+			return result;
 		}
 
 		private static int SortByGameModeAsc(ListItemControl a, ListItemControl b)
@@ -564,35 +564,35 @@ namespace DNA.CastleMinerZ.UI
 
 		private static int SortByGameMode(ListItemControl a, ListItemControl b, ChooseOnlineGameScreen.SortDirection direction)
 		{
-			int num;
-			if (!ChooseOnlineGameScreen.SortCheckForNulls(a, b, out num))
+			int result;
+			if (!ChooseOnlineGameScreen.SortCheckForNulls(a, b, out result))
 			{
-				ChooseOnlineGameScreen.OnlineGameMenuItem onlineGameMenuItem = (ChooseOnlineGameScreen.OnlineGameMenuItem)a;
-				ChooseOnlineGameScreen.OnlineGameMenuItem onlineGameMenuItem2 = (ChooseOnlineGameScreen.OnlineGameMenuItem)b;
-				num = string.Compare(onlineGameMenuItem.GameModeString, onlineGameMenuItem2.GameModeString, true) * (int)direction;
-				num = ChooseOnlineGameScreen.SortSubSort(onlineGameMenuItem, onlineGameMenuItem2, num);
+				ChooseOnlineGameScreen.OnlineGameMenuItem one = (ChooseOnlineGameScreen.OnlineGameMenuItem)a;
+				ChooseOnlineGameScreen.OnlineGameMenuItem two = (ChooseOnlineGameScreen.OnlineGameMenuItem)b;
+				result = string.Compare(one.GameModeString, two.GameModeString, true) * (int)direction;
+				result = ChooseOnlineGameScreen.SortSubSort(one, two, result);
 			}
-			return num;
+			return result;
 		}
 
 		protected override void OnDraw(GraphicsDevice device, SpriteBatch spriteBatch, GameTime gameTime)
 		{
-			SpriteFont largeFont = this._game._largeFont;
+			SpriteFont font = this._game._largeFont;
 			spriteBatch.Begin();
 			if (this.Items.Count == 0)
 			{
-				string text = Strings.No_Servers_Available;
-				Vector2 vector = largeFont.MeasureString(text);
-				int lineSpacing = largeFont.LineSpacing;
-				spriteBatch.DrawOutlinedText(largeFont, text, new Vector2((float)Screen.Adjuster.ScreenRect.Center.X - vector.X / 2f, (float)Screen.Adjuster.ScreenRect.Center.Y - vector.Y / 2f), CMZColors.MenuGreen, Color.Black, 1);
+				string msg = Strings.No_Servers_Available;
+				Vector2 size = font.MeasureString(msg);
+				int lineSpacing = font.LineSpacing;
+				spriteBatch.DrawOutlinedText(font, msg, new Vector2((float)Screen.Adjuster.ScreenRect.Center.X - size.X / 2f, (float)Screen.Adjuster.ScreenRect.Center.Y - size.Y / 2f), CMZColors.MenuGreen, Color.Black, 1);
 			}
 			else
 			{
-				string text = Strings.Choose_A_Server;
-				Vector2 vector = largeFont.MeasureString(text);
-				spriteBatch.DrawOutlinedText(largeFont, text, new Vector2((float)Screen.Adjuster.ScreenRect.Center.X - vector.X / 2f, 10f), CMZColors.MenuGreen, Color.Black, 1);
-				ChooseOnlineGameScreen.OnlineGameMenuItem onlineGameMenuItem = (ChooseOnlineGameScreen.OnlineGameMenuItem)base.SelectedItem;
-				onlineGameMenuItem.DrawSelected(spriteBatch, new Vector2((float)this._refreshButton.LocalPosition.X, (float)(this._refreshButton.LocalPosition.Y + this._refreshButton.Size.Height + 5)));
+				string msg = Strings.Choose_A_Server;
+				Vector2 size = font.MeasureString(msg);
+				spriteBatch.DrawOutlinedText(font, msg, new Vector2((float)Screen.Adjuster.ScreenRect.Center.X - size.X / 2f, 10f), CMZColors.MenuGreen, Color.Black, 1);
+				ChooseOnlineGameScreen.OnlineGameMenuItem selected = (ChooseOnlineGameScreen.OnlineGameMenuItem)base.SelectedItem;
+				selected.DrawSelected(spriteBatch, new Vector2((float)this._refreshButton.LocalPosition.X, (float)(this._refreshButton.LocalPosition.Y + this._refreshButton.Size.Height + 5)));
 			}
 			spriteBatch.End();
 			base.OnDraw(device, spriteBatch, gameTime);
@@ -709,36 +709,36 @@ namespace DNA.CastleMinerZ.UI
 				{
 					color = this.TextHoverColor;
 				}
-				Vector2 vector = new Vector2((float)base.LocalPosition.X + 10f * Screen.Adjuster.ScaleFactor.X, (float)base.LocalPosition.Y + 5f * Screen.Adjuster.ScaleFactor.X);
+				Vector2 loc = new Vector2((float)base.LocalPosition.X + 10f * Screen.Adjuster.ScaleFactor.X, (float)base.LocalPosition.Y + 5f * Screen.Adjuster.ScaleFactor.X);
 				if (this._serverInfo.IsOnline)
 				{
-					spriteBatch.DrawString(this._medFont, this.NetworkSession.ServerMessage, vector, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
+					spriteBatch.DrawString(this._medFont, this.NetworkSession.ServerMessage, loc, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
 				}
 				else
 				{
-					spriteBatch.DrawString(this._medFont, this._serverInfo.ServerName, vector, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
+					spriteBatch.DrawString(this._medFont, this._serverInfo.ServerName, loc, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
 				}
-				vector.Y += (float)this._medFont.LineSpacing * Screen.Adjuster.ScaleFactor.X;
-				string hostGamertag = this.NetworkSession.HostGamertag;
-				if (!hostGamertag.Equals("[unknown]", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(hostGamertag))
+				loc.Y += (float)this._medFont.LineSpacing * Screen.Adjuster.ScaleFactor.X;
+				string hostName = this.NetworkSession.HostGamertag;
+				if (!hostName.Equals("[unknown]", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(hostName))
 				{
-					spriteBatch.DrawString(this._smallFont, Strings.Hosted_By + ": " + hostGamertag, vector, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
+					spriteBatch.DrawString(this._smallFont, Strings.Hosted_By + ": " + hostName, loc, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
 				}
-				int num = 237;
-				vector.X += (float)num * Screen.Adjuster.ScaleFactor.X;
-				spriteBatch.DrawString(this._smallFont, this._dateCreated, vector, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
-				vector.X += 175f * Screen.Adjuster.ScaleFactor.X;
-				spriteBatch.DrawString(this._smallFont, this._serverInfo.NumberPlayerString, vector, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
-				vector.X += 30f * Screen.Adjuster.ScaleFactor.X;
-				spriteBatch.DrawString(this._smallFont, "/", vector, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
-				vector.X += (30f + this._smallFont.MeasureString("/").X) * Screen.Adjuster.ScaleFactor.X;
-				spriteBatch.DrawString(this._smallFont, this._serverInfo.MaxPlayersString, new Vector2(vector.X - this._smallFont.MeasureString(this._serverInfo.MaxPlayersString).X, vector.Y), color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
-				vector.X += 35f * Screen.Adjuster.ScaleFactor.X;
-				spriteBatch.DrawString(this._smallFont, this._serverInfo.GameModeString, vector, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
-				vector.X += 106f * Screen.Adjuster.ScaleFactor.X;
-				if ((float)this.Size.Width > vector.X)
+				int hostSize = 237;
+				loc.X += (float)hostSize * Screen.Adjuster.ScaleFactor.X;
+				spriteBatch.DrawString(this._smallFont, this._dateCreated, loc, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
+				loc.X += 175f * Screen.Adjuster.ScaleFactor.X;
+				spriteBatch.DrawString(this._smallFont, this._serverInfo.NumberPlayerString, loc, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
+				loc.X += 30f * Screen.Adjuster.ScaleFactor.X;
+				spriteBatch.DrawString(this._smallFont, "/", loc, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
+				loc.X += (30f + this._smallFont.MeasureString("/").X) * Screen.Adjuster.ScaleFactor.X;
+				spriteBatch.DrawString(this._smallFont, this._serverInfo.MaxPlayersString, new Vector2(loc.X - this._smallFont.MeasureString(this._serverInfo.MaxPlayersString).X, loc.Y), color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
+				loc.X += 35f * Screen.Adjuster.ScaleFactor.X;
+				spriteBatch.DrawString(this._smallFont, this._serverInfo.GameModeString, loc, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
+				loc.X += 106f * Screen.Adjuster.ScaleFactor.X;
+				if ((float)this.Size.Width > loc.X)
 				{
-					spriteBatch.DrawString(this._smallFont, this._serverInfo.NumFriendsStr, vector, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
+					spriteBatch.DrawString(this._smallFont, this._serverInfo.NumFriendsStr, loc, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
 				}
 			}
 
@@ -755,22 +755,22 @@ namespace DNA.CastleMinerZ.UI
 				}
 				spriteBatch.DrawOutlinedText(this._medFont, this.NetworkSession.ServerMessage, loc, Color.White, Color.Black, 1, Screen.Adjuster.ScaleFactor.X, 0f, Vector2.Zero);
 				loc.Y += (float)this._medFont.LineSpacing * Screen.Adjuster.ScaleFactor.X;
-				string hostGamertag = this.NetworkSession.HostGamertag;
-				if (!hostGamertag.Equals("[unknown]", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(hostGamertag))
+				string hostName = this.NetworkSession.HostGamertag;
+				if (!hostName.Equals("[unknown]", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(hostName))
 				{
-					spriteBatch.DrawOutlinedText(this._medFont, Strings.Hosted_By + ": " + hostGamertag, loc, Color.White, Color.Black, 1, Screen.Adjuster.ScaleFactor.X, 0f, Vector2.Zero);
+					spriteBatch.DrawOutlinedText(this._medFont, Strings.Hosted_By + ": " + hostName, loc, Color.White, Color.Black, 1, Screen.Adjuster.ScaleFactor.X, 0f, Vector2.Zero);
 				}
 				loc.Y += (float)this._medFont.LineSpacing * Screen.Adjuster.ScaleFactor.X;
 				spriteBatch.DrawOutlinedText(this._medFont, Strings.Created + ": " + this._dateCreated, loc, Color.White, Color.Black, 1, Screen.Adjuster.ScaleFactor.X, 0f, Vector2.Zero);
 				loc.Y += (float)this._medFont.LineSpacing * Screen.Adjuster.ScaleFactor.X;
 				spriteBatch.DrawOutlinedText(this._medFont, Strings.Players + ": ", loc, Color.White, Color.Black, 1, Screen.Adjuster.ScaleFactor.X, 0f, Vector2.Zero);
-				Vector2 vector = loc;
-				vector.X += 100f * Screen.Adjuster.ScaleFactor.X;
-				spriteBatch.DrawOutlinedText(this._medFont, this._serverInfo.NumberPlayerString, vector, Color.White, Color.Black, 1, Screen.Adjuster.ScaleFactor.X, 0f, Vector2.Zero);
-				vector.X += 40f * Screen.Adjuster.ScaleFactor.X;
-				spriteBatch.DrawOutlinedText(this._medFont, "/", vector, Color.White, Color.Black, 1, Screen.Adjuster.ScaleFactor.X, 0f, Vector2.Zero);
-				vector.X += (40f + this._medFont.MeasureString("/").X) * Screen.Adjuster.ScaleFactor.X;
-				spriteBatch.DrawOutlinedText(this._medFont, this._serverInfo.MaxPlayersString, new Vector2(vector.X - this._medFont.MeasureString(this._serverInfo.MaxPlayersString).X, loc.Y), Color.White, Color.Black, 1, Screen.Adjuster.ScaleFactor.X, 0f, Vector2.Zero);
+				Vector2 newLoc = loc;
+				newLoc.X += 100f * Screen.Adjuster.ScaleFactor.X;
+				spriteBatch.DrawOutlinedText(this._medFont, this._serverInfo.NumberPlayerString, newLoc, Color.White, Color.Black, 1, Screen.Adjuster.ScaleFactor.X, 0f, Vector2.Zero);
+				newLoc.X += 40f * Screen.Adjuster.ScaleFactor.X;
+				spriteBatch.DrawOutlinedText(this._medFont, "/", newLoc, Color.White, Color.Black, 1, Screen.Adjuster.ScaleFactor.X, 0f, Vector2.Zero);
+				newLoc.X += (40f + this._medFont.MeasureString("/").X) * Screen.Adjuster.ScaleFactor.X;
+				spriteBatch.DrawOutlinedText(this._medFont, this._serverInfo.MaxPlayersString, new Vector2(newLoc.X - this._medFont.MeasureString(this._serverInfo.MaxPlayersString).X, loc.Y), Color.White, Color.Black, 1, Screen.Adjuster.ScaleFactor.X, 0f, Vector2.Zero);
 				loc.Y += (float)this._medFont.LineSpacing * Screen.Adjuster.ScaleFactor.X;
 				spriteBatch.DrawString(this._medFont, Strings.Game_Mode + ": " + this._serverInfo.GameModeString, loc, color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.X, SpriteEffects.None, 0f);
 				loc.Y += (float)this._medFont.LineSpacing * Screen.Adjuster.ScaleFactor.X;

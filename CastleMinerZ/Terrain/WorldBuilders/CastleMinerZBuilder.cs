@@ -30,95 +30,95 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 		public override void BuildWorldChunk(BlockTerrain terrain, IntVector3 minLoc)
 		{
 			terrain.WaterLevel = 1.5f;
-			for (int i = 0; i < 16; i++)
+			for (int z = 0; z < 16; z++)
 			{
-				int num = i + minLoc.Z;
-				long num2 = (long)num * (long)num;
-				for (int j = 0; j < 16; j++)
+				int worldZ = z + minLoc.Z;
+				long zsqu = (long)worldZ * (long)worldZ;
+				for (int x = 0; x < 16; x++)
 				{
-					int num3 = j + minLoc.X;
-					float num4 = (float)Math.Sqrt((double)((long)num3 * (long)num3 + num2));
-					float num5 = 1f;
-					int num6 = 0;
-					while (num4 > 4400f)
+					int worldX = x + minLoc.X;
+					float dist = (float)Math.Sqrt((double)((long)worldX * (long)worldX + zsqu));
+					float hellBlender = 1f;
+					int flips = 0;
+					while (dist > 4400f)
 					{
-						num4 -= 4400f;
-						num6++;
+						dist -= 4400f;
+						flips++;
 					}
-					if ((num6 & 1) != 0)
+					if ((flips & 1) != 0)
 					{
-						num4 = 4400f - num4;
+						dist = 4400f - dist;
 					}
-					if (num4 < 200f)
+					if (dist < 200f)
 					{
-						this.classic.BuildColumn(terrain, num3, num, minLoc.Y, 1f);
+						this.classic.BuildColumn(terrain, worldX, worldZ, minLoc.Y, 1f);
 					}
-					else if (num4 < 300f)
+					else if (dist < 300f)
 					{
-						float num7 = (num4 - 200f) / 100f;
-						this.classic.BuildColumn(terrain, num3, num, minLoc.Y, 1f - num7);
-						this.lagoon.BuildColumn(terrain, num3, num, minLoc.Y, num7);
+						float blender = (dist - 200f) / 100f;
+						this.classic.BuildColumn(terrain, worldX, worldZ, minLoc.Y, 1f - blender);
+						this.lagoon.BuildColumn(terrain, worldX, worldZ, minLoc.Y, blender);
 					}
-					else if (num4 < 900f)
+					else if (dist < 900f)
 					{
-						this.lagoon.BuildColumn(terrain, num3, num, minLoc.Y, 1f);
+						this.lagoon.BuildColumn(terrain, worldX, worldZ, minLoc.Y, 1f);
 					}
-					else if (num4 < 1000f)
+					else if (dist < 1000f)
 					{
-						float num8 = (num4 - 900f) / 100f;
-						this.lagoon.BuildColumn(terrain, num3, num, minLoc.Y, 1f - num8);
-						this.dessert.BuildColumn(terrain, num3, num, minLoc.Y, num8);
+						float blender2 = (dist - 900f) / 100f;
+						this.lagoon.BuildColumn(terrain, worldX, worldZ, minLoc.Y, 1f - blender2);
+						this.dessert.BuildColumn(terrain, worldX, worldZ, minLoc.Y, blender2);
 					}
-					else if (num4 < 1600f)
+					else if (dist < 1600f)
 					{
-						this.dessert.BuildColumn(terrain, num3, num, minLoc.Y, 1f);
+						this.dessert.BuildColumn(terrain, worldX, worldZ, minLoc.Y, 1f);
 					}
-					else if (num4 < 1700f)
+					else if (dist < 1700f)
 					{
-						float num9 = (num4 - 1600f) / 100f;
-						this.dessert.BuildColumn(terrain, num3, num, minLoc.Y, 1f - num9);
-						this.mountains.BuildColumn(terrain, num3, num, minLoc.Y, num9);
+						float blender3 = (dist - 1600f) / 100f;
+						this.dessert.BuildColumn(terrain, worldX, worldZ, minLoc.Y, 1f - blender3);
+						this.mountains.BuildColumn(terrain, worldX, worldZ, minLoc.Y, blender3);
 					}
-					else if (num4 < 2300f)
+					else if (dist < 2300f)
 					{
-						this.mountains.BuildColumn(terrain, num3, num, minLoc.Y, 1f);
+						this.mountains.BuildColumn(terrain, worldX, worldZ, minLoc.Y, 1f);
 					}
-					else if (num4 < 2400f)
+					else if (dist < 2400f)
 					{
-						float num10 = (num4 - 2300f) / 100f;
-						this.mountains.BuildColumn(terrain, num3, num, minLoc.Y, 1f - num10);
-						this.arctic.BuildColumn(terrain, num3, num, minLoc.Y, num10);
+						float blender4 = (dist - 2300f) / 100f;
+						this.mountains.BuildColumn(terrain, worldX, worldZ, minLoc.Y, 1f - blender4);
+						this.arctic.BuildColumn(terrain, worldX, worldZ, minLoc.Y, blender4);
 					}
-					else if (num4 < 3000f)
+					else if (dist < 3000f)
 					{
-						this.arctic.BuildColumn(terrain, num3, num, minLoc.Y, 1f);
+						this.arctic.BuildColumn(terrain, worldX, worldZ, minLoc.Y, 1f);
 					}
-					else if (num4 < 3600f)
+					else if (dist < 3600f)
 					{
-						float num11 = (num4 - 3000f) / 600f;
-						num5 = 1f - num11;
-						this.decent.BuildColumn(terrain, num3, num, minLoc.Y, num11);
+						float blender5 = (dist - 3000f) / 600f;
+						hellBlender = 1f - blender5;
+						this.decent.BuildColumn(terrain, worldX, worldZ, minLoc.Y, blender5);
 					}
-					float num12 = MathHelper.Clamp(num4 / 3600f, 0f, 1f);
-					this.hellCeiling.BuildColumn(terrain, num3, num, minLoc.Y, num5);
-					if (num4 > 300f && num4 < 3600f)
+					float worldBlender = MathHelper.Clamp(dist / 3600f, 0f, 1f);
+					this.hellCeiling.BuildColumn(terrain, worldX, worldZ, minLoc.Y, hellBlender);
+					if (dist > 300f && dist < 3600f)
 					{
-						this.crashSiteDepositer.BuildColumn(terrain, num3, num, minLoc.Y, num12);
+						this.crashSiteDepositer.BuildColumn(terrain, worldX, worldZ, minLoc.Y, worldBlender);
 					}
-					this.caves.BuildColumn(terrain, num3, num, minLoc.Y, 1f);
-					this.oreDepositor.BuildColumn(terrain, num3, num, minLoc.Y, num12);
-					this.hell.BuildColumn(terrain, num3, num, minLoc.Y, num5);
-					this.bedrockDepositor.BuildColumn(terrain, num3, num, minLoc.Y, 1f);
-					this.orginArea.BuildColumn(terrain, num3, num, minLoc.Y, 1f);
+					this.caves.BuildColumn(terrain, worldX, worldZ, minLoc.Y, 1f);
+					this.oreDepositor.BuildColumn(terrain, worldX, worldZ, minLoc.Y, worldBlender);
+					this.hell.BuildColumn(terrain, worldX, worldZ, minLoc.Y, hellBlender);
+					this.bedrockDepositor.BuildColumn(terrain, worldX, worldZ, minLoc.Y, 1f);
+					this.orginArea.BuildColumn(terrain, worldX, worldZ, minLoc.Y, 1f);
 				}
 			}
-			for (int k = 3; k < 13; k++)
+			for (int z2 = 3; z2 < 13; z2++)
 			{
-				int num13 = k + minLoc.Z;
-				for (int l = 3; l < 13; l++)
+				int worldZ2 = z2 + minLoc.Z;
+				for (int x2 = 3; x2 < 13; x2++)
 				{
-					int num14 = l + minLoc.X;
-					this.trees.BuildColumn(terrain, num14, num13, minLoc.Y, 1f);
+					int worldX2 = x2 + minLoc.X;
+					this.trees.BuildColumn(terrain, worldX2, worldZ2, minLoc.Y, 1f);
 				}
 			}
 			this.hell.PostChunkProcess();

@@ -13,56 +13,56 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 
 		public override void BuildColumn(BlockTerrain terrain, int worldX, int worldZ, int minY, float blender)
 		{
-			int num = 1;
-			float num2 = 0f;
-			int num3 = 4;
-			for (int i = 0; i < num3; i++)
+			int freq = 1;
+			float noise = 0f;
+			int octives = 4;
+			for (int i = 0; i < octives; i++)
 			{
-				num2 += this._noiseFunction.ComputeNoise(0.009375f * (float)worldX * (float)num, 0.009375f * (float)worldZ * (float)num) / (float)num;
-				num *= 2;
+				noise += this._noiseFunction.ComputeNoise(0.009375f * (float)worldX * (float)freq, 0.009375f * (float)worldZ * (float)freq) / (float)freq;
+				freq *= 2;
 			}
-			int num4 = 64 + (int)(num2 * 32f);
-			bool flag = false;
-			if (num4 <= 44)
+			int groundLimit = 64 + (int)(noise * 32f);
+			bool inValley = false;
+			if (groundLimit <= 44)
 			{
-				num4 = 44;
-				flag = true;
+				groundLimit = 44;
+				inValley = true;
 			}
-			int num5 = num4 - 3;
-			num2 = this._noiseFunction.ComputeNoise((float)worldX * 0.5f, (float)worldZ * 0.5f);
-			num2 = (num2 + 1f) / 2f;
-			int num6 = 1 + (int)(num2 * 3f);
-			for (int j = 0; j < 128; j++)
+			int dirtLimit = groundLimit - 3;
+			noise = this._noiseFunction.ComputeNoise((float)worldX * 0.5f, (float)worldZ * 0.5f);
+			noise = (noise + 1f) / 2f;
+			int bedRockLevel = 1 + (int)(noise * 3f);
+			for (int y = 0; y < 128; y++)
 			{
 				if (terrain._resetRequested)
 				{
 					return;
 				}
-				int num7 = j + minY;
-				IntVector3 intVector = new IntVector3(worldX, num7, worldZ);
-				int num8 = terrain.MakeIndexFromWorldIndexVector(intVector);
-				if (j <= num4)
+				int worldY = y + minY;
+				IntVector3 worldPos = new IntVector3(worldX, worldY, worldZ);
+				int index = terrain.MakeIndexFromWorldIndexVector(worldPos);
+				if (y <= groundLimit)
 				{
-					if (j < num6)
+					if (y < bedRockLevel)
 					{
-						terrain._blocks[num8] = Biome.bedrockBlock;
+						terrain._blocks[index] = Biome.bedrockBlock;
 					}
 					else
 					{
-						terrain._blocks[num8] = Biome.rockblock;
-						if (j >= num5)
+						terrain._blocks[index] = Biome.rockblock;
+						if (y >= dirtLimit)
 						{
-							if (flag)
+							if (inValley)
 							{
-								terrain._blocks[num8] = Biome.sandBlock;
+								terrain._blocks[index] = Biome.sandBlock;
 							}
-							else if (j == num4)
+							else if (y == groundLimit)
 							{
-								terrain._blocks[num8] = Biome.grassblock;
+								terrain._blocks[index] = Biome.grassblock;
 							}
 							else
 							{
-								terrain._blocks[num8] = Biome.dirtblock;
+								terrain._blocks[index] = Biome.dirtblock;
 							}
 						}
 					}

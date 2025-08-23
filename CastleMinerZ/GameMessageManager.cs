@@ -20,18 +20,18 @@ namespace DNA.CastleMinerZ
 
 		public void Subscribe(IGameMessageHandler handler, params GameMessageType[] types)
 		{
-			foreach (GameMessageType gameMessageType in types)
+			foreach (GameMessageType type in types)
 			{
-				List<WeakReference<IGameMessageHandler>> list = this._handlers[(int)gameMessageType];
-				for (int j = 0; j < list.Count; j++)
+				List<WeakReference<IGameMessageHandler>> list = this._handlers[(int)type];
+				for (int i = 0; i < list.Count; i++)
 				{
-					IGameMessageHandler target = list[j].Target;
-					if (target == null)
+					IGameMessageHandler t = list[i].Target;
+					if (t == null)
 					{
-						list.RemoveAt(j);
-						j--;
+						list.RemoveAt(i);
+						i--;
 					}
-					else if (target == handler)
+					else if (t == handler)
 					{
 						return;
 					}
@@ -45,13 +45,13 @@ namespace DNA.CastleMinerZ
 			List<WeakReference<IGameMessageHandler>> list = this._handlers[(int)type];
 			for (int i = 0; i < list.Count; i++)
 			{
-				IGameMessageHandler target = list[i].Target;
-				if (target == null)
+				IGameMessageHandler t = list[i].Target;
+				if (t == null)
 				{
 					list.RemoveAt(i);
 					i--;
 				}
-				else if (target == handler)
+				else if (t == handler)
 				{
 					list.RemoveAt(i);
 					return;
@@ -64,15 +64,15 @@ namespace DNA.CastleMinerZ
 			List<WeakReference<IGameMessageHandler>> list = this._handlers[(int)type];
 			for (int i = 0; i < list.Count; i++)
 			{
-				IGameMessageHandler target = list[i].Target;
-				if (target == null)
+				IGameMessageHandler t = list[i].Target;
+				if (t == null)
 				{
 					list.RemoveAt(i);
 					i--;
 				}
 				else
 				{
-					target.HandleMessage(type, data, sender);
+					t.HandleMessage(type, data, sender);
 				}
 			}
 		}

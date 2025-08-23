@@ -31,17 +31,17 @@ namespace DNA.CastleMinerZ.Utils
 
 		public iType Get()
 		{
-			iType iType = default(iType);
-			iType = this._cache.Pop();
-			if (iType == null)
+			iType result = default(iType);
+			result = this._cache.Pop();
+			if (result == null)
 			{
 				this.GrowList(this._growSize);
-				for (iType = this._cache.Pop(); iType == null; iType = this._cache.Pop())
+				for (result = this._cache.Pop(); result == null; result = this._cache.Pop())
 				{
 					this._cache.Push(new iType());
 				}
 			}
-			return iType;
+			return result;
 		}
 
 		public void Put(iType part)

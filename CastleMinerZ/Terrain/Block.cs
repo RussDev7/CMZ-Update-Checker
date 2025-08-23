@@ -124,12 +124,12 @@ namespace DNA.CastleMinerZ.Terrain
 
 		public static BlockTypeEnum GetTypeIndex(int data)
 		{
-			uint num = (uint)(data & 2147479552) >> 12;
-			if (num > 94U)
+			uint bte = (uint)(data & 2147479552) >> 12;
+			if (bte > 94U)
 			{
 				return BlockTypeEnum.Dirt;
 			}
-			return (BlockTypeEnum)num;
+			return (BlockTypeEnum)bte;
 		}
 
 		public static BlockType GetType(int data)
@@ -139,30 +139,30 @@ namespace DNA.CastleMinerZ.Terrain
 
 		public static int SetType(int data, BlockTypeEnum value)
 		{
-			uint num = (uint)value;
-			if (num > 94U)
+			uint bte = (uint)value;
+			if (bte > 94U)
 			{
-				num = 1U;
+				bte = 1U;
 			}
-			int num2 = (data & -2147479553) | (int)((int)num << 12);
-			BlockType type = BlockType.GetType((BlockTypeEnum)num);
-			if (type.Opaque)
+			int result = (data & -2147479553) | (int)((int)bte << 12);
+			BlockType bt = BlockType.GetType((BlockTypeEnum)bte);
+			if (bt.Opaque)
 			{
-				num2 |= 512;
-			}
-			else
-			{
-				num2 &= -513;
-			}
-			if (type.HasAlpha)
-			{
-				num2 |= 2048;
+				result |= 512;
 			}
 			else
 			{
-				num2 &= -2049;
+				result &= -513;
 			}
-			return num2;
+			if (bt.HasAlpha)
+			{
+				result |= 2048;
+			}
+			else
+			{
+				result &= -2049;
+			}
+			return result;
 		}
 
 		public const int NUM_BITS_IN_LIGHT_LEVEL = 4;

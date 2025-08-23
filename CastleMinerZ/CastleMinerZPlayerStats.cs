@@ -242,31 +242,31 @@ namespace DNA.CastleMinerZ
 
 		public int BlocksDugCount(BlockTypeEnum type)
 		{
-			int num;
-			if (!this.BlocksDug.TryGetValue(type, out num))
+			int ret;
+			if (!this.BlocksDug.TryGetValue(type, out ret))
 			{
 				return 0;
 			}
-			return num;
+			return ret;
 		}
 
 		public void DugBlock(BlockTypeEnum type)
 		{
-			int num = 0;
-			this.BlocksDug.TryGetValue(type, out num);
-			num++;
-			this.BlocksDug[type] = num;
+			int ret = 0;
+			this.BlocksDug.TryGetValue(type, out ret);
+			ret++;
+			this.BlocksDug[type] = ret;
 		}
 
 		public CastleMinerZPlayerStats.ItemStats GetItemStats(InventoryItemIDs ItemID)
 		{
-			CastleMinerZPlayerStats.ItemStats itemStats;
-			if (!this.AllItemStats.TryGetValue(ItemID, out itemStats))
+			CastleMinerZPlayerStats.ItemStats ret;
+			if (!this.AllItemStats.TryGetValue(ItemID, out ret))
 			{
-				itemStats = new CastleMinerZPlayerStats.ItemStats(ItemID);
-				this.AllItemStats[ItemID] = itemStats;
+				ret = new CastleMinerZPlayerStats.ItemStats(ItemID);
+				this.AllItemStats[ItemID] = ret;
 			}
-			return itemStats;
+			return ret;
 		}
 
 		private void SetupStatsForWriting()
@@ -289,22 +289,22 @@ namespace DNA.CastleMinerZ
 			writer.Write((float)this.TimeInFull.TotalMinutes);
 			writer.Write((float)this.TimeInMenu.TotalMinutes);
 			writer.Write(this.BlocksDug.Count);
-			foreach (KeyValuePair<BlockTypeEnum, int> keyValuePair in this.BlocksDug)
+			foreach (KeyValuePair<BlockTypeEnum, int> pair in this.BlocksDug)
 			{
-				writer.Write((int)keyValuePair.Key);
-				writer.Write(keyValuePair.Value);
+				writer.Write((int)pair.Key);
+				writer.Write(pair.Value);
 			}
 			writer.Write(this.AllItemStats.Count);
-			foreach (KeyValuePair<InventoryItemIDs, CastleMinerZPlayerStats.ItemStats> keyValuePair2 in this.AllItemStats)
+			foreach (KeyValuePair<InventoryItemIDs, CastleMinerZPlayerStats.ItemStats> pair2 in this.AllItemStats)
 			{
-				writer.Write((int)keyValuePair2.Key);
-				keyValuePair2.Value.Write(writer);
+				writer.Write((int)pair2.Key);
+				pair2.Value.Write(writer);
 			}
 			writer.Write(this.BanList.Count);
-			foreach (KeyValuePair<ulong, DateTime> keyValuePair3 in this.BanList)
+			foreach (KeyValuePair<ulong, DateTime> pair3 in this.BanList)
 			{
-				writer.Write(keyValuePair3.Key);
-				writer.Write(keyValuePair3.Value.Ticks);
+				writer.Write(pair3.Key);
+				writer.Write(pair3.Value.Ticks);
 			}
 			writer.Write(this.SecondTrayFaded);
 			writer.Write(this.InvertYAxis);
@@ -344,27 +344,27 @@ namespace DNA.CastleMinerZ
 			this.TimeInTrial = TimeSpan.FromMinutes((double)reader.ReadSingle());
 			this.TimeInFull = TimeSpan.FromMinutes((double)reader.ReadSingle());
 			this.TimeInMenu = TimeSpan.FromMinutes((double)reader.ReadSingle());
-			int num = reader.ReadInt32();
+			int count = reader.ReadInt32();
 			this.BlocksDug.Clear();
-			for (int i = 0; i < num; i++)
+			for (int i = 0; i < count; i++)
 			{
 				this.BlocksDug[(BlockTypeEnum)reader.ReadInt32()] = reader.ReadInt32();
 			}
-			num = reader.ReadInt32();
+			count = reader.ReadInt32();
 			this.AllItemStats.Clear();
-			for (int j = 0; j < num; j++)
+			for (int j = 0; j < count; j++)
 			{
-				InventoryItemIDs inventoryItemIDs = (InventoryItemIDs)reader.ReadInt32();
-				CastleMinerZPlayerStats.ItemStats itemStats = new CastleMinerZPlayerStats.ItemStats(inventoryItemIDs);
-				itemStats.Read(reader);
-				this.AllItemStats[inventoryItemIDs] = itemStats;
+				InventoryItemIDs id = (InventoryItemIDs)reader.ReadInt32();
+				CastleMinerZPlayerStats.ItemStats stat = new CastleMinerZPlayerStats.ItemStats(id);
+				stat.Read(reader);
+				this.AllItemStats[id] = stat;
 			}
-			num = reader.ReadInt32();
+			count = reader.ReadInt32();
 			this.BanList.Clear();
-			for (int k = 0; k < num; k++)
+			for (int k = 0; k < count; k++)
 			{
-				ulong num2 = (ulong)reader.ReadInt64();
-				this.BanList[num2] = new DateTime(reader.ReadInt64());
+				ulong playerid = (ulong)reader.ReadInt64();
+				this.BanList[playerid] = new DateTime(reader.ReadInt64());
 			}
 			if (version > 6)
 			{

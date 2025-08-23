@@ -20,10 +20,10 @@ namespace DNA.CastleMinerZ.AI
 
 		public string GetRandomAttack(BaseZombie entity)
 		{
-			string[] attackArray = this.AttackArray;
-			int num = entity.Rnd.Next(0, attackArray.Length);
-			entity.AnimationIndex = num;
-			return attackArray[num];
+			string[] a = this.AttackArray;
+			int i = entity.Rnd.Next(0, a.Length);
+			entity.AnimationIndex = i;
+			return a[i];
 		}
 
 		public override void Enter(BaseZombie entity)
@@ -53,38 +53,38 @@ namespace DNA.CastleMinerZ.AI
 			{
 				if (entity.Target.IsLocal && entity.AnimationIndex != -1)
 				{
-					float[] array = this.HitTimes[entity.AnimationIndex];
-					if (entity.CurrentPlayer.CurrentTime.TotalSeconds >= (double)(array[entity.HitCount] / entity.CurrentPlayer.Speed))
+					float[] hittimes = this.HitTimes[entity.AnimationIndex];
+					if (entity.CurrentPlayer.CurrentTime.TotalSeconds >= (double)(hittimes[entity.HitCount] / entity.CurrentPlayer.Speed))
 					{
-						Vector3 vector = entity.Target.WorldPosition - entity.WorldPosition;
-						if (Math.Abs(vector.Y) < 1.2f)
+						Vector3 targetPos = entity.Target.WorldPosition - entity.WorldPosition;
+						if (Math.Abs(targetPos.Y) < 1.2f)
 						{
-							bool flag = false;
-							vector.Y = 0f;
-							float num = vector.LengthSquared();
-							if ((double)num < 0.05)
+							bool takeDamage = false;
+							targetPos.Y = 0f;
+							float lsq = targetPos.LengthSquared();
+							if ((double)lsq < 0.05)
 							{
-								flag = true;
+								takeDamage = true;
 							}
 							else
 							{
-								float num2 = this.HitRanges[entity.AnimationIndex];
-								if (num < num2 * num2)
+								float range = this.HitRanges[entity.AnimationIndex];
+								if (lsq < range * range)
 								{
-									vector.Normalize();
-									if (Vector3.Dot(vector, Vector3.Normalize(entity.LocalToWorld.Forward)) * this.HitDotMultiplier > 0.7f)
+									targetPos.Normalize();
+									if (Vector3.Dot(targetPos, Vector3.Normalize(entity.LocalToWorld.Forward)) * this.HitDotMultiplier > 0.7f)
 									{
-										flag = true;
+										takeDamage = true;
 									}
 								}
 							}
-							if (flag)
+							if (takeDamage)
 							{
 								InGameHUD.Instance.ApplyDamage(this.HitDamages[entity.AnimationIndex], entity.WorldPosition);
 							}
 						}
 						entity.HitCount++;
-						if (entity.HitCount == array.Length)
+						if (entity.HitCount == hittimes.Length)
 						{
 							entity.AnimationIndex = -1;
 							entity.HitCount = 0;
@@ -97,12 +97,12 @@ namespace DNA.CastleMinerZ.AI
 			{
 				entity.MissCount--;
 			}
-			Vector3 vector2 = entity.Target.WorldPosition - entity.WorldPosition;
-			float y = vector2.Y;
-			vector2.Y = 0f;
+			Vector3 targetPos2 = entity.Target.WorldPosition - entity.WorldPosition;
+			float elevationDifference = targetPos2.Y;
+			targetPos2.Y = 0f;
 			if (entity.MissCount <= 0)
 			{
-				if (Math.Abs(y) > 1.5f && entity.Target.InContact && entity.OnGround)
+				if (Math.Abs(elevationDifference) > 1.5f && entity.Target.InContact && entity.OnGround)
 				{
 					entity.StateMachine.ChangeState(entity.EType.GetDigState(entity));
 					return;
@@ -115,16 +115,16 @@ namespace DNA.CastleMinerZ.AI
 			}
 			else
 			{
-				float num3 = vector2.Length();
-				if (num3 >= 1f)
+				float d = targetPos2.Length();
+				if (d >= 1f)
 				{
 					entity.StateMachine.ChangeState(entity.EType.GetChaseState(entity));
 					return;
 				}
-				if (num3 > 0.1f)
+				if (d > 0.1f)
 				{
-					float num4 = (float)Math.Atan2((double)(-(double)vector2.Z), (double)vector2.X) + 1.5707964f;
-					entity.LocalRotation = Quaternion.CreateFromYawPitchRoll(base.MakeHeading(entity, num4), 0f, 0f);
+					float heading = (float)Math.Atan2((double)(-(double)targetPos2.Z), (double)targetPos2.X) + 1.5707964f;
+					entity.LocalRotation = Quaternion.CreateFromYawPitchRoll(base.MakeHeading(entity, heading), 0f, 0f);
 				}
 				entity.CurrentPlayer = entity.PlayClip(this.GetRandomAttack(entity), false, TimeSpan.FromSeconds(0.25));
 				entity.HitCount = 0;

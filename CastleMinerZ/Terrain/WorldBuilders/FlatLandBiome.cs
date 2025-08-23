@@ -11,12 +11,12 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 
 		public override void BuildColumn(BlockTerrain terrain, int worldX, int worldZ, int minY, float blender)
 		{
-			IntVector3 intVector = new IntVector3(worldX, minY, worldZ);
-			int num = terrain.MakeIndexFromWorldIndexVector(intVector);
-			terrain._blocks[num] = Biome.bedrockBlock;
-			intVector = new IntVector3(worldX, minY + 1, worldZ);
-			num = terrain.MakeIndexFromWorldIndexVector(intVector);
-			terrain._blocks[num] = Biome.grassblock;
+			IntVector3 worldPos = new IntVector3(worldX, minY, worldZ);
+			int index = terrain.MakeIndexFromWorldIndexVector(worldPos);
+			terrain._blocks[index] = Biome.bedrockBlock;
+			worldPos = new IntVector3(worldX, minY + 1, worldZ);
+			index = terrain.MakeIndexFromWorldIndexVector(worldPos);
+			terrain._blocks[index] = Biome.grassblock;
 		}
 	}
 }

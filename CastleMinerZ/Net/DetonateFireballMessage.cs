@@ -32,13 +32,13 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, Vector3 location, int index, int numblocks, IntVector3[] blocks, DragonTypeEnum dragonType)
 		{
-			DetonateFireballMessage sendInstance = Message.GetSendInstance<DetonateFireballMessage>();
-			sendInstance.Location = location;
-			sendInstance.Index = index;
-			sendInstance.NumBlocks = (byte)numblocks;
-			sendInstance.BlocksToRemove = blocks;
-			sendInstance.EType = dragonType;
-			sendInstance.DoSend(from);
+			DetonateFireballMessage Instance = Message.GetSendInstance<DetonateFireballMessage>();
+			Instance.Location = location;
+			Instance.Index = index;
+			Instance.NumBlocks = (byte)numblocks;
+			Instance.BlocksToRemove = blocks;
+			Instance.EType = dragonType;
+			Instance.DoSend(from);
 		}
 
 		protected override void SendData(BinaryWriter writer)

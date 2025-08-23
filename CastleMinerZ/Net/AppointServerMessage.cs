@@ -13,9 +13,9 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, byte playerID)
 		{
-			AppointServerMessage sendInstance = Message.GetSendInstance<AppointServerMessage>();
-			sendInstance.PlayerID = playerID;
-			sendInstance.DoSend(from);
+			AppointServerMessage Instance = Message.GetSendInstance<AppointServerMessage>();
+			Instance.PlayerID = playerID;
+			Instance.DoSend(from);
 		}
 
 		protected override SendDataOptions SendDataOptions

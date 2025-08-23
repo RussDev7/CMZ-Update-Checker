@@ -14,11 +14,11 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public Player GetPlayer()
 		{
-			for (Entity entity = base.Parent; entity != null; entity = entity.Parent)
+			for (Entity node = base.Parent; node != null; node = node.Parent)
 			{
-				if (entity is Player)
+				if (node is Player)
 				{
-					return (Player)entity;
+					return (Player)node;
 				}
 			}
 			return null;
@@ -28,23 +28,23 @@ namespace DNA.CastleMinerZ.Inventory
 		{
 			if (this.TrackPosition && mesh.Name.Contains("Needle"))
 			{
-				Player player = this.GetPlayer();
-				if (player == null)
+				Player holder = this.GetPlayer();
+				if (holder == null)
 				{
-					player = CastleMinerZGame.Instance.LocalPlayer;
+					holder = CastleMinerZGame.Instance.LocalPlayer;
 				}
-				if (player != null)
+				if (holder != null)
 				{
-					Vector3 vector = -player.WorldPosition;
-					Vector3 vector2 = Vector3.TransformNormal(Vector3.Forward, player.LocalToWorld);
-					vector.Y = 0f;
-					vector2.Y = 0f;
-					Quaternion quaternion = vector2.RotationBetween(vector);
-					float z = quaternion.Z;
-					quaternion.Z = quaternion.Y;
-					quaternion.Y = z;
-					quaternion.Normalize();
-					world = Matrix.CreateFromQuaternion(quaternion) * world;
+					Vector3 toStart = -holder.WorldPosition;
+					Vector3 forward = Vector3.TransformNormal(Vector3.Forward, holder.LocalToWorld);
+					toStart.Y = 0f;
+					forward.Y = 0f;
+					Quaternion rot = forward.RotationBetween(toStart);
+					float temp = rot.Z;
+					rot.Z = rot.Y;
+					rot.Y = temp;
+					rot.Normalize();
+					world = Matrix.CreateFromQuaternion(rot) * world;
 				}
 			}
 			return base.SetEffectParams(mesh, effect, gameTime, world, view, projection);

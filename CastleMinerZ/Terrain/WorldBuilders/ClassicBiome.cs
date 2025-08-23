@@ -14,71 +14,71 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 
 		public override void BuildColumn(BlockTerrain terrain, int worldX, int worldZ, int minY, float blender)
 		{
-			int num = (int)MathHelper.Lerp(0f, 32f, blender);
-			int num2 = (int)MathHelper.Lerp(32f, 86f, blender);
-			int num3 = 1;
-			float num4 = 0f;
-			int num5 = 4;
-			for (int i = 0; i < num5; i++)
+			int adjustedHillHeight = (int)MathHelper.Lerp(0f, 32f, blender);
+			int adjustedGround = (int)MathHelper.Lerp(32f, 86f, blender);
+			int freq = 1;
+			float noise = 0f;
+			int octives = 4;
+			for (int i = 0; i < octives; i++)
 			{
-				num4 += this._noiseFunction.ComputeNoise(0.009375f * (float)worldX * (float)num3, 0.009375f * (float)worldZ * (float)num3) / (float)num3;
-				num3 *= 2;
+				noise += this._noiseFunction.ComputeNoise(0.009375f * (float)worldX * (float)freq, 0.009375f * (float)worldZ * (float)freq) / (float)freq;
+				freq *= 2;
 			}
-			int num6 = num2 + (int)(num4 * (float)num);
-			bool flag = false;
-			if (num6 <= 66)
+			int groundLimit = adjustedGround + (int)(noise * (float)adjustedHillHeight);
+			bool inValley = false;
+			if (groundLimit <= 66)
 			{
-				num6 = 66;
-				flag = true;
+				groundLimit = 66;
+				inValley = true;
 			}
-			if (num6 >= 128)
+			if (groundLimit >= 128)
 			{
-				num6 = 127;
+				groundLimit = 127;
 			}
-			int num7 = num6 - 3;
-			num4 = this._noiseFunction.ComputeNoise((float)worldX * 0.5f, (float)worldZ * 0.5f);
-			int num8 = (int)(num4 * 4f);
-			for (int j = 0; j <= num6; j++)
+			int dirtLimit = groundLimit - 3;
+			noise = this._noiseFunction.ComputeNoise((float)worldX * 0.5f, (float)worldZ * 0.5f);
+			int landBias = (int)(noise * 4f);
+			for (int y = 0; y <= groundLimit; y++)
 			{
 				if (terrain._resetRequested)
 				{
 					return;
 				}
-				int num9 = j + minY;
-				IntVector3 intVector = new IntVector3(worldX, num9, worldZ);
-				int num10 = terrain.MakeIndexFromWorldIndexVector(intVector);
-				terrain._blocks[num10] = Biome.rockblock;
-				if (j >= num7)
+				int worldY = y + minY;
+				IntVector3 worldPos = new IntVector3(worldX, worldY, worldZ);
+				int index = terrain.MakeIndexFromWorldIndexVector(worldPos);
+				terrain._blocks[index] = Biome.rockblock;
+				if (y >= dirtLimit)
 				{
-					if (num6 + num8 > 95)
+					if (groundLimit + landBias > 95)
 					{
-						if (num6 + num8 > 98)
+						if (groundLimit + landBias > 98)
 						{
-							if (num6 + num8 > 108)
+							if (groundLimit + landBias > 108)
 							{
-								terrain._blocks[num10] = Biome.snowBlock;
+								terrain._blocks[index] = Biome.snowBlock;
 							}
 							else
 							{
-								terrain._blocks[num10] = Biome.rockblock;
+								terrain._blocks[index] = Biome.rockblock;
 							}
 						}
 						else
 						{
-							terrain._blocks[num10] = Biome.dirtblock;
+							terrain._blocks[index] = Biome.dirtblock;
 						}
 					}
-					else if (flag)
+					else if (inValley)
 					{
-						terrain._blocks[num10] = Biome.sandBlock;
+						terrain._blocks[index] = Biome.sandBlock;
 					}
-					else if (j == num6)
+					else if (y == groundLimit)
 					{
-						terrain._blocks[num10] = Biome.grassblock;
+						terrain._blocks[index] = Biome.grassblock;
 					}
 					else
 					{
-						terrain._blocks[num10] = Biome.dirtblock;
+						terrain._blocks[index] = Biome.dirtblock;
 					}
 				}
 			}

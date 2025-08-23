@@ -1,6 +1,5 @@
 ﻿using System;
 using DNA.CastleMinerZ.Globalization;
-using Facebook;
 
 namespace DNA.CastleMinerZ.Achievements
 {
@@ -53,37 +52,6 @@ namespace DNA.CastleMinerZ.Achievements
 			if (apiname != null)
 			{
 				base.PlayerStats.SteamAPI.SetAchievement(apiname, true);
-			}
-			if (this._game.PlayerStats.PostOnAchievement)
-			{
-				CastleMinerZGame.Instance.TaskScheduler.QueueUserWorkItem(delegate
-				{
-					try
-					{
-						new FacebookClient(CastleMinerZGame.FacebookAccessToken);
-						new PostToWall
-						{
-							Message = string.Concat(new string[]
-							{
-								Strings.Has_earned,
-								" ",
-								acheivement.Name,
-								" ",
-								Strings.playing,
-								" CastleMiner Z"
-							}),
-							Link = "http://castleminerz.com/",
-							Description = Strings.Travel_with_your_friends_in_a_huge__ever_changing_world_and_craft_modern_weapons_to_defend_yourself_from_dragons_and_the_zombie_horde_,
-							ActionName = Strings.Download_Now,
-							ActionURL = "http://castleminerz.com/Download.html",
-							ImageURL = "http://digitaldnagames.com/Images/CastleMinerZBox.jpg",
-							AccessToken = CastleMinerZGame.FacebookAccessToken
-						}.Post();
-					}
-					catch
-					{
-					}
-				});
 			}
 			base.OnAchieved(acheivement);
 		}

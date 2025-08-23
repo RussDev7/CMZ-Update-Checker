@@ -26,77 +26,77 @@ namespace DNA.CastleMinerZ
 
 		public static BlasterShot Create(Vector3 position, Vector3 velocity, int enemyId, InventoryItemIDs item)
 		{
-			BlasterShot blasterShot = null;
-			LaserGunInventoryItemClass laserGunInventoryItemClass = InventoryItem.GetClass(item) as LaserGunInventoryItemClass;
-			if (laserGunInventoryItemClass != null)
+			BlasterShot bullet = null;
+			LaserGunInventoryItemClass gun = InventoryItem.GetClass(item) as LaserGunInventoryItemClass;
+			if (gun != null)
 			{
 				for (int i = 0; i < BlasterShot._garbage.Count; i++)
 				{
 					if (BlasterShot._garbage[i].Parent == null)
 					{
-						blasterShot = BlasterShot._garbage[i];
+						bullet = BlasterShot._garbage[i];
 						break;
 					}
 				}
-				if (blasterShot == null)
+				if (bullet == null)
 				{
-					blasterShot = new BlasterShot(0);
-					BlasterShot._garbage.Add(blasterShot);
+					bullet = new BlasterShot(0);
+					BlasterShot._garbage.Add(bullet);
 				}
-				blasterShot._lifeTime = BlasterShot.TotalLifeTime;
-				blasterShot._color = new Color(laserGunInventoryItemClass.TracerColor);
-				blasterShot._enemyID = enemyId;
-				blasterShot._tracer.EntityColor = new Color?(blasterShot._color);
-				blasterShot.CollisionsRemaining = 3;
-				blasterShot.ReflectedShot = false;
-				blasterShot._velocity = velocity * 200f;
-				blasterShot.LocalToParent = MathTools.CreateWorld(position, velocity);
-				blasterShot._firstUpdate = true;
-				blasterShot._noCollideFrame = false;
-				blasterShot._weaponClassUsed = laserGunInventoryItemClass;
-				blasterShot._weaponUsed = item;
-				blasterShot._lastPosition = position;
-				blasterShot._explosiveType = (laserGunInventoryItemClass.IsHarvestWeapon() ? ExplosiveTypes.Harvest : ExplosiveTypes.Laser);
+				bullet._lifeTime = BlasterShot.TotalLifeTime;
+				bullet._color = new Color(gun.TracerColor);
+				bullet._enemyID = enemyId;
+				bullet._tracer.EntityColor = new Color?(bullet._color);
+				bullet.CollisionsRemaining = 3;
+				bullet.ReflectedShot = false;
+				bullet._velocity = velocity * 200f;
+				bullet.LocalToParent = MathTools.CreateWorld(position, velocity);
+				bullet._firstUpdate = true;
+				bullet._noCollideFrame = false;
+				bullet._weaponClassUsed = gun;
+				bullet._weaponUsed = item;
+				bullet._lastPosition = position;
+				bullet._explosiveType = (gun.IsHarvestWeapon() ? ExplosiveTypes.Harvest : ExplosiveTypes.Laser);
 			}
-			return blasterShot;
+			return bullet;
 		}
 
 		public static BlasterShot Create(Vector3 position, Vector3 velocity, InventoryItemIDs item, byte shooterID)
 		{
-			BlasterShot blasterShot = null;
-			LaserGunInventoryItemClass laserGunInventoryItemClass = InventoryItem.GetClass(item) as LaserGunInventoryItemClass;
-			if (laserGunInventoryItemClass != null)
+			BlasterShot bullet = null;
+			LaserGunInventoryItemClass gun = InventoryItem.GetClass(item) as LaserGunInventoryItemClass;
+			if (gun != null)
 			{
 				for (int i = 0; i < BlasterShot._garbage.Count; i++)
 				{
 					if (BlasterShot._garbage[i].Parent == null)
 					{
-						blasterShot = BlasterShot._garbage[i];
+						bullet = BlasterShot._garbage[i];
 						break;
 					}
 				}
-				if (blasterShot == null)
+				if (bullet == null)
 				{
-					blasterShot = new BlasterShot(shooterID);
-					BlasterShot._garbage.Add(blasterShot);
+					bullet = new BlasterShot(shooterID);
+					BlasterShot._garbage.Add(bullet);
 				}
-				blasterShot._lifeTime = BlasterShot.TotalLifeTime;
-				blasterShot._color = new Color(laserGunInventoryItemClass.TracerColor);
-				blasterShot._shooter = shooterID;
-				blasterShot._enemyID = -1;
-				blasterShot._tracer.EntityColor = new Color?(blasterShot._color);
-				blasterShot.CollisionsRemaining = 30;
-				blasterShot.ReflectedShot = false;
-				blasterShot._velocity = velocity * 200f;
-				blasterShot.LocalToParent = MathTools.CreateWorld(position, velocity);
-				blasterShot._firstUpdate = true;
-				blasterShot._noCollideFrame = false;
-				blasterShot._weaponClassUsed = laserGunInventoryItemClass;
-				blasterShot._weaponUsed = item;
-				blasterShot._lastPosition = position;
-				blasterShot._explosiveType = (laserGunInventoryItemClass.IsHarvestWeapon() ? ExplosiveTypes.Harvest : ExplosiveTypes.Laser);
+				bullet._lifeTime = BlasterShot.TotalLifeTime;
+				bullet._color = new Color(gun.TracerColor);
+				bullet._shooter = shooterID;
+				bullet._enemyID = -1;
+				bullet._tracer.EntityColor = new Color?(bullet._color);
+				bullet.CollisionsRemaining = 30;
+				bullet.ReflectedShot = false;
+				bullet._velocity = velocity * 200f;
+				bullet.LocalToParent = MathTools.CreateWorld(position, velocity);
+				bullet._firstUpdate = true;
+				bullet._noCollideFrame = false;
+				bullet._weaponClassUsed = gun;
+				bullet._weaponUsed = item;
+				bullet._lastPosition = position;
+				bullet._explosiveType = (gun.IsHarvestWeapon() ? ExplosiveTypes.Harvest : ExplosiveTypes.Laser);
 			}
-			return blasterShot;
+			return bullet;
 		}
 
 		public BlasterShot()
@@ -105,11 +105,11 @@ namespace DNA.CastleMinerZ
 
 		protected override void OnUpdate(GameTime gameTime)
 		{
-			bool flag = false;
+			bool remove = false;
 			this._lifeTime -= gameTime.ElapsedGameTime;
 			if (this._lifeTime <= TimeSpan.Zero)
 			{
-				flag = true;
+				remove = true;
 			}
 			else
 			{
@@ -117,105 +117,105 @@ namespace DNA.CastleMinerZ
 				base.LocalPosition = this._lastPosition + this._velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
 				if ((CastleMinerZGame.Instance.CurrentNetworkSession != null && CastleMinerZGame.Instance.PVPState != CastleMinerZGame.PVPEnum.Off) || this._enemyID >= 0)
 				{
-					bool flag2 = false;
-					bool flag3 = false;
-					float num = 2.1474836E+09f;
-					Vector3 vector = Vector3.Zero;
-					Player player = null;
+					bool hitTarget = false;
+					bool collision = false;
+					float targetT = 2.1474836E+09f;
+					Vector3 hitLocation = Vector3.Zero;
+					Player playerHit = null;
 					for (int i = 0; i < CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers.Count; i++)
 					{
-						NetworkGamer networkGamer = CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers[i];
-						if (networkGamer.Tag != null)
+						NetworkGamer gamer = CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers[i];
+						if (gamer.Tag != null)
 						{
-							Player player2 = (Player)networkGamer.Tag;
-							if (player2.ValidLivingGamer)
+							Player player = (Player)gamer.Tag;
+							if (player.ValidLivingGamer)
 							{
-								Vector3 worldPosition = player2.WorldPosition;
-								BoundingBox playerAABB = player2.PlayerAABB;
-								playerAABB.Min += worldPosition;
-								playerAABB.Max += worldPosition;
+								Vector3 p = player.WorldPosition;
+								BoundingBox bb = player.PlayerAABB;
+								bb.Min += p;
+								bb.Max += p;
 								BlasterShot.tp.Reset();
-								BlasterShot.tp.TestBoundBox(playerAABB);
-								if (BlasterShot.tp._collides && BlasterShot.tp._inT < num)
+								BlasterShot.tp.TestBoundBox(bb);
+								if (BlasterShot.tp._collides && BlasterShot.tp._inT < targetT)
 								{
-									player = player2;
-									vector = BlasterShot.tp.GetIntersection();
-									flag2 = true;
-									flag3 = true;
-									num = BlasterShot.tp._inT;
+									playerHit = player;
+									hitLocation = BlasterShot.tp.GetIntersection();
+									hitTarget = true;
+									collision = true;
+									targetT = BlasterShot.tp._inT;
 								}
 							}
 						}
 					}
 					BlasterShot.tp.Reset();
 					BlockTerrain.Instance.Trace(BlasterShot.tp);
-					if (BlasterShot.tp._collides && BlasterShot.tp._inT < num)
+					if (BlasterShot.tp._collides && BlasterShot.tp._inT < targetT)
 					{
-						flag2 = false;
-						flag3 = true;
-						vector = BlasterShot.tp.GetIntersection();
+						hitTarget = false;
+						collision = true;
+						hitLocation = BlasterShot.tp.GetIntersection();
 					}
-					if (flag3)
+					if (collision)
 					{
-						Vector3 vector2 = vector;
+						Vector3 Head = hitLocation;
 						if (this._enemyID < 0)
 						{
-							flag = true;
+							remove = true;
 						}
-						if (flag2)
+						if (hitTarget)
 						{
-							if (player.IsLocal && (this._enemyID > 0 || this._shooter != player.Gamer.Id))
+							if (playerHit.IsLocal && (this._enemyID > 0 || this._shooter != playerHit.Gamer.Id))
 							{
-								LocalNetworkGamer localNetworkGamer = (LocalNetworkGamer)player.Gamer;
-								if (CastleMinerZGame.Instance.PVPState == CastleMinerZGame.PVPEnum.Everyone || (!localNetworkGamer.IsHost && !localNetworkGamer.SignedInGamer.IsFriend(CastleMinerZGame.Instance.CurrentNetworkSession.Host)))
+								LocalNetworkGamer localgamer = (LocalNetworkGamer)playerHit.Gamer;
+								if (CastleMinerZGame.Instance.PVPState == CastleMinerZGame.PVPEnum.Everyone || (!localgamer.IsHost && !localgamer.SignedInGamer.IsFriend(CastleMinerZGame.Instance.CurrentNetworkSession.Host)))
 								{
-									InGameHUD.Instance.ApplyDamage(0.4f, vector2);
+									InGameHUD.Instance.ApplyDamage(0.4f, Head);
 								}
 							}
-							SoundManager.Instance.PlayInstance("BulletHitHuman", player.SoundEmitter);
+							SoundManager.Instance.PlayInstance("BulletHitHuman", playerHit.SoundEmitter);
 						}
 					}
 				}
-				IShootableEnemy shootableEnemy = null;
+				IShootableEnemy z = null;
 				BlasterShot.tp.Init(this._lastPosition, base.WorldPosition);
 				if (this._enemyID < 0)
 				{
-					shootableEnemy = EnemyManager.Instance.Trace(BlasterShot.tp, false);
+					z = EnemyManager.Instance.Trace(BlasterShot.tp, false);
 				}
 				if (BlasterShot.tp._collides)
 				{
-					Vector3 intersection = BlasterShot.tp.GetIntersection();
-					bool flag4 = false;
-					bool flag5 = false;
-					IntVector3 intVector = IntVector3.Zero;
-					if (shootableEnemy != null)
+					Vector3 collisionPoint = BlasterShot.tp.GetIntersection();
+					bool bounce = false;
+					bool destroyBlock = false;
+					IntVector3 blockToDestroy = IntVector3.Zero;
+					if (z != null)
 					{
-						shootableEnemy.TakeDamage(intersection, Vector3.Normalize(this._velocity), this._weaponClassUsed, this._shooter);
-						if (shootableEnemy is BaseZombie)
+						z.TakeDamage(collisionPoint, Vector3.Normalize(this._velocity), this._weaponClassUsed, this._shooter);
+						if (z is BaseZombie)
 						{
 						}
 					}
 					else
 					{
-						BlockType type = BlockType.GetType(BlockTerrain.Instance.GetBlockWithChanges(BlasterShot.tp._worldIndex));
-						flag4 = type.BouncesLasers;
-						flag5 = type.CanBeDug;
-						intVector = BlasterShot.tp._worldIndex;
+						BlockType bt = BlockType.GetType(BlockTerrain.Instance.GetBlockWithChanges(BlasterShot.tp._worldIndex));
+						bounce = bt.BouncesLasers;
+						destroyBlock = bt.CanBeDug;
+						blockToDestroy = BlasterShot.tp._worldIndex;
 					}
-					if (shootableEnemy is DragonClientEntity)
+					if (z is DragonClientEntity)
 					{
-						ParticleEmitter particleEmitter = TracerManager._dragonFlashEffect.CreateEmitter(CastleMinerZGame.Instance);
-						particleEmitter.Reset();
-						particleEmitter.Emitting = true;
-						TracerManager.Instance.Scene.Children.Add(particleEmitter);
-						particleEmitter.LocalPosition = intersection;
-						particleEmitter.DrawPriority = 900;
+						ParticleEmitter flashEmitter = TracerManager._dragonFlashEffect.CreateEmitter(CastleMinerZGame.Instance);
+						flashEmitter.Reset();
+						flashEmitter.Emitting = true;
+						TracerManager.Instance.Scene.Children.Add(flashEmitter);
+						flashEmitter.LocalPosition = collisionPoint;
+						flashEmitter.DrawPriority = 900;
 					}
-					new Plane(BlasterShot.tp._inNormal, Vector3.Dot(BlasterShot.tp._inNormal, intersection));
-					this.HandleCollision(BlasterShot.tp._inNormal, intersection, flag4, flag5, intVector);
+					new Plane(BlasterShot.tp._inNormal, Vector3.Dot(BlasterShot.tp._inNormal, collisionPoint));
+					this.HandleCollision(BlasterShot.tp._inNormal, collisionPoint, bounce, destroyBlock, blockToDestroy);
 				}
 			}
-			if (flag)
+			if (remove)
 			{
 				base.RemoveFromParent();
 			}
@@ -243,47 +243,47 @@ namespace DNA.CastleMinerZ
 			{
 				scene = TracerManager.Instance.Scene;
 			}
-			Matrix matrix = MathTools.CreateWorld(collisionLocation, -collisionNormal);
+			Matrix newLTP = MathTools.CreateWorld(collisionLocation, -collisionNormal);
 			if (scene != null && CastleMinerZGame.Instance.IsActive)
 			{
-				ParticleEmitter particleEmitter = BlasterShot._spashEffect.CreateEmitter(CastleMinerZGame.Instance);
-				particleEmitter.LocalScale = new Vector3(0.01f);
-				particleEmitter.Reset();
-				particleEmitter.Emitting = true;
-				particleEmitter.LocalToParent = matrix;
-				scene.Children.Add(particleEmitter);
-				particleEmitter.DrawPriority = 900;
-				ParticleEmitter particleEmitter2 = BlasterShot._sparkEffect.CreateEmitter(CastleMinerZGame.Instance);
-				particleEmitter2.Reset();
-				particleEmitter2.Emitting = true;
-				particleEmitter2.LocalToParent = matrix;
-				scene.Children.Add(particleEmitter2);
-				particleEmitter2.DrawPriority = 900;
-				ParticleEmitter particleEmitter3 = BlasterShot._smokeEffect.CreateEmitter(CastleMinerZGame.Instance);
-				particleEmitter3.Reset();
-				particleEmitter3.Emitting = true;
-				particleEmitter3.LocalToParent = matrix;
-				scene.Children.Add(particleEmitter3);
-				particleEmitter3.DrawPriority = 900;
+				ParticleEmitter emitter = BlasterShot._spashEffect.CreateEmitter(CastleMinerZGame.Instance);
+				emitter.LocalScale = new Vector3(0.01f);
+				emitter.Reset();
+				emitter.Emitting = true;
+				emitter.LocalToParent = newLTP;
+				scene.Children.Add(emitter);
+				emitter.DrawPriority = 900;
+				ParticleEmitter sparkEmitter = BlasterShot._sparkEffect.CreateEmitter(CastleMinerZGame.Instance);
+				sparkEmitter.Reset();
+				sparkEmitter.Emitting = true;
+				sparkEmitter.LocalToParent = newLTP;
+				scene.Children.Add(sparkEmitter);
+				sparkEmitter.DrawPriority = 900;
+				ParticleEmitter smokeEmitter = BlasterShot._smokeEffect.CreateEmitter(CastleMinerZGame.Instance);
+				smokeEmitter.Reset();
+				smokeEmitter.Emitting = true;
+				smokeEmitter.LocalToParent = newLTP;
+				scene.Children.Add(smokeEmitter);
+				smokeEmitter.DrawPriority = 900;
 				this.Emitter.Velocity = new Vector3(0f, 0f, 0f);
-				this.Emitter.Position = matrix.Translation;
+				this.Emitter.Position = newLTP.Translation;
 				this.Emitter.Up = new Vector3(0f, 1f, 0f);
 				this.Emitter.Forward = new Vector3(0f, 0f, 1f);
 			}
-			bool flag = false;
+			bool doBounce = false;
 			if (this.CollisionsRemaining > 0)
 			{
 				this.CollisionsRemaining--;
-				flag = bounce;
+				doBounce = bounce;
 				this.ReflectedShot = bounce;
 			}
-			if (flag)
+			if (doBounce)
 			{
-				Vector3 vector = base.WorldPosition - collisionLocation;
-				Vector3 vector2 = Vector3.Reflect(vector, collisionNormal) + collisionLocation;
+				Vector3 offset = base.WorldPosition - collisionLocation;
+				Vector3 newPosition = Vector3.Reflect(offset, collisionNormal) + collisionLocation;
 				this._lastPosition = collisionLocation;
 				this._velocity = Vector3.Reflect(this._velocity, collisionNormal);
-				base.LocalToParent = MathTools.CreateWorld(vector2, this._velocity);
+				base.LocalToParent = MathTools.CreateWorld(newPosition, this._velocity);
 				this._noCollideFrame = true;
 			}
 			else

@@ -15,13 +15,13 @@ namespace DNA.CastleMinerZ
 				return;
 			}
 			CastleMinerZGame.Instance.DrawingReflection = true;
-			PerspectiveCamera fpscamera = CastleMinerZGame.Instance.LocalPlayer.FPSCamera;
-			this.FieldOfView = fpscamera.FieldOfView;
-			this.NearPlane = fpscamera.NearPlane;
-			this.FarPlane = fpscamera.FarPlane;
-			Matrix localToWorld = fpscamera.LocalToWorld;
-			Matrix matrix = Matrix.Multiply(localToWorld, BlockTerrain.Instance.GetReflectionMatrix());
-			base.LocalToParent = matrix;
+			PerspectiveCamera c = CastleMinerZGame.Instance.LocalPlayer.FPSCamera;
+			this.FieldOfView = c.FieldOfView;
+			this.NearPlane = c.NearPlane;
+			this.FarPlane = c.FarPlane;
+			Matrix i = c.LocalToWorld;
+			Matrix newV = Matrix.Multiply(i, BlockTerrain.Instance.GetReflectionMatrix());
+			base.LocalToParent = newV;
 			base.Draw(device, spriteBatch, time, entityFilter);
 			CastleMinerZGame.Instance.DrawingReflection = false;
 		}

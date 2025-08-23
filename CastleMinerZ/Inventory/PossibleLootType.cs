@@ -93,8 +93,8 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public static LootResult GetRandomSpawn(int worldLevel, int minTier, int maxTier, bool rareLoot, int maxValue, PackageBitFlags permittedFlags)
 		{
-			PossibleLootType[] enemySource = PossibleLootType.GetEnemySource();
-			return PossibleLootType.GetRandomResult(enemySource, worldLevel, minTier, maxTier, rareLoot, maxValue, permittedFlags);
+			PossibleLootType[] lootSource = PossibleLootType.GetEnemySource();
+			return PossibleLootType.GetRandomResult(lootSource, worldLevel, minTier, maxTier, rareLoot, maxValue, permittedFlags);
 		}
 
 		public static LootResult GetRandomLoot(int worldLevel, int minTier, int maxTier, bool rareLoot)
@@ -105,35 +105,35 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public static LootResult GetRandomResult(PossibleLootType[] lootSource, int worldLevel, int minTier, int maxTier, bool rareLoot, int maxValue, PackageBitFlags permittedFlags = PackageBitFlags.None)
 		{
-			int num = 0;
-			List<PossibleLootType> list = new List<PossibleLootType>();
+			int totalSeed = 0;
+			List<PossibleLootType> possibleOutput = new List<PossibleLootType>();
 			for (int i = 0; i < lootSource.Length; i++)
 			{
-				PossibleLootType possibleLootType = lootSource[i];
-				if ((!rareLoot || possibleLootType.IsRareLoot()) && ((permittedFlags == PackageBitFlags.None && possibleLootType.packageFlags == PackageBitFlags.Common) || PossibleLootType.HasPackageFlag(permittedFlags, possibleLootType.packageFlags)) && (lootSource[i].minWorldLevel == -1000 || worldLevel >= lootSource[i].minWorldLevel) && (lootSource[i].maxWorldLevel == 1000 || worldLevel <= lootSource[i].maxWorldLevel) && possibleLootType.lootTier >= minTier && possibleLootType.lootTier <= maxTier && possibleLootType.worth <= maxValue)
+				PossibleLootType possibleLoot = lootSource[i];
+				if ((!rareLoot || possibleLoot.IsRareLoot()) && ((permittedFlags == PackageBitFlags.None && possibleLoot.packageFlags == PackageBitFlags.Common) || PossibleLootType.HasPackageFlag(permittedFlags, possibleLoot.packageFlags)) && (lootSource[i].minWorldLevel == -1000 || worldLevel >= lootSource[i].minWorldLevel) && (lootSource[i].maxWorldLevel == 1000 || worldLevel <= lootSource[i].maxWorldLevel) && possibleLoot.lootTier >= minTier && possibleLoot.lootTier <= maxTier && possibleLoot.worth <= maxValue)
 				{
-					list.Add(possibleLootType);
-					num += possibleLootType.weight;
+					possibleOutput.Add(possibleLoot);
+					totalSeed += possibleLoot.weight;
 				}
 			}
-			int num2 = MathTools.RandomInt(num);
+			int selectedSeed = MathTools.RandomInt(totalSeed);
 			LootResult lootResult = default(LootResult);
 			lootResult.lootItemID = InventoryItemIDs.Snow;
 			lootResult.count = 1;
 			lootResult.value = 500;
-			for (int j = 0; j < list.Count; j++)
+			for (int j = 0; j < possibleOutput.Count; j++)
 			{
-				num2 -= list[j].weight;
-				if (num2 <= 0)
+				selectedSeed -= possibleOutput[j].weight;
+				if (selectedSeed <= 0)
 				{
-					lootResult.lootItemID = list[j].itemID;
-					lootResult.spawnID = list[j].enemyType;
-					lootResult.count = MathTools.RandomInt(list[j].minQuantity, list[j].maxQuantity);
-					lootResult.value = list[j].worth;
+					lootResult.lootItemID = possibleOutput[j].itemID;
+					lootResult.spawnID = possibleOutput[j].enemyType;
+					lootResult.count = MathTools.RandomInt(possibleOutput[j].minQuantity, possibleOutput[j].maxQuantity);
+					lootResult.value = possibleOutput[j].worth;
 					break;
 				}
 			}
-			list.Clear();
+			possibleOutput.Clear();
 			return lootResult;
 		}
 
@@ -157,26 +157,26 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public static void ProcessLootBlockOutput(BlockTypeEnum blockType, IntVector3 intPos)
 		{
-			SessionStats.StatType statType = SessionStats.StatType.LootBlockOpened;
-			int num = 1;
-			int num2 = 1;
-			int num3 = 5;
+			SessionStats.StatType lootStatType = SessionStats.StatType.LootBlockOpened;
+			int outputCount = 1;
+			int minTier = 1;
+			int maxTier = 5;
 			if (MathTools.RandomInt(100) < 8)
 			{
-				num = 1;
+				outputCount = 1;
 			}
 			if (blockType == BlockTypeEnum.LuckyLootBlock)
 			{
-				num2 = 4;
-				num3 = 10;
-				num++;
-				PossibleLootType.PlaceWorldItem(PossibleLootType.GetLootItem(blockType, intPos, num2, num3, true), intPos);
-				statType = SessionStats.StatType.LuckyLootBlockOpened;
+				minTier = 4;
+				maxTier = 10;
+				outputCount++;
+				PossibleLootType.PlaceWorldItem(PossibleLootType.GetLootItem(blockType, intPos, minTier, maxTier, true), intPos);
+				lootStatType = SessionStats.StatType.LuckyLootBlockOpened;
 			}
-			CastleMinerZGame.Instance.PlayerStats.AddStat(statType);
-			for (int i = 0; i < num; i++)
+			CastleMinerZGame.Instance.PlayerStats.AddStat(lootStatType);
+			for (int i = 0; i < outputCount; i++)
 			{
-				PossibleLootType.PlaceWorldItem(PossibleLootType.GetLootItem(blockType, intPos, num2, num3, false), intPos);
+				PossibleLootType.PlaceWorldItem(PossibleLootType.GetLootItem(blockType, intPos, minTier, maxTier, false), intPos);
 			}
 		}
 

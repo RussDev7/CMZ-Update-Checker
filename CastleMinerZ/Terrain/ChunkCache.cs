@@ -41,14 +41,14 @@ namespace DNA.CastleMinerZ.Terrain
 		{
 			while (!this._quit && !this._commandQueue.Empty)
 			{
-				ChunkCacheCommand chunkCacheCommand = this._commandQueue.Dequeue();
+				ChunkCacheCommand command = this._commandQueue.Dequeue();
 				try
 				{
-					this.RunCommand(chunkCacheCommand);
+					this.RunCommand(command);
 				}
-				catch (Exception ex)
+				catch (Exception e)
 				{
-					CastleMinerZGame.Instance.CrashGame(ex);
+					CastleMinerZGame.Instance.CrashGame(e);
 				}
 			}
 		}
@@ -78,19 +78,19 @@ namespace DNA.CastleMinerZ.Terrain
 
 		public void Flush(bool wait)
 		{
-			ChunkCacheCommand chunkCacheCommand = null;
+			ChunkCacheCommand cmd = null;
 			lock (this)
 			{
 				if (this.Running)
 				{
-					chunkCacheCommand = ChunkCacheCommand.Alloc();
-					chunkCacheCommand._command = ChunkCacheCommandEnum.FLUSH;
-					this.AddCommand(chunkCacheCommand);
+					cmd = ChunkCacheCommand.Alloc();
+					cmd._command = ChunkCacheCommandEnum.FLUSH;
+					this.AddCommand(cmd);
 				}
 			}
-			if (chunkCacheCommand != null)
+			if (cmd != null)
 			{
-				while (wait && chunkCacheCommand._status != ChunkCacheCommandStatus.DONE)
+				while (wait && cmd._status != ChunkCacheCommandStatus.DONE)
 				{
 				}
 			}
@@ -123,9 +123,9 @@ namespace DNA.CastleMinerZ.Terrain
 			{
 				if (this.Running)
 				{
-					ChunkCacheCommand chunkCacheCommand = ChunkCacheCommand.Alloc();
-					chunkCacheCommand._command = ChunkCacheCommandEnum.SHUTDOWN;
-					this.AddCommand(chunkCacheCommand);
+					ChunkCacheCommand cmd = ChunkCacheCommand.Alloc();
+					cmd._command = ChunkCacheCommandEnum.SHUTDOWN;
+					this.AddCommand(cmd);
 				}
 			}
 			while (wait && this._running)
@@ -135,9 +135,9 @@ namespace DNA.CastleMinerZ.Terrain
 
 		public void ResetWaitingChunks()
 		{
-			ChunkCacheCommand chunkCacheCommand = ChunkCacheCommand.Alloc();
-			chunkCacheCommand._command = ChunkCacheCommandEnum.RESETWAITINGCHUNKS;
-			this.AddCommand(chunkCacheCommand);
+			ChunkCacheCommand cmd = ChunkCacheCommand.Alloc();
+			cmd._command = ChunkCacheCommandEnum.RESETWAITINGCHUNKS;
+			this.AddCommand(cmd);
 		}
 
 		public bool Running
@@ -150,23 +150,23 @@ namespace DNA.CastleMinerZ.Terrain
 
 		protected bool ConsolidateNewCommand(ChunkCacheCommand command)
 		{
-			ChunkCacheCommand chunkCacheCommand = this._commandQueue.Front;
-			while (chunkCacheCommand != null)
+			ChunkCacheCommand c = this._commandQueue.Front;
+			while (c != null)
 			{
-				if (chunkCacheCommand._command == command._command)
+				if (c._command == command._command)
 				{
-					if (chunkCacheCommand._priority >= command._priority)
+					if (c._priority >= command._priority)
 					{
 						command.Release();
 						return true;
 					}
-					this._commandQueue.Remove(chunkCacheCommand);
-					chunkCacheCommand.Release();
+					this._commandQueue.Remove(c);
+					c.Release();
 					return false;
 				}
 				else
 				{
-					chunkCacheCommand = (ChunkCacheCommand)chunkCacheCommand.NextNode;
+					c = (ChunkCacheCommand)c.NextNode;
 				}
 			}
 			return false;
@@ -174,25 +174,25 @@ namespace DNA.CastleMinerZ.Terrain
 
 		protected bool ConsolidateNewChunkRequest(ChunkCacheCommand command)
 		{
-			ChunkCacheCommand chunkCacheCommand = this._commandQueue.Front;
-			while (chunkCacheCommand != null)
+			ChunkCacheCommand c = this._commandQueue.Front;
+			while (c != null)
 			{
-				if (chunkCacheCommand._command == command._command && chunkCacheCommand._worldPosition.Equals(command._worldPosition))
+				if (c._command == command._command && c._worldPosition.Equals(command._worldPosition))
 				{
-					if (chunkCacheCommand._priority >= command._priority)
+					if (c._priority >= command._priority)
 					{
-						chunkCacheCommand.CopyRequestersToMe(command);
+						c.CopyRequestersToMe(command);
 						command.Release();
 						return true;
 					}
-					command.CopyRequestersToMe(chunkCacheCommand);
-					this._commandQueue.Remove(chunkCacheCommand);
-					chunkCacheCommand.Release();
+					command.CopyRequestersToMe(c);
+					this._commandQueue.Remove(c);
+					c.Release();
 					return false;
 				}
 				else
 				{
-					chunkCacheCommand = (ChunkCacheCommand)chunkCacheCommand.NextNode;
+					c = (ChunkCacheCommand)c.NextNode;
 				}
 			}
 			return false;
@@ -232,23 +232,23 @@ namespace DNA.CastleMinerZ.Terrain
 						}
 						else
 						{
-							ChunkCacheCommand chunkCacheCommand = this._commandQueue.Front;
-							ChunkCacheCommand chunkCacheCommand2 = null;
-							bool flag3 = false;
-							while (chunkCacheCommand != null)
+							ChunkCacheCommand c = this._commandQueue.Front;
+							ChunkCacheCommand lastc = null;
+							bool queued = false;
+							while (c != null)
 							{
-								if (chunkCacheCommand._priority == 0)
+								if (c._priority == 0)
 								{
-									chunkCacheCommand2.NextNode = command;
-									command.NextNode = chunkCacheCommand;
+									lastc.NextNode = command;
+									command.NextNode = c;
 									this._commandQueue.IncrementCountAfterInsertion();
-									flag3 = true;
+									queued = true;
 									break;
 								}
-								chunkCacheCommand2 = chunkCacheCommand;
-								chunkCacheCommand = (ChunkCacheCommand)chunkCacheCommand.NextNode;
+								lastc = c;
+								c = (ChunkCacheCommand)c.NextNode;
 							}
-							if (!flag3)
+							if (!queued)
 							{
 								this._commandQueue.Queue(command);
 							}
@@ -266,89 +266,89 @@ namespace DNA.CastleMinerZ.Terrain
 
 		public CachedChunk FindChunk(IntVector3 v, SimpleQueue<CachedChunk> queue)
 		{
-			CachedChunk cachedChunk = null;
-			for (CachedChunk cachedChunk2 = queue.Front; cachedChunk2 != null; cachedChunk2 = (CachedChunk)cachedChunk2.NextNode)
+			CachedChunk result = null;
+			for (CachedChunk c = queue.Front; c != null; c = (CachedChunk)c.NextNode)
 			{
-				if (cachedChunk2._worldMin.Equals(v))
+				if (c._worldMin.Equals(v))
 				{
-					cachedChunk = cachedChunk2;
-					queue.Remove(cachedChunk2);
-					queue.Queue(cachedChunk2);
+					result = c;
+					queue.Remove(c);
+					queue.Queue(c);
 					break;
 				}
 			}
-			return cachedChunk;
+			return result;
 		}
 
 		private void ReduceMemory()
 		{
 			if (ChunkCache.Instance.IsStorageEnabled)
 			{
-				CachedChunk cachedChunk = this._cachedChunks.Front;
-				if (cachedChunk == null)
+				CachedChunk chunk = this._cachedChunks.Front;
+				if (chunk == null)
 				{
 					return;
 				}
-				int num = 0;
-				while (cachedChunk != null)
+				int memsize = 0;
+				while (chunk != null)
 				{
-					num += cachedChunk._numEntries * 4 + 100;
-					cachedChunk = (CachedChunk)cachedChunk.NextNode;
+					memsize += chunk._numEntries * 4 + 100;
+					chunk = (CachedChunk)chunk.NextNode;
 				}
-				if (num > 524288)
+				if (memsize > 524288)
 				{
-					CachedChunk cachedChunk2 = null;
-					CachedChunk cachedChunk3 = null;
-					cachedChunk = this._cachedChunks.Front;
-					while (cachedChunk != null && num > 524288)
+					CachedChunk newroot = null;
+					CachedChunk newtail = null;
+					chunk = this._cachedChunks.Front;
+					while (chunk != null && memsize > 524288)
 					{
-						CachedChunk cachedChunk4 = (CachedChunk)cachedChunk.NextNode;
-						cachedChunk.NextNode = null;
-						if (cachedChunk.SameAsDisk)
+						CachedChunk next = (CachedChunk)chunk.NextNode;
+						chunk.NextNode = null;
+						if (chunk.SameAsDisk)
 						{
-							num -= cachedChunk._numEntries * 4 + 100;
-							cachedChunk.Save();
-							cachedChunk.Release();
-							cachedChunk = cachedChunk4;
+							memsize -= chunk._numEntries * 4 + 100;
+							chunk.Save();
+							chunk.Release();
+							chunk = next;
 						}
 						else
 						{
-							if (cachedChunk2 == null)
+							if (newroot == null)
 							{
-								cachedChunk2 = cachedChunk;
+								newroot = chunk;
 							}
 							else
 							{
-								cachedChunk3.NextNode = cachedChunk;
+								newtail.NextNode = chunk;
 							}
-							cachedChunk3 = cachedChunk;
-							cachedChunk = cachedChunk4;
+							newtail = chunk;
+							chunk = next;
 						}
 					}
-					if (cachedChunk != null)
+					if (chunk != null)
 					{
-						if (cachedChunk2 == null)
+						if (newroot == null)
 						{
-							cachedChunk2 = cachedChunk;
+							newroot = chunk;
 						}
 						else
 						{
-							cachedChunk3.NextNode = cachedChunk;
+							newtail.NextNode = chunk;
 						}
 					}
-					this._cachedChunks.ReplaceFromList(cachedChunk2);
+					this._cachedChunks.ReplaceFromList(newroot);
 				}
 			}
 		}
 
 		private void MoveFromAToB(CachedChunk v, SimpleQueue<CachedChunk> a, SimpleQueue<CachedChunk> b)
 		{
-			for (CachedChunk cachedChunk = a.Front; cachedChunk != null; cachedChunk = (CachedChunk)cachedChunk.NextNode)
+			for (CachedChunk c = a.Front; c != null; c = (CachedChunk)c.NextNode)
 			{
-				if (cachedChunk == v)
+				if (c == v)
 				{
-					a.Remove(cachedChunk);
-					b.Queue(cachedChunk);
+					a.Remove(c);
+					b.Queue(c);
 					return;
 				}
 			}
@@ -366,11 +366,11 @@ namespace DNA.CastleMinerZ.Terrain
 
 		private CachedChunk CreateChunk(IntVector3 v, SimpleQueue<CachedChunk> queue)
 		{
-			CachedChunk cachedChunk = CachedChunk.Alloc();
-			cachedChunk.Init(v);
-			queue.Queue(cachedChunk);
+			CachedChunk result = CachedChunk.Alloc();
+			result.Init(v);
+			queue.Queue(result);
 			this.AddChunkToLocalList(v);
-			return cachedChunk;
+			return result;
 		}
 
 		private CachedChunk CreateCachedChunk(IntVector3 v)
@@ -385,11 +385,11 @@ namespace DNA.CastleMinerZ.Terrain
 
 		private void FlushCachedChunks()
 		{
-			CachedChunk cachedChunk2;
-			for (CachedChunk cachedChunk = this._cachedChunks.Front; cachedChunk != null; cachedChunk = cachedChunk2)
+			CachedChunk nextChunk;
+			for (CachedChunk chunk = this._cachedChunks.Front; chunk != null; chunk = nextChunk)
 			{
-				cachedChunk2 = (CachedChunk)cachedChunk.NextNode;
-				cachedChunk.Save();
+				nextChunk = (CachedChunk)chunk.NextNode;
+				chunk.Save();
 			}
 		}
 
@@ -397,37 +397,37 @@ namespace DNA.CastleMinerZ.Terrain
 		{
 			while (!this._waitingChunks.Empty)
 			{
-				CachedChunk cachedChunk = this._waitingChunks.Dequeue();
-				cachedChunk.RetroReadFromDisk();
-				if (cachedChunk._numEntries == 0)
+				CachedChunk c = this._waitingChunks.Dequeue();
+				c.RetroReadFromDisk();
+				if (c._numEntries == 0)
 				{
-					this.RemoveChunkFromLocalList(cachedChunk._worldMin);
-					cachedChunk.Release();
+					this.RemoveChunkFromLocalList(c._worldMin);
+					c.Release();
 				}
 				else
 				{
-					this._cachedChunks.Queue(cachedChunk);
+					this._cachedChunks.Queue(c);
 				}
 			}
 		}
 
 		private void InternalResetWaitingChunks()
 		{
-			for (CachedChunk cachedChunk = this._waitingChunks.Front; cachedChunk != null; cachedChunk = cachedChunk.NextNode as CachedChunk)
+			for (CachedChunk c = this._waitingChunks.Front; c != null; c = c.NextNode as CachedChunk)
 			{
-				cachedChunk.StripFetchCommands();
+				c.StripFetchCommands();
 			}
 		}
 
 		private void Heartbeat()
 		{
-			CachedChunk cachedChunk = this._waitingChunks.Front;
+			CachedChunk chunk = this._waitingChunks.Front;
 			this._numPri0Waiting = 0;
 			this._numPri1Waiting = 0;
-			while (cachedChunk != null)
+			while (chunk != null)
 			{
-				CachedChunk cachedChunk2 = (CachedChunk)cachedChunk.NextNode;
-				if (cachedChunk._loadingPriority == 0)
+				CachedChunk nextChunk = (CachedChunk)chunk.NextNode;
+				if (chunk._loadingPriority == 0)
 				{
 					this._numPri0Waiting++;
 				}
@@ -435,17 +435,17 @@ namespace DNA.CastleMinerZ.Terrain
 				{
 					this._numPri1Waiting++;
 				}
-				cachedChunk = cachedChunk2;
+				chunk = nextChunk;
 			}
 		}
 
 		private void ChangeChunkHosts()
 		{
-			CachedChunk cachedChunk2;
-			for (CachedChunk cachedChunk = this._waitingChunks.Front; cachedChunk != null; cachedChunk = cachedChunk2)
+			CachedChunk nextChunk;
+			for (CachedChunk chunk = this._waitingChunks.Front; chunk != null; chunk = nextChunk)
 			{
-				cachedChunk2 = (CachedChunk)cachedChunk.NextNode;
-				cachedChunk.HostChanged();
+				nextChunk = (CachedChunk)chunk.NextNode;
+				chunk.HostChanged();
 			}
 		}
 
@@ -504,29 +504,29 @@ namespace DNA.CastleMinerZ.Terrain
 			}
 			else if (this._numLocalChunks == this._localChunks.Length)
 			{
-				int[] array = new int[this._numLocalChunks + 100];
-				Buffer.BlockCopy(this._localChunks, 0, array, 0, this._numLocalChunks * 4);
-				this._localChunks = array;
+				int[] newchunks = new int[this._numLocalChunks + 100];
+				Buffer.BlockCopy(this._localChunks, 0, newchunks, 0, this._numLocalChunks * 4);
+				this._localChunks = newchunks;
 			}
 			this._localChunks[this._numLocalChunks++] = cid;
 		}
 
 		public void AddChunkToLocalList(IntVector3 chunkCorner)
 		{
-			int num = CachedChunk.MakeCIDFromChunkCorner(chunkCorner);
+			int cid = CachedChunk.MakeCIDFromChunkCorner(chunkCorner);
 			if (this._localChunks == null)
 			{
-				this.AddChunkToLocalList(num);
+				this.AddChunkToLocalList(cid);
 				return;
 			}
 			for (int i = 0; i < this._numLocalChunks; i++)
 			{
-				if (this._localChunks[i] == num)
+				if (this._localChunks[i] == cid)
 				{
 					return;
 				}
 			}
-			this.AddChunkToLocalList(num);
+			this.AddChunkToLocalList(cid);
 		}
 
 		private void RemoveChunkFromLocalList(int cid)
@@ -562,22 +562,22 @@ namespace DNA.CastleMinerZ.Terrain
 				try
 				{
 					string[] files = CastleMinerZGame.Instance.SaveDevice.GetFiles(Path.Combine(ChunkCache.Instance.RootPath, "*.*"));
-					IntVector3 zero = IntVector3.Zero;
-					zero.Y = -64;
+					IntVector3 chunkCorner = IntVector3.Zero;
+					chunkCorner.Y = -64;
 					for (int i = 0; i < files.Length; i++)
 					{
-						string fileName = Path.GetFileName(files[i]);
-						if (fileName[0] == 'X' && fileName.EndsWith(".dat"))
+						string p = Path.GetFileName(files[i]);
+						if (p[0] == 'X' && p.EndsWith(".dat"))
 						{
-							int num = fileName.IndexOf('X');
-							int num2 = fileName.IndexOf('Y');
-							int num3 = fileName.IndexOf('Z');
-							int num4 = fileName.IndexOf('.');
-							if (num4 > num3 && num3 > num2 && num2 > num)
+							int x = p.IndexOf('X');
+							int y = p.IndexOf('Y');
+							int z = p.IndexOf('Z');
+							int dot = p.IndexOf('.');
+							if (dot > z && z > y && y > x)
 							{
-								zero.X = int.Parse(fileName.Substring(num + 1, num2 - (num + 1)));
-								zero.Z = int.Parse(fileName.Substring(num3 + 1, num4 - (num3 + 1)));
-								this.AddChunkToLocalList(zero);
+								chunkCorner.X = int.Parse(p.Substring(x + 1, y - (x + 1)));
+								chunkCorner.Z = int.Parse(p.Substring(z + 1, dot - (z + 1)));
+								this.AddChunkToLocalList(chunkCorner);
 							}
 						}
 					}
@@ -590,13 +590,13 @@ namespace DNA.CastleMinerZ.Terrain
 
 		private void RunCommand(ChunkCacheCommand command)
 		{
-			bool flag = true;
-			long num = 0L;
+			bool releaseCommand = true;
+			long commandTimer = 0L;
 			this.CurrentQueueDelay = (float)(this._queueTimer.ElapsedMilliseconds - command._submittedTime) / 1000f;
 			command._status = ChunkCacheCommandStatus.PROCESSING;
 			if (command._trackingString != null)
 			{
-				num = this._queueTimer.ElapsedMilliseconds;
+				commandTimer = this._queueTimer.ElapsedMilliseconds;
 			}
 			switch (command._command)
 			{
@@ -604,36 +604,36 @@ namespace DNA.CastleMinerZ.Terrain
 			case ChunkCacheCommandEnum.FETCHDELTAFORTERRAIN:
 			case ChunkCacheCommandEnum.FETCHDELTAFORCLIENT:
 			{
-				flag = false;
-				IntVector3 intVector = CachedChunk.MakeChunkCorner(command._worldPosition);
-				int num2 = CachedChunk.MakeCIDFromChunkCorner(intVector);
-				if (this.CIDInLocalList(num2))
+				releaseCommand = false;
+				IntVector3 chunkCorner = CachedChunk.MakeChunkCorner(command._worldPosition);
+				int cid = CachedChunk.MakeCIDFromChunkCorner(chunkCorner);
+				if (this.CIDInLocalList(cid))
 				{
-					CachedChunk cachedChunk = this.GetCachedChunk(intVector);
-					if (cachedChunk != null)
+					CachedChunk c = this.GetCachedChunk(chunkCorner);
+					if (c != null)
 					{
-						cachedChunk.RunCommand(command);
+						c.RunCommand(command);
 					}
 					else
 					{
-						cachedChunk = this.GetWaitingChunk(intVector);
-						if (cachedChunk != null)
+						c = this.GetWaitingChunk(chunkCorner);
+						if (c != null)
 						{
-							cachedChunk.QueueCommand(command);
+							c.QueueCommand(command);
 						}
 						else
 						{
-							cachedChunk = this.CreateCachedChunk(intVector);
-							cachedChunk.GetChunkFromDisk();
-							cachedChunk.RunCommand(command);
+							c = this.CreateCachedChunk(chunkCorner);
+							c.GetChunkFromDisk();
+							c.RunCommand(command);
 						}
 					}
 				}
-				else if (this.CIDInRemoteList(num2) || (!this._weAreHosting && this._remoteChunks == null))
+				else if (this.CIDInRemoteList(cid) || (!this._weAreHosting && this._remoteChunks == null))
 				{
-					CachedChunk cachedChunk = this.CreateWaitingChunk(intVector);
-					cachedChunk.GetChunkFromHost(command._priority);
-					cachedChunk.QueueCommand(command);
+					CachedChunk c = this.CreateWaitingChunk(chunkCorner);
+					c.GetChunkFromHost(command._priority);
+					c.QueueCommand(command);
 				}
 				else if (command._command != ChunkCacheCommandEnum.MOD)
 				{
@@ -642,33 +642,33 @@ namespace DNA.CastleMinerZ.Terrain
 				}
 				else
 				{
-					CachedChunk cachedChunk = this.CreateCachedChunk(intVector);
-					cachedChunk.RunCommand(command);
+					CachedChunk c = this.CreateCachedChunk(chunkCorner);
+					c.RunCommand(command);
 				}
 				break;
 			}
 			case ChunkCacheCommandEnum.DELTAARRIVED:
 			{
-				IntVector3 intVector2 = CachedChunk.MakeChunkCorner(command._worldPosition);
-				CachedChunk waitingChunk = this.GetWaitingChunk(intVector2);
-				if (waitingChunk != null)
+				IntVector3 chunkCorner2 = CachedChunk.MakeChunkCorner(command._worldPosition);
+				CachedChunk c2 = this.GetWaitingChunk(chunkCorner2);
+				if (c2 != null)
 				{
-					waitingChunk.SetDelta(command._delta, false);
-					waitingChunk.ExecuteCommands();
-					if (waitingChunk._numEntries == 0)
+					c2.SetDelta(command._delta, false);
+					c2.ExecuteCommands();
+					if (c2._numEntries == 0)
 					{
-						this._waitingChunks.Remove(waitingChunk);
-						this.RemoveChunkFromLocalList(intVector2);
-						waitingChunk.Release();
+						this._waitingChunks.Remove(c2);
+						this.RemoveChunkFromLocalList(chunkCorner2);
+						c2.Release();
 					}
 					else
 					{
-						this.MoveFromAToB(waitingChunk, this._waitingChunks, this._cachedChunks);
+						this.MoveFromAToB(c2, this._waitingChunks, this._cachedChunks);
 					}
 				}
 				else
 				{
-					flag = false;
+					releaseCommand = false;
 					command.Release();
 					command = null;
 				}
@@ -760,9 +760,9 @@ namespace DNA.CastleMinerZ.Terrain
 			}
 			if (command != null && command._trackingString != null)
 			{
-				float num3 = (float)(this._queueTimer.ElapsedMilliseconds - num) / 1000f;
+				float num = (float)(this._queueTimer.ElapsedMilliseconds - commandTimer) / 1000f;
 			}
-			if (flag)
+			if (releaseCommand)
 			{
 				command.Release();
 			}
@@ -775,10 +775,10 @@ namespace DNA.CastleMinerZ.Terrain
 				this._timeTilHeartbeat -= (float)time.ElapsedGameTime.TotalSeconds;
 				if (this._timeTilHeartbeat <= 0f)
 				{
-					ChunkCacheCommand chunkCacheCommand = ChunkCacheCommand.Alloc();
-					chunkCacheCommand._command = ChunkCacheCommandEnum.HEARTBEAT;
-					chunkCacheCommand._consolidate = true;
-					this.AddCommand(chunkCacheCommand);
+					ChunkCacheCommand cmd = ChunkCacheCommand.Alloc();
+					cmd._command = ChunkCacheCommandEnum.HEARTBEAT;
+					cmd._consolidate = true;
+					this.AddCommand(cmd);
 					this._timeTilHeartbeat = 0.5f;
 				}
 				this._timeTilPushChunks -= (float)time.ElapsedGameTime.TotalSeconds;
@@ -833,16 +833,16 @@ namespace DNA.CastleMinerZ.Terrain
 			{
 				return;
 			}
-			int num = 0;
-			while (num < 2 && this._numRemoteChunks > 0)
+			int i = 0;
+			while (i < 2 && this._numRemoteChunks > 0)
 			{
 				this._numRemoteChunks--;
 				if (!this.CIDInLocalList(this._remoteChunks[this._numRemoteChunks]))
 				{
-					IntVector3 intVector = CachedChunk.MakeChunkCornerFromCID(this._remoteChunks[this._numRemoteChunks]);
-					CachedChunk cachedChunk = this.CreateWaitingChunk(intVector);
-					cachedChunk.GetChunkFromHost(0);
-					num++;
+					IntVector3 chunkCorner = CachedChunk.MakeChunkCornerFromCID(this._remoteChunks[this._numRemoteChunks]);
+					CachedChunk c = this.CreateWaitingChunk(chunkCorner);
+					c.GetChunkFromHost(0);
+					i++;
 				}
 			}
 		}
@@ -864,11 +864,11 @@ namespace DNA.CastleMinerZ.Terrain
 		{
 			if (!this._weAreHosting && this._numRemoteChunks != 0)
 			{
-				ChunkCacheCommand chunkCacheCommand = ChunkCacheCommand.Alloc();
-				chunkCacheCommand._command = ChunkCacheCommandEnum.ASKHOSTFORREMOTECHUNKS;
-				chunkCacheCommand._priority = 0;
-				chunkCacheCommand._consolidate = true;
-				this.AddCommand(chunkCacheCommand);
+				ChunkCacheCommand cmd = ChunkCacheCommand.Alloc();
+				cmd._command = ChunkCacheCommandEnum.ASKHOSTFORREMOTECHUNKS;
+				cmd._priority = 0;
+				cmd._consolidate = true;
+				this.AddCommand(cmd);
 			}
 		}
 
@@ -878,68 +878,68 @@ namespace DNA.CastleMinerZ.Terrain
 			{
 				return;
 			}
-			ChunkCacheCommand chunkCacheCommand = ChunkCacheCommand.Alloc();
-			chunkCacheCommand._command = (toall ? ChunkCacheCommandEnum.SENDREMOTECHUNKLISTTOALL : ChunkCacheCommandEnum.SENDREMOTECHUNKLIST);
-			chunkCacheCommand._requesterID = requesterId;
-			this.AddCommand(chunkCacheCommand);
+			ChunkCacheCommand cmd = ChunkCacheCommand.Alloc();
+			cmd._command = (toall ? ChunkCacheCommandEnum.SENDREMOTECHUNKLISTTOALL : ChunkCacheCommandEnum.SENDREMOTECHUNKLIST);
+			cmd._requesterID = requesterId;
+			this.AddCommand(cmd);
 		}
 
 		public void RemoteChunkListArrived(int[] deltaList)
 		{
-			ChunkCacheCommand chunkCacheCommand = ChunkCacheCommand.Alloc();
-			chunkCacheCommand._command = ChunkCacheCommandEnum.REMOTECHUNKLISTARRIVED;
-			chunkCacheCommand._delta = deltaList;
-			this.AddCommand(chunkCacheCommand);
+			ChunkCacheCommand cmd = ChunkCacheCommand.Alloc();
+			cmd._command = ChunkCacheCommandEnum.REMOTECHUNKLISTARRIVED;
+			cmd._delta = deltaList;
+			this.AddCommand(cmd);
 		}
 
 		public void AddModifiedBlock(IntVector3 worldIndex, BlockTypeEnum blockType)
 		{
-			ChunkCacheCommand chunkCacheCommand = ChunkCacheCommand.Alloc();
-			chunkCacheCommand._command = ChunkCacheCommandEnum.MOD;
-			chunkCacheCommand._worldPosition = worldIndex;
-			chunkCacheCommand._blockType = blockType;
-			chunkCacheCommand._priority = 1;
-			ChunkCache.Instance.AddCommand(chunkCacheCommand);
+			ChunkCacheCommand command = ChunkCacheCommand.Alloc();
+			command._command = ChunkCacheCommandEnum.MOD;
+			command._worldPosition = worldIndex;
+			command._blockType = blockType;
+			command._priority = 1;
+			ChunkCache.Instance.AddCommand(command);
 		}
 
 		public void RetrieveChunkForNetwork(byte requesterID, IntVector3 worldmin, int priority, object context)
 		{
-			ChunkCacheCommand chunkCacheCommand = ChunkCacheCommand.Alloc();
-			chunkCacheCommand._callback = this._internalChunkLoadedDelegate;
-			chunkCacheCommand._worldPosition = CachedChunk.MakeChunkCorner(worldmin);
-			chunkCacheCommand._command = ChunkCacheCommandEnum.FETCHDELTAFORCLIENT;
-			chunkCacheCommand._context = context;
-			chunkCacheCommand._priority = priority;
-			chunkCacheCommand._requesterIDs[0] = requesterID;
-			chunkCacheCommand._numRequesters = 1;
-			this.AddCommand(chunkCacheCommand);
+			ChunkCacheCommand cmd = ChunkCacheCommand.Alloc();
+			cmd._callback = this._internalChunkLoadedDelegate;
+			cmd._worldPosition = CachedChunk.MakeChunkCorner(worldmin);
+			cmd._command = ChunkCacheCommandEnum.FETCHDELTAFORCLIENT;
+			cmd._context = context;
+			cmd._priority = priority;
+			cmd._requesterIDs[0] = requesterID;
+			cmd._numRequesters = 1;
+			this.AddCommand(cmd);
 		}
 
 		public void ChunkDeltaArrived(IntVector3 worldmin, int[] delta, byte priority)
 		{
-			ChunkCacheCommand chunkCacheCommand = ChunkCacheCommand.Alloc();
-			chunkCacheCommand._command = ChunkCacheCommandEnum.DELTAARRIVED;
-			chunkCacheCommand._worldPosition = worldmin;
-			chunkCacheCommand._delta = delta;
-			chunkCacheCommand._priority = (int)priority;
-			this.AddCommand(chunkCacheCommand);
+			ChunkCacheCommand cmd = ChunkCacheCommand.Alloc();
+			cmd._command = ChunkCacheCommandEnum.DELTAARRIVED;
+			cmd._worldPosition = worldmin;
+			cmd._delta = delta;
+			cmd._priority = (int)priority;
+			this.AddCommand(cmd);
 		}
 
 		public void HostChanged()
 		{
-			ChunkCacheCommand chunkCacheCommand = ChunkCacheCommand.Alloc();
-			chunkCacheCommand._command = ChunkCacheCommandEnum.HOSTCHANGED;
-			this.AddCommand(chunkCacheCommand);
+			ChunkCacheCommand cmd = ChunkCacheCommand.Alloc();
+			cmd._command = ChunkCacheCommandEnum.HOSTCHANGED;
+			this.AddCommand(cmd);
 		}
 
 		public void MakeHost(WorldInfo worldinfo, bool value)
 		{
 			if (this.Running)
 			{
-				ChunkCacheCommand chunkCacheCommand = ChunkCacheCommand.Alloc();
-				chunkCacheCommand._command = (value ? ChunkCacheCommandEnum.BECOMEHOST : ChunkCacheCommandEnum.BECOMECLIENT);
-				chunkCacheCommand._context = worldinfo;
-				this.AddCommand(chunkCacheCommand);
+				ChunkCacheCommand cmd = ChunkCacheCommand.Alloc();
+				cmd._command = (value ? ChunkCacheCommandEnum.BECOMEHOST : ChunkCacheCommandEnum.BECOMECLIENT);
+				cmd._context = worldinfo;
+				this.AddCommand(cmd);
 			}
 		}
 

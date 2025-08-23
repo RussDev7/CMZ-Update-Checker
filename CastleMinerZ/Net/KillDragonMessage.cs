@@ -16,11 +16,11 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, Vector3 location, byte killerid, InventoryItemIDs itemid)
 		{
-			KillDragonMessage sendInstance = Message.GetSendInstance<KillDragonMessage>();
-			sendInstance.Location = location;
-			sendInstance.WeaponID = itemid;
-			sendInstance.KillerID = killerid;
-			sendInstance.DoSend(from);
+			KillDragonMessage Instance = Message.GetSendInstance<KillDragonMessage>();
+			Instance.Location = location;
+			Instance.WeaponID = itemid;
+			Instance.KillerID = killerid;
+			Instance.DoSend(from);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType

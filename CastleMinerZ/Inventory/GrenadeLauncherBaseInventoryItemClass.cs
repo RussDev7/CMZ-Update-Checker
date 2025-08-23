@@ -37,54 +37,54 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public override Entity CreateEntity(ItemUse use, bool attachedToLocalPlayer)
 		{
-			GunEntity gunEntity = (GunEntity)base.CreateEntity(use, attachedToLocalPlayer);
+			GunEntity result = (GunEntity)base.CreateEntity(use, attachedToLocalPlayer);
 			if (this.ID == InventoryItemIDs.RocketLauncherGuidedShotFired || this.ID == InventoryItemIDs.RocketLauncherGuided)
 			{
-				gunEntity.DiffuseColor = Color.Black;
+				result.DiffuseColor = Color.Black;
 			}
 			else
 			{
-				gunEntity.DiffuseColor = Color.Gray;
+				result.DiffuseColor = Color.Gray;
 			}
 			switch (use)
 			{
 			case ItemUse.UI:
-				gunEntity.LocalPosition += new Vector3(-2f, -4f, 0f);
+				result.LocalPosition += new Vector3(-2f, -4f, 0f);
 				break;
 			case ItemUse.Hand:
 				if (this.ID == InventoryItemIDs.RocketLauncherGuided || this.ID == InventoryItemIDs.RocketLauncher)
 				{
-					ModelBone modelBone = this._model.Bones["BarrelTip"];
-					Vector3 vector;
-					Vector3 vector2;
-					if (modelBone != null)
+					ModelBone barrelTip = this._model.Bones["BarrelTip"];
+					Vector3 BarrelTipLocation;
+					Vector3 fwd;
+					if (barrelTip != null)
 					{
-						vector = Vector3.Transform(GrenadeLauncherBaseInventoryItemClass.cBarrelTipOffset, modelBone.Transform);
-						vector2 = Vector3.Normalize(modelBone.Transform.Left);
+						BarrelTipLocation = Vector3.Transform(GrenadeLauncherBaseInventoryItemClass.cBarrelTipOffset, barrelTip.Transform);
+						fwd = Vector3.Normalize(barrelTip.Transform.Left);
 					}
 					else
 					{
-						vector = new Vector3(0f, 0f, -0.5f);
-						vector2 = Vector3.Forward;
+						BarrelTipLocation = new Vector3(0f, 0f, -0.5f);
+						fwd = Vector3.Forward;
 					}
-					GrenadeLauncherBaseInventoryItemClass.GrenadeLauncherGrenadeModel grenadeLauncherGrenadeModel;
+					GrenadeLauncherBaseInventoryItemClass.GrenadeLauncherGrenadeModel rpgGrenade;
 					if (this.ID == InventoryItemIDs.RocketLauncherGuided)
 					{
-						grenadeLauncherGrenadeModel = new GrenadeLauncherBaseInventoryItemClass.GrenadeLauncherGrenadeModel(GrenadeLauncherBaseInventoryItemClass.WeaponModel, true);
+						rpgGrenade = new GrenadeLauncherBaseInventoryItemClass.GrenadeLauncherGrenadeModel(GrenadeLauncherBaseInventoryItemClass.WeaponModel, true);
 					}
 					else
 					{
-						grenadeLauncherGrenadeModel = new GrenadeLauncherBaseInventoryItemClass.GrenadeLauncherGrenadeModel(GrenadeLauncherBaseInventoryItemClass.WeaponModel, false);
+						rpgGrenade = new GrenadeLauncherBaseInventoryItemClass.GrenadeLauncherGrenadeModel(GrenadeLauncherBaseInventoryItemClass.WeaponModel, false);
 					}
-					gunEntity.Children.Add(grenadeLauncherGrenadeModel);
-					grenadeLauncherGrenadeModel.LocalToParent = MathTools.CreateWorld(vector, vector2);
-					grenadeLauncherGrenadeModel.LocalScale = GrenadeLauncherBaseInventoryItemClass.cBarrelTipScale;
-					Matrix localToWorld = CastleMinerZGame.Instance.LocalPlayer.FPSCamera.LocalToWorld;
-					GrenadeMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, localToWorld, GrenadeTypeEnum.Sticky, 3f);
+					result.Children.Add(rpgGrenade);
+					rpgGrenade.LocalToParent = MathTools.CreateWorld(BarrelTipLocation, fwd);
+					rpgGrenade.LocalScale = GrenadeLauncherBaseInventoryItemClass.cBarrelTipScale;
+					Matrix i = CastleMinerZGame.Instance.LocalPlayer.FPSCamera.LocalToWorld;
+					GrenadeMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, i, GrenadeTypeEnum.Sticky, 3f);
 				}
 				break;
 			}
-			return gunEntity;
+			return result;
 		}
 
 		public override InventoryItem CreateItem(int stackCount)
@@ -108,14 +108,14 @@ namespace DNA.CastleMinerZ.Inventory
 
 			protected override bool SetEffectParams(ModelMesh mesh, Effect effect, GameTime gameTime, Matrix world, Matrix view, Matrix projection)
 			{
-				DNAEffect dnaeffect = (DNAEffect)effect;
+				DNAEffect dnaEffect = (DNAEffect)effect;
 				if (this._recolor)
 				{
-					dnaeffect.DiffuseColor = ColorF.FromRGB(1.5f, 0f, 0f);
+					dnaEffect.DiffuseColor = ColorF.FromRGB(1.5f, 0f, 0f);
 				}
 				else
 				{
-					dnaeffect.DiffuseColor = Color.Gray;
+					dnaEffect.DiffuseColor = Color.Gray;
 				}
 				return base.SetEffectParams(mesh, effect, gameTime, world, view, projection);
 			}
@@ -132,14 +132,14 @@ namespace DNA.CastleMinerZ.Inventory
 
 			protected override bool SetEffectParams(ModelMesh mesh, Effect effect, GameTime gameTime, Matrix world, Matrix view, Matrix projection)
 			{
-				DNAEffect dnaeffect = (DNAEffect)effect;
+				DNAEffect dnaEffect = (DNAEffect)effect;
 				if (this.Darken)
 				{
-					dnaeffect.DiffuseColor = Color.Gray;
+					dnaEffect.DiffuseColor = Color.Gray;
 				}
 				else
 				{
-					dnaeffect.DiffuseColor = Color.White;
+					dnaEffect.DiffuseColor = Color.White;
 				}
 				return base.SetEffectParams(mesh, effect, gameTime, world, view, projection);
 			}

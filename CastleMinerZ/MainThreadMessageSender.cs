@@ -19,37 +19,37 @@ namespace DNA.CastleMinerZ
 
 		public void DrainQueue()
 		{
-			int num = 32768;
-			int num2 = 0;
+			int memtosend = 32768;
+			int memcommitted = 0;
 			lock (this._queue)
 			{
-				while (!this._queue.Empty && num2 < num)
+				while (!this._queue.Empty && memcommitted < memtosend)
 				{
-					MainThreadMessageSender.MessageCommand messageCommand = this._queue.Dequeue();
-					if (messageCommand._type == MainThreadMessageSender.MessageType.SENDCHUNK && messageCommand._delta != null)
+					MainThreadMessageSender.MessageCommand msg = this._queue.Dequeue();
+					if (msg._type == MainThreadMessageSender.MessageType.SENDCHUNK && msg._delta != null)
 					{
-						num2 += messageCommand._delta.Length * 4;
+						memcommitted += msg._delta.Length * 4;
 					}
-					this._commandsToSend.Queue(messageCommand);
+					this._commandsToSend.Queue(msg);
 				}
 				goto IL_00BD;
 			}
 			IL_0071:
-			MainThreadMessageSender.MessageCommand messageCommand2 = this._commandsToSend.Dequeue();
-			if (!messageCommand2.Execute())
+			MainThreadMessageSender.MessageCommand walker = this._commandsToSend.Dequeue();
+			if (!walker.Execute())
 			{
-				if (messageCommand2.CanRetry())
+				if (walker.CanRetry())
 				{
-					messageCommand2._retryCount++;
-					this._queue.Queue(messageCommand2);
+					walker._retryCount++;
+					this._queue.Queue(walker);
 				}
 				else
 				{
 					if (Debugger.IsAttached)
 					{
-						messageCommand2.WrongFrame();
+						walker.WrongFrame();
 					}
-					messageCommand2.Release();
+					walker.Release();
 				}
 			}
 			IL_00BD:
@@ -69,33 +69,33 @@ namespace DNA.CastleMinerZ
 		{
 			lock (this._queue)
 			{
-				for (MainThreadMessageSender.MessageCommand messageCommand = this._queue.Front; messageCommand != null; messageCommand = (MainThreadMessageSender.MessageCommand)messageCommand.NextNode)
+				for (MainThreadMessageSender.MessageCommand walker = this._queue.Front; walker != null; walker = (MainThreadMessageSender.MessageCommand)walker.NextNode)
 				{
-					if (messageCommand._type == MainThreadMessageSender.MessageType.GETCHUNK && pos.Equals(messageCommand._position))
+					if (walker._type == MainThreadMessageSender.MessageType.GETCHUNK && pos.Equals(walker._position))
 					{
-						if (messageCommand._priority < priority)
+						if (walker._priority < priority)
 						{
-							messageCommand._priority = priority;
-							this._queue.Remove(messageCommand);
-							this.InsertInQueue(messageCommand);
+							walker._priority = priority;
+							this._queue.Remove(walker);
+							this.InsertInQueue(walker);
 						}
 						return;
 					}
 				}
 			}
-			MainThreadMessageSender.MessageCommand messageCommand2 = MainThreadMessageSender.MessageCommand.Alloc();
-			messageCommand2._type = MainThreadMessageSender.MessageType.GETCHUNK;
-			messageCommand2._position = pos;
-			messageCommand2._priority = priority;
-			this.InsertInQueue(messageCommand2);
+			MainThreadMessageSender.MessageCommand mc = MainThreadMessageSender.MessageCommand.Alloc();
+			mc._type = MainThreadMessageSender.MessageType.GETCHUNK;
+			mc._position = pos;
+			mc._priority = priority;
+			this.InsertInQueue(mc);
 		}
 
 		public void ClientReadyForChunks()
 		{
-			MainThreadMessageSender.MessageCommand messageCommand = MainThreadMessageSender.MessageCommand.Alloc();
-			messageCommand._type = MainThreadMessageSender.MessageType.BROADCASTREADY;
-			messageCommand._priority = 1;
-			this.InsertInQueue(messageCommand);
+			MainThreadMessageSender.MessageCommand mc = MainThreadMessageSender.MessageCommand.Alloc();
+			mc._type = MainThreadMessageSender.MessageType.BROADCASTREADY;
+			mc._priority = 1;
+			this.InsertInQueue(mc);
 		}
 
 		private void InsertInQueue(MainThreadMessageSender.MessageCommand c)
@@ -108,22 +108,22 @@ namespace DNA.CastleMinerZ
 				}
 				else
 				{
-					MainThreadMessageSender.MessageCommand messageCommand = null;
-					MainThreadMessageSender.MessageCommand messageCommand2 = this._queue.Front;
-					while (messageCommand2._priority != 0)
+					MainThreadMessageSender.MessageCommand prev = null;
+					MainThreadMessageSender.MessageCommand walker = this._queue.Front;
+					while (walker._priority != 0)
 					{
-						messageCommand = messageCommand2;
-						messageCommand2 = (MainThreadMessageSender.MessageCommand)messageCommand2.NextNode;
-						if (messageCommand2 == null)
+						prev = walker;
+						walker = (MainThreadMessageSender.MessageCommand)walker.NextNode;
+						if (walker == null)
 						{
 							this._queue.Queue(c);
 							goto IL_00A7;
 						}
 					}
-					if (messageCommand != null)
+					if (prev != null)
 					{
-						messageCommand.NextNode = c;
-						c.NextNode = messageCommand2;
+						prev.NextNode = c;
+						c.NextNode = walker;
 						this._queue.IncrementCountAfterInsertion();
 					}
 					else
@@ -139,93 +139,93 @@ namespace DNA.CastleMinerZ
 		{
 			lock (this._queue)
 			{
-				MainThreadMessageSender.MessageCommand messageCommand = this._queue.Front;
-				while (messageCommand != null)
+				MainThreadMessageSender.MessageCommand walker = this._queue.Front;
+				while (walker != null)
 				{
-					if (messageCommand._type == MainThreadMessageSender.MessageType.SENDCHUNK && pos.Equals(messageCommand._position))
+					if (walker._type == MainThreadMessageSender.MessageType.SENDCHUNK && pos.Equals(walker._position))
 					{
-						messageCommand._delta = delta;
-						if (messageCommand._priority < priority)
+						walker._delta = delta;
+						if (walker._priority < priority)
 						{
-							messageCommand._priority = priority;
-							this._queue.Remove(messageCommand);
-							this.InsertInQueue(messageCommand);
+							walker._priority = priority;
+							this._queue.Remove(walker);
+							this.InsertInQueue(walker);
 						}
-						if (messageCommand._sendToAll)
+						if (walker._sendToAll)
 						{
 							return;
 						}
-						messageCommand.CopyReceiversToMe(receiverid, numReceivers, (byte)priority);
+						walker.CopyReceiversToMe(receiverid, numReceivers, (byte)priority);
 						return;
 					}
 					else
 					{
-						messageCommand = (MainThreadMessageSender.MessageCommand)messageCommand.NextNode;
+						walker = (MainThreadMessageSender.MessageCommand)walker.NextNode;
 					}
 				}
 			}
-			MainThreadMessageSender.MessageCommand messageCommand2 = MainThreadMessageSender.MessageCommand.Alloc();
-			messageCommand2._type = MainThreadMessageSender.MessageType.SENDCHUNK;
-			messageCommand2._position = pos;
-			messageCommand2._delta = delta;
-			messageCommand2._priority = priority;
-			messageCommand2._numRecipients = 0;
-			messageCommand2.CopyReceiversToMe(receiverid, numReceivers, (byte)priority);
-			this.InsertInQueue(messageCommand2);
+			MainThreadMessageSender.MessageCommand mc = MainThreadMessageSender.MessageCommand.Alloc();
+			mc._type = MainThreadMessageSender.MessageType.SENDCHUNK;
+			mc._position = pos;
+			mc._delta = delta;
+			mc._priority = priority;
+			mc._numRecipients = 0;
+			mc.CopyReceiversToMe(receiverid, numReceivers, (byte)priority);
+			this.InsertInQueue(mc);
 		}
 
 		public void SendDeltaListMessage(int[] deltaList, byte receiverid, bool toall)
 		{
 			lock (this._queue)
 			{
-				MainThreadMessageSender.MessageCommand messageCommand = this._queue.Front;
-				while (messageCommand != null)
+				MainThreadMessageSender.MessageCommand walker = this._queue.Front;
+				while (walker != null)
 				{
-					if (messageCommand._type == MainThreadMessageSender.MessageType.SENDDELTALIST)
+					if (walker._type == MainThreadMessageSender.MessageType.SENDDELTALIST)
 					{
-						messageCommand._delta = deltaList;
-						if (messageCommand._sendToAll)
+						walker._delta = deltaList;
+						if (walker._sendToAll)
 						{
 							return;
 						}
 						if (toall)
 						{
-							messageCommand._sendToAll = true;
-							messageCommand._numRecipients = 0;
+							walker._sendToAll = true;
+							walker._numRecipients = 0;
 						}
 						else
 						{
-							for (int i = 0; i < messageCommand._numRecipients; i++)
+							for (int i = 0; i < walker._numRecipients; i++)
 							{
-								if (messageCommand._recipients[i] == receiverid)
+								if (walker._recipients[i] == receiverid)
 								{
 									return;
 								}
 							}
-							messageCommand._recipients[messageCommand._numRecipients++] = receiverid;
+							walker._recipients[walker._numRecipients++] = receiverid;
 						}
 						return;
 					}
 					else
 					{
-						messageCommand = (MainThreadMessageSender.MessageCommand)messageCommand.NextNode;
+						walker = (MainThreadMessageSender.MessageCommand)walker.NextNode;
 					}
 				}
 			}
-			MainThreadMessageSender.MessageCommand messageCommand2 = MainThreadMessageSender.MessageCommand.Alloc();
-			messageCommand2._type = MainThreadMessageSender.MessageType.SENDDELTALIST;
-			messageCommand2._delta = deltaList;
-			messageCommand2._priority = 1;
+			MainThreadMessageSender.MessageCommand mc = MainThreadMessageSender.MessageCommand.Alloc();
+			mc._type = MainThreadMessageSender.MessageType.SENDDELTALIST;
+			mc._delta = deltaList;
+			mc._priority = 1;
 			if (toall)
 			{
-				messageCommand2._sendToAll = true;
+				mc._sendToAll = true;
 			}
 			else
 			{
-				messageCommand2._numRecipients = 1;
-				messageCommand2._recipients[0] = receiverid;
+				mc._numRecipients = 1;
+				mc._recipients[0] = receiverid;
 			}
-			this.InsertInQueue(messageCommand2);
+			this.InsertInQueue(mc);
 		}
 
 		public static MainThreadMessageSender Instance;
@@ -266,16 +266,16 @@ namespace DNA.CastleMinerZ
 				{
 					return false;
 				}
-				bool flag = false;
+				bool copiedOne = false;
 				for (int i = 0; i < numRecipients; i++)
 				{
-					bool flag2 = false;
+					bool foundIt = false;
 					int j = 0;
 					while (j < this._numRecipients)
 					{
 						if (this._recipients[j] == recipients[i])
 						{
-							flag2 = true;
+							foundIt = true;
 							if (this._priority > (int)this._priorities[j])
 							{
 								this._priorities[j] = priority;
@@ -288,19 +288,19 @@ namespace DNA.CastleMinerZ
 							j++;
 						}
 					}
-					if (!flag2)
+					if (!foundIt)
 					{
-						flag = true;
+						copiedOne = true;
 						this._recipients[this._numRecipients] = recipients[i];
 						this._priorities[this._numRecipients++] = priority;
 					}
 				}
-				return flag;
+				return copiedOne;
 			}
 
 			public bool Execute()
 			{
-				bool flag = false;
+				bool result = false;
 				try
 				{
 					if (CastleMinerZGame.Instance != null)
@@ -316,10 +316,10 @@ namespace DNA.CastleMinerZ
 							{
 								for (int i = 0; i < this._numRecipients; i++)
 								{
-									NetworkGamer gamerFromID = CastleMinerZGame.Instance.GetGamerFromID(this._recipients[i]);
-									if (gamerFromID != null && !gamerFromID.HasLeftSession)
+									NetworkGamer recipient = CastleMinerZGame.Instance.GetGamerFromID(this._recipients[i]);
+									if (recipient != null && !recipient.HasLeftSession)
 									{
-										DNA.CastleMinerZ.Net.ProvideChunkMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, gamerFromID, this._position, this._delta, (int)this._priorities[i]);
+										DNA.CastleMinerZ.Net.ProvideChunkMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, recipient, this._position, this._delta, (int)this._priorities[i]);
 									}
 								}
 							}
@@ -339,10 +339,10 @@ namespace DNA.CastleMinerZ
 							{
 								for (int j = 0; j < this._numRecipients; j++)
 								{
-									NetworkGamer gamerFromID2 = CastleMinerZGame.Instance.GetGamerFromID(this._recipients[j]);
-									if (gamerFromID2 != null && !gamerFromID2.HasLeftSession)
+									NetworkGamer recipient2 = CastleMinerZGame.Instance.GetGamerFromID(this._recipients[j]);
+									if (recipient2 != null && !recipient2.HasLeftSession)
 									{
-										ProvideDeltaListMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, gamerFromID2, this._delta);
+										ProvideDeltaListMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, recipient2, this._delta);
 									}
 								}
 							}
@@ -350,12 +350,12 @@ namespace DNA.CastleMinerZ
 						}
 					}
 					this.Release();
-					flag = true;
+					result = true;
 				}
 				catch (Exception)
 				{
 				}
-				return flag;
+				return result;
 			}
 
 			public static void GameOver()
@@ -375,13 +375,13 @@ namespace DNA.CastleMinerZ
 
 			public static MainThreadMessageSender.MessageCommand Alloc()
 			{
-				MainThreadMessageSender.MessageCommand messageCommand = MainThreadMessageSender.MessageCommand._cache.Get();
-				messageCommand._retryCount = 0;
-				messageCommand._retryFrame = MainThreadMessageSender.MessageCommand.retryFrame;
-				messageCommand._priority = 0;
-				messageCommand._numRecipients = 0;
-				messageCommand._sendToAll = false;
-				return messageCommand;
+				MainThreadMessageSender.MessageCommand result = MainThreadMessageSender.MessageCommand._cache.Get();
+				result._retryCount = 0;
+				result._retryFrame = MainThreadMessageSender.MessageCommand.retryFrame;
+				result._priority = 0;
+				result._numRecipients = 0;
+				result._sendToAll = false;
+				return result;
 			}
 
 			public void Release()

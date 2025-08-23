@@ -14,11 +14,11 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public Player GetPlayer()
 		{
-			for (Entity entity = base.Parent; entity != null; entity = entity.Parent)
+			for (Entity node = base.Parent; node != null; node = node.Parent)
 			{
-				if (entity is Player)
+				if (node is Player)
 				{
-					return (Player)entity;
+					return (Player)node;
 				}
 			}
 			return null;
@@ -28,34 +28,34 @@ namespace DNA.CastleMinerZ.Inventory
 		{
 			if (this.TrackPosition && mesh.Name.Contains("Needle"))
 			{
-				Player player = this.GetPlayer();
-				if (player == null)
+				Player holder = this.GetPlayer();
+				if (holder == null)
 				{
-					player = CastleMinerZGame.Instance.LocalPlayer;
+					holder = CastleMinerZGame.Instance.LocalPlayer;
 				}
-				if (player != null)
+				if (holder != null)
 				{
-					Vector3 vector;
-					Vector3 vector2;
-					if (player == CastleMinerZGame.Instance.LocalPlayer && CastleMinerZGame.Instance.GameScreen.HUD.ActiveInventoryItem is GPSItem)
+					Vector3 toLocation;
+					Vector3 forward;
+					if (holder == CastleMinerZGame.Instance.LocalPlayer && CastleMinerZGame.Instance.GameScreen.HUD.ActiveInventoryItem is GPSItem)
 					{
-						GPSItem gpsitem = (GPSItem)CastleMinerZGame.Instance.GameScreen.HUD.ActiveInventoryItem;
-						vector = gpsitem.PointToLocation - player.WorldPosition;
-						vector2 = Vector3.TransformNormal(Vector3.Forward, player.LocalToWorld);
+						GPSItem gps = (GPSItem)CastleMinerZGame.Instance.GameScreen.HUD.ActiveInventoryItem;
+						toLocation = gps.PointToLocation - holder.WorldPosition;
+						forward = Vector3.TransformNormal(Vector3.Forward, holder.LocalToWorld);
 					}
 					else
 					{
-						vector = -player.WorldPosition;
-						vector2 = Vector3.TransformNormal(Vector3.Forward, player.LocalToWorld);
+						toLocation = -holder.WorldPosition;
+						forward = Vector3.TransformNormal(Vector3.Forward, holder.LocalToWorld);
 					}
-					vector.Y = 0f;
-					vector2.Y = 0f;
-					Quaternion quaternion = vector2.RotationBetween(vector);
-					float z = quaternion.Z;
-					quaternion.Z = quaternion.Y;
-					quaternion.Y = z;
-					quaternion.Normalize();
-					world = Matrix.CreateFromQuaternion(quaternion) * world;
+					toLocation.Y = 0f;
+					forward.Y = 0f;
+					Quaternion rot = forward.RotationBetween(toLocation);
+					float temp = rot.Z;
+					rot.Z = rot.Y;
+					rot.Y = temp;
+					rot.Normalize();
+					world = Matrix.CreateFromQuaternion(rot) * world;
 				}
 			}
 			return base.SetEffectParams(mesh, effect, gameTime, world, view, projection);

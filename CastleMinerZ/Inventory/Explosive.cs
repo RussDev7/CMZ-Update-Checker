@@ -139,9 +139,9 @@ namespace DNA.CastleMinerZ.Inventory
 			if (!this.Timer.Expired)
 			{
 				this.Timer.Update(gameTime);
-				BlockTypeEnum blockWithChanges = BlockTerrain.Instance.GetBlockWithChanges(this.Position);
-				BlockTypeEnum blockTypeEnum = ((this.ExplosiveType == ExplosiveTypes.TNT) ? BlockTypeEnum.TNT : BlockTypeEnum.C4);
-				if (this.Timer.Expired && blockWithChanges == blockTypeEnum)
+				BlockTypeEnum blockType = BlockTerrain.Instance.GetBlockWithChanges(this.Position);
+				BlockTypeEnum explosiveBlock = ((this.ExplosiveType == ExplosiveTypes.TNT) ? BlockTypeEnum.TNT : BlockTypeEnum.C4);
+				if (this.Timer.Expired && blockType == explosiveBlock)
 				{
 					DetonateExplosiveMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, this.Position, true, this.ExplosiveType);
 				}
@@ -175,27 +175,27 @@ namespace DNA.CastleMinerZ.Inventory
 		{
 			if (CastleMinerZGame.Instance.LocalPlayer != null && CastleMinerZGame.Instance.LocalPlayer.ValidLivingGamer)
 			{
-				Vector3 worldPosition = CastleMinerZGame.Instance.LocalPlayer.WorldPosition;
-				worldPosition.Y += 1f;
-				float num = Vector3.Distance(worldPosition, location);
-				float num2 = Explosive.cKillRanges[(int)explosiveType];
-				float num3 = Explosive.cDamageRanges[(int)explosiveType];
-				if (num < num3)
+				Vector3 playerPos = CastleMinerZGame.Instance.LocalPlayer.WorldPosition;
+				playerPos.Y += 1f;
+				float distance = Vector3.Distance(playerPos, location);
+				float killRange = Explosive.cKillRanges[(int)explosiveType];
+				float damageRange = Explosive.cDamageRanges[(int)explosiveType];
+				if (distance < damageRange)
 				{
-					DamageLOSProbe damageLOSProbe = new DamageLOSProbe();
-					damageLOSProbe.Init(location, worldPosition);
-					damageLOSProbe.DragonTypeIndex = 0;
-					BlockTerrain.Instance.Trace(damageLOSProbe);
-					float num4;
-					if (num < num2)
+					DamageLOSProbe _damageLOSProbe = new DamageLOSProbe();
+					_damageLOSProbe.Init(location, playerPos);
+					_damageLOSProbe.DragonTypeIndex = 0;
+					BlockTerrain.Instance.Trace(_damageLOSProbe);
+					float damage;
+					if (distance < killRange)
 					{
-						num4 = 1f;
+						damage = 1f;
 					}
 					else
 					{
-						num4 = damageLOSProbe.TotalDamageMultiplier * (1f - (num - num2) / (num3 - num2));
+						damage = _damageLOSProbe.TotalDamageMultiplier * (1f - (distance - killRange) / (damageRange - killRange));
 					}
-					InGameHUD.Instance.ApplyDamage(num4, location);
+					InGameHUD.Instance.ApplyDamage(damage, location);
 				}
 				if (EnemyManager.Instance != null)
 				{
@@ -227,15 +227,15 @@ namespace DNA.CastleMinerZ.Inventory
 
 		private static void RememberDependentObjects(IntVector3 worldIndex, Dictionary<IntVector3, BlockTypeEnum> dependentsToRemove)
 		{
-			for (BlockFace blockFace = BlockFace.POSX; blockFace < BlockFace.NUM_FACES; blockFace++)
+			for (BlockFace bf = BlockFace.POSX; bf < BlockFace.NUM_FACES; bf++)
 			{
-				IntVector3 neighborIndex = BlockTerrain.Instance.GetNeighborIndex(worldIndex, blockFace);
-				if (!dependentsToRemove.ContainsKey(neighborIndex))
+				IntVector3 nb = BlockTerrain.Instance.GetNeighborIndex(worldIndex, bf);
+				if (!dependentsToRemove.ContainsKey(nb))
 				{
-					BlockTypeEnum blockWithChanges = BlockTerrain.Instance.GetBlockWithChanges(neighborIndex);
-					if (BlockType.GetType(blockWithChanges).Facing == blockFace)
+					BlockTypeEnum bbt = BlockTerrain.Instance.GetBlockWithChanges(nb);
+					if (BlockType.GetType(bbt).Facing == bf)
 					{
-						dependentsToRemove.Add(neighborIndex, blockWithChanges);
+						dependentsToRemove.Add(nb, bbt);
 					}
 				}
 			}
@@ -243,89 +243,89 @@ namespace DNA.CastleMinerZ.Inventory
 
 		private static void ProcessOneExplosion(Queue<Explosive> tntToExplode, Set<IntVector3> blocksToRemove, Dictionary<IntVector3, BlockTypeEnum> dependentsToRemove, ref bool explosionFlashNotYetShown)
 		{
-			Explosive explosive = tntToExplode.Dequeue();
-			if (explosionFlashNotYetShown && (explosive.ExplosiveType == ExplosiveTypes.C4 || explosive.ExplosiveType == ExplosiveTypes.TNT))
+			Explosive currentTNT = tntToExplode.Dequeue();
+			if (explosionFlashNotYetShown && (currentTNT.ExplosiveType == ExplosiveTypes.C4 || currentTNT.ExplosiveType == ExplosiveTypes.TNT))
 			{
-				AddExplosionEffectsMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, explosive.Position);
+				AddExplosionEffectsMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, currentTNT.Position);
 				explosionFlashNotYetShown = false;
 			}
-			int num = Explosive.cDestructionRanges[(int)explosive.ExplosiveType];
-			IntVector3 zero = IntVector3.Zero;
-			zero.X = -num;
-			while (zero.X <= num)
+			int blowExplosiveRange = Explosive.cDestructionRanges[(int)currentTNT.ExplosiveType];
+			IntVector3 offset = IntVector3.Zero;
+			offset.X = -blowExplosiveRange;
+			while (offset.X <= blowExplosiveRange)
 			{
-				IntVector3 intVector;
-				intVector.X = explosive.Position.X + zero.X;
-				IntVector3 intVector2;
-				intVector2.X = intVector.X - BlockTerrain.Instance._worldMin.X;
-				if (intVector2.X >= 0 && intVector2.X < 384)
+				IntVector3 currentBlockPos;
+				currentBlockPos.X = currentTNT.Position.X + offset.X;
+				IntVector3 local;
+				local.X = currentBlockPos.X - BlockTerrain.Instance._worldMin.X;
+				if (local.X >= 0 && local.X < 384)
 				{
-					zero.Z = -num;
-					while (zero.Z <= num)
+					offset.Z = -blowExplosiveRange;
+					while (offset.Z <= blowExplosiveRange)
 					{
-						intVector.Z = explosive.Position.Z + zero.Z;
-						intVector2.Z = intVector.Z - BlockTerrain.Instance._worldMin.Z;
-						if (intVector2.Z >= 0 && intVector2.Z < 384)
+						currentBlockPos.Z = currentTNT.Position.Z + offset.Z;
+						local.Z = currentBlockPos.Z - BlockTerrain.Instance._worldMin.Z;
+						if (local.Z >= 0 && local.Z < 384)
 						{
-							zero.Y = -num;
-							while (zero.Y <= num)
+							offset.Y = -blowExplosiveRange;
+							while (offset.Y <= blowExplosiveRange)
 							{
-								intVector.Y = explosive.Position.Y + zero.Y;
-								intVector2.Y = intVector.Y - BlockTerrain.Instance._worldMin.Y;
-								if (intVector2.Y >= 0 && intVector2.Y < 128 && !blocksToRemove.Contains(intVector))
+								currentBlockPos.Y = currentTNT.Position.Y + offset.Y;
+								local.Y = currentBlockPos.Y - BlockTerrain.Instance._worldMin.Y;
+								if (local.Y >= 0 && local.Y < 128 && !blocksToRemove.Contains(currentBlockPos))
 								{
-									BlockTypeEnum typeIndex = Block.GetTypeIndex(BlockTerrain.Instance.GetBlockAt(intVector2));
-									if (typeIndex == BlockTypeEnum.TNT || typeIndex == BlockTypeEnum.C4)
+									BlockTypeEnum blockType = Block.GetTypeIndex(BlockTerrain.Instance.GetBlockAt(local));
+									if (blockType == BlockTypeEnum.TNT || blockType == BlockTypeEnum.C4)
 									{
-										ExplosiveTypes explosiveTypes = ((typeIndex == BlockTypeEnum.TNT) ? ExplosiveTypes.TNT : ExplosiveTypes.C4);
-										tntToExplode.Enqueue(new Explosive(intVector, explosiveTypes));
-										DetonateExplosiveMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, intVector, false, explosiveTypes);
-										blocksToRemove.Add(intVector);
+										ExplosiveTypes explosiveType = ((blockType == BlockTypeEnum.TNT) ? ExplosiveTypes.TNT : ExplosiveTypes.C4);
+										tntToExplode.Enqueue(new Explosive(currentBlockPos, explosiveType));
+										DetonateExplosiveMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, currentBlockPos, false, explosiveType);
+										blocksToRemove.Add(currentBlockPos);
 									}
-									else if (!Explosive.BreakLookup[(int)explosive.ExplosiveType, (int)typeIndex] && Explosive.BlockWithinLevelBlastRange(zero, typeIndex, explosive.ExplosiveType) && !BlockType.IsUpperDoor(typeIndex))
+									else if (!Explosive.BreakLookup[(int)currentTNT.ExplosiveType, (int)blockType] && Explosive.BlockWithinLevelBlastRange(offset, blockType, currentTNT.ExplosiveType) && !BlockType.IsUpperDoor(blockType))
 									{
-										blocksToRemove.Add(intVector);
-										if (BlockType.IsContainer(typeIndex))
+										blocksToRemove.Add(currentBlockPos);
+										if (BlockType.IsContainer(blockType))
 										{
-											DestroyCrateMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, intVector);
+											DestroyCrateMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, currentBlockPos);
 											Crate crate;
-											if (CastleMinerZGame.Instance.CurrentWorld.Crates.TryGetValue(intVector, out crate))
+											if (CastleMinerZGame.Instance.CurrentWorld.Crates.TryGetValue(currentBlockPos, out crate))
 											{
 												crate.EjectContents();
 											}
 										}
-										if (BlockType.IsDoor(typeIndex))
+										if (BlockType.IsDoor(blockType))
 										{
-											DestroyCustomBlockMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, intVector, typeIndex);
+											DestroyCustomBlockMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, currentBlockPos, blockType);
 										}
-										Explosive.RememberDependentObjects(intVector, dependentsToRemove);
-										if (BlockType.IsLowerDoor(typeIndex))
+										Explosive.RememberDependentObjects(currentBlockPos, dependentsToRemove);
+										if (BlockType.IsLowerDoor(blockType))
 										{
-											IntVector3 intVector3 = intVector;
-											intVector3.Y++;
-											if (!blocksToRemove.Contains(intVector3))
+											IntVector3 upperDoor = currentBlockPos;
+											upperDoor.Y++;
+											if (!blocksToRemove.Contains(upperDoor))
 											{
-												blocksToRemove.Add(intVector3);
-												Explosive.RememberDependentObjects(intVector3, dependentsToRemove);
+												blocksToRemove.Add(upperDoor);
+												Explosive.RememberDependentObjects(upperDoor, dependentsToRemove);
 											}
 										}
-										if (explosive.ExplosiveType == ExplosiveTypes.Harvest)
+										if (currentTNT.ExplosiveType == ExplosiveTypes.Harvest)
 										{
-											Explosive.ProcessHarvestExplosion(typeIndex, intVector);
+											Explosive.ProcessHarvestExplosion(blockType, currentBlockPos);
 										}
-										if (BlockType.ShouldDropLoot(typeIndex))
+										if (BlockType.ShouldDropLoot(blockType))
 										{
-											PossibleLootType.ProcessLootBlockOutput(typeIndex, intVector);
+											PossibleLootType.ProcessLootBlockOutput(blockType, currentBlockPos);
 										}
 									}
 								}
-								zero.Y++;
+								offset.Y++;
 							}
 						}
-						zero.Z++;
+						offset.Z++;
 					}
 				}
-				zero.X++;
+				offset.X++;
 			}
 		}
 
@@ -368,17 +368,17 @@ namespace DNA.CastleMinerZ.Inventory
 
 		private static void ProcessExplosionDependents(Set<IntVector3> blocksToRemove, Dictionary<IntVector3, BlockTypeEnum> dependentsToRemove)
 		{
-			foreach (IntVector3 intVector in dependentsToRemove.Keys)
+			foreach (IntVector3 depPos in dependentsToRemove.Keys)
 			{
-				if (!blocksToRemove.Contains(intVector))
+				if (!blocksToRemove.Contains(depPos))
 				{
-					BlockTypeEnum blockTypeEnum = dependentsToRemove[intVector];
-					InventoryItem.InventoryItemClass inventoryItemClass = BlockInventoryItemClass.BlockClasses[BlockType.GetType(blockTypeEnum).ParentBlockType];
-					PickupManager.Instance.CreatePickup(inventoryItemClass.CreateItem(1), IntVector3.ToVector3(intVector) + new Vector3(0.5f, 0.5f, 0.5f), false, false);
-					blocksToRemove.Add(intVector);
-					if (BlockType.IsLowerDoor(blockTypeEnum))
+					BlockTypeEnum bt = dependentsToRemove[depPos];
+					InventoryItem.InventoryItemClass bic = BlockInventoryItemClass.BlockClasses[BlockType.GetType(bt).ParentBlockType];
+					PickupManager.Instance.CreatePickup(bic.CreateItem(1), IntVector3.ToVector3(depPos) + new Vector3(0.5f, 0.5f, 0.5f), false, false);
+					blocksToRemove.Add(depPos);
+					if (BlockType.IsLowerDoor(bt))
 					{
-						blocksToRemove.Add(intVector + new IntVector3(0, 1, 0));
+						blocksToRemove.Add(depPos + new IntVector3(0, 1, 0));
 					}
 				}
 			}
@@ -386,138 +386,138 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public static void FindBlocksToRemove(IntVector3 pos, ExplosiveTypes extype, bool showExplosionFlash)
 		{
-			Queue<Explosive> queue = new Queue<Explosive>();
-			Set<IntVector3> set = new Set<IntVector3>();
-			Dictionary<IntVector3, BlockTypeEnum> dictionary = new Dictionary<IntVector3, BlockTypeEnum>();
-			queue.Enqueue(new Explosive(pos, extype));
+			Queue<Explosive> tntToExplode = new Queue<Explosive>();
+			Set<IntVector3> blocksToRemove = new Set<IntVector3>();
+			Dictionary<IntVector3, BlockTypeEnum> dependentsToRemove = new Dictionary<IntVector3, BlockTypeEnum>();
+			tntToExplode.Enqueue(new Explosive(pos, extype));
 			if (extype == ExplosiveTypes.C4 || extype == ExplosiveTypes.TNT)
 			{
-				set.Add(pos);
+				blocksToRemove.Add(pos);
 			}
-			bool flag = showExplosionFlash;
-			while (queue.Count > 0)
+			bool explosionFlashNotYetShown = showExplosionFlash;
+			while (tntToExplode.Count > 0)
 			{
-				Explosive.ProcessOneExplosion(queue, set, dictionary, ref flag);
+				Explosive.ProcessOneExplosion(tntToExplode, blocksToRemove, dependentsToRemove, ref explosionFlashNotYetShown);
 			}
-			Explosive.ProcessExplosionDependents(set, dictionary);
-			IntVector3[] array = new IntVector3[set.Count];
-			set.CopyTo(array);
-			RemoveBlocksMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, array.Length, array, false);
+			Explosive.ProcessExplosionDependents(blocksToRemove, dependentsToRemove);
+			IntVector3[] blocks = new IntVector3[blocksToRemove.Count];
+			blocksToRemove.CopyTo(blocks);
+			RemoveBlocksMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, blocks.Length, blocks, false);
 		}
 
 		public static Explosive.EnemyBreakBlocksResult EnemyBreakBlocks(IntVector3 minCorner, IntVector3 maxCorner, int hits, int maxHardness, bool enemyIsLocallyOwned)
 		{
-			IntVector3 intVector = IntVector3.Subtract(minCorner, BlockTerrain.Instance._worldMin);
-			IntVector3 intVector2 = IntVector3.Subtract(maxCorner, BlockTerrain.Instance._worldMin);
-			intVector = IntVector3.Clamp(intVector, IntVector3.Zero, Explosive._sMaxBufferBounds);
-			intVector2 = IntVector3.Clamp(intVector2, IntVector3.Zero, Explosive._sMaxBufferBounds);
-			bool flag = false;
-			bool flag2 = false;
-			bool flag3 = false;
-			IntVector3 intVector3;
-			intVector3.Z = intVector.Z;
-			while (intVector3.Z <= intVector2.Z)
+			IntVector3 localMinCorner = IntVector3.Subtract(minCorner, BlockTerrain.Instance._worldMin);
+			IntVector3 localMaxCorner = IntVector3.Subtract(maxCorner, BlockTerrain.Instance._worldMin);
+			localMinCorner = IntVector3.Clamp(localMinCorner, IntVector3.Zero, Explosive._sMaxBufferBounds);
+			localMaxCorner = IntVector3.Clamp(localMaxCorner, IntVector3.Zero, Explosive._sMaxBufferBounds);
+			bool breakableBlocks = false;
+			bool blocksBroken = false;
+			bool foundABlock = false;
+			IntVector3 w;
+			w.Z = localMinCorner.Z;
+			while (w.Z <= localMaxCorner.Z)
 			{
-				intVector3.X = intVector.X;
-				while (intVector3.X <= intVector2.X)
+				w.X = localMinCorner.X;
+				while (w.X <= localMaxCorner.X)
 				{
-					intVector3.Y = intVector.Y;
-					while (intVector3.Y <= intVector2.Y)
+					w.Y = localMinCorner.Y;
+					while (w.Y <= localMaxCorner.Y)
 					{
-						BlockTypeEnum typeIndex = Block.GetTypeIndex(BlockTerrain.Instance.GetBlockAt(intVector3));
-						if (typeIndex != BlockTypeEnum.Empty && typeIndex != BlockTypeEnum.NumberOfBlocks)
+						BlockTypeEnum bte = Block.GetTypeIndex(BlockTerrain.Instance.GetBlockAt(w));
+						if (bte != BlockTypeEnum.Empty && bte != BlockTypeEnum.NumberOfBlocks)
 						{
-							BlockType type = BlockType.GetType(typeIndex);
-							if (type.BlockPlayer)
+							BlockType bt = BlockType.GetType(bte);
+							if (bt.BlockPlayer)
 							{
-								flag3 = true;
+								foundABlock = true;
 							}
-							if (type.Hardness <= maxHardness)
+							if (bt.Hardness <= maxHardness)
 							{
-								flag = true;
-								if (hits > type.Hardness && MathTools.RandomBool())
+								breakableBlocks = true;
+								if (hits > bt.Hardness && MathTools.RandomBool())
 								{
-									flag2 = true;
-									IntVector3 intVector4 = intVector3 + BlockTerrain.Instance._worldMin;
-									if (typeIndex == BlockTypeEnum.TNT || typeIndex == BlockTypeEnum.C4)
+									blocksBroken = true;
+									IntVector3 currentBlock = w + BlockTerrain.Instance._worldMin;
+									if (bte == BlockTypeEnum.TNT || bte == BlockTypeEnum.C4)
 									{
-										ExplosiveTypes explosiveTypes = ((typeIndex == BlockTypeEnum.TNT) ? ExplosiveTypes.TNT : ExplosiveTypes.C4);
-										Explosive._sEnemyDiggingTNTToExplode.Enqueue(new Explosive(intVector4, explosiveTypes));
-										DetonateExplosiveMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, intVector4, false, explosiveTypes);
-										Explosive._sEnemyDiggingBlocksToRemove.Add(intVector4);
+										ExplosiveTypes explosiveType = ((bte == BlockTypeEnum.TNT) ? ExplosiveTypes.TNT : ExplosiveTypes.C4);
+										Explosive._sEnemyDiggingTNTToExplode.Enqueue(new Explosive(currentBlock, explosiveType));
+										DetonateExplosiveMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, currentBlock, false, explosiveType);
+										Explosive._sEnemyDiggingBlocksToRemove.Add(currentBlock);
 									}
-									else if (!BlockType.IsUpperDoor(typeIndex))
+									else if (!BlockType.IsUpperDoor(bte))
 									{
-										Explosive._sEnemyDiggingBlocksToRemove.Add(intVector4);
-										if (BlockType.IsContainer(typeIndex) && enemyIsLocallyOwned)
+										Explosive._sEnemyDiggingBlocksToRemove.Add(currentBlock);
+										if (BlockType.IsContainer(bte) && enemyIsLocallyOwned)
 										{
-											DestroyCrateMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, intVector4);
+											DestroyCrateMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, currentBlock);
 											Crate crate;
-											if (CastleMinerZGame.Instance.CurrentWorld.Crates.TryGetValue(intVector4, out crate))
+											if (CastleMinerZGame.Instance.CurrentWorld.Crates.TryGetValue(currentBlock, out crate))
 											{
 												crate.EjectContents();
 											}
 										}
-										if (BlockType.IsDoor(typeIndex))
+										if (BlockType.IsDoor(bte))
 										{
-											DestroyCustomBlockMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, intVector4, typeIndex);
+											DestroyCustomBlockMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, currentBlock, bte);
 										}
-										Explosive.RememberDependentObjects(intVector4, Explosive._sEnemyDiggingDependentsToRemove);
-										if (BlockType.IsLowerDoor(typeIndex))
+										Explosive.RememberDependentObjects(currentBlock, Explosive._sEnemyDiggingDependentsToRemove);
+										if (BlockType.IsLowerDoor(bte))
 										{
-											IntVector3 intVector5 = intVector4;
-											intVector5.Y++;
-											if (!Explosive._sEnemyDiggingBlocksToRemove.Contains(intVector5))
+											IntVector3 upperDoor = currentBlock;
+											upperDoor.Y++;
+											if (!Explosive._sEnemyDiggingBlocksToRemove.Contains(upperDoor))
 											{
-												Explosive._sEnemyDiggingBlocksToRemove.Add(intVector5);
-												Explosive.RememberDependentObjects(intVector5, Explosive._sEnemyDiggingDependentsToRemove);
+												Explosive._sEnemyDiggingBlocksToRemove.Add(upperDoor);
+												Explosive.RememberDependentObjects(upperDoor, Explosive._sEnemyDiggingDependentsToRemove);
 											}
 										}
 									}
 								}
-								else if (enemyIsLocallyOwned && (typeIndex == BlockTypeEnum.TNT || typeIndex == BlockTypeEnum.C4))
+								else if (enemyIsLocallyOwned && (bte == BlockTypeEnum.TNT || bte == BlockTypeEnum.C4))
 								{
-									InGameHUD.Instance.SetFuseForExplosive(intVector3 + BlockTerrain.Instance._worldMin, (typeIndex == BlockTypeEnum.TNT) ? ExplosiveTypes.TNT : ExplosiveTypes.C4);
+									InGameHUD.Instance.SetFuseForExplosive(w + BlockTerrain.Instance._worldMin, (bte == BlockTypeEnum.TNT) ? ExplosiveTypes.TNT : ExplosiveTypes.C4);
 								}
 							}
 						}
-						intVector3.Y++;
+						w.Y++;
 					}
-					intVector3.X++;
+					w.X++;
 				}
-				intVector3.Z++;
+				w.Z++;
 			}
 			if (enemyIsLocallyOwned && Explosive._sEnemyDiggingBlocksToRemove.Count != 0)
 			{
 				Explosive.ProcessExplosionDependents(Explosive._sEnemyDiggingBlocksToRemove, Explosive._sEnemyDiggingDependentsToRemove);
-				IntVector3[] array = new IntVector3[Explosive._sEnemyDiggingBlocksToRemove.Count];
-				Explosive._sEnemyDiggingBlocksToRemove.CopyTo(array);
-				RemoveBlocksMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, array.Length, array, true);
+				IntVector3[] blocks = new IntVector3[Explosive._sEnemyDiggingBlocksToRemove.Count];
+				Explosive._sEnemyDiggingBlocksToRemove.CopyTo(blocks);
+				RemoveBlocksMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, blocks.Length, blocks, true);
 				if (Explosive._sEnemyDiggingTNTToExplode.Count != 0)
 				{
-					bool flag4 = true;
+					bool explosionFlashNotYetShown = true;
 					while (Explosive._sEnemyDiggingTNTToExplode.Count > 0)
 					{
-						Explosive.ProcessOneExplosion(Explosive._sEnemyDiggingTNTToExplode, Explosive._sEnemyDiggingBlocksToRemove, Explosive._sEnemyDiggingDependentsToRemove, ref flag4);
+						Explosive.ProcessOneExplosion(Explosive._sEnemyDiggingTNTToExplode, Explosive._sEnemyDiggingBlocksToRemove, Explosive._sEnemyDiggingDependentsToRemove, ref explosionFlashNotYetShown);
 					}
 					Explosive.ProcessExplosionDependents(Explosive._sEnemyDiggingBlocksToRemove, Explosive._sEnemyDiggingDependentsToRemove);
-					array = new IntVector3[Explosive._sEnemyDiggingBlocksToRemove.Count];
-					Explosive._sEnemyDiggingBlocksToRemove.CopyTo(array);
-					RemoveBlocksMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, array.Length, array, false);
+					blocks = new IntVector3[Explosive._sEnemyDiggingBlocksToRemove.Count];
+					Explosive._sEnemyDiggingBlocksToRemove.CopyTo(blocks);
+					RemoveBlocksMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, blocks.Length, blocks, false);
 				}
 			}
 			Explosive._sEnemyDiggingTNTToExplode.Clear();
 			Explosive._sEnemyDiggingDependentsToRemove.Clear();
 			Explosive._sEnemyDiggingBlocksToRemove.Clear();
-			if (flag2)
+			if (blocksBroken)
 			{
 				return Explosive.EnemyBreakBlocksResult.BlocksBroken;
 			}
-			if (!flag3)
+			if (!foundABlock)
 			{
 				return Explosive.EnemyBreakBlocksResult.RegionIsEmpty;
 			}
-			if (flag)
+			if (breakableBlocks)
 			{
 				return Explosive.EnemyBreakBlocksResult.BlocksWillBreak;
 			}
@@ -526,12 +526,12 @@ namespace DNA.CastleMinerZ.Inventory
 
 		private static bool BlockWithinLevelBlastRange(IntVector3 offset, BlockTypeEnum block, ExplosiveTypes explosiveType)
 		{
-			int num = ((explosiveType == ExplosiveTypes.TNT || explosiveType == ExplosiveTypes.Rocket) ? 1 : 2);
-			int num2 = ((explosiveType == ExplosiveTypes.TNT) ? 1 : 1);
-			int num3;
+			int level1Range = ((explosiveType == ExplosiveTypes.TNT || explosiveType == ExplosiveTypes.Rocket) ? 1 : 2);
+			int level2Range = ((explosiveType == ExplosiveTypes.TNT) ? 1 : 1);
+			int range;
 			if (Explosive.Level2Hardness[(int)block])
 			{
-				num3 = num2;
+				range = level2Range;
 			}
 			else
 			{
@@ -539,9 +539,9 @@ namespace DNA.CastleMinerZ.Inventory
 				{
 					return false;
 				}
-				num3 = num;
+				range = level1Range;
 			}
-			return offset.X >= -num3 && offset.X <= num3 && offset.Y >= -num3 && offset.Y <= num3 && offset.Z >= -num3 && offset.Z <= num3;
+			return offset.X >= -range && offset.X <= range && offset.Y >= -range && offset.Y <= range && offset.Z >= -range && offset.Z <= range;
 		}
 
 		public static void HandleRemoveBlocksMessage(RemoveBlocksMessage msg)
@@ -570,43 +570,43 @@ namespace DNA.CastleMinerZ.Inventory
 				{
 					return;
 				}
-				AudioEmitter audioEmitter = new AudioEmitter();
-				audioEmitter.Position = position;
-				SoundManager.Instance.PlayInstance("GroundCrash", audioEmitter);
-				ParticleEmitter particleEmitter = Explosive._digSmokeEffect.CreateEmitter(CastleMinerZGame.Instance);
-				particleEmitter.Reset();
-				particleEmitter.Emitting = true;
-				particleEmitter.DrawPriority = 900;
-				scene.Children.Add(particleEmitter);
-				ParticleEmitter particleEmitter2 = Explosive._digRocksEffect.CreateEmitter(CastleMinerZGame.Instance);
-				particleEmitter2.Reset();
-				particleEmitter2.Emitting = true;
-				particleEmitter2.DrawPriority = 900;
-				scene.Children.Add(particleEmitter2);
-				Vector3 vector = position - CastleMinerZGame.Instance.LocalPlayer.WorldPosition;
-				float num = vector.LengthSquared();
-				if ((double)num > 1E-06)
+				AudioEmitter soundEmitter = new AudioEmitter();
+				soundEmitter.Position = position;
+				SoundManager.Instance.PlayInstance("GroundCrash", soundEmitter);
+				ParticleEmitter smokeEmitter = Explosive._digSmokeEffect.CreateEmitter(CastleMinerZGame.Instance);
+				smokeEmitter.Reset();
+				smokeEmitter.Emitting = true;
+				smokeEmitter.DrawPriority = 900;
+				scene.Children.Add(smokeEmitter);
+				ParticleEmitter rockEmitter = Explosive._digRocksEffect.CreateEmitter(CastleMinerZGame.Instance);
+				rockEmitter.Reset();
+				rockEmitter.Emitting = true;
+				rockEmitter.DrawPriority = 900;
+				scene.Children.Add(rockEmitter);
+				Vector3 dir = position - CastleMinerZGame.Instance.LocalPlayer.WorldPosition;
+				float lsq = dir.LengthSquared();
+				if ((double)lsq > 1E-06)
 				{
-					vector.Normalize();
+					dir.Normalize();
 				}
 				else
 				{
-					vector = Vector3.Forward;
+					dir = Vector3.Forward;
 				}
-				Vector3 vector2 = Vector3.Cross(Vector3.Forward, vector);
-				Quaternion quaternion = Quaternion.CreateFromAxisAngle(vector2, Vector3.Forward.AngleBetween(vector).Radians);
-				Entity entity = particleEmitter2;
-				particleEmitter.LocalPosition = position;
+				Vector3 axis = Vector3.Cross(Vector3.Forward, dir);
+				Quaternion rot = Quaternion.CreateFromAxisAngle(axis, Vector3.Forward.AngleBetween(dir).Radians);
+				Entity entity = rockEmitter;
+				smokeEmitter.LocalPosition = position;
 				entity.LocalPosition = position;
-				particleEmitter2.LocalRotation = (particleEmitter.LocalRotation = quaternion);
+				rockEmitter.LocalRotation = (smokeEmitter.LocalRotation = rot);
 			}
 		}
 
 		public static void AddEffects(Vector3 Position, bool wantRockChunks)
 		{
-			AudioEmitter audioEmitter = new AudioEmitter();
-			audioEmitter.Position = Position;
-			SoundManager.Instance.PlayInstance("Explosion", audioEmitter);
+			AudioEmitter SoundEmitter = new AudioEmitter();
+			SoundEmitter.Position = Position;
+			SoundManager.Instance.PlayInstance("Explosion", SoundEmitter);
 			if (TracerManager.Instance != null && CastleMinerZGame.Instance.IsActive)
 			{
 				Scene scene = TracerManager.Instance.Scene;
@@ -614,32 +614,32 @@ namespace DNA.CastleMinerZ.Inventory
 				{
 					return;
 				}
-				ParticleEmitter particleEmitter = Explosive._flashEffect.CreateEmitter(CastleMinerZGame.Instance);
-				particleEmitter.Reset();
-				particleEmitter.Emitting = true;
-				particleEmitter.LocalPosition = Position;
-				particleEmitter.DrawPriority = 900;
-				scene.Children.Add(particleEmitter);
-				particleEmitter = Explosive._firePuffEffect.CreateEmitter(CastleMinerZGame.Instance);
-				particleEmitter.Reset();
-				particleEmitter.Emitting = true;
-				particleEmitter.LocalPosition = Position;
-				particleEmitter.DrawPriority = 900;
-				scene.Children.Add(particleEmitter);
-				particleEmitter = Explosive._smokePuffEffect.CreateEmitter(CastleMinerZGame.Instance);
-				particleEmitter.Reset();
-				particleEmitter.Emitting = true;
-				particleEmitter.LocalPosition = Position;
-				particleEmitter.DrawPriority = 900;
-				scene.Children.Add(particleEmitter);
+				ParticleEmitter emitter = Explosive._flashEffect.CreateEmitter(CastleMinerZGame.Instance);
+				emitter.Reset();
+				emitter.Emitting = true;
+				emitter.LocalPosition = Position;
+				emitter.DrawPriority = 900;
+				scene.Children.Add(emitter);
+				emitter = Explosive._firePuffEffect.CreateEmitter(CastleMinerZGame.Instance);
+				emitter.Reset();
+				emitter.Emitting = true;
+				emitter.LocalPosition = Position;
+				emitter.DrawPriority = 900;
+				scene.Children.Add(emitter);
+				emitter = Explosive._smokePuffEffect.CreateEmitter(CastleMinerZGame.Instance);
+				emitter.Reset();
+				emitter.Emitting = true;
+				emitter.LocalPosition = Position;
+				emitter.DrawPriority = 900;
+				scene.Children.Add(emitter);
 				if (wantRockChunks)
 				{
-					particleEmitter = Explosive._rockBlastEffect.CreateEmitter(CastleMinerZGame.Instance);
-					particleEmitter.Reset();
-					particleEmitter.Emitting = true;
-					particleEmitter.LocalPosition = Position;
-					particleEmitter.DrawPriority = 900;
-					scene.Children.Add(particleEmitter);
+					emitter = Explosive._rockBlastEffect.CreateEmitter(CastleMinerZGame.Instance);
+					emitter.Reset();
+					emitter.Emitting = true;
+					emitter.LocalPosition = Position;
+					emitter.DrawPriority = 900;
+					scene.Children.Add(emitter);
 				}
 			}
 		}

@@ -17,16 +17,16 @@ namespace DNA.CastleMinerZ.AI
 			effect.CurrentTechnique = effect.Techniques[0];
 			if (effect is BasicEffect)
 			{
-				BasicEffect basicEffect = (BasicEffect)effect;
-				basicEffect.World = world;
-				basicEffect.View = view;
-				basicEffect.Projection = projection;
-				basicEffect.EmissiveColor = Vector3.Zero;
-				basicEffect.DiffuseColor = Vector3.One;
-				basicEffect.AmbientLightColor = Vector3.One;
-				basicEffect.DirectionalLight0.Enabled = false;
-				basicEffect.DirectionalLight1.Enabled = false;
-				basicEffect.DirectionalLight2.Enabled = false;
+				BasicEffect be = (BasicEffect)effect;
+				be.World = world;
+				be.View = view;
+				be.Projection = projection;
+				be.EmissiveColor = Vector3.Zero;
+				be.DiffuseColor = Vector3.One;
+				be.AmbientLightColor = Vector3.One;
+				be.DirectionalLight0.Enabled = false;
+				be.DirectionalLight1.Enabled = false;
+				be.DirectionalLight2.Enabled = false;
 			}
 			return base.SetEffectParams(mesh, effect, gameTime, world, view, projection);
 		}

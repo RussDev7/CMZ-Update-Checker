@@ -26,25 +26,25 @@ namespace DNA.CastleMinerZ
 				base.RemoveFromParent();
 				return;
 			}
-			Vector3 vector = this._target.LocalPosition - base.LocalPosition;
-			float num = vector.LengthSquared();
-			if (num < 0.5f)
+			Vector3 dir = this._target.LocalPosition - base.LocalPosition;
+			float lengthSQ = dir.LengthSquared();
+			if (lengthSQ < 0.5f)
 			{
 				base.RemoveFromParent();
 				return;
 			}
-			float num2 = (float)gameTime.ElapsedGameTime.TotalSeconds;
-			this._velocity += 20f * num2;
+			float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+			this._velocity += 20f * dt;
 			this._velocity = Math.Min(this._velocity, 100f);
-			float num3 = this._velocity * num2;
-			if (num3 * num3 > num)
+			float dv = this._velocity * dt;
+			if (dv * dv > lengthSQ)
 			{
 				base.RemoveFromParent();
 				return;
 			}
-			vector.Normalize();
-			vector *= num3;
-			base.LocalPosition += vector;
+			dir.Normalize();
+			dir *= dv;
+			base.LocalPosition += dir;
 			base.OnUpdate(gameTime);
 		}
 

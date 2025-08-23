@@ -13,8 +13,8 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from)
 		{
-			RemoveDragonMessage sendInstance = Message.GetSendInstance<RemoveDragonMessage>();
-			sendInstance.DoSend(from);
+			RemoveDragonMessage Instance = Message.GetSendInstance<RemoveDragonMessage>();
+			Instance.DoSend(from);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType

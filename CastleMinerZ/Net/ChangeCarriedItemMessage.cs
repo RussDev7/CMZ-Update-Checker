@@ -14,9 +14,9 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, InventoryItemIDs id)
 		{
-			ChangeCarriedItemMessage sendInstance = Message.GetSendInstance<ChangeCarriedItemMessage>();
-			sendInstance.ItemID = id;
-			sendInstance.DoSend(from);
+			ChangeCarriedItemMessage Instance = Message.GetSendInstance<ChangeCarriedItemMessage>();
+			Instance.ItemID = id;
+			Instance.DoSend(from);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType

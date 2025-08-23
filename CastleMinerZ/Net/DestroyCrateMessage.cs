@@ -29,9 +29,9 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, IntVector3 location)
 		{
-			DestroyCrateMessage sendInstance = Message.GetSendInstance<DestroyCrateMessage>();
-			sendInstance.Location = location;
-			sendInstance.DoSend(from);
+			DestroyCrateMessage Instance = Message.GetSendInstance<DestroyCrateMessage>();
+			Instance.Location = location;
+			Instance.DoSend(from);
 		}
 
 		protected override void SendData(BinaryWriter writer)

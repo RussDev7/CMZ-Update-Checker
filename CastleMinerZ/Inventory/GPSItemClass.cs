@@ -30,29 +30,29 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public override Entity CreateEntity(ItemUse use, bool attachedToLocalPlayer)
 		{
-			GPSEntity gpsentity = new GPSEntity(this._model, use, attachedToLocalPlayer);
+			GPSEntity result = new GPSEntity(this._model, use, attachedToLocalPlayer);
 			if (use != ItemUse.UI)
 			{
-				gpsentity.TrackPosition = false;
+				result.TrackPosition = false;
 			}
 			switch (use)
 			{
 			case ItemUse.UI:
 			{
-				Quaternion quaternion = Quaternion.CreateFromYawPitchRoll(0f, 1.5707964f, 0f);
-				Matrix matrix = Matrix.Transform(Matrix.CreateScale(22.4f / gpsentity.GetLocalBoundingSphere().Radius), quaternion);
-				matrix.Translation = new Vector3(0f, 0f, 0f);
-				gpsentity.LocalToParent = matrix;
-				gpsentity.EnableDefaultLighting();
+				Quaternion mat = Quaternion.CreateFromYawPitchRoll(0f, 1.5707964f, 0f);
+				Matrix i = Matrix.Transform(Matrix.CreateScale(22.4f / result.GetLocalBoundingSphere().Radius), mat);
+				i.Translation = new Vector3(0f, 0f, 0f);
+				result.LocalToParent = i;
+				result.EnableDefaultLighting();
 				break;
 			}
 			case ItemUse.Hand:
-				gpsentity.TrackPosition = true;
-				gpsentity.LocalRotation = new Quaternion(0.6469873f, 0.1643085f, 0.7078394f, -0.2310277f);
-				gpsentity.LocalPosition = new Vector3(0f, 0.09360941f, 0f);
+				result.TrackPosition = true;
+				result.LocalRotation = new Quaternion(0.6469873f, 0.1643085f, 0.7078394f, -0.2310277f);
+				result.LocalPosition = new Vector3(0f, 0.09360941f, 0f);
 				break;
 			}
-			return gpsentity;
+			return result;
 		}
 
 		public override bool IsMeleeWeapon

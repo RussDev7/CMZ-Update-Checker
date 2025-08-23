@@ -59,11 +59,11 @@ namespace DNA.CastleMinerZ.Utils
 
 		public virtual T Clear()
 		{
-			T front = this._front;
+			T result = this._front;
 			this._back = default(T);
 			this._front = default(T);
 			this._count = 0;
-			return front;
+			return result;
 		}
 
 		public T Front
@@ -110,7 +110,7 @@ namespace DNA.CastleMinerZ.Utils
 
 		public virtual T Dequeue()
 		{
-			T front = this._front;
+			T result = this._front;
 			if (this._front != null)
 			{
 				this._front = (T)((object)this._front.NextNode);
@@ -120,11 +120,11 @@ namespace DNA.CastleMinerZ.Utils
 				}
 				this._count--;
 			}
-			if (front != null)
+			if (result != null)
 			{
-				front.NextNode = null;
+				result.NextNode = null;
 			}
-			return front;
+			return result;
 		}
 
 		public virtual void Undequeue(T obj)
@@ -151,20 +151,20 @@ namespace DNA.CastleMinerZ.Utils
 			}
 			else
 			{
-				T t = this._front;
-				while (t.NextNode != null)
+				T walk = this._front;
+				while (walk.NextNode != null)
 				{
-					if (t.NextNode == obj)
+					if (walk.NextNode == obj)
 					{
-						t.NextNode = obj.NextNode;
+						walk.NextNode = obj.NextNode;
 						if (this._back == obj)
 						{
-							this._back = t;
+							this._back = walk;
 						}
 						this._count--;
 						break;
 					}
-					t = (T)((object)t.NextNode);
+					walk = (T)((object)walk.NextNode);
 				}
 			}
 			obj.NextNode = null;

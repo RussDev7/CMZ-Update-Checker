@@ -98,15 +98,15 @@ namespace DNA.CastleMinerZ.AI
 			if (this.Waypoints.Count > 0 && this.CurrentInterpolationTime > this.Waypoints[this.Waypoints.Count - 1].BaseWpt.HostTime)
 			{
 				this.Waypoints.Clear();
-				ActionDragonWaypoint actionDragonWaypoint = default(ActionDragonWaypoint);
-				actionDragonWaypoint.Action = DragonWaypointActionEnum.GOTO;
-				actionDragonWaypoint.BaseWpt.Position = base.WorldPosition;
-				actionDragonWaypoint.BaseWpt.Velocity = this.CurrentVelocity;
-				actionDragonWaypoint.BaseWpt.HostTime = this.CurrentInterpolationTime;
-				actionDragonWaypoint.BaseWpt.Animation = this.CurrentAnimation;
-				actionDragonWaypoint.BaseWpt.Sound = DragonSoundEnum.NONE;
-				actionDragonWaypoint.FireballIndex = 0;
-				this.Waypoints.Add(actionDragonWaypoint);
+				ActionDragonWaypoint wpt = default(ActionDragonWaypoint);
+				wpt.Action = DragonWaypointActionEnum.GOTO;
+				wpt.BaseWpt.Position = base.WorldPosition;
+				wpt.BaseWpt.Velocity = this.CurrentVelocity;
+				wpt.BaseWpt.HostTime = this.CurrentInterpolationTime;
+				wpt.BaseWpt.Animation = this.CurrentAnimation;
+				wpt.BaseWpt.Sound = DragonSoundEnum.NONE;
+				wpt.FireballIndex = 0;
+				this.Waypoints.Add(wpt);
 			}
 			this.Waypoints.Add(inwpt);
 		}
@@ -149,7 +149,7 @@ namespace DNA.CastleMinerZ.AI
 		public void TakeDamage(Vector3 damagePosition, Vector3 damageDirection, InventoryItem.InventoryItemClass itemClass, byte shooterID)
 		{
 			DamageType enemyDamageType = itemClass.EnemyDamageType;
-			float enemyDamage = itemClass.EnemyDamage;
+			float damageAmount = itemClass.EnemyDamage;
 			if (CastleMinerZGame.Instance.IsLocalPlayerId(shooterID))
 			{
 				CastleMinerZPlayerStats.ItemStats itemStats = CastleMinerZGame.Instance.PlayerStats.GetItemStats(itemClass.ID);
@@ -157,7 +157,7 @@ namespace DNA.CastleMinerZ.AI
 			}
 			if (!this.Dead)
 			{
-				this.Health -= enemyDamage;
+				this.Health -= damageAmount;
 				EnemyManager.Instance.DragonHasBeenHit();
 				if (this.Health <= 0f)
 				{
@@ -170,8 +170,8 @@ namespace DNA.CastleMinerZ.AI
 		{
 			if (!this.Dead)
 			{
-				float num = (this.IsHeadshot(position) ? 1f : 2.5f);
-				damageAmount *= num;
+				float damageMultiplier = (this.IsHeadshot(position) ? 1f : 2.5f);
+				damageAmount *= damageMultiplier;
 				this.Health -= damageAmount;
 				EnemyManager.Instance.DragonHasBeenHit();
 				if (this.Health <= 0f)
@@ -202,29 +202,29 @@ namespace DNA.CastleMinerZ.AI
 				this.PlaySingleClip(DragonClientEntity.DeathAnimationPackages[this.DeathPackageIndex].Name, false, 0.25f);
 				this.DeathState = DragonClientEntity.DeathAnimationState.FIRST_REACTION;
 				this.DeathTimer = DragonClientEntity.DeathAnimationPackages[this.DeathPackageIndex].PauseTime;
-				float heading = DragonBaseState.GetHeading(base.LocalToWorld.Forward, 0f);
-				base.LocalRotation = Quaternion.CreateFromYawPitchRoll(heading, 0f, 0f);
-				int damageType = (int)this.EType.DamageType;
+				float yaw = DragonBaseState.GetHeading(base.LocalToWorld.Forward, 0f);
+				base.LocalRotation = Quaternion.CreateFromYawPitchRoll(yaw, 0f, 0f);
+				int particlePackageIndex = (int)this.EType.DamageType;
 				if (CastleMinerZGame.Instance.IsActive)
 				{
-					ParticleEmitter particleEmitter = DragonClientEntity.ParticlePackages[damageType]._flashEffect.CreateEmitter(CastleMinerZGame.Instance);
-					particleEmitter.Reset();
-					particleEmitter.Emitting = true;
-					particleEmitter.LocalPosition = Vector3.Zero;
-					particleEmitter.DrawPriority = 900;
-					base.Children.Add(particleEmitter);
-					particleEmitter = DragonClientEntity.ParticlePackages[damageType]._firePuffEffect.CreateEmitter(CastleMinerZGame.Instance);
-					particleEmitter.Reset();
-					particleEmitter.Emitting = true;
-					particleEmitter.LocalPosition = Vector3.Zero;
-					particleEmitter.DrawPriority = 900;
-					base.Children.Add(particleEmitter);
-					particleEmitter = DragonClientEntity.ParticlePackages[damageType]._smokePuffEffect.CreateEmitter(CastleMinerZGame.Instance);
-					particleEmitter.Reset();
-					particleEmitter.Emitting = true;
-					particleEmitter.LocalPosition = Vector3.Zero;
-					particleEmitter.DrawPriority = 900;
-					base.Children.Add(particleEmitter);
+					ParticleEmitter emitter = DragonClientEntity.ParticlePackages[particlePackageIndex]._flashEffect.CreateEmitter(CastleMinerZGame.Instance);
+					emitter.Reset();
+					emitter.Emitting = true;
+					emitter.LocalPosition = Vector3.Zero;
+					emitter.DrawPriority = 900;
+					base.Children.Add(emitter);
+					emitter = DragonClientEntity.ParticlePackages[particlePackageIndex]._firePuffEffect.CreateEmitter(CastleMinerZGame.Instance);
+					emitter.Reset();
+					emitter.Emitting = true;
+					emitter.LocalPosition = Vector3.Zero;
+					emitter.DrawPriority = 900;
+					base.Children.Add(emitter);
+					emitter = DragonClientEntity.ParticlePackages[particlePackageIndex]._smokePuffEffect.CreateEmitter(CastleMinerZGame.Instance);
+					emitter.Reset();
+					emitter.Emitting = true;
+					emitter.LocalPosition = Vector3.Zero;
+					emitter.DrawPriority = 900;
+					base.Children.Add(emitter);
 				}
 			}
 		}
@@ -236,8 +236,8 @@ namespace DNA.CastleMinerZ.AI
 
 		public void HandleDragonAttackMessage(DragonAttackMessage msg)
 		{
-			DragonWaypointActionEnum dragonWaypointActionEnum = (msg.AnimatedAttack ? DragonWaypointActionEnum.ANIMSHOOT : DragonWaypointActionEnum.QUICKSHOOT);
-			this.AddActionWaypoint(ActionDragonWaypoint.Create(msg.Waypoint, msg.Target, dragonWaypointActionEnum, msg.FireballIndex));
+			DragonWaypointActionEnum actionType = (msg.AnimatedAttack ? DragonWaypointActionEnum.ANIMSHOOT : DragonWaypointActionEnum.QUICKSHOOT);
+			this.AddActionWaypoint(ActionDragonWaypoint.Create(msg.Waypoint, msg.Target, actionType, msg.FireballIndex));
 		}
 
 		public DragonAnimEnum CurrentAnimation
@@ -260,15 +260,15 @@ namespace DNA.CastleMinerZ.AI
 
 		public void ShootFireball(Vector3 targetPosition)
 		{
-			Bone bone = this._dragonModel[0].Skeleton["Bip01 Ponytail1"];
-			Matrix matrix = this._dragonModel[0].WorldBoneTransforms[bone.Index];
-			Vector3 translation = matrix.Translation;
-			FireballEntity fireballEntity = new FireballEntity(translation, targetPosition, this.NextFireballIndex[0], this.EType, EnemyManager.Instance.DragonControlledLocally);
+			Bone mouthBone = this._dragonModel[0].Skeleton["Bip01 Ponytail1"];
+			Matrix mouthXform = this._dragonModel[0].WorldBoneTransforms[mouthBone.Index];
+			Vector3 mouthPosition = mouthXform.Translation;
+			FireballEntity fbe = new FireballEntity(mouthPosition, targetPosition, this.NextFireballIndex[0], this.EType, EnemyManager.Instance.DragonControlledLocally);
 			this.NextFireballIndex.RemoveAt(0);
 			Scene scene = base.Scene;
 			if (scene != null && scene.Children != null)
 			{
-				scene.Children.Add(fireballEntity);
+				scene.Children.Add(fbe);
 			}
 		}
 
@@ -300,13 +300,13 @@ namespace DNA.CastleMinerZ.AI
 
 		private void UpdateWhileDead(DNAGame game, GameTime gameTime)
 		{
-			float num = (float)gameTime.ElapsedGameTime.TotalSeconds;
+			float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 			if (this.DeathState < DragonClientEntity.DeathAnimationState.POSTCOLLISION)
 			{
-				this.CurrentVelocity.Y = this.CurrentVelocity.Y - 10f * num;
+				this.CurrentVelocity.Y = this.CurrentVelocity.Y - 10f * dt;
 				if (this.DeathState == DragonClientEntity.DeathAnimationState.FALLING)
 				{
-					this.MoveDragonWithCollision(num);
+					this.MoveDragonWithCollision(dt);
 					if (this.OnGround)
 					{
 						if (!this.ClipFinished && !this.CurrentPlayer[0].Playing)
@@ -328,27 +328,27 @@ namespace DNA.CastleMinerZ.AI
 				}
 				else
 				{
-					base.LocalPosition += this.CurrentVelocity * num;
+					base.LocalPosition += this.CurrentVelocity * dt;
 				}
 			}
 			switch (this.DeathState)
 			{
 			case DragonClientEntity.DeathAnimationState.FIRST_REACTION:
 			{
-				float num2 = (float)this.ClipCurrentTime.TotalSeconds;
-				float num3 = MathTools.MapAndLerp(num2, DragonClientEntity.DeathAnimationPackages[this.DeathPackageIndex].BeginPositionChangeTime, DragonClientEntity.DeathAnimationPackages[this.DeathPackageIndex].PauseTime, -11.75f, 0f);
-				bool flag = num2 >= DragonClientEntity.DeathAnimationPackages[this.DeathPackageIndex].PauseTime;
-				Vector3 localPosition = this._dragonModel[0].LocalPosition;
-				localPosition.Y = num3;
+				float t = (float)this.ClipCurrentTime.TotalSeconds;
+				float h = MathTools.MapAndLerp(t, DragonClientEntity.DeathAnimationPackages[this.DeathPackageIndex].BeginPositionChangeTime, DragonClientEntity.DeathAnimationPackages[this.DeathPackageIndex].PauseTime, -11.75f, 0f);
+				bool timeToPause = t >= DragonClientEntity.DeathAnimationPackages[this.DeathPackageIndex].PauseTime;
+				Vector3 v = this._dragonModel[0].LocalPosition;
+				v.Y = h;
 				for (int j = 0; j < 2; j++)
 				{
-					this._dragonModel[j].LocalPosition = localPosition;
-					if (flag)
+					this._dragonModel[j].LocalPosition = v;
+					if (timeToPause)
 					{
 						this.CurrentPlayer[j].Pause();
 					}
 				}
-				if (flag)
+				if (timeToPause)
 				{
 					this.DeathState = DragonClientEntity.DeathAnimationState.FALLING;
 				}
@@ -357,7 +357,7 @@ namespace DNA.CastleMinerZ.AI
 			case DragonClientEntity.DeathAnimationState.POSTCOLLISION:
 				if (this.ClipFinished)
 				{
-					this.DeathTimer -= num;
+					this.DeathTimer -= dt;
 				}
 				break;
 			}
@@ -369,10 +369,10 @@ namespace DNA.CastleMinerZ.AI
 			{
 				if (this.SpawnPickups)
 				{
-					Vector3 vector = DragonClientEntity.DeathAnimationPackages[this.DeathPackageIndex].BoxOffset;
-					vector = Vector3.TransformNormal(vector, base.LocalToWorld);
-					Vector3 vector2 = base.WorldPosition + vector;
-					EnemyManager.Instance.SpawnDragonPickups(vector2);
+					Vector3 offsetToBox = DragonClientEntity.DeathAnimationPackages[this.DeathPackageIndex].BoxOffset;
+					offsetToBox = Vector3.TransformNormal(offsetToBox, base.LocalToWorld);
+					Vector3 worldPos = base.WorldPosition + offsetToBox;
+					EnemyManager.Instance.SpawnDragonPickups(worldPos);
 				}
 				EnemyManager.Instance.RemoveDragonEntity();
 			}
@@ -385,8 +385,8 @@ namespace DNA.CastleMinerZ.AI
 				this.UpdateWhileDead(game, gameTime);
 				return;
 			}
-			float num = (float)gameTime.ElapsedGameTime.TotalSeconds;
-			this.TimeoutTimer += num;
+			float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+			this.TimeoutTimer += dt;
 			if (this.TimeoutTimer > 10f)
 			{
 				this.TimeoutTimer = -3600f;
@@ -417,39 +417,39 @@ namespace DNA.CastleMinerZ.AI
 				this.ProcessWaypoint(this.Waypoints[0]);
 			}
 			this.NextAnimation = this.Waypoints[0].BaseWpt.Animation;
-			Vector3 vector;
-			Vector3 vector2;
+			Vector3 pos;
+			Vector3 vel;
 			if (this.Waypoints.Count >= 2)
 			{
-				ActionDragonWaypoint.InterpolatePositionVelocity(this.CurrentInterpolationTime, this.Waypoints[0], this.Waypoints[1], out vector, out vector2);
+				ActionDragonWaypoint.InterpolatePositionVelocity(this.CurrentInterpolationTime, this.Waypoints[0], this.Waypoints[1], out pos, out vel);
 			}
 			else
 			{
-				ActionDragonWaypoint.Extrapolate(this.CurrentInterpolationTime, this.Waypoints[0], out vector, out vector2);
+				ActionDragonWaypoint.Extrapolate(this.CurrentInterpolationTime, this.Waypoints[0], out pos, out vel);
 			}
 			this.Roll = MathTools.MoveTowardTarget(this.Roll, this.Waypoints[0].BaseWpt.TargetRoll, this.EType.RollRate, (float)gameTime.ElapsedGameTime.TotalSeconds);
-			this.CurrentVelocity = vector2;
-			Vector3 vector3 = Vector3.Normalize(vector2);
-			Vector3 vector4 = vector3;
-			Vector3 forward = base.LocalToWorld.Forward;
-			vector4.Y = 0f;
-			forward.Y = 0f;
-			vector4.Normalize();
-			forward.Normalize();
-			Vector3.Cross(vector4, forward);
-			Vector3 vector5 = Vector3.Up;
-			Vector3 vector6 = Vector3.Normalize(Vector3.Cross(vector3, vector5));
-			vector5 = Vector3.Cross(vector6, vector3);
-			Matrix matrix = Matrix.Identity;
-			matrix.Forward = vector3;
-			matrix.Right = vector6;
-			matrix.Up = vector5;
-			matrix = Matrix.Multiply(Matrix.CreateFromYawPitchRoll(0f, 0f, this.Roll), matrix);
-			matrix.Translation = vector;
-			base.LocalToParent = matrix;
-			this.SoundEmitter.Position = matrix.Translation;
-			this.SoundEmitter.Forward = matrix.Forward;
-			this.SoundEmitter.Up = matrix.Up;
+			this.CurrentVelocity = vel;
+			Vector3 forward = Vector3.Normalize(vel);
+			Vector3 newfwd = forward;
+			Vector3 oldfwd = base.LocalToWorld.Forward;
+			newfwd.Y = 0f;
+			oldfwd.Y = 0f;
+			newfwd.Normalize();
+			oldfwd.Normalize();
+			Vector3.Cross(newfwd, oldfwd);
+			Vector3 up = Vector3.Up;
+			Vector3 right = Vector3.Normalize(Vector3.Cross(forward, up));
+			up = Vector3.Cross(right, forward);
+			Matrix newmat = Matrix.Identity;
+			newmat.Forward = forward;
+			newmat.Right = right;
+			newmat.Up = up;
+			newmat = Matrix.Multiply(Matrix.CreateFromYawPitchRoll(0f, 0f, this.Roll), newmat);
+			newmat.Translation = pos;
+			base.LocalToParent = newmat;
+			this.SoundEmitter.Position = newmat.Translation;
+			this.SoundEmitter.Forward = newmat.Forward;
+			this.SoundEmitter.Up = newmat.Up;
 			this.SoundEmitter.Velocity = Vector3.Zero;
 			TraceProbe.MakeOrientedBox(base.LocalToWorld, DragonClientEntity.HeadBox, this.HeadHitVolume);
 			TraceProbe.MakeOrientedBox(base.LocalToWorld, DragonClientEntity.BodyBox, this.BodyHitVolume);
@@ -536,29 +536,29 @@ namespace DNA.CastleMinerZ.AI
 
 		public bool MoveDragonWithCollision(float dt)
 		{
-			bool flag2;
+			bool flag;
 			using (Profiler.TimeSection("Pickup Collision", ProfilerThreadEnum.MAIN))
 			{
-				bool flag = false;
-				Vector3 vector = DragonClientEntity.DeathAnimationPackages[this.DeathPackageIndex].BoxOffset;
-				vector = Vector3.TransformNormal(vector, base.LocalToWorld);
-				float num = dt;
-				Vector3 vector2 = base.WorldPosition + vector;
-				Vector3 vector3 = vector2;
-				Vector3 vector4 = this.CurrentVelocity;
+				bool result = false;
+				Vector3 offsetToBox = DragonClientEntity.DeathAnimationPackages[this.DeathPackageIndex].BoxOffset;
+				offsetToBox = Vector3.TransformNormal(offsetToBox, base.LocalToWorld);
+				float t = dt;
+				Vector3 worldPos = base.WorldPosition + offsetToBox;
+				Vector3 nextPos = worldPos;
+				Vector3 velocity = this.CurrentVelocity;
 				this.OnGround = false;
 				DragonClientEntity.MovementProbe.SkipEmbedded = true;
-				int num2 = 0;
+				int iteration = 0;
 				for (;;)
 				{
-					Vector3 vector5 = vector3;
-					Vector3 vector6 = Vector3.Multiply(vector4, num);
-					vector3 += vector6;
-					DragonClientEntity.MovementProbe.Init(vector5, vector3, DragonClientEntity.DeadBodyBox);
+					Vector3 prevPos = nextPos;
+					Vector3 movement = Vector3.Multiply(velocity, t);
+					nextPos += movement;
+					DragonClientEntity.MovementProbe.Init(prevPos, nextPos, DragonClientEntity.DeadBodyBox);
 					BlockTerrain.Instance.Trace(DragonClientEntity.MovementProbe);
 					if (DragonClientEntity.MovementProbe._collides)
 					{
-						flag = true;
+						result = true;
 						if (DragonClientEntity.MovementProbe._inFace == BlockFace.POSY)
 						{
 							this.OnGround = true;
@@ -567,43 +567,43 @@ namespace DNA.CastleMinerZ.AI
 						{
 							goto IL_017F;
 						}
-						float num3 = Math.Max(DragonClientEntity.MovementProbe._inT - 0.001f, 0f);
-						vector3 = vector5 + vector6 * num3;
-						vector4 -= Vector3.Multiply(DragonClientEntity.MovementProbe._inNormal, Vector3.Dot(DragonClientEntity.MovementProbe._inNormal, vector4));
-						num *= 1f - num3;
-						if (num <= 1E-07f)
+						float realt = Math.Max(DragonClientEntity.MovementProbe._inT - 0.001f, 0f);
+						nextPos = prevPos + movement * realt;
+						velocity -= Vector3.Multiply(DragonClientEntity.MovementProbe._inNormal, Vector3.Dot(DragonClientEntity.MovementProbe._inNormal, velocity));
+						t *= 1f - realt;
+						if (t <= 1E-07f)
 						{
 							goto IL_017F;
 						}
-						if (vector4.LengthSquared() <= 1E-06f || Vector3.Dot(this.CurrentVelocity, vector4) <= 1E-06f)
+						if (velocity.LengthSquared() <= 1E-06f || Vector3.Dot(this.CurrentVelocity, velocity) <= 1E-06f)
 						{
 							break;
 						}
 					}
-					num2++;
-					if (!DragonClientEntity.MovementProbe._collides || num2 >= 4)
+					iteration++;
+					if (!DragonClientEntity.MovementProbe._collides || iteration >= 4)
 					{
 						goto IL_017F;
 					}
 				}
-				vector4 = Vector3.Zero;
+				velocity = Vector3.Zero;
 				IL_017F:
-				if (num2 == 4)
+				if (iteration == 4)
 				{
-					vector4 = Vector3.Zero;
+					velocity = Vector3.Zero;
 				}
-				vector3 -= vector;
-				if (vector3.Y < -64f)
+				nextPos -= offsetToBox;
+				if (nextPos.Y < -64f)
 				{
-					vector3.Y = -64f;
-					vector4.Y = 0f;
+					nextPos.Y = -64f;
+					velocity.Y = 0f;
 					this.OnGround = true;
 				}
-				base.LocalPosition = vector3;
-				this.CurrentVelocity = vector4;
-				flag2 = flag;
+				base.LocalPosition = nextPos;
+				this.CurrentVelocity = velocity;
+				flag = result;
 			}
-			return flag2;
+			return flag;
 		}
 
 		private const int NUM_DEATH_ANIMATIONS = 2;

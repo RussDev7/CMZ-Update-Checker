@@ -24,10 +24,10 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, NetworkGamer to, InventoryItemIDs itemID, Vector3 damageSource)
 		{
-			MeleePlayerMessage sendInstance = Message.GetSendInstance<MeleePlayerMessage>();
-			sendInstance.ItemID = itemID;
-			sendInstance.DamageSource = damageSource;
-			sendInstance.DoSend(from, to);
+			MeleePlayerMessage Instance = Message.GetSendInstance<MeleePlayerMessage>();
+			Instance.ItemID = itemID;
+			Instance.DamageSource = damageSource;
+			Instance.DoSend(from, to);
 		}
 
 		protected override SendDataOptions SendDataOptions

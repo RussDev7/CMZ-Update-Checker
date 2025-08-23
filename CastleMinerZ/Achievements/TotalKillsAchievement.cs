@@ -32,14 +32,14 @@ namespace DNA.CastleMinerZ.Achievements
 		{
 			get
 			{
-				int totalKills = base.PlayerStats.TotalKills;
-				if (this._lastAmount != totalKills)
+				int total = base.PlayerStats.TotalKills;
+				if (this._lastAmount != total)
 				{
-					this._lastAmount = totalKills;
+					this._lastAmount = total;
 					this.lastString = string.Concat(new string[]
 					{
 						"(",
-						totalKills.ToString(),
+						total.ToString(),
 						"/",
 						this._kills.ToString(),
 						") ",

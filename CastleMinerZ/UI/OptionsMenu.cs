@@ -35,9 +35,9 @@ namespace DNA.CastleMinerZ.UI
 
 		protected override void OnDraw(GraphicsDevice device, SpriteBatch spriteBatch, GameTime gameTime)
 		{
-			int num = (int)(512f * Screen.Adjuster.ScaleFactor.Y);
-			int num2 = this._game.Logo.Height * num / this._game.Logo.Width;
-			this.DrawArea = new Rectangle?(new Rectangle(0, (int)((double)num2 * 0.75), (int)((float)(Screen.Adjuster.ScreenRect.Width / 2) - 125f * Screen.Adjuster.ScaleFactor.X), Screen.Adjuster.ScreenRect.Height - num2));
+			int width = (int)(512f * Screen.Adjuster.ScaleFactor.Y);
+			int height = this._game.Logo.Height * width / this._game.Logo.Width;
+			this.DrawArea = new Rectangle?(new Rectangle(0, (int)((double)height * 0.75), (int)((float)(Screen.Adjuster.ScreenRect.Width / 2) - 125f * Screen.Adjuster.ScaleFactor.X), Screen.Adjuster.ScreenRect.Height - height));
 			this._descriptionText.Location = new Vector2((float)Screen.Adjuster.ScreenRect.Center.X + 50f * Screen.Adjuster.ScaleFactor.X, (float)this.DrawArea.Value.Y + 20f * Screen.Adjuster.ScaleFactor.Y);
 			this._descriptionText.Size = new Vector2((float)Screen.Adjuster.ScreenRect.Right - this._descriptionText.Location.X - 10f, (float)Screen.Adjuster.ScreenRect.Bottom - this._descriptionText.Location.Y);
 			spriteBatch.Begin();

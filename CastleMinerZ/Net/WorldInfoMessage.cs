@@ -21,9 +21,9 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, WorldInfo worldInfo)
 		{
-			WorldInfoMessage sendInstance = Message.GetSendInstance<WorldInfoMessage>();
-			sendInstance.WorldInfo = worldInfo;
-			sendInstance.DoSend(from);
+			WorldInfoMessage Instance = Message.GetSendInstance<WorldInfoMessage>();
+			Instance.WorldInfo = worldInfo;
+			Instance.DoSend(from);
 		}
 
 		protected override SendDataOptions SendDataOptions

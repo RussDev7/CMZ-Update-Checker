@@ -25,19 +25,19 @@ namespace DNA.CastleMinerZ.AI
 			{
 				DragonBaseState.SearchForNewTarget(entity, dt);
 			}
-			Vector3 vector;
-			float num = DragonBaseState.SteerTowardTarget(entity, out vector);
-			if (num < entity.EType.BreakOffStrafeDistance)
+			Vector3 vtotarget;
+			float dist = DragonBaseState.SteerTowardTarget(entity, out vtotarget);
+			if (dist < entity.EType.BreakOffStrafeDistance)
 			{
 				entity.StateMachine.ChangeState(DragonStates.Loiter);
 				return;
 			}
-			if (num > entity.EType.MinAttackDistance)
+			if (dist > entity.EType.MinAttackDistance)
 			{
-				Vector3 forward = entity.LocalToWorld.Forward;
-				forward.Y = 0f;
-				forward.Normalize();
-				if (num < entity.EType.MaxAttackDistance && Vector3.Dot(vector, forward) / num > 0.95f)
+				Vector3 fwd = entity.LocalToWorld.Forward;
+				fwd.Y = 0f;
+				fwd.Normalize();
+				if (dist < entity.EType.MaxAttackDistance && Vector3.Dot(vtotarget, fwd) / dist > 0.95f)
 				{
 					entity.ShootTarget = entity.TravelTarget;
 					if (!entity.ShotPending)

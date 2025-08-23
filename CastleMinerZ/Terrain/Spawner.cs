@@ -66,46 +66,46 @@ namespace DNA.CastleMinerZ.Terrain
 			{
 				return CastleMinerZGame.Instance.LocalPlayer;
 			}
-			string text = "";
-			foreach (TargetSearchResult targetSearchResult in targetList)
+			string targetListString = "";
+			foreach (TargetSearchResult targetResult in targetList)
 			{
-				text = text + targetSearchResult.player.Gamer.Gamertag + ", ";
+				targetListString = targetListString + targetResult.player.Gamer.Gamertag + ", ";
 			}
-			int num = MathTools.RandomInt(0, targetList.Count);
+			int roll = MathTools.RandomInt(0, targetList.Count);
 			DebugUtils.Log(string.Concat(new object[]
 			{
 				"TargetList: ",
-				text,
+				targetListString,
 				" Roll ",
-				num,
+				roll,
 				" = ",
-				targetList[num].player
+				targetList[roll].player
 			}));
-			num = Math.Min(num, targetList.Count - 1);
-			return targetList[num].player;
+			roll = Math.Min(roll, targetList.Count - 1);
+			return targetList[roll].player;
 		}
 
 		private void UpdateTargetList()
 		{
-			List<TargetSearchResult> list = TargetUtils.FindTargetsInRange(this.Location, 24f, true);
-			foreach (TargetSearchResult targetSearchResult in list)
+			List<TargetSearchResult> currentTargetList = TargetUtils.FindTargetsInRange(this.Location, 24f, true);
+			foreach (TargetSearchResult newTarget in currentTargetList)
 			{
-				bool flag = true;
-				foreach (TargetSearchResult targetSearchResult2 in this._nearbyPlayers)
+				bool isNewTarget = true;
+				foreach (TargetSearchResult oldTarget in this._nearbyPlayers)
 				{
-					if (targetSearchResult2.player == targetSearchResult.player)
+					if (oldTarget.player == newTarget.player)
 					{
-						flag = false;
+						isNewTarget = false;
 						break;
 					}
 				}
-				if (flag)
+				if (isNewTarget)
 				{
-					BroadcastTextMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, targetSearchResult.player.Gamer.Gamertag + " is a valid spawn target!");
+					BroadcastTextMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, newTarget.player.Gamer.Gamertag + " is a valid spawn target!");
 				}
 			}
 			this._nearbyPlayers.Clear();
-			this._nearbyPlayers = list;
+			this._nearbyPlayers = currentTargetList;
 		}
 
 		public bool CanStart()
@@ -177,49 +177,49 @@ namespace DNA.CastleMinerZ.Terrain
 
 		private SpawnData GetMockSpawnData()
 		{
-			bool flag = MathTools.RandomInt(0, 1) == 1;
-			SpawnData spawnData;
-			if (flag)
+			bool isHardSpawn = MathTools.RandomInt(0, 1) == 1;
+			SpawnData mockData;
+			if (isHardSpawn)
 			{
-				spawnData = Spawner._SpawnData[1];
+				mockData = Spawner._SpawnData[1];
 			}
 			else
 			{
-				spawnData = Spawner._SpawnData[0];
+				mockData = Spawner._SpawnData[0];
 			}
-			return spawnData;
+			return mockData;
 		}
 
 		private void ApplyDifficultyModifiers(ref SpawnData spawnData, Spawner.DifficultyData difficultyData)
 		{
-			float num = this.GetSpawnPoints((float)spawnData.spawnPoints, difficultyData);
-			num = MathTools.RandomFloat(num * 0.8f, num * 1.2f);
-			spawnData.spawnPoints = (int)num;
+			float spawnPoints = this.GetSpawnPoints((float)spawnData.spawnPoints, difficultyData);
+			spawnPoints = MathTools.RandomFloat(spawnPoints * 0.8f, spawnPoints * 1.2f);
+			spawnData.spawnPoints = (int)spawnPoints;
 			spawnData.maxTier = Math.Min(spawnData.maxTier + difficultyData.spawnersDefeated, 10);
 		}
 
 		private SpawnData GetSpawnData(string spawnID)
 		{
-			SpawnData spawnDataById = this.GetSpawnDataById(spawnID);
-			return this.GetLocalSpawnData(spawnDataById);
+			SpawnData spawnSourceData = this.GetSpawnDataById(spawnID);
+			return this.GetLocalSpawnData(spawnSourceData);
 		}
 
 		private SpawnData GetSpawnData(BlockTypeEnum blockSource)
 		{
-			SpawnData spawnDataByBlockSource = this.GetSpawnDataByBlockSource(blockSource);
-			return this.GetLocalSpawnData(spawnDataByBlockSource);
+			SpawnData spawnSourceData = this.GetSpawnDataByBlockSource(blockSource);
+			return this.GetLocalSpawnData(spawnSourceData);
 		}
 
 		private SpawnData GetLocalSpawnData(SpawnData sourceSpawnData)
 		{
-			SpawnData spawnData = sourceSpawnData;
-			if (spawnData == null)
+			SpawnData selectedSpawnData = sourceSpawnData;
+			if (selectedSpawnData == null)
 			{
-				spawnData = this.GetMockSpawnData();
+				selectedSpawnData = this.GetMockSpawnData();
 			}
-			SpawnData spawnData2 = spawnData.Copy();
-			this.ApplyDifficultyModifiers(ref spawnData2, this.GetCurrentDifficulty());
-			return spawnData2;
+			SpawnData spawnData = selectedSpawnData.Copy();
+			this.ApplyDifficultyModifiers(ref spawnData, this.GetCurrentDifficulty());
+			return spawnData;
 		}
 
 		public void StopSpawning()
@@ -230,11 +230,11 @@ namespace DNA.CastleMinerZ.Terrain
 
 		private SpawnData GetSpawnDataById(string id)
 		{
-			foreach (SpawnData spawnData2 in Spawner._SpawnData)
+			foreach (SpawnData spawnData in Spawner._SpawnData)
 			{
-				if (spawnData2.id.Equals(id))
+				if (spawnData.id.Equals(id))
 				{
-					return spawnData2;
+					return spawnData;
 				}
 			}
 			return null;
@@ -242,11 +242,11 @@ namespace DNA.CastleMinerZ.Terrain
 
 		private SpawnData GetSpawnDataByBlockSource(BlockTypeEnum blockSource)
 		{
-			foreach (SpawnData spawnData2 in Spawner._SpawnData)
+			foreach (SpawnData spawnData in Spawner._SpawnData)
 			{
-				if (blockSource == spawnData2.blockTypeSource)
+				if (blockSource == spawnData.blockTypeSource)
 				{
-					return spawnData2;
+					return spawnData;
 				}
 			}
 			return null;
@@ -266,20 +266,20 @@ namespace DNA.CastleMinerZ.Terrain
 			}
 			this.UpdateTargetList();
 			this.SetState(Spawner.SpawnState.Spawning);
-			LootResult randomSpawn = PossibleLootType.GetRandomSpawn(this.Location.Y, 1, 5, false, this._remainingSpawnValue, this._currentData.packageFlags);
-			IntVector3 location = this.Location;
-			location.Y++;
-			int num = randomSpawn.value / randomSpawn.count;
-			int num2 = num * randomSpawn.count;
-			Vector3 vector = location + Vector3.Zero;
-			for (int i = 0; i < randomSpawn.count; i++)
+			LootResult spawnResult = PossibleLootType.GetRandomSpawn(this.Location.Y, 1, 5, false, this._remainingSpawnValue, this._currentData.packageFlags);
+			IntVector3 loc = this.Location;
+			loc.Y++;
+			int enemySpawnValue = spawnResult.value / spawnResult.count;
+			int totalValue = enemySpawnValue * spawnResult.count;
+			Vector3 spawnPos = loc + Vector3.Zero;
+			for (int i = 0; i < spawnResult.count; i++)
 			{
-				string gamertag = this.GetRandomPlayer(this._nearbyPlayers).Gamer.Gamertag;
-				EnemyManager.Instance.SpawnEnemy(vector, randomSpawn.spawnID, this.Location, num, gamertag);
+				string playerName = this.GetRandomPlayer(this._nearbyPlayers).Gamer.Gamertag;
+				EnemyManager.Instance.SpawnEnemy(spawnPos, spawnResult.spawnID, this.Location, enemySpawnValue, playerName);
 				this._currentlySpawnedEnemyCount++;
-				DebugUtils.Log(string.Concat(new object[] { "Spawning Enemy #", this._currentlySpawnedEnemyCount, " Value ", num, " RemainingSpawnValue ", this._remainingSpawnValue }));
+				DebugUtils.Log(string.Concat(new object[] { "Spawning Enemy #", this._currentlySpawnedEnemyCount, " Value ", enemySpawnValue, " RemainingSpawnValue ", this._remainingSpawnValue }));
 			}
-			this.DeductSpawnValue(num2);
+			this.DeductSpawnValue(totalValue);
 		}
 
 		private void ResetSpawnTimer()
@@ -324,13 +324,13 @@ namespace DNA.CastleMinerZ.Terrain
 					}
 				}
 				this.PlaceRewardBlock(this.Location, this.GetRewardBlockType(this.Tier));
-				NetworkGamer gamerFromID = CastleMinerZGame.Instance.GetGamerFromID(this._lastPlayerID);
-				string text = localPlayer.Gamer.Gamertag;
-				if (gamerFromID != null)
+				NetworkGamer gamer = CastleMinerZGame.Instance.GetGamerFromID(this._lastPlayerID);
+				string lastPlayerToContributeTag = localPlayer.Gamer.Gamertag;
+				if (gamer != null)
 				{
-					text = gamerFromID.Gamertag;
+					lastPlayerToContributeTag = gamer.Gamertag;
 				}
-				BroadcastTextMessage.Send((LocalNetworkGamer)localPlayer.Gamer, text + " " + Strings.Has_extinguished_a_spawn_block);
+				BroadcastTextMessage.Send((LocalNetworkGamer)localPlayer.Gamer, lastPlayerToContributeTag + " " + Strings.Has_extinguished_a_spawn_block);
 				Spawner.SpawnerDefeatedCount++;
 				break;
 			}
@@ -423,8 +423,8 @@ namespace DNA.CastleMinerZ.Terrain
 
 		private BlockTypeEnum GetRewardBlockType(LootGrade tier)
 		{
-			int num = (int)(this._currentData.baseLuckyLootChance + tier * (LootGrade)this._currentData.luckyLootChancePerTier);
-			if (num < MathTools.RandomInt(1, 100))
+			int luckyChance = (int)(this._currentData.baseLuckyLootChance + tier * (LootGrade)this._currentData.luckyLootChancePerTier);
+			if (luckyChance < MathTools.RandomInt(1, 100))
 			{
 				return BlockTypeEnum.LuckyLootBlock;
 			}
@@ -461,27 +461,27 @@ namespace DNA.CastleMinerZ.Terrain
 
 		private void TriggerNearbySpawnBlocks()
 		{
-			int num = 10;
-			for (int i = this.Location.Y; i < num + this.Location.Y; i++)
+			int c_ClearRadius = 10;
+			for (int yLoc = this.Location.Y; yLoc < c_ClearRadius + this.Location.Y; yLoc++)
 			{
-				for (int j = this.Location.X - num; j < num + this.Location.X; j++)
+				for (int xLoc = this.Location.X - c_ClearRadius; xLoc < c_ClearRadius + this.Location.X; xLoc++)
 				{
-					for (int k = this.Location.Z - num; k < num + this.Location.Z; k++)
+					for (int zLoc = this.Location.Z - c_ClearRadius; zLoc < c_ClearRadius + this.Location.Z; zLoc++)
 					{
-						IntVector3 intVector = new IntVector3(j, i, k);
-						if (!(intVector == this.Location))
+						IntVector3 loc = new IntVector3(xLoc, yLoc, zLoc);
+						if (!(loc == this.Location))
 						{
-							BlockTypeEnum block = InGameHUD.GetBlock(intVector);
-							if (BlockType.IsSpawnerClickable(block))
+							BlockTypeEnum blockType = InGameHUD.GetBlock(loc);
+							if (BlockType.IsSpawnerClickable(blockType))
 							{
-								Spawner spawner = CastleMinerZGame.Instance.CurrentWorld.GetSpawner(intVector, true, block);
+								Spawner spawner = CastleMinerZGame.Instance.CurrentWorld.GetSpawner(loc, true, blockType);
 								if (spawner.CanStart())
 								{
 									if (CastleMinerZGame.Instance.IsOnlineGame)
 									{
 										BroadcastTextMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, Strings.A_linked_spawner_was_also_triggered);
 									}
-									spawner.StartSpawner(block);
+									spawner.StartSpawner(blockType);
 								}
 							}
 						}

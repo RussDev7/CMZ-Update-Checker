@@ -24,8 +24,8 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public override void SetModelNameIndex(int modelNameIndex)
 		{
-			DoorInventoryItemClass doorInventoryItemClass = base.ItemClass as DoorInventoryItemClass;
-			doorInventoryItemClass.ModelName = (DoorEntity.ModelNameEnum)modelNameIndex;
+			DoorInventoryItemClass doorClass = base.ItemClass as DoorInventoryItemClass;
+			doorClass.ModelName = (DoorEntity.ModelNameEnum)modelNameIndex;
 			base.SetModelNameIndex(modelNameIndex);
 		}
 
@@ -41,9 +41,9 @@ namespace DNA.CastleMinerZ.Inventory
 			BlockTerrain.Instance.GetBlockWithChanges(addSpot + new IntVector3(-1, 0, 0));
 			BlockTerrain.Instance.GetBlockWithChanges(addSpot + new IntVector3(0, 0, 1));
 			BlockTerrain.Instance.GetBlockWithChanges(addSpot + new IntVector3(0, 0, -1));
-			BlockTypeEnum blockWithChanges = BlockTerrain.Instance.GetBlockWithChanges(addSpot + new IntVector3(0, -1, 0));
-			BlockTypeEnum blockWithChanges2 = BlockTerrain.Instance.GetBlockWithChanges(addSpot + new IntVector3(0, 1, 0));
-			return !BlockType.IsEmpty(blockWithChanges) && BlockType.IsEmpty(blockWithChanges2);
+			BlockTypeEnum negY = BlockTerrain.Instance.GetBlockWithChanges(addSpot + new IntVector3(0, -1, 0));
+			BlockTypeEnum posY = BlockTerrain.Instance.GetBlockWithChanges(addSpot + new IntVector3(0, 1, 0));
+			return !BlockType.IsEmpty(negY) && BlockType.IsEmpty(posY);
 		}
 
 		public static BlockTypeEnum GetDoorPiece(BlockTypeEnum baseDoorPiece, BlockTypeEnum doorTypeEnum)
@@ -75,23 +75,23 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public override BlockTypeEnum GetConstructedBlockType(BlockFace face, IntVector3 position)
 		{
-			BlockTypeEnum blockWithChanges = BlockTerrain.Instance.GetBlockWithChanges(position + new IntVector3(1, 0, 0));
-			BlockTypeEnum blockWithChanges2 = BlockTerrain.Instance.GetBlockWithChanges(position + new IntVector3(-1, 0, 0));
-			BlockTypeEnum blockWithChanges3 = BlockTerrain.Instance.GetBlockWithChanges(position + new IntVector3(0, 0, 1));
-			BlockTypeEnum blockWithChanges4 = BlockTerrain.Instance.GetBlockWithChanges(position + new IntVector3(0, 0, -1));
-			if (!BlockType.IsEmpty(blockWithChanges) && !BlockType.IsEmpty(blockWithChanges2))
+			BlockTypeEnum posX = BlockTerrain.Instance.GetBlockWithChanges(position + new IntVector3(1, 0, 0));
+			BlockTypeEnum negX = BlockTerrain.Instance.GetBlockWithChanges(position + new IntVector3(-1, 0, 0));
+			BlockTypeEnum posZ = BlockTerrain.Instance.GetBlockWithChanges(position + new IntVector3(0, 0, 1));
+			BlockTypeEnum negZ = BlockTerrain.Instance.GetBlockWithChanges(position + new IntVector3(0, 0, -1));
+			if (!BlockType.IsEmpty(posX) && !BlockType.IsEmpty(negX))
 			{
 				return DoorInventoryitem.GetDoorPiece(BlockTypeEnum.NormalLowerDoorClosedX, this._baseDoorType);
 			}
-			if (!BlockType.IsEmpty(blockWithChanges3) && !BlockType.IsEmpty(blockWithChanges4))
+			if (!BlockType.IsEmpty(posZ) && !BlockType.IsEmpty(negZ))
 			{
 				return DoorInventoryitem.GetDoorPiece(BlockTypeEnum.NormalLowerDoorClosedZ, this._baseDoorType);
 			}
-			if (!BlockType.IsEmpty(blockWithChanges) || !BlockType.IsEmpty(blockWithChanges2))
+			if (!BlockType.IsEmpty(posX) || !BlockType.IsEmpty(negX))
 			{
 				return DoorInventoryitem.GetDoorPiece(BlockTypeEnum.NormalLowerDoorClosedX, this._baseDoorType);
 			}
-			if (!BlockType.IsEmpty(blockWithChanges3) || !BlockType.IsEmpty(blockWithChanges4))
+			if (!BlockType.IsEmpty(posZ) || !BlockType.IsEmpty(negZ))
 			{
 				return DoorInventoryitem.GetDoorPiece(BlockTypeEnum.NormalLowerDoorClosedZ, this._baseDoorType);
 			}

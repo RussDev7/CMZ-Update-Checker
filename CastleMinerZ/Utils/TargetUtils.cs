@@ -12,111 +12,111 @@ namespace DNA.CastleMinerZ.Utils
 	{
 		public static TargetSearchResult FindBestTarget(DragonEntity entity, Vector3 forward, float maxViewDistance)
 		{
-			float num = float.MaxValue;
-			bool flag = true;
-			TargetSearchResult targetSearchResult = default(TargetSearchResult);
-			targetSearchResult.player = null;
-			Vector3 vector = entity.WorldPosition;
-			vector += entity.LocalToWorld.Forward * 7f;
-			float num2 = maxViewDistance * maxViewDistance;
+			float bestScore = float.MaxValue;
+			bool tooFarAway = true;
+			TargetSearchResult result = default(TargetSearchResult);
+			result.player = null;
+			Vector3 pfrom = entity.WorldPosition;
+			pfrom += entity.LocalToWorld.Forward * 7f;
+			float maxdistsq = maxViewDistance * maxViewDistance;
 			if (CastleMinerZGame.Instance.CurrentNetworkSession != null)
 			{
 				for (int i = 0; i < CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers.Count; i++)
 				{
-					NetworkGamer networkGamer = CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers[i];
-					if (networkGamer != null)
+					NetworkGamer nwg = CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers[i];
+					if (nwg != null)
 					{
-						Player player = (Player)networkGamer.Tag;
-						if (player != null && player.ValidLivingGamer)
+						Player p = (Player)nwg.Tag;
+						if (p != null && p.ValidLivingGamer)
 						{
-							Vector3 worldPosition = player.WorldPosition;
-							worldPosition.Y += 1.5f;
-							Vector3 vector2 = worldPosition - vector;
-							float num3 = vector2.LengthSquared();
-							if (num3 < num2 && num3 > 0.001f)
+							Vector3 pto = p.WorldPosition;
+							pto.Y += 1.5f;
+							Vector3 delta = pto - pfrom;
+							float distancesq = delta.LengthSquared();
+							if (distancesq < maxdistsq && distancesq > 0.001f)
 							{
-								flag = false;
-								if (BlockTerrain.Instance.RegionIsLoaded(worldPosition))
+								tooFarAway = false;
+								if (BlockTerrain.Instance.RegionIsLoaded(pto))
 								{
-									float simpleSunlightAtPoint = BlockTerrain.Instance.GetSimpleSunlightAtPoint(worldPosition);
-									if (simpleSunlightAtPoint > 0f)
+									float light = BlockTerrain.Instance.GetSimpleSunlightAtPoint(pto);
+									if (light > 0f)
 									{
-										float num4 = num3 / (simpleSunlightAtPoint * simpleSunlightAtPoint);
-										if (num4 < num)
+										float score = distancesq / (light * light);
+										if (score < bestScore)
 										{
-											vector2.Normalize();
-											if (Vector3.Dot(vector2, forward) > 0.17f)
+											delta.Normalize();
+											if (Vector3.Dot(delta, forward) > 0.17f)
 											{
-												TargetUtils.tp.Init(vector, worldPosition);
+												TargetUtils.tp.Init(pfrom, pto);
 												BlockTerrain.Instance.Trace(TargetUtils.tp);
 												if (!TargetUtils.tp._collides)
 												{
-													targetSearchResult.player = player;
-													targetSearchResult.distance = (float)Math.Sqrt((double)num3);
-													targetSearchResult.light = simpleSunlightAtPoint;
-													targetSearchResult.vectorToPlayer = vector2;
-													num = num4;
+													result.player = p;
+													result.distance = (float)Math.Sqrt((double)distancesq);
+													result.light = light;
+													result.vectorToPlayer = delta;
+													bestScore = score;
 												}
 											}
 										}
 									}
 								}
 							}
-							else if (num3 < MathTools.Square(entity.EType.SpawnDistance * 1.25f))
+							else if (distancesq < MathTools.Square(entity.EType.SpawnDistance * 1.25f))
 							{
-								flag = false;
+								tooFarAway = false;
 							}
 						}
 					}
 				}
 			}
-			if (flag)
+			if (tooFarAway)
 			{
 				entity.Removed = true;
 				EnemyManager.Instance.RemoveDragon();
 			}
-			return targetSearchResult;
+			return result;
 		}
 
 		public static List<TargetSearchResult> FindTargetsInRange(Vector3 centerPoint, float range, bool ignoreLighting = true)
 		{
-			List<TargetSearchResult> list = new List<TargetSearchResult>();
-			float num = range * range;
+			List<TargetSearchResult> results = new List<TargetSearchResult>();
+			float rangeSquared = range * range;
 			if (CastleMinerZGame.Instance.CurrentNetworkSession == null)
 			{
-				return list;
+				return results;
 			}
 			for (int i = 0; i < CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers.Count; i++)
 			{
-				NetworkGamer networkGamer = CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers[i];
-				if (networkGamer != null)
+				NetworkGamer nwg = CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers[i];
+				if (nwg != null)
 				{
-					Player player = (Player)networkGamer.Tag;
-					if (player != null && player.ValidLivingGamer)
+					Player p = (Player)nwg.Tag;
+					if (p != null && p.ValidLivingGamer)
 					{
-						Vector3 worldPosition = player.WorldPosition;
-						worldPosition.Y += 1.5f;
-						Vector3 vector = worldPosition - centerPoint;
-						float num2 = vector.LengthSquared();
-						if (num2 <= num && BlockTerrain.Instance.RegionIsLoaded(worldPosition))
+						Vector3 pto = p.WorldPosition;
+						pto.Y += 1.5f;
+						Vector3 delta = pto - centerPoint;
+						float distanceSquared = delta.LengthSquared();
+						if (distanceSquared <= rangeSquared && BlockTerrain.Instance.RegionIsLoaded(pto))
 						{
-							float simpleSunlightAtPoint = BlockTerrain.Instance.GetSimpleSunlightAtPoint(worldPosition);
-							if (simpleSunlightAtPoint > 0f || ignoreLighting)
+							float light = BlockTerrain.Instance.GetSimpleSunlightAtPoint(pto);
+							if (light > 0f || ignoreLighting)
 							{
-								vector.Normalize();
-								list.Add(new TargetSearchResult
+								delta.Normalize();
+								results.Add(new TargetSearchResult
 								{
-									player = player,
-									distance = (float)Math.Sqrt((double)num2),
-									light = simpleSunlightAtPoint,
-									vectorToPlayer = vector
+									player = p,
+									distance = (float)Math.Sqrt((double)distanceSquared),
+									light = light,
+									vectorToPlayer = delta
 								});
 							}
 						}
 					}
 				}
 			}
-			return list;
+			return results;
 		}
 
 		public const float c_playerHeightInBlocks = 1.5f;

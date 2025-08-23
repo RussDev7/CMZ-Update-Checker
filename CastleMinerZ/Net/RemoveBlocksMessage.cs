@@ -29,11 +29,11 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, int numblocks, IntVector3[] blocks, bool doEffects)
 		{
-			RemoveBlocksMessage sendInstance = Message.GetSendInstance<RemoveBlocksMessage>();
-			sendInstance.NumBlocks = numblocks;
-			sendInstance.BlocksToRemove = blocks;
-			sendInstance.DoDigEffects = doEffects;
-			sendInstance.DoSend(from);
+			RemoveBlocksMessage Instance = Message.GetSendInstance<RemoveBlocksMessage>();
+			Instance.NumBlocks = numblocks;
+			Instance.BlocksToRemove = blocks;
+			Instance.DoDigEffects = doEffects;
+			Instance.DoSend(from);
 		}
 
 		protected override void SendData(BinaryWriter writer)

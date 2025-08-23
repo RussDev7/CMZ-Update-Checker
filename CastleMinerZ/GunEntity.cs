@@ -19,10 +19,10 @@ namespace DNA.CastleMinerZ
 			this._muzzleFlash = new ModelEntity(GunEntity._muzzleFlashModel);
 			this._muzzleFlash.BlendState = BlendState.Additive;
 			this._muzzleFlash.DepthStencilState = DepthStencilState.DepthRead;
-			ModelBone modelBone = base.Model.Bones["BarrelTip"];
-			if (modelBone != null)
+			ModelBone barrelTip = base.Model.Bones["BarrelTip"];
+			if (barrelTip != null)
 			{
-				this.BarrelTipLocation = Vector3.Transform(Vector3.Zero, modelBone.Transform);
+				this.BarrelTipLocation = Vector3.Transform(Vector3.Zero, barrelTip.Transform);
 			}
 			else
 			{

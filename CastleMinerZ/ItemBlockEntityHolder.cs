@@ -57,10 +57,10 @@ namespace DNA.CastleMinerZ
 
 		public static ItemBlockEntityHolder Alloc()
 		{
-			ItemBlockEntityHolder itemBlockEntityHolder = ItemBlockEntityHolder._cache.Get();
-			itemBlockEntityHolder.TimeUntilTorchRemovalAllowed = 1f;
-			itemBlockEntityHolder.TimeUntilFlameRemovalAllowed = 1f;
-			return itemBlockEntityHolder;
+			ItemBlockEntityHolder result = ItemBlockEntityHolder._cache.Get();
+			result.TimeUntilTorchRemovalAllowed = 1f;
+			result.TimeUntilFlameRemovalAllowed = 1f;
+			return result;
 		}
 
 		public void Release()

@@ -102,14 +102,14 @@ namespace DNA.CastleMinerZ
 
 		public static WorldInfo CreateNewWorld(SignedInGamer gamer)
 		{
-			Random random = new Random();
+			Random rand = new Random();
 			WorldInfo worldInfo = new WorldInfo();
-			int num = 839880689;
+			int seed = 839880689;
 			if (!CastleMinerZGame.TrialMode)
 			{
-				num = random.Next();
+				seed = rand.Next();
 			}
-			worldInfo.MakeNew(gamer, num);
+			worldInfo.MakeNew(gamer, seed);
 			return worldInfo;
 		}
 
@@ -137,26 +137,26 @@ namespace DNA.CastleMinerZ
 				}
 				else
 				{
-					List<WorldInfo> list = new List<WorldInfo>();
-					string[] directories = device.GetDirectories(WorldInfo.BasePath);
-					foreach (string text in directories)
+					List<WorldInfo> infos = new List<WorldInfo>();
+					string[] worldPaths = device.GetDirectories(WorldInfo.BasePath);
+					foreach (string worldPath in worldPaths)
 					{
-						WorldInfo worldInfo = null;
+						WorldInfo wi = null;
 						try
 						{
-							worldInfo = WorldInfo.LoadFromStroage(text, device);
+							wi = WorldInfo.LoadFromStroage(worldPath, device);
 						}
 						catch
 						{
-							worldInfo = null;
-							WorldInfo.CorruptWorlds.Add(text);
+							wi = null;
+							WorldInfo.CorruptWorlds.Add(worldPath);
 						}
-						if (worldInfo != null)
+						if (wi != null)
 						{
-							list.Add(worldInfo);
+							infos.Add(wi);
 						}
 					}
-					array = list.ToArray();
+					array = infos.ToArray();
 				}
 			}
 			catch
@@ -168,8 +168,8 @@ namespace DNA.CastleMinerZ
 
 		public void CreateSavePath()
 		{
-			Guid guid = Guid.NewGuid();
-			this._savePath = Path.Combine(WorldInfo.BasePath, guid.ToString());
+			Guid folderGuid = Guid.NewGuid();
+			this._savePath = Path.Combine(WorldInfo.BasePath, folderGuid.ToString());
 		}
 
 		private void MakeNew(SignedInGamer creator, int seed)
@@ -314,12 +314,12 @@ namespace DNA.CastleMinerZ
 				{
 					saveDevice.CreateDirectory(this.SavePath);
 				}
-				string text = Path.Combine(this.SavePath, WorldInfo.FileName);
-				saveDevice.Save(text, true, true, delegate(Stream stream)
+				string fileName = Path.Combine(this.SavePath, WorldInfo.FileName);
+				saveDevice.Save(fileName, true, true, delegate(Stream stream)
 				{
-					BinaryWriter binaryWriter = new BinaryWriter(stream);
-					this.Save(binaryWriter);
-					binaryWriter.Flush();
+					BinaryWriter writer = new BinaryWriter(stream);
+					this.Save(writer);
+					writer.Flush();
 				});
 			}
 			catch
@@ -332,8 +332,8 @@ namespace DNA.CastleMinerZ
 			WorldInfo info = new WorldInfo();
 			saveDevice.Load(Path.Combine(folder, WorldInfo.FileName), delegate(Stream stream)
 			{
-				BinaryReader binaryReader = new BinaryReader(stream);
-				info.Load(binaryReader);
+				BinaryReader reader = new BinaryReader(stream);
+				info.Load(reader);
 				info._savePath = folder;
 			});
 			return info;
@@ -352,19 +352,19 @@ namespace DNA.CastleMinerZ
 			writer.Write(this._worldID.ToByteArray());
 			writer.Write(this._lastPosition);
 			writer.Write(this.Crates.Count);
-			foreach (KeyValuePair<IntVector3, Crate> keyValuePair in this.Crates)
+			foreach (KeyValuePair<IntVector3, Crate> pair in this.Crates)
 			{
-				keyValuePair.Value.Write(writer);
+				pair.Value.Write(writer);
 			}
 			writer.Write(this.Doors.Count);
-			foreach (KeyValuePair<IntVector3, Door> keyValuePair2 in this.Doors)
+			foreach (KeyValuePair<IntVector3, Door> pair2 in this.Doors)
 			{
-				keyValuePair2.Value.Write(writer);
+				pair2.Value.Write(writer);
 			}
 			writer.Write(this.Spawners.Count);
-			foreach (KeyValuePair<IntVector3, Spawner> keyValuePair3 in this.Spawners)
+			foreach (KeyValuePair<IntVector3, Spawner> pair3 in this.Spawners)
 			{
-				keyValuePair3.Value.Write(writer);
+				pair3.Value.Write(writer);
 			}
 			writer.Write(this.InfiniteResourceMode);
 			writer.Write(this.ServerMessage);
@@ -375,9 +375,9 @@ namespace DNA.CastleMinerZ
 
 		private void Load(BinaryReader reader)
 		{
-			int num = reader.ReadInt32();
-			WorldInfo.WorldInfoVersion worldInfoVersion = (WorldInfo.WorldInfoVersion)num;
-			if (num < 1 || worldInfoVersion > WorldInfo.WorldInfoVersion.CurrentVersion)
+			int version = reader.ReadInt32();
+			WorldInfo.WorldInfoVersion fileVersion = (WorldInfo.WorldInfoVersion)version;
+			if (version < 1 || fileVersion > WorldInfo.WorldInfoVersion.CurrentVersion)
 			{
 				throw new Exception("Bad Info Version");
 			}
@@ -390,28 +390,28 @@ namespace DNA.CastleMinerZ
 			this._seed = reader.ReadInt32();
 			this._worldID = new Guid(reader.ReadBytes(16));
 			this._lastPosition = reader.ReadVector3();
-			int num2 = reader.ReadInt32();
+			int crateCount = reader.ReadInt32();
 			this.Crates.Clear();
-			for (int i = 0; i < num2; i++)
+			for (int i = 0; i < crateCount; i++)
 			{
 				Crate crate = new Crate(reader);
 				this.Crates[crate.Location] = crate;
 			}
-			if (worldInfoVersion > WorldInfo.WorldInfoVersion.Doors)
+			if (fileVersion > WorldInfo.WorldInfoVersion.Doors)
 			{
-				int num3 = reader.ReadInt32();
+				int doorCount = reader.ReadInt32();
 				this.Doors.Clear();
-				for (int j = 0; j < num3; j++)
+				for (int j = 0; j < doorCount; j++)
 				{
 					Door door = new Door(reader);
 					this.Doors[door.Location] = door;
 				}
 			}
-			if (worldInfoVersion > WorldInfo.WorldInfoVersion.Spawners)
+			if (fileVersion > WorldInfo.WorldInfoVersion.Spawners)
 			{
-				int num4 = reader.ReadInt32();
+				int doorCount2 = reader.ReadInt32();
 				this.Spawners.Clear();
-				for (int k = 0; k < num4; k++)
+				for (int k = 0; k < doorCount2; k++)
 				{
 					Spawner spawner = new Spawner(reader);
 					this.Spawners[spawner.Location] = spawner;
@@ -420,7 +420,7 @@ namespace DNA.CastleMinerZ
 			this.InfiniteResourceMode = reader.ReadBoolean();
 			this.ServerMessage = reader.ReadString();
 			this.ServerPassword = reader.ReadString();
-			if (worldInfoVersion > WorldInfo.WorldInfoVersion.HellBosses)
+			if (fileVersion > WorldInfo.WorldInfoVersion.HellBosses)
 			{
 				this.HellBossesSpawned = reader.ReadInt32();
 				this.MaxHellBossSpawns = reader.ReadInt32();
@@ -434,9 +434,9 @@ namespace DNA.CastleMinerZ
 
 		public void Update(GameTime gameTime)
 		{
-			foreach (KeyValuePair<IntVector3, Spawner> keyValuePair in this.Spawners)
+			foreach (KeyValuePair<IntVector3, Spawner> pair in this.Spawners)
 			{
-				keyValuePair.Value.UpdateSpawner(gameTime);
+				pair.Value.UpdateSpawner(gameTime);
 			}
 		}
 

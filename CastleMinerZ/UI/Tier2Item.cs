@@ -54,10 +54,10 @@ namespace DNA.CastleMinerZ.UI
 			this._tier1Item = tier1Item;
 			this._itemLocations = new Point[this._items.Count];
 			this._scaledItemLocations = new Rectangle[this._items.Count];
-			Point point = new Point(393, 40);
+			Point loc = new Point(393, 40);
 			for (int i = 0; i < this._itemLocations.Length; i++)
 			{
-				this._itemLocations[i] = new Point(point.X, point.Y);
+				this._itemLocations[i] = new Point(loc.X, loc.Y);
 				if (i > 0)
 				{
 					for (int j = i - 1; j >= 0; j--)
@@ -65,12 +65,12 @@ namespace DNA.CastleMinerZ.UI
 						if (this._items[i].Result.ItemClass.ID == this._items[j].Result.ItemClass.ID)
 						{
 							this._itemLocations[i] = new Point(this._itemLocations[j].X + 65, this._itemLocations[j].Y);
-							point.Y -= 65;
+							loc.Y -= 65;
 							break;
 						}
 					}
 				}
-				point.Y += 65;
+				loc.Y += 65;
 			}
 		}
 
@@ -105,10 +105,10 @@ namespace DNA.CastleMinerZ.UI
 		{
 			if (this._tier1Item.SelectedTier2Item == this)
 			{
-				int num = this._hitTest(inputManager.Mouse);
-				if (num >= 0)
+				int hitResult = this._hitTest(inputManager.Mouse);
+				if (hitResult >= 0)
 				{
-					this._selectedIndex = num;
+					this._selectedIndex = hitResult;
 					if (inputManager.Mouse.LeftButtonPressed)
 					{
 						if (this.Inventory.CanCraft(this._items[this._selectedIndex]))
@@ -156,15 +156,15 @@ namespace DNA.CastleMinerZ.UI
 
 		public void Draw(SpriteBatch spriteBatch)
 		{
-			Color color = CMZColors.MenuAqua;
-			bool flag = this._tier1Item.SelectedTier2Item == this;
+			Color textColor = CMZColors.MenuAqua;
+			bool selected = this._tier1Item.SelectedTier2Item == this;
 			spriteBatch.Draw(this._craftingScreen._tier2Back, this._scaledLocation, Color.White);
-			if (flag)
+			if (selected)
 			{
-				color = Color.White;
+				textColor = Color.White;
 			}
-			spriteBatch.DrawString(this._font, this._title, new Vector2((float)this._scaledLocation.Left + 10f * Screen.Adjuster.ScaleFactor.Y, (float)this._scaledLocation.Top), color, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.Y, SpriteEffects.None, 0f);
-			if (flag)
+			spriteBatch.DrawString(this._font, this._title, new Vector2((float)this._scaledLocation.Left + 10f * Screen.Adjuster.ScaleFactor.Y, (float)this._scaledLocation.Top), textColor, 0f, Vector2.Zero, Screen.Adjuster.ScaleFactor.Y, SpriteEffects.None, 0f);
+			if (selected)
 			{
 				for (int i = 0; i < this._scaledItemLocations.Length; i++)
 				{
@@ -176,17 +176,17 @@ namespace DNA.CastleMinerZ.UI
 						this._items[i].Result.Draw2D(spriteBatch, new Rectangle(this._backgroundRectangle.X + (int)(32f * Screen.Adjuster.ScaleFactor.Y), this._backgroundRectangle.Y + (int)(235f * Screen.Adjuster.ScaleFactor.Y), (int)(130f * Screen.Adjuster.ScaleFactor.Y), (int)(130f * Screen.Adjuster.ScaleFactor.Y)), Color.White, false);
 					}
 				}
-				spriteBatch.Draw(this._craftingScreen._craftSelector, new Rectangle(this._scaledLocation.X, this._scaledLocation.Y, (int)((float)this._scaledLocation.Width - 8f * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._scaledLocation.Height - 5f * Screen.Adjuster.ScaleFactor.Y)), color);
-				Point point = new Point(39, 521);
+				spriteBatch.Draw(this._craftingScreen._craftSelector, new Rectangle(this._scaledLocation.X, this._scaledLocation.Y, (int)((float)this._scaledLocation.Width - 8f * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._scaledLocation.Height - 5f * Screen.Adjuster.ScaleFactor.Y)), textColor);
+				Point ingredientsLoc = new Point(39, 521);
 				for (int j = 0; j < this._items[this._selectedIndex].Ingredients.Count; j++)
 				{
-					int num = (int)(64f * Screen.Adjuster.ScaleFactor.Y);
-					Rectangle rectangle = new Rectangle((int)((float)this._backgroundRectangle.X + (float)point.X * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._backgroundRectangle.Y + (float)point.Y * Screen.Adjuster.ScaleFactor.Y), num, num);
-					spriteBatch.Draw(this._craftingScreen._gridSquare, rectangle, Color.White);
-					rectangle.Width = (int)((float)rectangle.Width - 5f * Screen.Adjuster.ScaleFactor.Y);
-					rectangle.Height = (int)((float)rectangle.Height - 5f * Screen.Adjuster.ScaleFactor.Y);
-					this._items[this._selectedIndex].Ingredients[j].Draw2D(spriteBatch, rectangle, this.Inventory.CanConsume(this._items[this._selectedIndex].Ingredients[j].ItemClass, this._items[this._selectedIndex].Ingredients[j].StackCount) ? Color.White : new Color(0.25f, 0.25f, 0.25f, 0.5f), true);
-					point.X += 65;
+					int size = (int)(64f * Screen.Adjuster.ScaleFactor.Y);
+					Rectangle dest = new Rectangle((int)((float)this._backgroundRectangle.X + (float)ingredientsLoc.X * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._backgroundRectangle.Y + (float)ingredientsLoc.Y * Screen.Adjuster.ScaleFactor.Y), size, size);
+					spriteBatch.Draw(this._craftingScreen._gridSquare, dest, Color.White);
+					dest.Width = (int)((float)dest.Width - 5f * Screen.Adjuster.ScaleFactor.Y);
+					dest.Height = (int)((float)dest.Height - 5f * Screen.Adjuster.ScaleFactor.Y);
+					this._items[this._selectedIndex].Ingredients[j].Draw2D(spriteBatch, dest, this.Inventory.CanConsume(this._items[this._selectedIndex].Ingredients[j].ItemClass, this._items[this._selectedIndex].Ingredients[j].StackCount) ? Color.White : new Color(0.25f, 0.25f, 0.25f, 0.5f), true);
+					ingredientsLoc.X += 65;
 				}
 			}
 		}

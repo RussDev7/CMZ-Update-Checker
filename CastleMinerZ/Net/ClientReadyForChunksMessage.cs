@@ -21,8 +21,8 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from)
 		{
-			ClientReadyForChunksMessage sendInstance = Message.GetSendInstance<ClientReadyForChunksMessage>();
-			sendInstance.SendToHost(from);
+			ClientReadyForChunksMessage Instance = Message.GetSendInstance<ClientReadyForChunksMessage>();
+			Instance.SendToHost(from);
 		}
 
 		protected override SendDataOptions SendDataOptions

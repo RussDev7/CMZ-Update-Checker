@@ -32,14 +32,14 @@ namespace DNA.CastleMinerZ.Achievements
 		{
 			get
 			{
-				int num = (int)(-(int)base.PlayerStats.MaxDepth);
-				if (this._lastAmount != num)
+				int total = (int)(-(int)base.PlayerStats.MaxDepth);
+				if (this._lastAmount != total)
 				{
-					this._lastAmount = num;
+					this._lastAmount = total;
 					this.lastString = string.Concat(new string[]
 					{
 						"(",
-						num.ToString(),
+						total.ToString(),
 						"/",
 						((int)(-(int)this._depth)).ToString(),
 						") ",

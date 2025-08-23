@@ -7,15 +7,15 @@ namespace DNA.CastleMinerZ.Terrain
 	{
 		public BlockVertex(BlockFace face, int vx, int tx)
 		{
-			IntVector3 intVector = BlockVertex._faceVertices[(int)(face * BlockFace.POSY + vx)];
-			this._blockOffsetFace = intVector.X | (intVector.Y << 8) | (intVector.Z << 16) | (tx << 24);
+			IntVector3 fv = BlockVertex._faceVertices[(int)(face * BlockFace.POSY + vx)];
+			this._blockOffsetFace = fv.X | (fv.Y << 8) | (fv.Z << 16) | (tx << 24);
 			this._vxSunLampFace = vx | 3840 | 983040 | 268435456;
 		}
 
 		public BlockVertex(IntVector3 iv, BlockFace face, int vx, BlockType mat, int sun, int lamp, int aoindex)
 		{
-			IntVector3 intVector = IntVector3.Add(iv, BlockVertex._faceVertices[(int)(face * BlockFace.POSY + vx)]);
-			this._blockOffsetFace = intVector.X | (intVector.Y << 8) | (intVector.Z << 16) | (mat[face] << 24);
+			IntVector3 fv = IntVector3.Add(iv, BlockVertex._faceVertices[(int)(face * BlockFace.POSY + vx)]);
+			this._blockOffsetFace = fv.X | (fv.Y << 8) | (fv.Z << 16) | (mat[face] << 24);
 			if (mat.DrawFullBright)
 			{
 				this._vxSunLampFace = 3840 | (lamp << 16) | (int)((int)((face | (BlockFace)(vx << 4)) + 128) << 24);

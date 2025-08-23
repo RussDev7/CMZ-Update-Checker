@@ -22,11 +22,11 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, Player player, bool isdefault)
 		{
-			InventoryRetrieveFromServerMessage sendInstance = Message.GetSendInstance<InventoryRetrieveFromServerMessage>();
-			sendInstance.Inventory = player.PlayerInventory;
-			sendInstance.playerID = player.Gamer.Id;
-			sendInstance.Default = isdefault;
-			sendInstance.DoSend(from);
+			InventoryRetrieveFromServerMessage Instance = Message.GetSendInstance<InventoryRetrieveFromServerMessage>();
+			Instance.Inventory = player.PlayerInventory;
+			Instance.playerID = player.Gamer.Id;
+			Instance.Default = isdefault;
+			Instance.DoSend(from);
 		}
 
 		protected override SendDataOptions SendDataOptions

@@ -23,9 +23,9 @@ namespace DNA.CastleMinerZ.Terrain
 			{
 				if (this._fancyVXCount == this._fancyVXBufferSize)
 				{
-					BlockVertex[] array = new BlockVertex[this._fancyVXBufferSize + 100];
-					this._fancyVXList.CopyTo(array, 0);
-					this._fancyVXList = array;
+					BlockVertex[] other = new BlockVertex[this._fancyVXBufferSize + 100];
+					this._fancyVXList.CopyTo(other, 0);
+					this._fancyVXList = other;
 					this._fancyVXBufferSize += 100;
 				}
 				this._fancyVXList[this._fancyVXCount++] = bv;
@@ -33,9 +33,9 @@ namespace DNA.CastleMinerZ.Terrain
 			}
 			if (this._vxCount == this._vxBufferSize)
 			{
-				BlockVertex[] array2 = new BlockVertex[this._vxBufferSize + 100];
-				this._vxList.CopyTo(array2, 0);
-				this._vxList = array2;
+				BlockVertex[] other2 = new BlockVertex[this._vxBufferSize + 100];
+				this._vxList.CopyTo(other2, 0);
+				this._vxList = other2;
 				this._vxBufferSize += 100;
 			}
 			this._vxList[this._vxCount++] = bv;
@@ -45,115 +45,115 @@ namespace DNA.CastleMinerZ.Terrain
 		{
 			if (this._vxCount > 0)
 			{
-				int num = 0;
-				int num2 = this._vxCount;
-				int num3 = 0;
-				while (num2 != 0)
+				int baseVx = 0;
+				int vxsLeft = this._vxCount;
+				int count = 0;
+				while (vxsLeft != 0)
 				{
-					int num4 = ((num2 > 16384) ? 16384 : num2);
-					num2 -= num4;
+					int vxsThisTime = ((vxsLeft > 16384) ? 16384 : vxsLeft);
+					vxsLeft -= vxsThisTime;
 					if (gd.IsDisposed)
 					{
 						return;
 					}
-					VertexBufferKeeper vertexBufferKeeper = VertexBufferKeeper.Alloc(num4);
-					if (vertexBufferKeeper.Buffer != null && vertexBufferKeeper.Buffer.VertexCount < num4)
+					VertexBufferKeeper vbk = VertexBufferKeeper.Alloc(vxsThisTime);
+					if (vbk.Buffer != null && vbk.Buffer.VertexCount < vxsThisTime)
 					{
-						vertexBufferKeeper.Buffer.Dispose();
-						vertexBufferKeeper.Buffer = null;
+						vbk.Buffer.Dispose();
+						vbk.Buffer = null;
 					}
-					bool flag = false;
+					bool created = false;
 					do
 					{
 						if (GraphicsDeviceLocker.Instance.TryLockDevice())
 						{
 							try
 							{
-								if (vertexBufferKeeper.Buffer == null)
+								if (vbk.Buffer == null)
 								{
-									vertexBufferKeeper.Buffer = new VertexBuffer(gd, typeof(BlockVertex), num4, BufferUsage.WriteOnly);
+									vbk.Buffer = new VertexBuffer(gd, typeof(BlockVertex), vxsThisTime, BufferUsage.WriteOnly);
 								}
-								VertexBuffer buffer = vertexBufferKeeper.Buffer;
-								buffer.SetData<BlockVertex>(this._vxList, num, num4);
+								VertexBuffer vb = vbk.Buffer;
+								vb.SetData<BlockVertex>(this._vxList, baseVx, vxsThisTime);
 							}
 							finally
 							{
 								GraphicsDeviceLocker.Instance.UnlockDevice();
 							}
-							flag = true;
+							created = true;
 						}
-						if (!flag)
+						if (!created)
 						{
 							Thread.Sleep(10);
 						}
 					}
-					while (!flag);
-					vertexBufferKeeper.NumVertexesUsed = num4;
-					num += num4;
-					vbs.Add(vertexBufferKeeper);
-					num3++;
+					while (!created);
+					vbk.NumVertexesUsed = vxsThisTime;
+					baseVx += vxsThisTime;
+					vbs.Add(vbk);
+					count++;
 				}
 			}
 			if (this._fancyVXCount > 0)
 			{
-				int num5 = 0;
-				int num6 = this._fancyVXCount;
-				int num7 = 0;
-				while (num6 != 0)
+				int baseVx2 = 0;
+				int vxsLeft2 = this._fancyVXCount;
+				int count2 = 0;
+				while (vxsLeft2 != 0)
 				{
-					int num8 = ((num6 > 16384) ? 16384 : num6);
-					num6 -= num8;
+					int vxsThisTime2 = ((vxsLeft2 > 16384) ? 16384 : vxsLeft2);
+					vxsLeft2 -= vxsThisTime2;
 					if (gd.IsDisposed)
 					{
 						return;
 					}
-					VertexBufferKeeper vertexBufferKeeper2 = VertexBufferKeeper.Alloc(num8);
-					if (vertexBufferKeeper2.Buffer != null && vertexBufferKeeper2.Buffer.VertexCount < num8)
+					VertexBufferKeeper vbk2 = VertexBufferKeeper.Alloc(vxsThisTime2);
+					if (vbk2.Buffer != null && vbk2.Buffer.VertexCount < vxsThisTime2)
 					{
-						vertexBufferKeeper2.Buffer.Dispose();
-						vertexBufferKeeper2.Buffer = null;
+						vbk2.Buffer.Dispose();
+						vbk2.Buffer = null;
 					}
-					bool flag2 = false;
+					bool created2 = false;
 					do
 					{
 						if (GraphicsDeviceLocker.Instance.TryLockDevice())
 						{
 							try
 							{
-								if (vertexBufferKeeper2.Buffer == null)
+								if (vbk2.Buffer == null)
 								{
-									vertexBufferKeeper2.Buffer = new VertexBuffer(gd, typeof(BlockVertex), num8, BufferUsage.WriteOnly);
+									vbk2.Buffer = new VertexBuffer(gd, typeof(BlockVertex), vxsThisTime2, BufferUsage.WriteOnly);
 								}
-								VertexBuffer buffer2 = vertexBufferKeeper2.Buffer;
-								buffer2.SetData<BlockVertex>(this._fancyVXList, num5, num8);
+								VertexBuffer vb2 = vbk2.Buffer;
+								vb2.SetData<BlockVertex>(this._fancyVXList, baseVx2, vxsThisTime2);
 							}
 							finally
 							{
 								GraphicsDeviceLocker.Instance.UnlockDevice();
 							}
-							flag2 = true;
+							created2 = true;
 						}
-						if (!flag2)
+						if (!created2)
 						{
 							Thread.Sleep(10);
 						}
 					}
-					while (!flag2);
-					vertexBufferKeeper2.NumVertexesUsed = num8;
-					fancy.Add(vertexBufferKeeper2);
-					num7++;
+					while (!created2);
+					vbk2.NumVertexesUsed = vxsThisTime2;
+					fancy.Add(vbk2);
+					count2++;
 				}
 			}
 		}
 
 		public static BlockBuildData Alloc()
 		{
-			BlockBuildData blockBuildData = BlockBuildData._cache.Get();
-			blockBuildData._min.SetValues(int.MaxValue, int.MaxValue, int.MaxValue);
-			blockBuildData._max.SetValues(int.MinValue, int.MinValue, int.MinValue);
-			blockBuildData._vxCount = 0;
-			blockBuildData._fancyVXCount = 0;
-			return blockBuildData;
+			BlockBuildData result = BlockBuildData._cache.Get();
+			result._min.SetValues(int.MaxValue, int.MaxValue, int.MaxValue);
+			result._max.SetValues(int.MinValue, int.MinValue, int.MinValue);
+			result._vxCount = 0;
+			result._fancyVXCount = 0;
+			return result;
 		}
 
 		public void Release()

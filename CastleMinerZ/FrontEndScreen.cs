@@ -17,7 +17,6 @@ using DNA.Profiling;
 using DNA.Security.Cryptography;
 using DNA.Text;
 using DNA.Timers;
-using Facebook;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -35,8 +34,8 @@ namespace DNA.CastleMinerZ
 			this._game = game;
 			this._largeFont = game._largeFont;
 			this.SpriteBatch = new SpriteBatch(game.GraphicsDevice);
-			MenuBackdropScreen menuBackdropScreen = new MenuBackdropScreen(game);
-			base.PushScreen(menuBackdropScreen);
+			MenuBackdropScreen backdrop = new MenuBackdropScreen(game);
+			base.PushScreen(backdrop);
 			base.PushScreen(this._uiGroup);
 			this._uiGroup.PushScreen(this._startScreen);
 			this._startScreen.ClickSound = "Click";
@@ -124,9 +123,9 @@ namespace DNA.CastleMinerZ
 
 		private void _chooseOnlineGameScreen_Clicked(object sender, EventArgs e)
 		{
-			ChooseOnlineGameScreen.OnlineGameMenuItem onlineGameMenuItem = (ChooseOnlineGameScreen.OnlineGameMenuItem)this._chooseOnlineGameScreen.SelectedItem;
+			ChooseOnlineGameScreen.OnlineGameMenuItem item = (ChooseOnlineGameScreen.OnlineGameMenuItem)this._chooseOnlineGameScreen.SelectedItem;
 			this._chooseOnlineGameScreen.ShutdownHostDiscovery();
-			this.JoinGame(onlineGameMenuItem.NetworkSession, onlineGameMenuItem.Password);
+			this.JoinGame(item.NetworkSession, item.Password);
 		}
 
 		private void _startScreen_OnBackPressed(object sender, EventArgs e)
@@ -146,8 +145,8 @@ namespace DNA.CastleMinerZ
 				this._uiGroup.PopScreen();
 				return;
 			}
-			GameDifficultyTypes gameDifficultyTypes = (GameDifficultyTypes)e.MenuItem.Tag;
-			this._game.Difficulty = gameDifficultyTypes;
+			GameDifficultyTypes item = (GameDifficultyTypes)e.MenuItem.Tag;
+			this._game.Difficulty = item;
 			this._uiGroup.PushScreen(this._chooseSavedWorldScreen);
 		}
 
@@ -158,14 +157,14 @@ namespace DNA.CastleMinerZ
 				this._uiGroup.PopScreen();
 				return;
 			}
-			GameModeTypes gameModeTypes = (GameModeTypes)e.MenuItem.Tag;
-			this._game.GameMode = gameModeTypes;
+			GameModeTypes item = (GameModeTypes)e.MenuItem.Tag;
+			this._game.GameMode = item;
 			this._game.InfiniteResourceMode = false;
 			this._game.Difficulty = GameDifficultyTypes.EASY;
 			this._game.JoinGamePolicy = JoinGamePolicy.Anyone;
 			if (this._localGame)
 			{
-				switch (gameModeTypes)
+				switch (item)
 				{
 				case GameModeTypes.Endurance:
 					this.startWorld();
@@ -262,7 +261,7 @@ namespace DNA.CastleMinerZ
 			}
 			else
 			{
-				switch (gameModeTypes)
+				switch (item)
 				{
 				case GameModeTypes.Endurance:
 					this.startWorld();
@@ -308,10 +307,10 @@ namespace DNA.CastleMinerZ
 
 		public void startWorld()
 		{
-			WorldTypeIDs terrainVersion = this._game.CurrentWorld._terrainVersion;
+			WorldTypeIDs previous = this._game.CurrentWorld._terrainVersion;
 			this.WorldManager.TakeOwnership(this._game.CurrentWorld);
 			this._game.CurrentWorld._terrainVersion = WorldTypeIDs.CastleMinerZ;
-			if (terrainVersion != this._game.CurrentWorld._terrainVersion)
+			if (previous != this._game.CurrentWorld._terrainVersion)
 			{
 				this._game.BeginLoadTerrain(this._game.CurrentWorld, true);
 			}
@@ -320,9 +319,9 @@ namespace DNA.CastleMinerZ
 
 		public void ShowUIDialog(string title, string message, bool drawbehind)
 		{
-			PCDialogScreen pcdialogScreen = new PCDialogScreen(title, message, null, false, this._game.DialogScreenImage, this._game._myriadMed, drawbehind, this._game.ButtonFrame);
-			pcdialogScreen.UseDefaultValues();
-			this._uiGroup.ShowPCDialogScreen(pcdialogScreen, null);
+			PCDialogScreen dialog = new PCDialogScreen(title, message, null, false, this._game.DialogScreenImage, this._game._myriadMed, drawbehind, this._game.ButtonFrame);
+			dialog.UseDefaultValues();
+			this._uiGroup.ShowPCDialogScreen(dialog, null);
 		}
 
 		private void JoinCallback(bool success, string message)
@@ -378,22 +377,22 @@ namespace DNA.CastleMinerZ
 				this._serverPasswordScreen.DefaultText = "";
 				this._game.FrontEnd.ShowPCDialogScreen(this._serverPasswordScreen, delegate
 				{
-					string text;
-					bool flag;
-					string text2;
+					string password;
+					bool cancelled;
+					string errorString;
 					if (this._serverPasswordScreen.OptionSelected != -1)
 					{
-						text = this._serverPasswordScreen.TextInput;
-						flag = false;
-						text2 = null;
+						password = this._serverPasswordScreen.TextInput;
+						cancelled = false;
+						errorString = null;
 					}
 					else
 					{
-						text = "";
-						flag = true;
-						text2 = Strings.Action_was_cancelled;
+						password = "";
+						cancelled = true;
+						errorString = Strings.Action_was_cancelled;
 					}
-					callback(flag, text, text2, context);
+					callback(cancelled, password, errorString, context);
 				});
 				return;
 			}
@@ -411,23 +410,23 @@ namespace DNA.CastleMinerZ
 
 		private void _startScreen_AfterDraw(object sender, DrawEventArgs e)
 		{
-			Rectangle screenRect = Screen.Adjuster.ScreenRect;
+			Rectangle titleArea = Screen.Adjuster.ScreenRect;
 			this._flashTimer.Update(e.GameTime.ElapsedGameTime);
 			if (this._flashTimer.Expired)
 			{
 				this._flashTimer.Reset();
 				this._flashDir = !this._flashDir;
 			}
-			float num = (this._flashDir ? this._flashTimer.PercentComplete : (1f - this._flashTimer.PercentComplete));
-			Color color = Color.Lerp(CMZColors.MenuGreen, Color.White, num);
-			Rectangle rectangle = new Rectangle(screenRect.Center.X - (int)((float)this._game.Logo.Width * Screen.Adjuster.ScaleFactor.Y / 2f), screenRect.Center.Y - (int)((float)this._game.Logo.Height * Screen.Adjuster.ScaleFactor.Y / 2f), (int)((float)this._game.Logo.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._game.Logo.Height * Screen.Adjuster.ScaleFactor.Y));
+			float blender = (this._flashDir ? this._flashTimer.PercentComplete : (1f - this._flashTimer.PercentComplete));
+			Color color = Color.Lerp(CMZColors.MenuGreen, Color.White, blender);
+			Rectangle logoRect = new Rectangle(titleArea.Center.X - (int)((float)this._game.Logo.Width * Screen.Adjuster.ScaleFactor.Y / 2f), titleArea.Center.Y - (int)((float)this._game.Logo.Height * Screen.Adjuster.ScaleFactor.Y / 2f), (int)((float)this._game.Logo.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._game.Logo.Height * Screen.Adjuster.ScaleFactor.Y));
 			this.SpriteBatch.Begin();
-			this._game.Logo.Draw(this.SpriteBatch, rectangle, Color.White);
-			string text = "www.CastleMinerZ.com";
-			Vector2 vector = this._game._medFont.MeasureString(text);
-			this.SpriteBatch.DrawOutlinedText(this._game._medFont, text, new Vector2((float)Screen.Adjuster.ScreenRect.Center.X - vector.X / 2f, (float)Screen.Adjuster.ScreenRect.Bottom - vector.Y), Color.White, Color.Black, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
-			vector = this._largeFont.MeasureString(Strings.Start_Game);
-			this.SpriteBatch.DrawOutlinedText(this._largeFont, Strings.Start_Game, new Vector2((float)Screen.Adjuster.ScreenRect.Center.X - vector.X / 2f, (float)rectangle.Bottom), color, Color.Black, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
+			this._game.Logo.Draw(this.SpriteBatch, logoRect, Color.White);
+			string url = "www.CastleMinerZ.com";
+			Vector2 size = this._game._medFont.MeasureString(url);
+			this.SpriteBatch.DrawOutlinedText(this._game._medFont, url, new Vector2((float)Screen.Adjuster.ScreenRect.Center.X - size.X / 2f, (float)Screen.Adjuster.ScreenRect.Bottom - size.Y), Color.White, Color.Black, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
+			size = this._largeFont.MeasureString(Strings.Start_Game);
+			this.SpriteBatch.DrawOutlinedText(this._largeFont, Strings.Start_Game, new Vector2((float)Screen.Adjuster.ScreenRect.Center.X - size.X / 2f, (float)logoRect.Bottom), color, Color.Black, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
 			this.SpriteBatch.DrawOutlinedText(this._game._consoleFont, this._versionString, new Vector2(0f, 0f), Color.White, Color.Black, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
 			this.SpriteBatch.End();
 		}
@@ -440,17 +439,17 @@ namespace DNA.CastleMinerZ
 				{
 					WaitScreen.DoWait(this._uiGroup, Strings.Loading_Player_Info___, delegate
 					{
-						DateTime now = DateTime.Now;
+						DateTime time = DateTime.Now;
 						if (Screen.CurrentGamer == null)
 						{
 							return;
 						}
 						this.SetupNewGamer(Screen.CurrentGamer, this._game.SaveDevice);
-						TimeSpan timeSpan = DateTime.Now - now;
+						TimeSpan loadingTime = DateTime.Now - time;
 						if (Screen.CurrentGamer != null)
 						{
 							this._uiGroup.PushScreen(this._mainMenu);
-							if (timeSpan > TimeSpan.FromSeconds(20.0))
+							if (loadingTime > TimeSpan.FromSeconds(20.0))
 							{
 								this._uiGroup.ShowPCDialogScreen(this._optimizeStorageDialog, delegate
 								{
@@ -503,12 +502,12 @@ namespace DNA.CastleMinerZ
 
 		private void DeleteWorlds()
 		{
-			WorldManager worldManager = this.WorldManager;
-			if (worldManager == null)
+			WorldManager _worldManager = this.WorldManager;
+			if (_worldManager == null)
 			{
 				return;
 			}
-			WorldInfo[] worlds = worldManager.GetWorlds();
+			WorldInfo[] worlds = _worldManager.GetWorlds();
 			for (int i = 0; i < worlds.Length; i++)
 			{
 				if (Screen.CurrentGamer == null)
@@ -518,7 +517,7 @@ namespace DNA.CastleMinerZ
 				string gamertag = Screen.CurrentGamer.Gamertag;
 				if (worlds[i].OwnerGamerTag != gamertag)
 				{
-					worldManager.Delete(worlds[i]);
+					_worldManager.Delete(worlds[i]);
 					this.CurrentWorldsCount--;
 				}
 				if (this.Cancel)
@@ -526,17 +525,17 @@ namespace DNA.CastleMinerZ
 					break;
 				}
 			}
-			int num = 0;
+			int index = 0;
 			while (WorldInfo.CorruptWorlds.Count > 0)
 			{
 				try
 				{
-					this._game.SaveDevice.DeleteDirectory(WorldInfo.CorruptWorlds[num]);
+					this._game.SaveDevice.DeleteDirectory(WorldInfo.CorruptWorlds[index]);
 				}
 				catch
 				{
 				}
-				WorldInfo.CorruptWorlds.RemoveAt(num);
+				WorldInfo.CorruptWorlds.RemoveAt(index);
 				this.CurrentWorldsCount--;
 				if (this.Cancel)
 				{
@@ -548,11 +547,11 @@ namespace DNA.CastleMinerZ
 
 		private void optimizeStorageWaitScreen_AfterDraw(object sender, DrawEventArgs e)
 		{
-			Vector2 vector = this._game._medFont.MeasureString(Strings.Press_Esc_to_Cancel);
-			int num = (int)((float)Screen.Adjuster.ScreenRect.Height - vector.Y);
-			int num2 = (int)((float)Screen.Adjuster.ScreenRect.Width - vector.X);
+			Vector2 CancelSize = this._game._medFont.MeasureString(Strings.Press_Esc_to_Cancel);
+			int ypos = (int)((float)Screen.Adjuster.ScreenRect.Height - CancelSize.Y);
+			int xpos = (int)((float)Screen.Adjuster.ScreenRect.Width - CancelSize.X);
 			this.SpriteBatch.Begin();
-			this.SpriteBatch.DrawOutlinedText(this._game._medFont, Strings.Press_Esc_to_Cancel, new Vector2((float)num2, (float)num), Color.White, Color.Black, 1);
+			this.SpriteBatch.DrawOutlinedText(this._game._medFont, Strings.Press_Esc_to_Cancel, new Vector2((float)xpos, (float)ypos), Color.White, Color.Black, 1);
 			this.SpriteBatch.End();
 		}
 
@@ -568,16 +567,16 @@ namespace DNA.CastleMinerZ
 
 		private void optimizeStorageWaitScreen_Updating(object sender, UpdateEventArgs e)
 		{
-			float num;
+			float progress;
 			if (this.OriginalWorldsCount > 0)
 			{
-				num = 1f - (float)this.CurrentWorldsCount / (float)this.OriginalWorldsCount;
+				progress = 1f - (float)this.CurrentWorldsCount / (float)this.OriginalWorldsCount;
 			}
 			else
 			{
-				num = 1f;
+				progress = 1f;
 			}
-			this.optimizeStorageWaitScreen.Progress = (int)(100f * num);
+			this.optimizeStorageWaitScreen.Progress = (int)(100f * progress);
 		}
 
 		private void CloseSaveDevice()
@@ -591,49 +590,49 @@ namespace DNA.CastleMinerZ
 
 		private static void GetFiles(string path, List<string> returnedFiles)
 		{
-			string[] directories = Directory.GetDirectories(path);
-			foreach (string text in directories)
+			string[] dirs = Directory.GetDirectories(path);
+			foreach (string dir in dirs)
 			{
-				FrontEndScreen.GetFiles(text, returnedFiles);
+				FrontEndScreen.GetFiles(dir, returnedFiles);
 			}
 			string[] files = Directory.GetFiles(path);
-			foreach (string text2 in files)
+			foreach (string file in files)
 			{
-				returnedFiles.Add(text2);
+				returnedFiles.Add(file);
 			}
 		}
 
 		private void UpdateSaves(string path, byte[] newKey)
 		{
-			string text = Path.Combine(path, "save.version");
-			if (File.Exists(text))
+			string markFile = Path.Combine(path, "save.version");
+			if (File.Exists(markFile))
 			{
 				return;
 			}
-			MD5HashProvider md5HashProvider = new MD5HashProvider();
-			byte[] data = md5HashProvider.Compute(Encoding.UTF8.GetBytes(Screen.CurrentGamer.Gamertag + "CMZ778")).Data;
-			SaveDevice saveDevice = new FileSystemSaveDevice(path, data);
-			SaveDevice saveDevice2 = new FileSystemSaveDevice(path, newKey);
-			List<string> list = new List<string>();
-			FrontEndScreen.GetFiles(path, list);
-			foreach (string text2 in list)
+			MD5HashProvider hasher = new MD5HashProvider();
+			byte[] oldKey = hasher.Compute(Encoding.UTF8.GetBytes(Screen.CurrentGamer.Gamertag + "CMZ778")).Data;
+			SaveDevice oldDevice = new FileSystemSaveDevice(path, oldKey);
+			SaveDevice newDevice = new FileSystemSaveDevice(path, newKey);
+			List<string> files = new List<string>();
+			FrontEndScreen.GetFiles(path, files);
+			foreach (string file in files)
 			{
-				byte[] array;
+				byte[] data;
 				try
 				{
-					array = saveDevice.LoadData(text2);
+					data = oldDevice.LoadData(file);
 				}
 				catch
 				{
 					continue;
 				}
-				saveDevice2.Save(text2, array, true, true);
+				newDevice.Save(file, data, true, true);
 			}
-			using (FileStream fileStream = File.Open(text, FileMode.Create, FileAccess.Write, FileShare.None))
+			using (FileStream stream = File.Open(markFile, FileMode.Create, FileAccess.Write, FileShare.None))
 			{
-				BinaryWriter binaryWriter = new BinaryWriter(fileStream);
-				binaryWriter.Write("VER");
-				binaryWriter.Write(1);
+				BinaryWriter writer = new BinaryWriter(stream);
+				writer.Write("VER");
+				writer.Write(1);
 			}
 		}
 
@@ -642,24 +641,24 @@ namespace DNA.CastleMinerZ
 			WaitScreen waitScreen = new WaitScreen(Strings.Opening_Storage_Device);
 			this._uiGroup.PushScreen(waitScreen);
 			this.CloseSaveDevice();
-			ulong steamUserID = CastleMinerZGame.Instance.LicenseServices.SteamUserID;
-			MD5HashProvider md5HashProvider = new MD5HashProvider();
-			byte[] data = md5HashProvider.Compute(Encoding.UTF8.GetBytes(steamUserID.ToString() + "CMZ778")).Data;
-			string appDataDirectory = GlobalSettings.GetAppDataDirectory();
-			string text = Path.Combine(appDataDirectory, steamUserID.ToString());
+			ulong steamID = CastleMinerZGame.Instance.LicenseServices.SteamUserID;
+			MD5HashProvider hasher = new MD5HashProvider();
+			byte[] key = hasher.Compute(Encoding.UTF8.GetBytes(steamID.ToString() + "CMZ778")).Data;
+			string dataPath = GlobalSettings.GetAppDataDirectory();
+			string finalPath = Path.Combine(dataPath, steamID.ToString());
 			try
 			{
-				string text2 = Path.Combine(appDataDirectory, Screen.CurrentGamer.Gamertag);
-				if (Directory.Exists(text2))
+				string namedPath = Path.Combine(dataPath, Screen.CurrentGamer.Gamertag);
+				if (Directory.Exists(namedPath))
 				{
-					Directory.Move(text2, text);
+					Directory.Move(namedPath, finalPath);
 				}
 			}
 			catch (Exception)
 			{
 			}
-			this.UpdateSaves(text, data);
-			this._game.SaveDevice = new FileSystemSaveDevice(text, data);
+			this.UpdateSaves(finalPath, key);
+			this._game.SaveDevice = new FileSystemSaveDevice(finalPath, key);
 			callback(true);
 			waitScreen.PopMe();
 		}
@@ -700,36 +699,10 @@ namespace DNA.CastleMinerZ
 						this._game.TerrainServerID = this._game.MyNetworkGamer.Id;
 						this._game.StartGame();
 						this._game.CurrentNetworkSession.AllowConnectionCallbackAlt = new NetworkSession.AllowConnectionCallbackDelegateAlt(this._allowConnectionCallbackAlt);
-						if (CastleMinerZGame.Instance.CurrentNetworkSession.ExternalIPString != null && this._game.PlayerStats.PostOnHost)
-						{
-							CastleMinerZGame.Instance.TaskScheduler.QueueUserWorkItem(delegate
-							{
-								try
-								{
-									new FacebookClient(CastleMinerZGame.FacebookAccessToken);
-									new PostToWall
-									{
-										Message = Strings.Hosting_at_internet_address + ": " + CastleMinerZGame.Instance.CurrentNetworkSession.ExternalIPString + " #CMZServer",
-										Link = "http://castleminerz.com/",
-										Description = Strings.Travel_with_your_friends_in_a_huge__ever_changing_world_and_craft_modern_weapons_to_defend_yourself_from_dragons_and_the_zombie_horde_,
-										ActionName = Strings.Download_Now,
-										ActionURL = "http://castleminerz.com/Download.html",
-										ImageURL = "http://digitaldnagames.com/Images/CastleMinerZBox.jpg",
-										AccessToken = CastleMinerZGame.FacebookAccessToken
-									}.Post();
-								}
-								catch
-								{
-								}
-							});
-							return;
-						}
+						return;
 					}
-					else
-					{
-						this._uiGroup.PopScreen();
-						this.ShowUIDialog(Strings.Hosting_Error, Strings.There_was_an_error_hosting_the_game_, false);
-					}
+					this._uiGroup.PopScreen();
+					this.ShowUIDialog(Strings.Hosting_Error, Strings.There_was_an_error_hosting_the_game_, false);
 				});
 			});
 		}
@@ -818,28 +791,28 @@ namespace DNA.CastleMinerZ
 
 		private void _loadingScreen_BeforeDraw(object sender, DrawEventArgs e)
 		{
-			float loadProgress = this._game.LoadProgress;
-			string text = Strings.Loading_The_World____ + Strings.Please_Wait___;
-			float num = (float)Screen.Adjuster.ScreenRect.Width * 0.8f;
-			float num2 = (float)Screen.Adjuster.ScreenRect.Left + ((float)Screen.Adjuster.ScreenRect.Width - num) / 2f;
-			Sprite sprite = this._game._uiSprites["Bar"];
-			Vector2 vector = this._largeFont.MeasureString(text);
-			Vector2 vector2 = new Vector2(num2, (float)(Screen.Adjuster.ScreenRect.Height / 2) + vector.Y);
-			float num3 = vector2.Y + (float)this._largeFont.LineSpacing + 10f * Screen.Adjuster.ScaleFactor.Y;
-			Rectangle rectangle = new Rectangle((int)num2, (int)num3, (int)num, this._largeFont.LineSpacing);
-			int left = rectangle.Left;
-			int top = rectangle.Top;
-			float num4 = (float)rectangle.Width / (float)sprite.Width;
+			float progress = this._game.LoadProgress;
+			string msg = Strings.Loading_The_World____ + Strings.Please_Wait___;
+			float barWidth = (float)Screen.Adjuster.ScreenRect.Width * 0.8f;
+			float leftStart = (float)Screen.Adjuster.ScreenRect.Left + ((float)Screen.Adjuster.ScreenRect.Width - barWidth) / 2f;
+			Sprite bar = this._game._uiSprites["Bar"];
+			Vector2 size = this._largeFont.MeasureString(msg);
+			Vector2 position = new Vector2(leftStart, (float)(Screen.Adjuster.ScreenRect.Height / 2) + size.Y);
+			float ypos = position.Y + (float)this._largeFont.LineSpacing + 10f * Screen.Adjuster.ScaleFactor.Y;
+			Rectangle location = new Rectangle((int)leftStart, (int)ypos, (int)barWidth, this._largeFont.LineSpacing);
+			int xloc = location.Left;
+			int yloc = location.Top;
+			float num = (float)location.Width / (float)bar.Width;
 			this.SpriteBatch.Begin();
-			int num5 = (int)((float)this._game.Logo.Width * Screen.Adjuster.ScaleFactor.X);
-			int num6 = (int)((float)this._game.Logo.Height * Screen.Adjuster.ScaleFactor.Y);
-			Rectangle rectangle2 = new Rectangle(Screen.Adjuster.ScreenRect.Center.X - num5 / 2, 0, num5, num6);
-			this._game.Logo.Draw(this.SpriteBatch, rectangle2, Color.White);
-			this.SpriteBatch.DrawOutlinedText(this._largeFont, text, vector2, Color.White, Color.Black, 1);
-			this.SpriteBatch.Draw(this._game.DummyTexture, new Rectangle(left - 2, top - 2, rectangle.Width + 4, rectangle.Height + 4), Color.White);
-			this.SpriteBatch.Draw(this._game.DummyTexture, new Rectangle(left, top, rectangle.Width, rectangle.Height), Color.Black);
-			int num7 = (int)((float)sprite.Width * loadProgress);
-			sprite.Draw(this.SpriteBatch, new Rectangle(left, top, (int)((float)rectangle.Width * loadProgress), rectangle.Height), new Rectangle(sprite.Width - num7, 0, num7, sprite.Height), Color.White);
+			int logoWidth = (int)((float)this._game.Logo.Width * Screen.Adjuster.ScaleFactor.X);
+			int logoHeight = (int)((float)this._game.Logo.Height * Screen.Adjuster.ScaleFactor.Y);
+			Rectangle logoRect = new Rectangle(Screen.Adjuster.ScreenRect.Center.X - logoWidth / 2, 0, logoWidth, logoHeight);
+			this._game.Logo.Draw(this.SpriteBatch, logoRect, Color.White);
+			this.SpriteBatch.DrawOutlinedText(this._largeFont, msg, position, Color.White, Color.Black, 1);
+			this.SpriteBatch.Draw(this._game.DummyTexture, new Rectangle(xloc - 2, yloc - 2, location.Width + 4, location.Height + 4), Color.White);
+			this.SpriteBatch.Draw(this._game.DummyTexture, new Rectangle(xloc, yloc, location.Width, location.Height), Color.Black);
+			int sourceWidth = (int)((float)bar.Width * progress);
+			bar.Draw(this.SpriteBatch, new Rectangle(xloc, yloc, (int)((float)location.Width * progress), location.Height), new Rectangle(bar.Width - sourceWidth, 0, sourceWidth, bar.Height), Color.White);
 			this.textFlashTimer.Update(e.GameTime.ElapsedGameTime);
 			Color.Lerp(Color.Green, Color.White, this.textFlashTimer.PercentComplete);
 			if (this.textFlashTimer.Expired)
@@ -851,21 +824,21 @@ namespace DNA.CastleMinerZ
 
 		private void _connectingScreen_BeforeDraw(object sender, DrawEventArgs e)
 		{
-			string text = Strings.Connecting____ + Strings.Please_Wait___;
-			Vector2 vector = this._largeFont.MeasureString(text);
-			Vector2 vector2 = new Vector2((float)(Screen.Adjuster.ScreenRect.Width / 2) - vector.X / 2f, (float)(Screen.Adjuster.ScreenRect.Height / 2) + vector.Y);
+			string msg = Strings.Connecting____ + Strings.Please_Wait___;
+			Vector2 size = this._largeFont.MeasureString(msg);
+			Vector2 position = new Vector2((float)(Screen.Adjuster.ScreenRect.Width / 2) - size.X / 2f, (float)(Screen.Adjuster.ScreenRect.Height / 2) + size.Y);
 			this.textFlashTimer.Update(e.GameTime.ElapsedGameTime);
-			Color color = Color.Lerp(Color.Green, Color.White, this.textFlashTimer.PercentComplete);
+			Color currentColor = Color.Lerp(Color.Green, Color.White, this.textFlashTimer.PercentComplete);
 			if (this.textFlashTimer.Expired)
 			{
 				this.textFlashTimer.Reset();
 			}
 			this.SpriteBatch.Begin();
-			int num = (int)((float)this._game.Logo.Width * Screen.Adjuster.ScaleFactor.X);
-			int num2 = (int)((float)this._game.Logo.Height * Screen.Adjuster.ScaleFactor.Y);
-			Rectangle rectangle = new Rectangle(Screen.Adjuster.ScreenRect.Center.X - num / 2, 0, num, num2);
-			this._game.Logo.Draw(this.SpriteBatch, rectangle, Color.White);
-			this.SpriteBatch.DrawOutlinedText(this._largeFont, text, vector2, color, Color.Black, 1);
+			int logoWidth = (int)((float)this._game.Logo.Width * Screen.Adjuster.ScaleFactor.X);
+			int logoHeight = (int)((float)this._game.Logo.Height * Screen.Adjuster.ScaleFactor.Y);
+			Rectangle logoRect = new Rectangle(Screen.Adjuster.ScreenRect.Center.X - logoWidth / 2, 0, logoWidth, logoHeight);
+			this._game.Logo.Draw(this.SpriteBatch, logoRect, Color.White);
+			this.SpriteBatch.DrawOutlinedText(this._largeFont, msg, position, currentColor, Color.Black, 1);
 			this.SpriteBatch.End();
 		}
 
@@ -880,10 +853,10 @@ namespace DNA.CastleMinerZ
 		private void _chooseAnotherGameScreen_BeforeDraw(object sender, DrawEventArgs e)
 		{
 			this.SpriteBatch.Begin();
-			string session_Ended = Strings.Session_Ended;
-			Vector2 vector = this._largeFont.MeasureString(session_Ended);
+			string msg = Strings.Session_Ended;
+			Vector2 size = this._largeFont.MeasureString(msg);
 			int lineSpacing = this._largeFont.LineSpacing;
-			this.SpriteBatch.DrawOutlinedText(this._largeFont, session_Ended, new Vector2(640f - vector.X / 2f, 360f - vector.Y / 2f), Color.White, Color.Black, 2);
+			this.SpriteBatch.DrawOutlinedText(this._largeFont, msg, new Vector2(640f - size.X / 2f, 360f - size.Y / 2f), Color.White, Color.Black, 2);
 			this.SpriteBatch.End();
 		}
 

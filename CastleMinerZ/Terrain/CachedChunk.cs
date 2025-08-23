@@ -11,29 +11,29 @@ namespace DNA.CastleMinerZ.Terrain
 	{
 		public static IntVector3 MakeChunkCorner(IntVector3 position)
 		{
-			IntVector3 intVector;
-			intVector.X = (int)(Math.Floor((double)position.X / 16.0) * 16.0);
-			intVector.Y = -64;
-			intVector.Z = (int)(Math.Floor((double)position.Z / 16.0) * 16.0);
-			return intVector;
+			IntVector3 chunkCorner;
+			chunkCorner.X = (int)(Math.Floor((double)position.X / 16.0) * 16.0);
+			chunkCorner.Y = -64;
+			chunkCorner.Z = (int)(Math.Floor((double)position.Z / 16.0) * 16.0);
+			return chunkCorner;
 		}
 
 		public static IntVector3 MakeChunkCornerFromCID(int cid)
 		{
-			IntVector3 zero = IntVector3.Zero;
-			short num = (short)((int)((long)cid & (long)((ulong)(-65536))) >> 16);
-			short num2 = (short)((long)cid & 65535L);
-			zero.X = (int)(num2 * 16);
-			zero.Y = -64;
-			zero.Z = (int)(num * 16);
-			return zero;
+			IntVector3 chunkCorner = IntVector3.Zero;
+			short chunkz = (short)((int)((long)cid & (long)((ulong)(-65536))) >> 16);
+			short chunkx = (short)((long)cid & 65535L);
+			chunkCorner.X = (int)(chunkx * 16);
+			chunkCorner.Y = -64;
+			chunkCorner.Z = (int)(chunkz * 16);
+			return chunkCorner;
 		}
 
 		public static int MakeCIDFromChunkCorner(IntVector3 chunkCorner)
 		{
-			uint num = (uint)((chunkCorner.Z / 16) & 65535);
-			uint num2 = (uint)((chunkCorner.X / 16) & 65535);
-			return (int)((num << 16) | num2);
+			uint chunkz = (uint)((chunkCorner.Z / 16) & 65535);
+			uint chunkx = (uint)((chunkCorner.X / 16) & 65535);
+			return (int)((chunkz << 16) | chunkx);
 		}
 
 		public bool SameAsDisk
@@ -112,26 +112,26 @@ namespace DNA.CastleMinerZ.Terrain
 
 		private void Embiggen()
 		{
-			int num;
+			int newsize;
 			if (this._delta == null)
 			{
-				num = 32;
+				newsize = 32;
 			}
 			else
 			{
-				num = this._delta.Length + 32;
+				newsize = this._delta.Length + 32;
 			}
-			this.Resize(num);
+			this.Resize(newsize);
 		}
 
 		private void Resize(int newsize)
 		{
-			int[] array = new int[newsize];
+			int[] newd = new int[newsize];
 			if (this._numEntries > 0)
 			{
-				Buffer.BlockCopy(this._delta, 0, array, 0, this._numEntries * 4);
+				Buffer.BlockCopy(this._delta, 0, newd, 0, this._numEntries * 4);
 			}
-			this._delta = array;
+			this._delta = newd;
 		}
 
 		public void AddWorldVector(IntVector3 entry, BlockTypeEnum type)
@@ -141,14 +141,14 @@ namespace DNA.CastleMinerZ.Terrain
 
 		public void Add(IntVector3 entry, BlockTypeEnum type)
 		{
-			int num = DeltaEntry.Create(entry, type);
+			int newEntry = DeltaEntry.Create(entry, type);
 			for (int i = 0; i < this._numEntries; i++)
 			{
-				if (DeltaEntry.SameLocation(this._delta[i], num))
+				if (DeltaEntry.SameLocation(this._delta[i], newEntry))
 				{
-					if (this._delta[i] != num)
+					if (this._delta[i] != newEntry)
 					{
-						this._delta[i] = num;
+						this._delta[i] = newEntry;
 						this._copy = null;
 						this.SameAsDisk = false;
 					}
@@ -159,7 +159,7 @@ namespace DNA.CastleMinerZ.Terrain
 			{
 				this.Embiggen();
 			}
-			this._delta[this._numEntries++] = num;
+			this._delta[this._numEntries++] = newEntry;
 			this._copy = null;
 			this.SameAsDisk = false;
 		}
@@ -172,11 +172,11 @@ namespace DNA.CastleMinerZ.Terrain
 			}
 			if (command._command == ChunkCacheCommandEnum.MOD)
 			{
-				for (ChunkCacheCommand chunkCacheCommand = this._commandQueue.Front; chunkCacheCommand != null; chunkCacheCommand = (ChunkCacheCommand)chunkCacheCommand.NextNode)
+				for (ChunkCacheCommand cmd = this._commandQueue.Front; cmd != null; cmd = (ChunkCacheCommand)cmd.NextNode)
 				{
-					if (chunkCacheCommand._command == ChunkCacheCommandEnum.MOD && chunkCacheCommand._worldPosition.Equals(command._worldPosition))
+					if (cmd._command == ChunkCacheCommandEnum.MOD && cmd._worldPosition.Equals(command._worldPosition))
 					{
-						chunkCacheCommand._blockType = command._blockType;
+						cmd._blockType = command._blockType;
 						command.Release();
 						return;
 					}
@@ -188,14 +188,14 @@ namespace DNA.CastleMinerZ.Terrain
 
 		public void RunCommand(ChunkCacheCommand command)
 		{
-			bool flag = true;
+			bool releaseCommand = true;
 			ChunkCacheCommandEnum command2 = command._command;
 			switch (command2)
 			{
 			case ChunkCacheCommandEnum.MOD:
 			{
-				IntVector3 intVector = IntVector3.Subtract(command._worldPosition, this._worldMin);
-				this.Add(intVector, command._blockType);
+				IntVector3 location = IntVector3.Subtract(command._worldPosition, this._worldMin);
+				this.Add(location, command._blockType);
 				goto IL_0059;
 			}
 			case ChunkCacheCommandEnum.FETCHDELTAFORTERRAIN:
@@ -209,9 +209,9 @@ namespace DNA.CastleMinerZ.Terrain
 			}
 			command._delta = this.GetDeltaCopy();
 			command._callback(command);
-			flag = false;
+			releaseCommand = false;
 			IL_0059:
-			if (flag)
+			if (releaseCommand)
 			{
 				command.Release();
 			}
@@ -219,14 +219,14 @@ namespace DNA.CastleMinerZ.Terrain
 
 		public void StripFetchCommands()
 		{
-			ChunkCacheCommand chunkCacheCommand = null;
+			ChunkCacheCommand newHead = null;
 			while (!this._commandQueue.Empty)
 			{
-				ChunkCacheCommand chunkCacheCommand2 = this._commandQueue.Dequeue();
-				if (chunkCacheCommand2._command == ChunkCacheCommandEnum.FETCHDELTAFORTERRAIN)
+				ChunkCacheCommand c = this._commandQueue.Dequeue();
+				if (c._command == ChunkCacheCommandEnum.FETCHDELTAFORTERRAIN)
 				{
-					chunkCacheCommand2._command = ChunkCacheCommandEnum.RESETWAITINGCHUNKS;
-					chunkCacheCommand2._callback(chunkCacheCommand2);
+					c._command = ChunkCacheCommandEnum.RESETWAITINGCHUNKS;
+					c._callback(c);
 					if (this._loadingPriority > 0)
 					{
 						this._loadingPriority = 0;
@@ -234,16 +234,16 @@ namespace DNA.CastleMinerZ.Terrain
 				}
 				else
 				{
-					chunkCacheCommand2.NextNode = chunkCacheCommand;
-					chunkCacheCommand = chunkCacheCommand2;
+					c.NextNode = newHead;
+					newHead = c;
 				}
 			}
-			while (chunkCacheCommand != null)
+			while (newHead != null)
 			{
-				ChunkCacheCommand chunkCacheCommand2 = chunkCacheCommand;
-				chunkCacheCommand = (ChunkCacheCommand)chunkCacheCommand2.NextNode;
-				chunkCacheCommand2.NextNode = null;
-				this._commandQueue.Undequeue(chunkCacheCommand2);
+				ChunkCacheCommand c = newHead;
+				newHead = (ChunkCacheCommand)c.NextNode;
+				c.NextNode = null;
+				this._commandQueue.Undequeue(c);
 			}
 		}
 
@@ -260,50 +260,50 @@ namespace DNA.CastleMinerZ.Terrain
 			if (ChunkCache.Instance.IsStorageEnabled && ChunkCache.Instance.ChunkInLocalList(this._worldMin))
 			{
 				SignedInGamer currentGamer = Screen.CurrentGamer;
-				string text = this.MakeFilename();
+				string filename = this.MakeFilename();
 				int[] data = null;
 				try
 				{
-					CastleMinerZGame.Instance.SaveDevice.Load(text, delegate(Stream stream)
+					CastleMinerZGame.Instance.SaveDevice.Load(filename, delegate(Stream stream)
 					{
-						BinaryReader binaryReader = new BinaryReader(stream);
-						uint num = binaryReader.ReadUInt32();
-						int num2;
-						if (num == 3203334144U)
+						BinaryReader reader = new BinaryReader(stream);
+						uint version = reader.ReadUInt32();
+						int modsToRead;
+						if (version == 3203334144U)
 						{
-							num2 = binaryReader.ReadInt32();
-							data = new int[num2];
-							for (int i = 0; i < num2; i++)
+							modsToRead = reader.ReadInt32();
+							data = new int[modsToRead];
+							for (int i = 0; i < modsToRead; i++)
 							{
-								data[i] = binaryReader.ReadInt32();
+								data[i] = reader.ReadInt32();
 							}
 							return;
 						}
-						int num3;
-						if ((num & 65535U) == 2U)
+						int totalSize;
+						if ((version & 65535U) == 2U)
 						{
 							stream.Position = 0L;
-							num3 = (int)stream.Length;
+							totalSize = (int)stream.Length;
 						}
 						else
 						{
-							num3 = (int)num;
+							totalSize = (int)version;
 						}
-						int num4 = (int)binaryReader.ReadByte();
-						for (int j = 0; j < num4 - 1; j++)
+						int skipSize = (int)reader.ReadByte();
+						for (int j = 0; j < skipSize - 1; j++)
 						{
-							binaryReader.ReadByte();
+							reader.ReadByte();
 						}
-						num2 = (num3 - num4) / 4;
-						data = new int[num2];
-						for (int k = 0; k < num2; k++)
+						modsToRead = (totalSize - skipSize) / 4;
+						data = new int[modsToRead];
+						for (int k = 0; k < modsToRead; k++)
 						{
-							uint num5 = binaryReader.ReadUInt32();
-							uint num6 = (num5 & 4278190080U) >> 24;
-							num6 |= (num5 & 16711680U) >> 8;
-							num6 |= (num5 & 65280U) << 8;
-							num6 |= (num5 & 255U) << 24;
-							data[k] = (int)num6;
+							uint s = reader.ReadUInt32();
+							uint f = (s & 4278190080U) >> 24;
+							f |= (s & 16711680U) >> 8;
+							f |= (s & 65280U) << 8;
+							f |= (s & 255U) << 24;
+							data[k] = (int)f;
 						}
 					});
 				}
@@ -334,31 +334,31 @@ namespace DNA.CastleMinerZ.Terrain
 			if (!this._saved && ChunkCache.Instance.IsStorageEnabled)
 			{
 				SignedInGamer currentGamer = Screen.CurrentGamer;
-				string text = this.MakeFilename();
-				bool flag = true;
+				string fname = this.MakeFilename();
+				bool saveWorked = true;
 				if (this._numEntries != 0)
 				{
 					try
 					{
-						CastleMinerZGame.Instance.SaveDevice.Save(text, true, true, delegate(Stream stream)
+						CastleMinerZGame.Instance.SaveDevice.Save(fname, true, true, delegate(Stream stream)
 						{
-							BinaryWriter binaryWriter = new BinaryWriter(stream);
-							binaryWriter.Write(3203334144U);
-							binaryWriter.Write(this._numEntries);
+							BinaryWriter writer = new BinaryWriter(stream);
+							writer.Write(3203334144U);
+							writer.Write(this._numEntries);
 							for (int i = 0; i < this._numEntries; i++)
 							{
-								binaryWriter.Write(this._delta[i]);
+								writer.Write(this._delta[i]);
 							}
-							binaryWriter.Flush();
+							writer.Flush();
 						});
-						flag = true;
+						saveWorked = true;
 					}
 					catch (Exception)
 					{
-						flag = false;
+						saveWorked = false;
 					}
 				}
-				if (flag)
+				if (saveWorked)
 				{
 					this._saved = true;
 					this.SameAsDisk = true;
@@ -379,24 +379,24 @@ namespace DNA.CastleMinerZ.Terrain
 
 		public void MaybeRetryFetch()
 		{
-			double num = (double)(CachedChunk.TimeoutTimer.ElapsedMilliseconds - this._timeOfRequest) / 1000.0;
-			double num2;
+			double timeSinceRequest = (double)(CachedChunk.TimeoutTimer.ElapsedMilliseconds - this._timeOfRequest) / 1000.0;
+			double timeout;
 			if (this._loadingPriority > 0)
 			{
 				if (this._retries < 2)
 				{
-					num2 = 2.0;
+					timeout = 2.0;
 				}
 				else
 				{
-					num2 = 0.5;
+					timeout = 0.5;
 				}
 			}
 			else
 			{
-				num2 = 20.0;
+				timeout = 20.0;
 			}
-			if (num > num2)
+			if (timeSinceRequest > timeout)
 			{
 				this._retries++;
 				this.GetChunkFromHost(this._loadingPriority);

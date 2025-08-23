@@ -21,9 +21,9 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, float timeOfDay)
 		{
-			TimeOfDayMessage sendInstance = Message.GetSendInstance<TimeOfDayMessage>();
-			sendInstance.TimeOfDay = timeOfDay;
-			sendInstance.DoSend(from);
+			TimeOfDayMessage Instance = Message.GetSendInstance<TimeOfDayMessage>();
+			Instance.TimeOfDay = timeOfDay;
+			Instance.DoSend(from);
 		}
 
 		protected override SendDataOptions SendDataOptions

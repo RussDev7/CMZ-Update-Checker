@@ -46,11 +46,11 @@ namespace DNA.CastleMinerZ.UI
 		{
 			if (this._selectorInCrateGrid && this._game.CurrentNetworkSession != null)
 			{
-				foreach (NetworkGamer networkGamer in this._game.CurrentNetworkSession.RemoteGamers)
+				foreach (NetworkGamer gamer in this._game.CurrentNetworkSession.RemoteGamers)
 				{
-					if (networkGamer.Tag != null)
+					if (gamer.Tag != null)
 					{
-						Player player = (Player)networkGamer.Tag;
+						Player player = (Player)gamer.Tag;
 						if (player.FocusCrate == this.CurrentCrate.Location && player.FocusCrateItem == this._selectedLocation)
 						{
 							return true;
@@ -64,13 +64,13 @@ namespace DNA.CastleMinerZ.UI
 
 		public bool IsSlotLocked(int index)
 		{
-			foreach (NetworkGamer networkGamer in this._game.CurrentNetworkSession.RemoteGamers)
+			foreach (NetworkGamer gamer in this._game.CurrentNetworkSession.RemoteGamers)
 			{
-				if (networkGamer.Tag != null)
+				if (gamer.Tag != null)
 				{
-					Player player = (Player)networkGamer.Tag;
-					int num = player.FocusCrateItem.X + player.FocusCrateItem.Y * 4;
-					if (player.FocusCrate == this.CurrentCrate.Location && num == index)
+					Player player = (Player)gamer.Tag;
+					int playerLockedIndex = player.FocusCrateItem.X + player.FocusCrateItem.Y * 4;
+					if (player.FocusCrate == this.CurrentCrate.Location && playerLockedIndex == index)
 					{
 						return true;
 					}
@@ -165,9 +165,9 @@ namespace DNA.CastleMinerZ.UI
 			}
 			if (this.SelectedItem != null && this._selectorInCrateGrid && !this.IsSelectedSlotLocked())
 			{
-				Vector3 localPosition = this._game.LocalPlayer.LocalPosition;
-				localPosition.Y += 1f;
-				PickupManager.Instance.CreatePickup(this.SelectedItem, localPosition, true, false);
+				Vector3 v = this._game.LocalPlayer.LocalPosition;
+				v.Y += 1f;
+				PickupManager.Instance.CreatePickup(this.SelectedItem, v, true, false);
 				SoundManager.Instance.PlayInstance("dropitem");
 			}
 			base.PopMe();
@@ -203,9 +203,9 @@ namespace DNA.CastleMinerZ.UI
 			this._gridSelector = this._game._uiSprites["Selector"];
 			this._grid = this._game._uiSprites["InventoryGrid"];
 			this._gridSprite = this._game._uiSprites["HudGrid"];
-			Rectangle screenRect = Screen.Adjuster.ScreenRect;
-			Vector2 vector = new Vector2((float)(this._grid.Width * 2 + 16), (float)this._grid.Height) * Screen.Adjuster.ScaleFactor.Y;
-			this._backgroundRect = new Rectangle((int)((float)screenRect.Center.X - vector.X / 2f), (int)((float)screenRect.Center.Y - vector.Y / 2f), (int)vector.X, (int)vector.Y);
+			Rectangle screenArea = Screen.Adjuster.ScreenRect;
+			Vector2 gridSize = new Vector2((float)(this._grid.Width * 2 + 16), (float)this._grid.Height) * Screen.Adjuster.ScaleFactor.Y;
+			this._backgroundRect = new Rectangle((int)((float)screenArea.Center.X - gridSize.X / 2f), (int)((float)screenArea.Center.Y - gridSize.Y / 2f), (int)gridSize.X, (int)gridSize.Y);
 			this._popUpFadeOutTimer.Update(TimeSpan.FromSeconds(2.0));
 		}
 
@@ -217,90 +217,90 @@ namespace DNA.CastleMinerZ.UI
 			this._game.GameScreen.HUD.DrawPlayerStats(spriteBatch);
 			this._game.GameScreen.HUD.DrawDistanceStr(spriteBatch);
 			SpriteFont smallFont = CastleMinerZGame.Instance._smallFont;
-			Vector2 vector = new Vector2((float)(this._grid.Width * 2 + 16), (float)this._grid.Height) * Screen.Adjuster.ScaleFactor.Y;
-			this._backgroundRect = new Rectangle((int)((float)Screen.Adjuster.ScreenRect.Center.X - vector.X / 2f), (int)((float)Screen.Adjuster.ScreenRect.Center.Y - vector.Y / 2f), (int)vector.X, (int)vector.Y);
-			this._grid.Draw(spriteBatch, new Rectangle(this._backgroundRect.X, this._backgroundRect.Y, (int)((float)this._grid.Width * Screen.Adjuster.ScaleFactor.Y), (int)vector.Y), Color.White);
-			this._grid.Draw(spriteBatch, new Rectangle(this._backgroundRect.Right - (int)((float)this._grid.Width * Screen.Adjuster.ScaleFactor.Y), this._backgroundRect.Y, (int)((float)this._grid.Width * Screen.Adjuster.ScaleFactor.Y), (int)vector.Y), Color.White);
-			PlayerInventory playerInventory = this._hud.PlayerInventory;
-			Vector2 vector2 = new Vector2((float)this._backgroundRect.X + 299f * Screen.Adjuster.ScaleFactor.Y, (float)this._backgroundRect.Y + 33f * Screen.Adjuster.ScaleFactor.Y);
-			float num = 59f * Screen.Adjuster.ScaleFactor.Y;
-			int num2 = (int)(64f * Screen.Adjuster.ScaleFactor.Y);
-			for (int i = 0; i < 8; i++)
+			Vector2 gridSize = new Vector2((float)(this._grid.Width * 2 + 16), (float)this._grid.Height) * Screen.Adjuster.ScaleFactor.Y;
+			this._backgroundRect = new Rectangle((int)((float)Screen.Adjuster.ScreenRect.Center.X - gridSize.X / 2f), (int)((float)Screen.Adjuster.ScreenRect.Center.Y - gridSize.Y / 2f), (int)gridSize.X, (int)gridSize.Y);
+			this._grid.Draw(spriteBatch, new Rectangle(this._backgroundRect.X, this._backgroundRect.Y, (int)((float)this._grid.Width * Screen.Adjuster.ScaleFactor.Y), (int)gridSize.Y), Color.White);
+			this._grid.Draw(spriteBatch, new Rectangle(this._backgroundRect.Right - (int)((float)this._grid.Width * Screen.Adjuster.ScaleFactor.Y), this._backgroundRect.Y, (int)((float)this._grid.Width * Screen.Adjuster.ScaleFactor.Y), (int)gridSize.Y), Color.White);
+			PlayerInventory inventory = this._hud.PlayerInventory;
+			Vector2 inventoryOrigin = new Vector2((float)this._backgroundRect.X + 299f * Screen.Adjuster.ScaleFactor.Y, (float)this._backgroundRect.Y + 33f * Screen.Adjuster.ScaleFactor.Y);
+			float itemSpacing = 59f * Screen.Adjuster.ScaleFactor.Y;
+			int size = (int)(64f * Screen.Adjuster.ScaleFactor.Y);
+			for (int y = 0; y < 8; y++)
 			{
-				for (int j = 0; j < 4; j++)
+				for (int x = 0; x < 4; x++)
 				{
-					Vector2 vector3 = vector2 + num * new Vector2((float)j, (float)i);
-					this._inventoryItemLocations[j + i * 4] = new Rectangle((int)vector3.X, (int)vector3.Y, (int)num, (int)num);
-					InventoryItem inventoryItem = playerInventory.Inventory[i * 4 + j];
-					if (inventoryItem != null && inventoryItem != this._holdingItem && (this._holdingItem == null || this.SelectedItem != inventoryItem || this._mousePointerActive))
+					Vector2 itemLocation = inventoryOrigin + itemSpacing * new Vector2((float)x, (float)y);
+					this._inventoryItemLocations[x + y * 4] = new Rectangle((int)itemLocation.X, (int)itemLocation.Y, (int)itemSpacing, (int)itemSpacing);
+					InventoryItem item = inventory.Inventory[y * 4 + x];
+					if (item != null && item != this._holdingItem && (this._holdingItem == null || this.SelectedItem != item || this._mousePointerActive))
 					{
-						inventoryItem.Draw2D(spriteBatch, new Rectangle((int)vector3.X, (int)vector3.Y, num2, num2));
+						item.Draw2D(spriteBatch, new Rectangle((int)itemLocation.X, (int)itemLocation.Y, size, size));
 					}
 				}
 			}
-			int num3 = 0;
-			int num4 = 2;
-			Rectangle[] array = new Rectangle[num4];
-			Size size = new Size((int)((float)this._gridSprite.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._gridSprite.Height * Screen.Adjuster.ScaleFactor.Y));
-			array[num3] = new Rectangle(Screen.Adjuster.ScreenRect.Center.X - size.Width, Screen.Adjuster.ScreenRect.Bottom - size.Height - (int)(5f * Screen.Adjuster.ScaleFactor.Y), size.Width, size.Height);
-			Rectangle rectangle = array[num3];
-			this._gridSprite.Draw(spriteBatch, rectangle, Color.White);
-			this.DrawItemTray(num3, 32, rectangle, num2, num, playerInventory, spriteBatch);
-			num3 = 1;
-			array[num3] = new Rectangle(Screen.Adjuster.ScreenRect.Center.X, Screen.Adjuster.ScreenRect.Bottom - size.Height - (int)(5f * Screen.Adjuster.ScaleFactor.Y), size.Width, size.Height);
-			rectangle = array[num3];
-			this._gridSprite.Draw(spriteBatch, rectangle, Color.White);
-			this.DrawItemTray(num3, 40, rectangle, num2, num, playerInventory, spriteBatch);
-			InventoryItem[] inventory = this.CurrentCrate.Inventory;
-			Vector2 vector4 = new Vector2((float)this._backgroundRect.X + 17f * Screen.Adjuster.ScaleFactor.Y, (float)this._backgroundRect.Y + 33f * Screen.Adjuster.ScaleFactor.Y);
+			int trayIndex = 0;
+			int maxTrayCount = 2;
+			Rectangle[] gridRects = new Rectangle[maxTrayCount];
+			Size traySize = new Size((int)((float)this._gridSprite.Width * Screen.Adjuster.ScaleFactor.Y), (int)((float)this._gridSprite.Height * Screen.Adjuster.ScaleFactor.Y));
+			gridRects[trayIndex] = new Rectangle(Screen.Adjuster.ScreenRect.Center.X - traySize.Width, Screen.Adjuster.ScreenRect.Bottom - traySize.Height - (int)(5f * Screen.Adjuster.ScaleFactor.Y), traySize.Width, traySize.Height);
+			Rectangle gridRect = gridRects[trayIndex];
+			this._gridSprite.Draw(spriteBatch, gridRect, Color.White);
+			this.DrawItemTray(trayIndex, 32, gridRect, size, itemSpacing, inventory, spriteBatch);
+			trayIndex = 1;
+			gridRects[trayIndex] = new Rectangle(Screen.Adjuster.ScreenRect.Center.X, Screen.Adjuster.ScreenRect.Bottom - traySize.Height - (int)(5f * Screen.Adjuster.ScaleFactor.Y), traySize.Width, traySize.Height);
+			gridRect = gridRects[trayIndex];
+			this._gridSprite.Draw(spriteBatch, gridRect, Color.White);
+			this.DrawItemTray(trayIndex, 40, gridRect, size, itemSpacing, inventory, spriteBatch);
+			InventoryItem[] crateInventory = this.CurrentCrate.Inventory;
+			Vector2 crateInventoryOrigin = new Vector2((float)this._backgroundRect.X + 17f * Screen.Adjuster.ScaleFactor.Y, (float)this._backgroundRect.Y + 33f * Screen.Adjuster.ScaleFactor.Y);
 			spriteBatch.DrawOutlinedText(this._smallFont, this.CRATE, new Vector2((float)this._backgroundRect.X + (85f - this._smallFont.MeasureString(this.CRATE).X / 2f) * Screen.Adjuster.ScaleFactor.Y, (float)this._backgroundRect.Y + 5f * Screen.Adjuster.ScaleFactor.Y), CMZColors.MenuOrange, Color.Black, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
 			spriteBatch.DrawOutlinedText(this._smallFont, this.INVENTORY, new Vector2((float)this._backgroundRect.X + (369f - this._smallFont.MeasureString(this.INVENTORY).X / 2f) * Screen.Adjuster.ScaleFactor.Y, (float)this._backgroundRect.Y + 5f * Screen.Adjuster.ScaleFactor.Y), CMZColors.MenuOrange, Color.Black, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
-			for (int k = 0; k < 8; k++)
+			for (int y2 = 0; y2 < 8; y2++)
 			{
-				for (int l = 0; l < 4; l++)
+				for (int x2 = 0; x2 < 4; x2++)
 				{
-					Vector2 vector5 = vector4 + num * new Vector2((float)l, (float)k);
-					this._crateItemLocations[l + k * 4] = new Rectangle((int)vector5.X, (int)vector5.Y, (int)num, (int)num);
-					InventoryItem inventoryItem2 = inventory[k * 4 + l];
-					if (inventoryItem2 != null && inventoryItem2 != this._holdingItem && (this._holdingItem == null || this.SelectedItem != inventoryItem2 || this._mousePointerActive))
+					Vector2 itemLocation2 = crateInventoryOrigin + itemSpacing * new Vector2((float)x2, (float)y2);
+					this._crateItemLocations[x2 + y2 * 4] = new Rectangle((int)itemLocation2.X, (int)itemLocation2.Y, (int)itemSpacing, (int)itemSpacing);
+					InventoryItem item2 = crateInventory[y2 * 4 + x2];
+					if (item2 != null && item2 != this._holdingItem && (this._holdingItem == null || this.SelectedItem != item2 || this._mousePointerActive))
 					{
-						inventoryItem2.Draw2D(spriteBatch, new Rectangle((int)vector5.X, (int)vector5.Y, num2, num2));
+						item2.Draw2D(spriteBatch, new Rectangle((int)itemLocation2.X, (int)itemLocation2.Y, size, size));
 					}
 				}
 			}
-			Vector2 vector6;
+			Vector2 selectorOrigin;
 			if (this._selectorInCrateGrid)
 			{
-				vector6 = vector4;
+				selectorOrigin = crateInventoryOrigin;
 			}
 			else
 			{
-				vector6 = vector2;
+				selectorOrigin = inventoryOrigin;
 			}
-			Rectangle rectangle2;
+			Rectangle selectorLocation;
 			if (this._selectedLocation.Y < 8)
 			{
-				Vector2 vector7 = vector6 + num * new Vector2((float)this._selectedLocation.X, (float)this._selectedLocation.Y);
-				rectangle2 = new Rectangle((int)vector7.X, (int)vector7.Y, num2, num2);
+				Vector2 loc = selectorOrigin + itemSpacing * new Vector2((float)this._selectedLocation.X, (float)this._selectedLocation.Y);
+				selectorLocation = new Rectangle((int)loc.X, (int)loc.Y, size, size);
 			}
 			else
 			{
-				Rectangle rectangle3 = array[this.GetTrayIndexFromRow(this._selectedLocation.Y)];
-				rectangle2 = new Rectangle(rectangle3.Left + (int)(7f * Screen.Adjuster.ScaleFactor.Y + num * (float)this._selectedLocation.X), (int)((float)rectangle3.Top + 7f * Screen.Adjuster.ScaleFactor.Y), num2, num2);
+				Rectangle targetTrayGridRect = gridRects[this.GetTrayIndexFromRow(this._selectedLocation.Y)];
+				selectorLocation = new Rectangle(targetTrayGridRect.Left + (int)(7f * Screen.Adjuster.ScaleFactor.Y + itemSpacing * (float)this._selectedLocation.X), (int)((float)targetTrayGridRect.Top + 7f * Screen.Adjuster.ScaleFactor.Y), size, size);
 			}
 			if (!this._mousePointerActive || this._hitTestTrue)
 			{
-				this._gridSelector.Draw(spriteBatch, rectangle2, (this._holdingItem == null) ? Color.White : Color.Red);
+				this._gridSelector.Draw(spriteBatch, selectorLocation, (this._holdingItem == null) ? Color.White : Color.Red);
 			}
 			if (this._holdingItem != null)
 			{
 				if (this._mousePointerActive)
 				{
-					this._holdingItem.Draw2D(spriteBatch, new Rectangle((int)((float)this._mousePointerLocation.X - num / 2f), (int)((float)this._mousePointerLocation.Y - num / 2f), (int)num, (int)num));
+					this._holdingItem.Draw2D(spriteBatch, new Rectangle((int)((float)this._mousePointerLocation.X - itemSpacing / 2f), (int)((float)this._mousePointerLocation.Y - itemSpacing / 2f), (int)itemSpacing, (int)itemSpacing));
 				}
 				else
 				{
-					this._holdingItem.Draw2D(spriteBatch, new Rectangle(rectangle2.X, rectangle2.Y, (int)num, (int)num));
+					this._holdingItem.Draw2D(spriteBatch, new Rectangle(selectorLocation.X, selectorLocation.Y, (int)itemSpacing, (int)itemSpacing));
 				}
 			}
 			InventoryItem selectedItem = this.SelectedItem;
@@ -308,14 +308,14 @@ namespace DNA.CastleMinerZ.UI
 			if (this.SelectedItem != null && this._holdingItem == null && this._hitTestTrue && this._popUpTimer.Expired)
 			{
 				Color color = new Color(this._popUpFadeInTimer.PercentComplete, this._popUpFadeInTimer.PercentComplete, this._popUpFadeInTimer.PercentComplete, this._popUpFadeInTimer.PercentComplete);
-				Color color2 = new Color(0f, 0f, 0f, this._popUpFadeInTimer.PercentComplete);
-				spriteBatch.DrawOutlinedText(this._smallFont, this._popUpItem.Name, this._popUpLocation, color, color2, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
+				Color blackColor = new Color(0f, 0f, 0f, this._popUpFadeInTimer.PercentComplete);
+				spriteBatch.DrawOutlinedText(this._smallFont, this._popUpItem.Name, this._popUpLocation, color, blackColor, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
 			}
 			else if (!this._popUpFadeOutTimer.Expired)
 			{
-				Color color3 = new Color(1f - this._popUpFadeOutTimer.PercentComplete, 1f - this._popUpFadeOutTimer.PercentComplete, 1f - this._popUpFadeOutTimer.PercentComplete, 1f - this._popUpFadeOutTimer.PercentComplete);
-				Color color4 = new Color(0f, 0f, 0f, 1f - this._popUpFadeOutTimer.PercentComplete);
-				spriteBatch.DrawOutlinedText(this._smallFont, this._popUpItem.Name, this._popUpLocation, color3, color4, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
+				Color color2 = new Color(1f - this._popUpFadeOutTimer.PercentComplete, 1f - this._popUpFadeOutTimer.PercentComplete, 1f - this._popUpFadeOutTimer.PercentComplete, 1f - this._popUpFadeOutTimer.PercentComplete);
+				Color blackColor2 = new Color(0f, 0f, 0f, 1f - this._popUpFadeOutTimer.PercentComplete);
+				spriteBatch.DrawOutlinedText(this._smallFont, this._popUpItem.Name, this._popUpLocation, color2, blackColor2, 1, Screen.Adjuster.ScaleFactor.Y, 0f, Vector2.Zero);
 			}
 			spriteBatch.End();
 			base.Draw(device, spriteBatch, gameTime);
@@ -323,14 +323,14 @@ namespace DNA.CastleMinerZ.UI
 
 		private void DrawItemTray(int trayIndex, int columnOffset, Rectangle gridRect, int size, float itemSpacing, PlayerInventory inventory, SpriteBatch spriteBatch)
 		{
-			for (int i = 0; i < 8; i++)
+			for (int x = 0; x < 8; x++)
 			{
-				Vector2 vector = new Vector2(itemSpacing * (float)i + (float)gridRect.Left + 2f * Screen.Adjuster.ScaleFactor.Y, (float)gridRect.Top + 2f * Screen.Adjuster.ScaleFactor.Y);
-				this._inventoryItemLocations[i + columnOffset] = new Rectangle((int)vector.X, (int)vector.Y, size, size);
-				InventoryItem trayItem = inventory.TrayManager.GetTrayItem(trayIndex, i);
-				if (trayItem != null && trayItem != this._holdingItem && (this._holdingItem == null || this.SelectedItem != trayItem || this._mousePointerActive))
+				Vector2 itemLocation = new Vector2(itemSpacing * (float)x + (float)gridRect.Left + 2f * Screen.Adjuster.ScaleFactor.Y, (float)gridRect.Top + 2f * Screen.Adjuster.ScaleFactor.Y);
+				this._inventoryItemLocations[x + columnOffset] = new Rectangle((int)itemLocation.X, (int)itemLocation.Y, size, size);
+				InventoryItem item = inventory.TrayManager.GetTrayItem(trayIndex, x);
+				if (item != null && item != this._holdingItem && (this._holdingItem == null || this.SelectedItem != item || this._mousePointerActive))
 				{
-					trayItem.Draw2D(spriteBatch, new Rectangle((int)vector.X, (int)vector.Y, size, size));
+					item.Draw2D(spriteBatch, new Rectangle((int)itemLocation.X, (int)itemLocation.Y, size, size));
 				}
 			}
 		}
@@ -343,11 +343,11 @@ namespace DNA.CastleMinerZ.UI
 				{
 					if (this.CurrentCrate.Inventory[i] != null && !this.IsSlotLocked(i))
 					{
-						int stackCount = this.SelectedItem.StackCount;
+						int stackcount = this.SelectedItem.StackCount;
 						InventoryItem selectedItem = this.SelectedItem;
 						this.CurrentCrate.Inventory[i].Stack(selectedItem);
 						this.SelectedItem = selectedItem;
-						if (selectedItem.StackCount != stackCount)
+						if (selectedItem.StackCount != stackcount)
 						{
 							ItemCrateMessage.Send((LocalNetworkGamer)this._game.LocalPlayer.Gamer, this.CurrentCrate.Inventory[i], this.CurrentCrate, i);
 						}
@@ -414,9 +414,9 @@ namespace DNA.CastleMinerZ.UI
 				{
 					if (this.CurrentCrate.Inventory[i] != null && !this.IsSlotLocked(i))
 					{
-						int stackCount = this._holdingItem.StackCount;
+						int stackcount = this._holdingItem.StackCount;
 						this.CurrentCrate.Inventory[i].Stack(this._holdingItem);
-						if (this._holdingItem.StackCount != stackCount)
+						if (this._holdingItem.StackCount != stackcount)
 						{
 							ItemCrateMessage.Send((LocalNetworkGamer)this._game.LocalPlayer.Gamer, this.CurrentCrate.Inventory[i], this.CurrentCrate, i);
 						}
@@ -499,15 +499,15 @@ namespace DNA.CastleMinerZ.UI
 						if (this._popUpTimer.Expired)
 						{
 							this._popUpItem = this.SelectedItem;
-							Vector2 vector = this._smallFont.MeasureString(this._popUpItem.Name) * Screen.Adjuster.ScaleFactor.Y;
-							this._popUpLocation = new Point(inputManager.Mouse.Position.X, inputManager.Mouse.Position.Y + (int)vector.Y);
-							if ((float)this._popUpLocation.Y + vector.Y > (float)Screen.Adjuster.ScreenRect.Bottom)
+							Vector2 size = this._smallFont.MeasureString(this._popUpItem.Name) * Screen.Adjuster.ScaleFactor.Y;
+							this._popUpLocation = new Point(inputManager.Mouse.Position.X, inputManager.Mouse.Position.Y + (int)size.Y);
+							if ((float)this._popUpLocation.Y + size.Y > (float)Screen.Adjuster.ScreenRect.Bottom)
 							{
-								this._popUpLocation.Y = this._popUpLocation.Y - (int)(vector.Y * 2f);
+								this._popUpLocation.Y = this._popUpLocation.Y - (int)(size.Y * 2f);
 							}
-							if ((float)this._popUpLocation.X + vector.X > (float)Screen.Adjuster.ScreenRect.Right)
+							if ((float)this._popUpLocation.X + size.X > (float)Screen.Adjuster.ScreenRect.Right)
 							{
-								this._popUpLocation.X = (int)((float)Screen.Adjuster.ScreenRect.Right - vector.X);
+								this._popUpLocation.X = (int)((float)Screen.Adjuster.ScreenRect.Right - size.X);
 							}
 						}
 					}
@@ -641,9 +641,9 @@ namespace DNA.CastleMinerZ.UI
 								else if (this.SelectedItem.StackCount > 1)
 								{
 									InventoryItem selectedItem4 = this.SelectedItem;
-									InventoryItem inventoryItem = selectedItem4.Split();
-									this._holdingItem.Stack(inventoryItem);
-									selectedItem4.Stack(inventoryItem);
+									InventoryItem item = selectedItem4.Split();
+									this._holdingItem.Stack(item);
+									selectedItem4.Stack(item);
 									this.SelectedItem = selectedItem4;
 								}
 								else if (this._holdingItem.StackCount < this._holdingItem.MaxStackCount)
@@ -654,9 +654,9 @@ namespace DNA.CastleMinerZ.UI
 							}
 							else
 							{
-								InventoryItem selectedItem5 = this.SelectedItem;
+								InventoryItem item2 = this.SelectedItem;
 								this.SelectedItem = this._holdingItem;
-								this._holdingItem = selectedItem5;
+								this._holdingItem = item2;
 							}
 						}
 						else if (inputManager.Mouse.RightButtonPressed)
@@ -717,29 +717,29 @@ namespace DNA.CastleMinerZ.UI
 			{
 				this._mousePointerActive = true;
 				SoundManager.Instance.PlayInstance("Click");
-				Vector3 localPosition = this._game.LocalPlayer.LocalPosition;
-				localPosition.Y += 1f;
-				PickupManager.Instance.CreatePickup(this._holdingItem, localPosition, true, false);
+				Vector3 v = this._game.LocalPlayer.LocalPosition;
+				v.Y += 1f;
+				PickupManager.Instance.CreatePickup(this._holdingItem, v, true, false);
 				SoundManager.Instance.PlayInstance("dropitem");
 				this._holdingItem = null;
 			}
 			else if (inputManager.Mouse.RightButtonPressed && !this._backgroundRect.Contains(inputManager.Mouse.Position) && this._holdingItem != null)
 			{
-				InventoryItem inventoryItem2;
+				InventoryItem dropItem;
 				if (this._holdingItem.StackCount > 1)
 				{
-					inventoryItem2 = this._holdingItem.PopOneItem();
+					dropItem = this._holdingItem.PopOneItem();
 				}
 				else
 				{
-					inventoryItem2 = this._holdingItem;
+					dropItem = this._holdingItem;
 					this._holdingItem = null;
 				}
 				this._mousePointerActive = true;
 				SoundManager.Instance.PlayInstance("Click");
-				Vector3 localPosition2 = this._game.LocalPlayer.LocalPosition;
-				localPosition2.Y += 1f;
-				PickupManager.Instance.CreatePickup(inventoryItem2, localPosition2, true, false);
+				Vector3 v2 = this._game.LocalPlayer.LocalPosition;
+				v2.Y += 1f;
+				PickupManager.Instance.CreatePickup(dropItem, v2, true, false);
 				SoundManager.Instance.PlayInstance("dropitem");
 			}
 			else if (controller.PressedButtons.X || inputManager.Keyboard.WasKeyPressed(Keys.Q))
@@ -749,9 +749,9 @@ namespace DNA.CastleMinerZ.UI
 					SoundManager.Instance.PlayInstance("Click");
 					if (this._holdingItem != null)
 					{
-						Vector3 localPosition3 = this._game.LocalPlayer.LocalPosition;
-						localPosition3.Y += 1f;
-						PickupManager.Instance.CreatePickup(this._holdingItem, localPosition3, true, false);
+						Vector3 v3 = this._game.LocalPlayer.LocalPosition;
+						v3.Y += 1f;
+						PickupManager.Instance.CreatePickup(this._holdingItem, v3, true, false);
 						SoundManager.Instance.PlayInstance("dropitem");
 						this._holdingItem = null;
 					}
@@ -759,9 +759,9 @@ namespace DNA.CastleMinerZ.UI
 					{
 						if (this._selectorInCrateGrid)
 						{
-							Vector3 localPosition4 = this._game.LocalPlayer.LocalPosition;
-							localPosition4.Y += 1f;
-							PickupManager.Instance.CreatePickup(this.SelectedItem, localPosition4, true, false);
+							Vector3 v4 = this._game.LocalPlayer.LocalPosition;
+							v4.Y += 1f;
+							PickupManager.Instance.CreatePickup(this.SelectedItem, v4, true, false);
 							SoundManager.Instance.PlayInstance("dropitem");
 							this.SelectedItem = null;
 						}

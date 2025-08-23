@@ -76,36 +76,36 @@ namespace DNA.CastleMinerZ.AI
 				{
 					CastleMinerZGame.Instance.Content.Load<Model>(EnemyType._modelNames[i]);
 				}
-				float num = 1f;
-				for (EnemyTypeEnum enemyTypeEnum = EnemyTypeEnum.ZOMBIE_0_0; enemyTypeEnum <= EnemyTypeEnum.ZOMBIE_2_4; enemyTypeEnum++)
+				float health = 1f;
+				for (EnemyTypeEnum t = EnemyTypeEnum.ZOMBIE_0_0; t <= EnemyTypeEnum.ZOMBIE_2_4; t++)
 				{
-					float num2 = (float)enemyTypeEnum / 16f;
-					if (enemyTypeEnum == EnemyTypeEnum.ZOMBIE_2_4)
+					float progress = (float)t / 16f;
+					if (t == EnemyTypeEnum.ZOMBIE_2_4)
 					{
-						EnemyType.Types[(int)enemyTypeEnum].StartingHealth = num * 1.5f;
+						EnemyType.Types[(int)t].StartingHealth = health * 1.5f;
 					}
 					else
 					{
-						EnemyType.Types[(int)enemyTypeEnum].StartingHealth = num;
+						EnemyType.Types[(int)t].StartingHealth = health;
 					}
-					EnemyType.Types[(int)enemyTypeEnum].BaseSlowSpeed = 0.5f + num2 * 1.5f;
-					EnemyType.Types[(int)enemyTypeEnum].BaseFastSpeed = 6.5f + num2 * 1.5f;
-					EnemyType.Types[(int)enemyTypeEnum].BaseRunActivationTime = 4f - num2;
-					EnemyType.Types[(int)enemyTypeEnum].RandomRunActivationTime = 1f;
-					EnemyType.Types[(int)enemyTypeEnum].FastJumpSpeed = 13f + 3f * num2;
-					num += 1f;
+					EnemyType.Types[(int)t].BaseSlowSpeed = 0.5f + progress * 1.5f;
+					EnemyType.Types[(int)t].BaseFastSpeed = 6.5f + progress * 1.5f;
+					EnemyType.Types[(int)t].BaseRunActivationTime = 4f - progress;
+					EnemyType.Types[(int)t].RandomRunActivationTime = 1f;
+					EnemyType.Types[(int)t].FastJumpSpeed = 13f + 3f * progress;
+					health += 1f;
 				}
-				num = 1f;
-				for (EnemyTypeEnum enemyTypeEnum2 = EnemyTypeEnum.ARCHER_0_0; enemyTypeEnum2 <= EnemyTypeEnum.ARCHER_1_2; enemyTypeEnum2++)
+				health = 1f;
+				for (EnemyTypeEnum t2 = EnemyTypeEnum.ARCHER_0_0; t2 <= EnemyTypeEnum.ARCHER_1_2; t2++)
 				{
-					EnemyType.Types[(int)enemyTypeEnum2].StartingHealth = num;
-					num += 2.5f;
+					EnemyType.Types[(int)t2].StartingHealth = health;
+					health += 2.5f;
 				}
-				num = 1f;
-				for (EnemyTypeEnum enemyTypeEnum3 = EnemyTypeEnum.SKEL_0_0; enemyTypeEnum3 <= EnemyTypeEnum.SKEL_AXES_1_2; enemyTypeEnum3++)
+				health = 1f;
+				for (EnemyTypeEnum t3 = EnemyTypeEnum.SKEL_0_0; t3 <= EnemyTypeEnum.SKEL_AXES_1_2; t3++)
 				{
-					EnemyType.Types[(int)enemyTypeEnum3].StartingHealth = num;
-					num += 0.9f;
+					EnemyType.Types[(int)t3].StartingHealth = health;
+					health += 0.9f;
 				}
 				EnemyType.Types[50].StartingHealth = 150f;
 				EnemyType.Types[51].StartingHealth = 300f;
@@ -115,51 +115,51 @@ namespace DNA.CastleMinerZ.AI
 
 		private static EnemyTypeEnum FindEnemy(float dstep, float distance, EnemyTypeEnum firstEnemy, EnemyTypeEnum lastEnemy)
 		{
-			int num = lastEnemy - firstEnemy;
-			float num2 = distance / dstep;
-			float num3 = 0f;
-			float num4 = 0f;
-			int num5 = (int)Math.Floor((double)num2);
-			int num6 = num5 - 1;
-			int num7 = num6 - 1;
-			float num8 = num2 - (float)num5;
-			float num9;
-			if (num5 > num)
+			int maxIndex = lastEnemy - firstEnemy;
+			float dplace = distance / dstep;
+			float secondProb = 0f;
+			float thirdProb = 0f;
+			int firstIndex = (int)Math.Floor((double)dplace);
+			int secondIndex = firstIndex - 1;
+			int thirdIndex = secondIndex - 1;
+			float frac = dplace - (float)firstIndex;
+			float firstProb;
+			if (firstIndex > maxIndex)
 			{
-				num5 = num;
-				num6 = num - 1;
-				num7 = num - 2;
-				num9 = 1f;
-				num3 = 1f;
-				num4 = 0.5f;
+				firstIndex = maxIndex;
+				secondIndex = maxIndex - 1;
+				thirdIndex = maxIndex - 2;
+				firstProb = 1f;
+				secondProb = 1f;
+				thirdProb = 0.5f;
 			}
 			else
 			{
-				num9 = (float)Math.Sin((double)(num8 * 1.5707964f / 3f));
-				if (num6 >= 0)
+				firstProb = (float)Math.Sin((double)(frac * 1.5707964f / 3f));
+				if (secondIndex >= 0)
 				{
-					num3 = (float)Math.Sin((double)((1f + num8) * 1.5707964f / 3f));
+					secondProb = (float)Math.Sin((double)((1f + frac) * 1.5707964f / 3f));
 				}
-				if (num7 >= 0)
+				if (thirdIndex >= 0)
 				{
-					num4 = (float)Math.Sin((double)((2f + num8) * 1.5707964f / 3f));
+					thirdProb = (float)Math.Sin((double)((2f + frac) * 1.5707964f / 3f));
 				}
 			}
-			float num10 = MathTools.RandomFloat(num9 + num3 + num4);
-			int num11;
-			if (num10 <= num9)
+			float r = MathTools.RandomFloat(firstProb + secondProb + thirdProb);
+			int zombieIndex;
+			if (r <= firstProb)
 			{
-				num11 = num5;
+				zombieIndex = firstIndex;
 			}
-			else if (num10 <= num9 + num3)
+			else if (r <= firstProb + secondProb)
 			{
-				num11 = num6;
+				zombieIndex = secondIndex;
 			}
 			else
 			{
-				num11 = num7;
+				zombieIndex = thirdIndex;
 			}
-			return num11 + firstEnemy;
+			return zombieIndex + firstEnemy;
 		}
 
 		public static EnemyTypeEnum GetZombie(float distance)
@@ -174,11 +174,11 @@ namespace DNA.CastleMinerZ.AI
 
 		public static EnemyTypeEnum GetAbovegroundEnemy(float percentMidnight, float distance)
 		{
-			float num = (float)Math.Pow((double)(1f - percentMidnight), 4.0);
-			EnemyTypeEnum enemyTypeEnum;
-			if (MathTools.RandomFloat() < num)
+			float chanceOfArcher = (float)Math.Pow((double)(1f - percentMidnight), 4.0);
+			EnemyTypeEnum result;
+			if (MathTools.RandomFloat() < chanceOfArcher)
 			{
-				enemyTypeEnum = EnemyType.FindEnemy(425f, distance, EnemyTypeEnum.ARCHER_0_0, EnemyTypeEnum.ARCHER_1_2);
+				result = EnemyType.FindEnemy(425f, distance, EnemyTypeEnum.ARCHER_0_0, EnemyTypeEnum.ARCHER_1_2);
 			}
 			else
 			{
@@ -187,27 +187,27 @@ namespace DNA.CastleMinerZ.AI
 					EnemyManager.Instance.ResetFelgardTimer();
 					return EnemyTypeEnum.FELGUARD;
 				}
-				enemyTypeEnum = EnemyType.FindEnemy(188.88889f, distance, EnemyTypeEnum.ZOMBIE_0_0, EnemyTypeEnum.ZOMBIE_2_4);
+				result = EnemyType.FindEnemy(188.88889f, distance, EnemyTypeEnum.ZOMBIE_0_0, EnemyTypeEnum.ZOMBIE_2_4);
 			}
-			return enemyTypeEnum;
+			return result;
 		}
 
 		public static EnemyTypeEnum GetBelowgroundEnemy(float depth, float distance)
 		{
-			float num = 141.66667f;
-			distance += depth * 2f * num / 50f;
-			float num2 = (float)EnemyType.rand.NextDouble();
-			if (EnemyManager.ReadyToSpawnFelgard && (num2 < EnemyType.felguardProbability || !EnemyManager.FelguardSpawned))
+			float bandSize = 141.66667f;
+			distance += depth * 2f * bandSize / 50f;
+			float random = (float)EnemyType.rand.NextDouble();
+			if (EnemyManager.ReadyToSpawnFelgard && (random < EnemyType.felguardProbability || !EnemyManager.FelguardSpawned))
 			{
-				EnemyTypeEnum enemyTypeEnum = EnemyType.FindEnemy(num, distance, EnemyTypeEnum.SKEL_0_0, EnemyTypeEnum.FELGUARD);
-				if (enemyTypeEnum == EnemyTypeEnum.FELGUARD)
+				EnemyTypeEnum enemy = EnemyType.FindEnemy(bandSize, distance, EnemyTypeEnum.SKEL_0_0, EnemyTypeEnum.FELGUARD);
+				if (enemy == EnemyTypeEnum.FELGUARD)
 				{
 					EnemyManager.Instance.ResetFelgardTimer();
 					EnemyManager.FelguardSpawned = true;
 				}
-				return enemyTypeEnum;
+				return enemy;
 			}
-			return EnemyType.FindEnemy(num, distance, EnemyTypeEnum.SKEL_0_0, EnemyTypeEnum.SKEL_AXES_1_2);
+			return EnemyType.FindEnemy(bandSize, distance, EnemyTypeEnum.SKEL_0_0, EnemyTypeEnum.SKEL_AXES_1_2);
 		}
 
 		public abstract float GetDamageTypeMultiplier(DamageType damageType, bool headShot);
@@ -265,34 +265,34 @@ namespace DNA.CastleMinerZ.AI
 
 		public EnemyType.InitPackage CreateInitPackage(float midnight)
 		{
-			EnemyType.InitPackage initPackage = default(EnemyType.InitPackage);
-			initPackage.SlowSpeed = MathTools.RandomFloat(this.BaseSlowSpeed, this.BaseSlowSpeed + this.RandomSlowSpeed);
+			EnemyType.InitPackage result = default(EnemyType.InitPackage);
+			result.SlowSpeed = MathTools.RandomFloat(this.BaseSlowSpeed, this.BaseSlowSpeed + this.RandomSlowSpeed);
 			if (this.HasRunFast)
 			{
-				initPackage.FastSpeed = MathTools.RandomFloat(this.BaseFastSpeed - 0.25f, this.BaseFastSpeed + 0.25f);
-				initPackage.RunActivationTime = MathHelper.Lerp(this.BaseRunActivationTime, this.BaseRunActivationTime * 0.5f, MathTools.RandomFloat(midnight));
-				initPackage.NormalActivationTime = 45f;
+				result.FastSpeed = MathTools.RandomFloat(this.BaseFastSpeed - 0.25f, this.BaseFastSpeed + 0.25f);
+				result.RunActivationTime = MathHelper.Lerp(this.BaseRunActivationTime, this.BaseRunActivationTime * 0.5f, MathTools.RandomFloat(midnight));
+				result.NormalActivationTime = 45f;
 				if (midnight > 0.8f)
 				{
-					initPackage.EmergeSpeed = this.SpawnAnimationSpeed;
+					result.EmergeSpeed = this.SpawnAnimationSpeed;
 				}
 				else if (this.SpawnAnimationSpeed == 1f)
 				{
-					initPackage.EmergeSpeed = 1f;
+					result.EmergeSpeed = 1f;
 				}
 				else
 				{
-					initPackage.EmergeSpeed = MathHelper.Lerp(this.SpawnAnimationSpeed / 2f, this.SpawnAnimationSpeed, Math.Min(1f, midnight * 2f));
+					result.EmergeSpeed = MathHelper.Lerp(this.SpawnAnimationSpeed / 2f, this.SpawnAnimationSpeed, Math.Min(1f, midnight * 2f));
 				}
 			}
 			else
 			{
-				initPackage.FastSpeed = 0f;
-				initPackage.RunActivationTime = 0f;
-				initPackage.NormalActivationTime = 0f;
-				initPackage.EmergeSpeed = this.SpawnAnimationSpeed;
+				result.FastSpeed = 0f;
+				result.RunActivationTime = 0f;
+				result.NormalActivationTime = 0f;
+				result.EmergeSpeed = this.SpawnAnimationSpeed;
 			}
-			return initPackage;
+			return result;
 		}
 
 		private const float DISTANCE_TO_HELL = 3400f;

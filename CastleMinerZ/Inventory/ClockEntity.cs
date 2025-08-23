@@ -15,12 +15,12 @@ namespace DNA.CastleMinerZ.Inventory
 		{
 			if (this.TrackPosition && mesh.Name.Contains("Needle") && CastleMinerZGame.Instance.GameScreen != null)
 			{
-				Quaternion quaternion = Quaternion.CreateFromAxisAngle(Vector3.Down, 6.2831855f * CastleMinerZGame.Instance.GameScreen.TimeOfDay);
-				float z = quaternion.Z;
-				quaternion.Z = quaternion.Y;
-				quaternion.Y = z;
-				quaternion.Normalize();
-				world = Matrix.CreateFromQuaternion(quaternion) * world;
+				Quaternion rot = Quaternion.CreateFromAxisAngle(Vector3.Down, 6.2831855f * CastleMinerZGame.Instance.GameScreen.TimeOfDay);
+				float temp = rot.Z;
+				rot.Z = rot.Y;
+				rot.Y = temp;
+				rot.Normalize();
+				world = Matrix.CreateFromQuaternion(rot) * world;
 			}
 			return base.SetEffectParams(mesh, effect, gameTime, world, view, projection);
 		}

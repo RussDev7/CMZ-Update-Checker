@@ -34,11 +34,11 @@ namespace DNA.CastleMinerZ.Achievements
 		{
 			get
 			{
-				int dragonsKilledWithGuidedMissile = base.PlayerStats.DragonsKilledWithGuidedMissile;
-				if (this._lastAmount != dragonsKilledWithGuidedMissile)
+				int total = base.PlayerStats.DragonsKilledWithGuidedMissile;
+				if (this._lastAmount != total)
 				{
-					this._lastAmount = dragonsKilledWithGuidedMissile;
-					this.lastString = dragonsKilledWithGuidedMissile.ToString() + " " + ((dragonsKilledWithGuidedMissile == 1) ? Strings.Dragon_Killed : Strings.Dragons_Killed);
+					this._lastAmount = total;
+					this.lastString = total.ToString() + " " + ((total == 1) ? Strings.Dragon_Killed : Strings.Dragons_Killed);
 				}
 				return this.lastString;
 			}

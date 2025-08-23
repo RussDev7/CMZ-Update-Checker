@@ -12,33 +12,33 @@ namespace DNA.CastleMinerZ.Terrain
 
 		public static ChunkCacheCommand Alloc()
 		{
-			ChunkCacheCommand chunkCacheCommand = ChunkCacheCommand._cache.Get();
-			chunkCacheCommand._status = ChunkCacheCommandStatus.NEW;
-			chunkCacheCommand._trackingString = null;
-			return chunkCacheCommand;
+			ChunkCacheCommand result = ChunkCacheCommand._cache.Get();
+			result._status = ChunkCacheCommandStatus.NEW;
+			result._trackingString = null;
+			return result;
 		}
 
 		public bool CopyRequestersToMe(ChunkCacheCommand src)
 		{
-			bool flag = false;
+			bool copiedOne = false;
 			for (int i = 0; i < src._numRequesters; i++)
 			{
-				bool flag2 = false;
+				bool foundIt = false;
 				for (int j = 0; j < this._numRequesters; j++)
 				{
 					if (this._requesterIDs[j] == src._requesterIDs[i])
 					{
-						flag2 = true;
+						foundIt = true;
 						break;
 					}
 				}
-				if (!flag2)
+				if (!foundIt)
 				{
-					flag = true;
+					copiedOne = true;
 					this._requesterIDs[this._numRequesters++] = src._requesterIDs[i];
 				}
 			}
-			return flag;
+			return copiedOne;
 		}
 
 		public void Release()

@@ -7,18 +7,18 @@ namespace DNA.CastleMinerZ.AI
 	{
 		public void ZeroVelocity(BaseZombie entity)
 		{
-			Vector3 worldVelocity = entity.PlayerPhysics.WorldVelocity;
-			worldVelocity.X = 0f;
-			worldVelocity.Z = 0f;
-			entity.PlayerPhysics.WorldVelocity = worldVelocity;
+			Vector3 v = entity.PlayerPhysics.WorldVelocity;
+			v.X = 0f;
+			v.Z = 0f;
+			entity.PlayerPhysics.WorldVelocity = v;
 		}
 
 		public void ReduceVelocity(BaseZombie entity)
 		{
-			Vector3 worldVelocity = entity.PlayerPhysics.WorldVelocity;
-			worldVelocity.X *= 0.99f;
-			worldVelocity.Z *= 0.99f;
-			entity.PlayerPhysics.WorldVelocity = worldVelocity;
+			Vector3 v = entity.PlayerPhysics.WorldVelocity;
+			v.X *= 0.99f;
+			v.Z *= 0.99f;
+			entity.PlayerPhysics.WorldVelocity = v;
 		}
 
 		public float MakeHeading(BaseZombie entity, float desiredHeading)

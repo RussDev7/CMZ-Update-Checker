@@ -38,11 +38,11 @@ namespace DNA.CastleMinerZ.Achievements
 			get
 			{
 				CastleMinerZPlayerStats.ItemStats itemStats = CastleMinerZGame.Instance.PlayerStats.GetItemStats(InventoryItemIDs.TNT);
-				int crafted = itemStats.Crafted;
-				if (this._lastAmount != crafted)
+				int total = itemStats.Crafted;
+				if (this._lastAmount != total)
 				{
-					this._lastAmount = crafted;
-					this.lastString = crafted.ToString() + " " + Strings.TNT_Crafted;
+					this._lastAmount = total;
+					this.lastString = total.ToString() + " " + Strings.TNT_Crafted;
 				}
 				return this.lastString;
 			}

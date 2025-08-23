@@ -30,10 +30,10 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, IntVector3 location, Point index)
 		{
-			CrateFocusMessage sendInstance = Message.GetSendInstance<CrateFocusMessage>();
-			sendInstance.Location = location;
-			sendInstance.ItemIndex = index;
-			sendInstance.DoSend(from);
+			CrateFocusMessage Instance = Message.GetSendInstance<CrateFocusMessage>();
+			Instance.Location = location;
+			Instance.ItemIndex = index;
+			Instance.DoSend(from);
 		}
 
 		protected override void SendData(BinaryWriter writer)

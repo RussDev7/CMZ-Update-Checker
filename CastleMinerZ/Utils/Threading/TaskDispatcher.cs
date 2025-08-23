@@ -55,10 +55,10 @@ namespace DNA.CastleMinerZ.Utils.Threading
 		{
 			this._numThreads = Math.Max(Environment.ProcessorCount - 1, 2);
 			this.CreateThreads(numThreadsToInitialize);
-			for (int num = 0; num != this._numThreads; num++)
+			for (int i = 0; i != this._numThreads; i++)
 			{
-				TaskThread taskThread = this._taskThreads[num];
-				this._systemThreads[num] = new Thread(new ThreadStart(taskThread.ThreadStart), 262144);
+				TaskThread thread = this._taskThreads[i];
+				this._systemThreads[i] = new Thread(new ThreadStart(thread.ThreadStart), 262144);
 			}
 		}
 
@@ -66,14 +66,14 @@ namespace DNA.CastleMinerZ.Utils.Threading
 		{
 			TaskDispatcher._theInstance = this;
 			this._stopped = false;
-			CountdownLatch countdownLatch = default(CountdownLatch);
-			this.InitThreads(countdownLatch);
-			for (int num = 0; num != this._numThreads; num++)
+			CountdownLatch numThreadsToInitialize = default(CountdownLatch);
+			this.InitThreads(numThreadsToInitialize);
+			for (int i = 0; i != this._numThreads; i++)
 			{
-				this._systemThreads[num].Name = this._threadNames[num];
-				this._systemThreads[num].Start();
+				this._systemThreads[i].Name = this._threadNames[i];
+				this._systemThreads[i].Start();
 			}
-			while (countdownLatch.Value != 0)
+			while (numThreadsToInitialize.Value != 0)
 			{
 			}
 		}
@@ -233,90 +233,90 @@ namespace DNA.CastleMinerZ.Utils.Threading
 
 		public void AddTaskForMainThread(WaitCallback callback, object context)
 		{
-			LambdaProxy lambdaProxy = LambdaProxy.Alloc(callback);
-			this.AddTaskForMainThread(new TaskDelegate(lambdaProxy.Execute), context);
+			LambdaProxy lp = LambdaProxy.Alloc(callback);
+			this.AddTaskForMainThread(new TaskDelegate(lp.Execute), context);
 		}
 
 		public void AddTaskForMainThread(ThreadStart callback)
 		{
-			LambdaProxy lambdaProxy = LambdaProxy.Alloc(callback);
-			this.AddTaskForMainThread(new TaskDelegate(lambdaProxy.Execute), null);
+			LambdaProxy lp = LambdaProxy.Alloc(callback);
+			this.AddTaskForMainThread(new TaskDelegate(lp.Execute), null);
 		}
 
 		public void RunMainThreadTasks()
 		{
 			while (!this._mainThreadTasks.Empty)
 			{
-				BaseTask baseTask = this._mainThreadTasks.Dequeue();
-				baseTask.DoWork(null);
+				BaseTask task = this._mainThreadTasks.Dequeue();
+				task.DoWork(null);
 			}
 		}
 
 		public WaitableTask AddWaitableTask(TaskThreadEnum thread, TaskDelegate work, object context)
 		{
-			WaitableTask waitableTask;
+			WaitableTask task;
 			if (thread == TaskThreadEnum.THREAD_ANY)
 			{
-				waitableTask = this.AddWaitableTask(work, context);
+				task = this.AddWaitableTask(work, context);
 			}
 			else
 			{
-				waitableTask = WaitableTask.Alloc();
-				waitableTask.Init(work, context);
+				task = WaitableTask.Alloc();
+				task.Init(work, context);
 				if (this._stopped)
 				{
-					waitableTask.Interrupt();
+					task.Interrupt();
 				}
 				else
 				{
-					this.InsertTask(thread, waitableTask);
+					this.InsertTask(thread, task);
 				}
 			}
-			return waitableTask;
+			return task;
 		}
 
 		public WaitableTask AddWaitableTask(TaskDelegate work, object context)
 		{
-			WaitableTask waitableTask = WaitableTask.Alloc();
-			waitableTask.Init(work, context);
+			WaitableTask task = WaitableTask.Alloc();
+			task.Init(work, context);
 			if (this._stopped)
 			{
-				waitableTask.Interrupt();
+				task.Interrupt();
 			}
 			else
 			{
-				this.InsertTask(waitableTask);
+				this.InsertTask(task);
 			}
-			return waitableTask;
+			return task;
 		}
 
 		public WaitableTask AddWaitableRushTask(TaskDelegate work, object context)
 		{
-			WaitableTask waitableTask = WaitableTask.Alloc();
-			waitableTask.Init(work, context);
+			WaitableTask task = WaitableTask.Alloc();
+			task.Init(work, context);
 			if (this._stopped)
 			{
-				waitableTask.Interrupt();
+				task.Interrupt();
 			}
 			else
 			{
-				this.AppendTask(waitableTask);
+				this.AppendTask(task);
 			}
-			return waitableTask;
+			return task;
 		}
 
 		public GatherTask AddGatherTask(TaskThreadEnum thread, TaskDelegate work, object context)
 		{
-			GatherTask gatherTask = this.AddGatherTask(work, context);
-			gatherTask.DesiredThreadIndex = thread;
-			return gatherTask;
+			GatherTask task = this.AddGatherTask(work, context);
+			task.DesiredThreadIndex = thread;
+			return task;
 		}
 
 		public GatherTask AddGatherTask(TaskDelegate work, object context)
 		{
-			GatherTask gatherTask = GatherTask.Alloc();
-			gatherTask.Init(work, context);
-			return gatherTask;
+			GatherTask task = GatherTask.Alloc();
+			task.Init(work, context);
+			return task;
 		}
 
 		private string[] _threadNames;

@@ -19,20 +19,20 @@ namespace DNA.CastleMinerZ.AI
 
 		public static BaseDragonWaypoint ReadBaseWaypoint(BinaryReader reader)
 		{
-			BaseDragonWaypoint baseDragonWaypoint;
-			baseDragonWaypoint.Position = reader.ReadVector3();
-			baseDragonWaypoint.Velocity = reader.ReadVector3();
-			baseDragonWaypoint.HostTime = reader.ReadSingle();
-			baseDragonWaypoint.TargetRoll = reader.ReadSingle();
-			baseDragonWaypoint.Animation = (DragonAnimEnum)reader.ReadByte();
-			baseDragonWaypoint.Sound = (DragonSoundEnum)reader.ReadByte();
-			return baseDragonWaypoint;
+			BaseDragonWaypoint result;
+			result.Position = reader.ReadVector3();
+			result.Velocity = reader.ReadVector3();
+			result.HostTime = reader.ReadSingle();
+			result.TargetRoll = reader.ReadSingle();
+			result.Animation = (DragonAnimEnum)reader.ReadByte();
+			result.Sound = (DragonSoundEnum)reader.ReadByte();
+			return result;
 		}
 
 		public static void InterpolatePositionVelocity(float time, BaseDragonWaypoint wpt1, BaseDragonWaypoint wpt2, out Vector3 outpos, out Vector3 outvel)
 		{
-			float num = wpt2.HostTime - wpt1.HostTime;
-			if (num == 0f || time >= wpt2.HostTime)
+			float dt = wpt2.HostTime - wpt1.HostTime;
+			if (dt == 0f || time >= wpt2.HostTime)
 			{
 				BaseDragonWaypoint.Extrapolate(time, wpt2, out outpos, out outvel);
 				return;
@@ -42,12 +42,12 @@ namespace DNA.CastleMinerZ.AI
 				BaseDragonWaypoint.Extrapolate(time, wpt1, out outpos, out outvel);
 				return;
 			}
-			float num2 = (time - wpt1.HostTime) / num;
-			float num3 = 1f / num;
-			Vector3 vector = wpt1.Velocity * num;
-			Vector3 vector2 = wpt2.Velocity * num;
-			outpos = Vector3.Hermite(wpt1.Position, vector, wpt2.Position, vector2, num2);
-			outvel = MathTools.Hermite1stDerivative(wpt1.Position, vector, wpt2.Position, vector2, num2) * num3;
+			float p = (time - wpt1.HostTime) / dt;
+			float oodt = 1f / dt;
+			Vector3 t = wpt1.Velocity * dt;
+			Vector3 t2 = wpt2.Velocity * dt;
+			outpos = Vector3.Hermite(wpt1.Position, t, wpt2.Position, t2, p);
+			outvel = MathTools.Hermite1stDerivative(wpt1.Position, t, wpt2.Position, t2, p) * oodt;
 		}
 
 		public static void Extrapolate(float time, BaseDragonWaypoint wpt, out Vector3 outpos, out Vector3 outvel)

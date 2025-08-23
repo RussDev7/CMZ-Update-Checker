@@ -16,29 +16,29 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public override Entity CreateEntity(ItemUse use, bool attachedToLocalPlayer)
 		{
-			CompassEntity compassEntity = new CompassEntity(this._model, use, attachedToLocalPlayer);
+			CompassEntity ent = new CompassEntity(this._model, use, attachedToLocalPlayer);
 			if (use != ItemUse.UI)
 			{
-				compassEntity.TrackPosition = false;
+				ent.TrackPosition = false;
 			}
 			switch (use)
 			{
 			case ItemUse.UI:
 			{
-				Quaternion quaternion = Quaternion.CreateFromYawPitchRoll(0f, 1.5707964f, 0f);
-				Matrix matrix = Matrix.Transform(Matrix.CreateScale(22.4f / compassEntity.GetLocalBoundingSphere().Radius), quaternion);
-				matrix.Translation = new Vector3(0f, 0f, 0f);
-				compassEntity.LocalToParent = matrix;
-				compassEntity.EnableDefaultLighting();
+				Quaternion mat = Quaternion.CreateFromYawPitchRoll(0f, 1.5707964f, 0f);
+				Matrix i = Matrix.Transform(Matrix.CreateScale(22.4f / ent.GetLocalBoundingSphere().Radius), mat);
+				i.Translation = new Vector3(0f, 0f, 0f);
+				ent.LocalToParent = i;
+				ent.EnableDefaultLighting();
 				break;
 			}
 			case ItemUse.Hand:
-				compassEntity.TrackPosition = true;
-				compassEntity.LocalRotation = new Quaternion(0.6469873f, 0.1643085f, 0.7078394f, -0.2310277f);
-				compassEntity.LocalPosition = new Vector3(0f, 0.09360941f, 0f);
+				ent.TrackPosition = true;
+				ent.LocalRotation = new Quaternion(0.6469873f, 0.1643085f, 0.7078394f, -0.2310277f);
+				ent.LocalPosition = new Vector3(0f, 0.09360941f, 0f);
 				break;
 			}
-			return compassEntity;
+			return ent;
 		}
 
 		public override bool IsMeleeWeapon

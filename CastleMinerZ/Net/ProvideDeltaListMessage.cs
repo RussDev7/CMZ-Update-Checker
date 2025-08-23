@@ -13,14 +13,14 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, NetworkGamer recipient, int[] delta)
 		{
-			ProvideDeltaListMessage sendInstance = Message.GetSendInstance<ProvideDeltaListMessage>();
-			sendInstance.Delta = delta;
+			ProvideDeltaListMessage Instance = Message.GetSendInstance<ProvideDeltaListMessage>();
+			Instance.Delta = delta;
 			if (recipient == null)
 			{
-				sendInstance.DoSend(from);
+				Instance.DoSend(from);
 				return;
 			}
-			sendInstance.DoSend(from, recipient);
+			Instance.DoSend(from, recipient);
 		}
 
 		protected override SendDataOptions SendDataOptions
@@ -33,11 +33,11 @@ namespace DNA.CastleMinerZ.Net
 
 		protected override void RecieveData(BinaryReader reader)
 		{
-			int num = reader.ReadInt32();
-			if (num > 0)
+			int dwordCount = reader.ReadInt32();
+			if (dwordCount > 0)
 			{
-				this.Delta = new int[num];
-				for (int i = 0; i < num; i++)
+				this.Delta = new int[dwordCount];
+				for (int i = 0; i < dwordCount; i++)
 				{
 					this.Delta[i] = reader.ReadInt32();
 				}
@@ -48,11 +48,11 @@ namespace DNA.CastleMinerZ.Net
 
 		protected override void SendData(BinaryWriter writer)
 		{
-			int num = ((this.Delta == null) ? 0 : this.Delta.Length);
-			writer.Write(num);
-			if (num != 0)
+			int dwordCount = ((this.Delta == null) ? 0 : this.Delta.Length);
+			writer.Write(dwordCount);
+			if (dwordCount != 0)
 			{
-				for (int i = 0; i < num; i++)
+				for (int i = 0; i < dwordCount; i++)
 				{
 					writer.Write(this.Delta[i]);
 				}

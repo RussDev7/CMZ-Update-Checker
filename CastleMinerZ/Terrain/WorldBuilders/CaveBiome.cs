@@ -17,7 +17,7 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 		{
 			int enemyBlockRareOff = Biome.enemyBlockRareOff;
 			int enemyBlockOff = Biome.enemyBlockOff;
-			int[] array = new int[]
+			int[] midBlockIDs = new int[]
 			{
 				Biome.enemyBlockRareOff,
 				Biome.enemyBlockOff,
@@ -27,50 +27,50 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 			int enemyBlockOff2 = Biome.enemyBlockOff;
 			int alienSpawnOff = Biome.alienSpawnOff;
 			int hellSpawnOff = Biome.hellSpawnOff;
-			int[] array2 = array;
-			int num = MathTools.RandomInt(array2.Length);
-			return array2[num];
+			int[] blockIDs = midBlockIDs;
+			int roll = MathTools.RandomInt(blockIDs.Length);
+			return blockIDs[roll];
 		}
 
 		public override void BuildColumn(BlockTerrain terrain, int worldX, int worldZ, int minY, float blender)
 		{
-			bool flag = true;
-			for (int i = 0; i < 128; i++)
+			bool lastBlockNotEmpty = true;
+			for (int y = 0; y < 128; y++)
 			{
-				int num = i + minY;
-				IntVector3 intVector = new IntVector3(worldX, num, worldZ);
-				int num2 = terrain.MakeIndexFromWorldIndexVector(intVector);
-				int num3 = terrain._blocks[num2];
-				if (Biome.emptyblock != num3 && Biome.uninitblock != num3 && Biome.sandBlock != num3)
+				int worldY = y + minY;
+				IntVector3 worldPos = new IntVector3(worldX, worldY, worldZ);
+				int index = terrain.MakeIndexFromWorldIndexVector(worldPos);
+				int existing = terrain._blocks[index];
+				if (Biome.emptyblock != existing && Biome.uninitblock != existing && Biome.sandBlock != existing)
 				{
-					Vector3 vector = intVector * 0.0625f * new Vector3(1f, 1.5f, 1f);
-					float num4 = this._noiseFunction.ComputeNoise(vector);
-					num4 += this._noiseFunction.ComputeNoise(vector * 2f) / 2f;
-					if (num4 < -0.35f)
+					Vector3 wv = worldPos * 0.0625f * new Vector3(1f, 1.5f, 1f);
+					float noise = this._noiseFunction.ComputeNoise(wv);
+					noise += this._noiseFunction.ComputeNoise(wv * 2f) / 2f;
+					if (noise < -0.35f)
 					{
 						this.emptyBlockCount++;
-						terrain._blocks[num2] = Biome.emptyblock;
-						if (flag && terrain._blocks[num2] != Biome.dirtblock && terrain._blocks[num2] != Biome.grassblock)
+						terrain._blocks[index] = Biome.emptyblock;
+						if (lastBlockNotEmpty && terrain._blocks[index] != Biome.dirtblock && terrain._blocks[index] != Biome.grassblock)
 						{
 							if (this.emptyBlockCount % this.lootBlockModifier == 0)
 							{
-								terrain._blocks[num2] = Biome.lootBlock;
+								terrain._blocks[index] = Biome.lootBlock;
 							}
 							if (this.emptyBlockCount % this.enemyBlockModifier == 0)
 							{
-								terrain._blocks[num2] = this.GetEnemyBlock(intVector, num4);
+								terrain._blocks[index] = this.GetEnemyBlock(worldPos, noise);
 							}
 							if (this.emptyBlockCount % this.luckyLootBlockModifier == 0)
 							{
-								terrain._blocks[num2] = Biome.luckyLootBlock;
+								terrain._blocks[index] = Biome.luckyLootBlock;
 							}
-							flag = false;
+							lastBlockNotEmpty = false;
 						}
 					}
 				}
 				else
 				{
-					flag = true;
+					lastBlockNotEmpty = true;
 				}
 			}
 		}

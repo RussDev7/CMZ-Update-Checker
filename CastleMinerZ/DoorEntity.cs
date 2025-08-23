@@ -13,7 +13,7 @@ namespace DNA.CastleMinerZ
 	{
 		public static DoorEntity.ModelNameEnum GetModelNameFromInventoryId(InventoryItemIDs invID)
 		{
-			DoorEntity.ModelNameEnum modelNameEnum = DoorEntity.ModelNameEnum.Wood;
+			DoorEntity.ModelNameEnum modelName = DoorEntity.ModelNameEnum.Wood;
 			if (invID != InventoryItemIDs.Door)
 			{
 				if (invID != InventoryItemIDs.DiamondDoor)
@@ -21,23 +21,23 @@ namespace DNA.CastleMinerZ
 					switch (invID)
 					{
 					case InventoryItemIDs.IronDoor:
-						modelNameEnum = DoorEntity.ModelNameEnum.Iron;
+						modelName = DoorEntity.ModelNameEnum.Iron;
 						break;
 					case InventoryItemIDs.TechDoor:
-						modelNameEnum = DoorEntity.ModelNameEnum.Tech;
+						modelName = DoorEntity.ModelNameEnum.Tech;
 						break;
 					}
 				}
 				else
 				{
-					modelNameEnum = DoorEntity.ModelNameEnum.Diamond;
+					modelName = DoorEntity.ModelNameEnum.Diamond;
 				}
 			}
 			else
 			{
-				modelNameEnum = DoorEntity.ModelNameEnum.Wood;
+				modelName = DoorEntity.ModelNameEnum.Wood;
 			}
-			return modelNameEnum;
+			return modelName;
 		}
 
 		public bool DoorOpen
@@ -172,8 +172,8 @@ namespace DNA.CastleMinerZ
 
 			public void CalculateLighting()
 			{
-				Vector3 worldPosition = base.WorldPosition;
-				BlockTerrain.Instance.GetEnemyLighting(worldPosition, ref this.DirectLightDirection[0], ref this.DirectLightColor[0], ref this.DirectLightDirection[1], ref this.DirectLightColor[1], ref this.AmbientLight);
+				Vector3 pos = base.WorldPosition;
+				BlockTerrain.Instance.GetEnemyLighting(pos, ref this.DirectLightDirection[0], ref this.DirectLightColor[0], ref this.DirectLightDirection[1], ref this.DirectLightColor[1], ref this.AmbientLight);
 			}
 
 			protected override void OnUpdate(GameTime gameTime)
@@ -184,14 +184,14 @@ namespace DNA.CastleMinerZ
 
 			protected override bool SetEffectParams(ModelMesh mesh, Effect effect, GameTime gameTime, Matrix world, Matrix view, Matrix projection)
 			{
-				DNAEffect dnaeffect = effect as DNAEffect;
-				if (dnaeffect != null && dnaeffect.Parameters["LightDirection1"] != null)
+				DNAEffect dnaEffect = effect as DNAEffect;
+				if (dnaEffect != null && dnaEffect.Parameters["LightDirection1"] != null)
 				{
-					dnaeffect.Parameters["LightDirection1"].SetValue(-this.DirectLightDirection[0]);
-					dnaeffect.Parameters["LightColor1"].SetValue(this.DirectLightColor[0]);
-					dnaeffect.Parameters["LightDirection2"].SetValue(-this.DirectLightDirection[1]);
-					dnaeffect.Parameters["LightColor2"].SetValue(this.DirectLightColor[1]);
-					dnaeffect.AmbientColor = ColorF.FromVector3(this.AmbientLight);
+					dnaEffect.Parameters["LightDirection1"].SetValue(-this.DirectLightDirection[0]);
+					dnaEffect.Parameters["LightColor1"].SetValue(this.DirectLightColor[0]);
+					dnaEffect.Parameters["LightDirection2"].SetValue(-this.DirectLightDirection[1]);
+					dnaEffect.Parameters["LightColor2"].SetValue(this.DirectLightColor[1]);
+					dnaEffect.AmbientColor = ColorF.FromVector3(this.AmbientLight);
 				}
 				return base.SetEffectParams(mesh, effect, gameTime, world, view, projection);
 			}

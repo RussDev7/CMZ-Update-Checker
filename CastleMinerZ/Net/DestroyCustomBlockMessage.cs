@@ -30,10 +30,10 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, IntVector3 location, BlockTypeEnum blockType)
 		{
-			DestroyCustomBlockMessage sendInstance = Message.GetSendInstance<DestroyCustomBlockMessage>();
-			sendInstance.Location = location;
-			sendInstance.BlockType = blockType;
-			sendInstance.DoSend(from);
+			DestroyCustomBlockMessage Instance = Message.GetSendInstance<DestroyCustomBlockMessage>();
+			Instance.Location = location;
+			Instance.BlockType = blockType;
+			Instance.DoSend(from);
 		}
 
 		protected override void SendData(BinaryWriter writer)

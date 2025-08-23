@@ -52,31 +52,31 @@ namespace DNA.CastleMinerZ.Inventory
 		{
 			if (this._game.LocalPlayer.Shouldering && EnemyManager.Instance.DragonPosition != Vector3.Zero)
 			{
-				Vector3 worldPosition = this._game.LocalPlayer.FPSCamera.WorldPosition;
-				LineF3D lineF3D = new LineF3D(worldPosition, EnemyManager.Instance.DragonPosition);
-				Angle angle = this._game.LocalPlayer.FPSCamera.LocalToWorld.Forward.AngleBetween(lineF3D.Direction);
-				Angle angle2 = 0.3f * this._game.LocalPlayer.FPSCamera.FieldOfView;
-				if (lineF3D.Length < 250f && angle < angle2)
+				Vector3 position = this._game.LocalPlayer.FPSCamera.WorldPosition;
+				LineF3D lineToDragon = new LineF3D(position, EnemyManager.Instance.DragonPosition);
+				Angle angle = this._game.LocalPlayer.FPSCamera.LocalToWorld.Forward.AngleBetween(lineToDragon.Direction);
+				Angle maxAngle = 0.3f * this._game.LocalPlayer.FPSCamera.FieldOfView;
+				if (lineToDragon.Length < 250f && angle < maxAngle)
 				{
-					RocketLauncherGuidedInventoryItemClass.tp.Init(worldPosition, EnemyManager.Instance.DragonPosition);
-					IShootableEnemy shootableEnemy = EnemyManager.Instance.Trace(RocketLauncherGuidedInventoryItemClass.tp, false);
-					if (!RocketLauncherGuidedInventoryItemClass.tp._collides || (shootableEnemy != null && shootableEnemy is DragonClientEntity))
+					RocketLauncherGuidedInventoryItemClass.tp.Init(position, EnemyManager.Instance.DragonPosition);
+					IShootableEnemy e = EnemyManager.Instance.Trace(RocketLauncherGuidedInventoryItemClass.tp, false);
+					if (!RocketLauncherGuidedInventoryItemClass.tp._collides || (e != null && e is DragonClientEntity))
 					{
 						Rectangle screenRect = Screen.Adjuster.ScreenRect;
-						Matrix view = this._game.LocalPlayer.FPSCamera.View;
-						Matrix projection = this._game.LocalPlayer.FPSCamera.GetProjection(this._game.GraphicsDevice);
-						Matrix matrix = view * projection;
-						Vector3 dragonPosition = EnemyManager.Instance.DragonPosition;
-						Vector4 vector = Vector4.Transform(dragonPosition, matrix);
-						Vector3 vector2 = new Vector3(vector.X / vector.W, vector.Y / vector.W, vector.Z / vector.W);
-						vector2 *= new Vector3(0.5f, -0.5f, 1f);
-						vector2 += new Vector3(0.5f, 0.5f, 0f);
-						vector2 *= new Vector3((float)this._game.GraphicsDevice.Viewport.Width, (float)this._game.GraphicsDevice.Viewport.Height, 1f);
-						int num = (int)(35f + 215f * (1f - lineF3D.Length / 250f));
-						this._lockedOnSpriteLocation = new Rectangle((int)vector2.X - num / 2, (int)vector2.Y - num / 2, num, num);
+						Matrix viewMat = this._game.LocalPlayer.FPSCamera.View;
+						Matrix projMat = this._game.LocalPlayer.FPSCamera.GetProjection(this._game.GraphicsDevice);
+						Matrix viewProj = viewMat * projMat;
+						Vector3 worldPos = EnemyManager.Instance.DragonPosition;
+						Vector4 spos = Vector4.Transform(worldPos, viewProj);
+						Vector3 screenPos = new Vector3(spos.X / spos.W, spos.Y / spos.W, spos.Z / spos.W);
+						screenPos *= new Vector3(0.5f, -0.5f, 1f);
+						screenPos += new Vector3(0.5f, 0.5f, 0f);
+						screenPos *= new Vector3((float)this._game.GraphicsDevice.Viewport.Width, (float)this._game.GraphicsDevice.Viewport.Height, 1f);
+						int spriteWidth = (int)(35f + 215f * (1f - lineToDragon.Length / 250f));
+						this._lockedOnSpriteLocation = new Rectangle((int)screenPos.X - spriteWidth / 2, (int)screenPos.Y - spriteWidth / 2, spriteWidth, spriteWidth);
 						this._lockingTime += elapsedGameTime;
-						TimeSpan timeSpan = TimeSpan.FromSeconds(1.5 + (double)(4f * (lineF3D.Length / 250f)) + (double)(4f * (angle / angle2)));
-						if (timeSpan <= this._lockingTime)
+						TimeSpan timeToLock = TimeSpan.FromSeconds(1.5 + (double)(4f * (lineToDragon.Length / 250f)) + (double)(4f * (angle / maxAngle)));
+						if (timeToLock <= this._lockingTime)
 						{
 							this._lockedOntoDragon = true;
 							if (this._toneCue == null || !this._toneCue.IsPlaying)
@@ -92,8 +92,8 @@ namespace DNA.CastleMinerZ.Inventory
 								this._toneCue.Stop(AudioStopOptions.Immediate);
 							}
 							this._lockedOntoDragon = false;
-							TimeSpan timeSpan2 = TimeSpan.FromSeconds(0.15600000321865082 + 0.844 * ((timeSpan - this._lockingTime).TotalSeconds / 9.5));
-							this._beepTimer.MaxTime = timeSpan2;
+							TimeSpan timeToBeep = TimeSpan.FromSeconds(0.15600000321865082 + 0.844 * ((timeToLock - this._lockingTime).TotalSeconds / 9.5));
+							this._beepTimer.MaxTime = timeToBeep;
 							this._beepTimer.Update(elapsedGameTime);
 							if (this._beepTimer.Expired)
 							{

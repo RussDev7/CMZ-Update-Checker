@@ -13,10 +13,10 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(int enemyid, int targetid)
 		{
-			EnemyGiveUpMessage sendInstance = Message.GetSendInstance<EnemyGiveUpMessage>();
-			sendInstance.EnemyID = enemyid;
-			sendInstance.TargetID = targetid;
-			sendInstance.DoSend(CastleMinerZGame.Instance.LocalPlayer.Gamer as LocalNetworkGamer);
+			EnemyGiveUpMessage Instance = Message.GetSendInstance<EnemyGiveUpMessage>();
+			Instance.EnemyID = enemyid;
+			Instance.TargetID = targetid;
+			Instance.DoSend(CastleMinerZGame.Instance.LocalPlayer.Gamer as LocalNetworkGamer);
 		}
 
 		public override CastleMinerZMessage.MessageTypes MessageType

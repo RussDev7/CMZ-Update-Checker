@@ -12,10 +12,10 @@ namespace DNA.CastleMinerZ.Net.Steam
 	{
 		public static NetworkSession CreateNetworkSession(NetworkSessionStaticProvider staticprovider, SteamWorks steamAPI)
 		{
-			SteamNetworkSessionProvider steamNetworkSessionProvider = new SteamNetworkSessionProvider(staticprovider, steamAPI);
-			NetworkSession networkSession = new NetworkSession(steamNetworkSessionProvider);
-			steamNetworkSessionProvider._networkSession = networkSession;
-			return networkSession;
+			SteamNetworkSessionProvider provider = new SteamNetworkSessionProvider(staticprovider, steamAPI);
+			NetworkSession result = new NetworkSession(provider);
+			provider._networkSession = result;
+			return result;
 		}
 
 		protected SteamNetworkSessionProvider(NetworkSessionStaticProvider staticProvider, SteamWorks steamAPI)
@@ -28,13 +28,13 @@ namespace DNA.CastleMinerZ.Net.Steam
 		{
 			if (sqs.SessionType != NetworkSessionType.Local)
 			{
-				CreateSessionInfo createSessionInfo = new CreateSessionInfo();
-				createSessionInfo.SessionProperties = sqs.Properties;
-				createSessionInfo.MaxPlayers = sqs.MaxPlayers;
-				createSessionInfo.Name = sqs.ServerMessage;
-				createSessionInfo.PasswordProtected = !string.IsNullOrEmpty(sqs.Password);
-				createSessionInfo.JoinGamePolicy = JoinGamePolicy.Anyone;
-				this._steamAPI.CreateLobby(createSessionInfo, new LobbyCreatedDelegate(this.OnLobbyCreated), sqs);
+				CreateSessionInfo csi = new CreateSessionInfo();
+				csi.SessionProperties = sqs.Properties;
+				csi.MaxPlayers = sqs.MaxPlayers;
+				csi.Name = sqs.ServerMessage;
+				csi.PasswordProtected = !string.IsNullOrEmpty(sqs.Password);
+				csi.JoinGamePolicy = JoinGamePolicy.Anyone;
+				this._steamAPI.CreateLobby(csi, new LobbyCreatedDelegate(this.OnLobbyCreated), sqs);
 				return;
 			}
 			this.OnLobbyCreated(new HostSessionInfo
@@ -48,23 +48,23 @@ namespace DNA.CastleMinerZ.Net.Steam
 
 		protected void OnLobbyCreated(HostSessionInfo hostInfo, object context)
 		{
-			NetworkSessionStaticProvider.BeginCreateSessionState beginCreateSessionState = (NetworkSessionStaticProvider.BeginCreateSessionState)context;
+			NetworkSessionStaticProvider.BeginCreateSessionState sqs = (NetworkSessionStaticProvider.BeginCreateSessionState)context;
 			this.HostSessionInfo = hostInfo;
 			this._isHost = true;
 			this._sessionID = MathTools.RandomInt();
-			this._sessionType = beginCreateSessionState.SessionType;
-			this._maxPlayers = beginCreateSessionState.MaxPlayers;
-			this._signedInGamers = new List<SignedInGamer>(beginCreateSessionState.LocalGamers);
-			this._gameName = beginCreateSessionState.NetworkGameName;
-			this._properties = beginCreateSessionState.Properties;
-			this._version = beginCreateSessionState.Version;
+			this._sessionType = sqs.SessionType;
+			this._maxPlayers = sqs.MaxPlayers;
+			this._signedInGamers = new List<SignedInGamer>(sqs.LocalGamers);
+			this._gameName = sqs.NetworkGameName;
+			this._properties = sqs.Properties;
+			this._version = sqs.Version;
 			if (!string.IsNullOrWhiteSpace(this._password))
 			{
-				this._password = beginCreateSessionState.Password;
+				this._password = sqs.Password;
 			}
 			if (hostInfo == null)
 			{
-				beginCreateSessionState.ExceptionEncountered = new Exception("Could not create steam lobby");
+				sqs.ExceptionEncountered = new Exception("Could not create steam lobby");
 				this._hostConnectionResult = NetworkSession.ResultCode.ExceptionThrown;
 				this._hostConnectionResultString = "Could not create steam lobby";
 			}
@@ -73,27 +73,27 @@ namespace DNA.CastleMinerZ.Net.Steam
 				this._hostConnectionResult = NetworkSession.ResultCode.Succeeded;
 				base.AddLocalGamer(this._signedInGamers[0], true, 0, this._steamAPI.SteamPlayerID);
 			}
-			beginCreateSessionState.Event.Set();
-			if (beginCreateSessionState.Callback != null)
+			sqs.Event.Set();
+			if (sqs.Callback != null)
 			{
-				beginCreateSessionState.Callback(beginCreateSessionState);
+				sqs.Callback(sqs);
 			}
 		}
 
 		public override void StartClientInvited(ulong lobbyId, NetworkSessionStaticProvider.BeginJoinSessionState sqs, GetPasswordForInvitedGameCallback getPasswordCallback)
 		{
 			this._hostConnectionResult = NetworkSession.ResultCode.Pending;
-			SteamNetworkSessionProvider.KeeperOfTheInvitedGameData keeperOfTheInvitedGameData = new SteamNetworkSessionProvider.KeeperOfTheInvitedGameData(getPasswordCallback, null, lobbyId, sqs);
-			this._steamAPI.GetInvitedGameInfo(lobbyId, new SessionUpdatedDelegate(this.SessionUpdatedCallback), keeperOfTheInvitedGameData);
+			SteamNetworkSessionProvider.KeeperOfTheInvitedGameData context = new SteamNetworkSessionProvider.KeeperOfTheInvitedGameData(getPasswordCallback, null, lobbyId, sqs);
+			this._steamAPI.GetInvitedGameInfo(lobbyId, new SessionUpdatedDelegate(this.SessionUpdatedCallback), context);
 		}
 
 		private void SessionUpdatedCallback(ulong lobbyid, GameUpdateResultCode updateresult, ClientSessionInfo session, object context)
 		{
-			SteamNetworkSessionProvider.KeeperOfTheInvitedGameData keeperOfTheInvitedGameData = context as SteamNetworkSessionProvider.KeeperOfTheInvitedGameData;
-			keeperOfTheInvitedGameData.SessionInfo = session;
+			SteamNetworkSessionProvider.KeeperOfTheInvitedGameData gameData = context as SteamNetworkSessionProvider.KeeperOfTheInvitedGameData;
+			gameData.SessionInfo = session;
 			if (updateresult == GameUpdateResultCode.Success)
 			{
-				keeperOfTheInvitedGameData.State.AvailableSession = new AvailableNetworkSession(session);
+				gameData.State.AvailableSession = new AvailableNetworkSession(session);
 				TaskDispatcher.Instance.AddTaskForMainThread(new TaskDelegate(this.ValidateInvitedGameAndStartJoining), context);
 				return;
 			}
@@ -114,21 +114,21 @@ namespace DNA.CastleMinerZ.Net.Steam
 
 		private void ValidateInvitedGameAndStartJoining(BaseTask task, object context)
 		{
-			SteamNetworkSessionProvider.KeeperOfTheInvitedGameData keeperOfTheInvitedGameData = context as SteamNetworkSessionProvider.KeeperOfTheInvitedGameData;
-			keeperOfTheInvitedGameData.Callback(keeperOfTheInvitedGameData.SessionInfo, keeperOfTheInvitedGameData, new SetPasswordForInvitedGameCallback(this.GotSessionPasswordCallback));
+			SteamNetworkSessionProvider.KeeperOfTheInvitedGameData gameData = context as SteamNetworkSessionProvider.KeeperOfTheInvitedGameData;
+			gameData.Callback(gameData.SessionInfo, gameData, new SetPasswordForInvitedGameCallback(this.GotSessionPasswordCallback));
 		}
 
 		private void GotSessionPasswordCallback(bool cancelled, string password, string errorString, object context)
 		{
-			SteamNetworkSessionProvider.KeeperOfTheInvitedGameData keeperOfTheInvitedGameData = context as SteamNetworkSessionProvider.KeeperOfTheInvitedGameData;
+			SteamNetworkSessionProvider.KeeperOfTheInvitedGameData gameData = context as SteamNetworkSessionProvider.KeeperOfTheInvitedGameData;
 			if (cancelled)
 			{
 				this._hostConnectionResultString = errorString;
 				this._hostConnectionResult = NetworkSession.ResultCode.UnknownResult;
 				return;
 			}
-			keeperOfTheInvitedGameData.State.Password = password;
-			this.StartClient(keeperOfTheInvitedGameData.State);
+			gameData.State.Password = password;
+			this.StartClient(gameData.State);
 		}
 
 		public override void StartClient(NetworkSessionStaticProvider.BeginJoinSessionState sqs)
@@ -144,45 +144,45 @@ namespace DNA.CastleMinerZ.Net.Steam
 			this._hostConnectionResult = NetworkSession.ResultCode.Pending;
 			if (this._sessionType != NetworkSessionType.Local)
 			{
-				RequestConnectToHostMessage requestConnectToHostMessage = new RequestConnectToHostMessage();
-				requestConnectToHostMessage.SessionID = this._sessionID;
-				requestConnectToHostMessage.SessionProperties = this._properties;
-				requestConnectToHostMessage.Password = sqs.Password;
-				requestConnectToHostMessage.Gamer = this._signedInGamers[0];
-				SteamNetBuffer steamNetBuffer = this._steamAPI.AllocSteamNetBuffer();
-				steamNetBuffer.Write(requestConnectToHostMessage, this._gameName, this._version);
-				this._steamAPI.JoinGame(sqs.AvailableSession.LobbySteamID, sqs.AvailableSession.HostSteamID, steamNetBuffer);
+				RequestConnectToHostMessage crm = new RequestConnectToHostMessage();
+				crm.SessionID = this._sessionID;
+				crm.SessionProperties = this._properties;
+				crm.Password = sqs.Password;
+				crm.Gamer = this._signedInGamers[0];
+				SteamNetBuffer nom = this._steamAPI.AllocSteamNetBuffer();
+				nom.Write(crm, this._gameName, this._version);
+				this._steamAPI.JoinGame(sqs.AvailableSession.LobbySteamID, sqs.AvailableSession.HostSteamID, nom);
 			}
 		}
 
 		private void SendRemoteData(SteamNetBuffer msg, NetDeliveryMethod flags, NetworkGamer recipient)
 		{
-			ulong alternateAddress = recipient.AlternateAddress;
-			if (alternateAddress != 0UL)
+			ulong c = recipient.AlternateAddress;
+			if (c != 0UL)
 			{
-				this._steamAPI.SendPacket(msg, alternateAddress, flags, 0);
+				this._steamAPI.SendPacket(msg, c, flags, 0);
 			}
 		}
 
 		private NetDeliveryMethod GetDeliveryMethodFromOptions(SendDataOptions options)
 		{
-			NetDeliveryMethod netDeliveryMethod = NetDeliveryMethod.Unknown;
+			NetDeliveryMethod flags = NetDeliveryMethod.Unknown;
 			switch (options)
 			{
 			case SendDataOptions.None:
-				netDeliveryMethod = NetDeliveryMethod.Unreliable;
+				flags = NetDeliveryMethod.Unreliable;
 				break;
 			case SendDataOptions.Reliable:
-				netDeliveryMethod = NetDeliveryMethod.ReliableUnordered;
+				flags = NetDeliveryMethod.ReliableUnordered;
 				break;
 			case SendDataOptions.InOrder:
-				netDeliveryMethod = NetDeliveryMethod.UnreliableSequenced;
+				flags = NetDeliveryMethod.UnreliableSequenced;
 				break;
 			case SendDataOptions.ReliableInOrder:
-				netDeliveryMethod = NetDeliveryMethod.ReliableOrdered;
+				flags = NetDeliveryMethod.ReliableOrdered;
 				break;
 			}
-			return netDeliveryMethod;
+			return flags;
 		}
 
 		private void PrepareMessageForSending(SendDataOptions options, NetworkGamer recipient, out SteamNetBuffer msg, out int channel, out ulong netConnection, out NetDeliveryMethod flags)
@@ -205,15 +205,15 @@ namespace DNA.CastleMinerZ.Net.Steam
 			}
 			else
 			{
-				ulong alternateAddress = recipient.AlternateAddress;
-				if (alternateAddress != 0UL)
+				ulong c = recipient.AlternateAddress;
+				if (c != 0UL)
 				{
 					msg = this._steamAPI.AllocSteamNetBuffer();
 					flags = this.GetDeliveryMethodFromOptions(options);
 					msg.Write(recipient.Id);
 					msg.Write(this._localPlayerGID);
 					channel = 0;
-					netConnection = alternateAddress;
+					netConnection = c;
 					return;
 				}
 				msg = null;
@@ -225,29 +225,29 @@ namespace DNA.CastleMinerZ.Net.Steam
 
 		public override void SendRemoteData(byte[] data, SendDataOptions options, NetworkGamer recipient)
 		{
-			SteamNetBuffer steamNetBuffer;
-			int num;
-			ulong num2;
-			NetDeliveryMethod netDeliveryMethod;
-			this.PrepareMessageForSending(options, recipient, out steamNetBuffer, out num, out num2, out netDeliveryMethod);
-			if (num2 != 0UL)
+			SteamNetBuffer msg;
+			int channel;
+			ulong netConnection;
+			NetDeliveryMethod flags;
+			this.PrepareMessageForSending(options, recipient, out msg, out channel, out netConnection, out flags);
+			if (netConnection != 0UL)
 			{
-				steamNetBuffer.WriteArray(data);
-				this._steamAPI.SendPacket(steamNetBuffer, num2, netDeliveryMethod, num);
+				msg.WriteArray(data);
+				this._steamAPI.SendPacket(msg, netConnection, flags, channel);
 			}
 		}
 
 		public override void SendRemoteData(byte[] data, int offset, int length, SendDataOptions options, NetworkGamer recipient)
 		{
-			SteamNetBuffer steamNetBuffer;
-			int num;
-			ulong num2;
-			NetDeliveryMethod netDeliveryMethod;
-			this.PrepareMessageForSending(options, recipient, out steamNetBuffer, out num, out num2, out netDeliveryMethod);
-			if (num2 != 0UL)
+			SteamNetBuffer msg;
+			int channel;
+			ulong netConnection;
+			NetDeliveryMethod flags;
+			this.PrepareMessageForSending(options, recipient, out msg, out channel, out netConnection, out flags);
+			if (netConnection != 0UL)
 			{
-				steamNetBuffer.WriteArray(data, offset, length);
-				this._steamAPI.SendPacket(steamNetBuffer, num2, netDeliveryMethod, num);
+				msg.WriteArray(data, offset, length);
+				this._steamAPI.SendPacket(msg, netConnection, flags, channel);
 			}
 		}
 
@@ -266,39 +266,39 @@ namespace DNA.CastleMinerZ.Net.Steam
 
 		public override void BroadcastRemoteData(byte[] data, SendDataOptions options)
 		{
-			ulong alternateAddress = this._host.AlternateAddress;
-			if (alternateAddress != 0UL)
+			ulong netConnection = this._host.AlternateAddress;
+			if (netConnection != 0UL)
 			{
-				SteamNetBuffer steamNetBuffer;
-				NetDeliveryMethod netDeliveryMethod;
-				this.PrepareBroadcastMessageForSending(options, out steamNetBuffer, out netDeliveryMethod);
-				steamNetBuffer.WriteArray(data);
-				this._steamAPI.SendPacket(steamNetBuffer, alternateAddress, netDeliveryMethod, 1);
+				SteamNetBuffer msg;
+				NetDeliveryMethod flags;
+				this.PrepareBroadcastMessageForSending(options, out msg, out flags);
+				msg.WriteArray(data);
+				this._steamAPI.SendPacket(msg, netConnection, flags, 1);
 			}
 		}
 
 		public override void BroadcastRemoteData(byte[] data, int offset, int length, SendDataOptions options)
 		{
-			ulong alternateAddress = this._host.AlternateAddress;
-			if (alternateAddress != 0UL)
+			ulong netConnection = this._host.AlternateAddress;
+			if (netConnection != 0UL)
 			{
-				SteamNetBuffer steamNetBuffer;
-				NetDeliveryMethod netDeliveryMethod;
-				this.PrepareBroadcastMessageForSending(options, out steamNetBuffer, out netDeliveryMethod);
-				steamNetBuffer.WriteArray(data, offset, length);
-				this._steamAPI.SendPacket(steamNetBuffer, alternateAddress, netDeliveryMethod, 1);
+				SteamNetBuffer msg;
+				NetDeliveryMethod flags;
+				this.PrepareBroadcastMessageForSending(options, out msg, out flags);
+				msg.WriteArray(data, offset, length);
+				this._steamAPI.SendPacket(msg, netConnection, flags, 1);
 			}
 		}
 
 		private bool HandleHostStatusChangedMessage(SteamNetBuffer msg)
 		{
-			bool flag = true;
+			bool messageHandled = true;
 			switch (msg.ReadByte())
 			{
 			case 5:
 			{
-				ConnectedMessage connectedMessage = new ConnectedMessage();
-				byte b;
+				ConnectedMessage cm = new ConnectedMessage();
+				byte newGID;
 				do
 				{
 					if (this._nextPlayerGID == 0)
@@ -307,32 +307,32 @@ namespace DNA.CastleMinerZ.Net.Steam
 					}
 					byte nextPlayerGID;
 					this._nextPlayerGID = (nextPlayerGID = this._nextPlayerGID) + 1;
-					b = nextPlayerGID;
+					newGID = nextPlayerGID;
 				}
-				while (this._idToGamer.ContainsKey(b));
-				connectedMessage.PlayerGID = b;
-				connectedMessage.SetPeerList(this._allGamers);
-				SteamNetBuffer steamNetBuffer = this._steamAPI.AllocSteamNetBuffer();
-				steamNetBuffer.Write(1);
-				steamNetBuffer.Write(connectedMessage);
-				this._steamAPI.SendPacket(steamNetBuffer, msg.SenderId, NetDeliveryMethod.ReliableOrdered, 1);
-				NetworkGamer networkGamer = base.AddRemoteGamer(this._steamIDToGamer[msg.SenderId], msg.SenderId, false, connectedMessage.PlayerGID);
-				this._steamIDToGamer[msg.SenderId] = networkGamer;
+				while (this._idToGamer.ContainsKey(newGID));
+				cm.PlayerGID = newGID;
+				cm.SetPeerList(this._allGamers);
+				SteamNetBuffer omsg = this._steamAPI.AllocSteamNetBuffer();
+				omsg.Write(1);
+				omsg.Write(cm);
+				this._steamAPI.SendPacket(omsg, msg.SenderId, NetDeliveryMethod.ReliableOrdered, 1);
+				NetworkGamer newGamer = base.AddRemoteGamer(this._steamIDToGamer[msg.SenderId], msg.SenderId, false, cm.PlayerGID);
+				this._steamIDToGamer[msg.SenderId] = newGamer;
 				using (List<NetworkGamer>.Enumerator enumerator = this._remoteGamers.GetEnumerator())
 				{
 					while (enumerator.MoveNext())
 					{
-						NetworkGamer networkGamer2 = enumerator.Current;
-						if (networkGamer2.AlternateAddress != msg.SenderId)
+						NetworkGamer ng = enumerator.Current;
+						if (ng.AlternateAddress != msg.SenderId)
 						{
-							steamNetBuffer = this._steamAPI.AllocSteamNetBuffer();
-							steamNetBuffer.Write(0);
-							steamNetBuffer.Write(networkGamer.Id);
-							steamNetBuffer.Write(networkGamer);
-							this._steamAPI.SendPacket(steamNetBuffer, networkGamer2.AlternateAddress, NetDeliveryMethod.ReliableOrdered, 1);
+							omsg = this._steamAPI.AllocSteamNetBuffer();
+							omsg.Write(0);
+							omsg.Write(newGamer.Id);
+							omsg.Write(newGamer);
+							this._steamAPI.SendPacket(omsg, ng.AlternateAddress, NetDeliveryMethod.ReliableOrdered, 1);
 						}
 					}
-					return flag;
+					return messageHandled;
 				}
 				break;
 			}
@@ -345,98 +345,98 @@ namespace DNA.CastleMinerZ.Net.Steam
 			}
 			if (!this._steamIDToGamer.ContainsKey(msg.SenderId))
 			{
-				return flag;
+				return messageHandled;
 			}
-			NetworkGamer networkGamer3 = this._steamIDToGamer[msg.SenderId] as NetworkGamer;
-			if (networkGamer3 != null)
+			NetworkGamer g = this._steamIDToGamer[msg.SenderId] as NetworkGamer;
+			if (g != null)
 			{
-				DropPeerMessage dropPeerMessage = new DropPeerMessage();
-				dropPeerMessage.PlayerGID = networkGamer3.Id;
-				foreach (NetworkGamer networkGamer4 in this._remoteGamers)
+				DropPeerMessage dropPeer = new DropPeerMessage();
+				dropPeer.PlayerGID = g.Id;
+				foreach (NetworkGamer ng2 in this._remoteGamers)
 				{
-					if (networkGamer4.AlternateAddress != msg.SenderId)
+					if (ng2.AlternateAddress != msg.SenderId)
 					{
-						SteamNetBuffer steamNetBuffer2 = this._steamAPI.AllocSteamNetBuffer();
-						steamNetBuffer2.Write(2);
-						steamNetBuffer2.Write(dropPeerMessage);
-						this._steamAPI.SendPacket(steamNetBuffer2, networkGamer4.AlternateAddress, NetDeliveryMethod.ReliableOrdered, 1);
+						SteamNetBuffer om = this._steamAPI.AllocSteamNetBuffer();
+						om.Write(2);
+						om.Write(dropPeer);
+						this._steamAPI.SendPacket(om, ng2.AlternateAddress, NetDeliveryMethod.ReliableOrdered, 1);
 					}
 				}
 				this._steamIDToGamer.Remove(msg.SenderId);
-				base.RemoveGamer(networkGamer3);
-				return flag;
+				base.RemoveGamer(g);
+				return messageHandled;
 			}
-			return flag;
+			return messageHandled;
 			IL_023E:
-			flag = false;
-			return flag;
+			messageHandled = false;
+			return messageHandled;
 		}
 
 		private bool HandleHostSystemMessages(SteamNetBuffer msg)
 		{
-			bool flag = true;
+			bool result = true;
 			switch (msg.ReadByte())
 			{
 			case 3:
 			{
-				byte b = msg.ReadByte();
-				NetDeliveryMethod netDeliveryMethod = (NetDeliveryMethod)msg.ReadByte();
-				NetworkGamer networkGamer = this.FindGamerById(b);
-				if (networkGamer != null)
+				byte recipientId = msg.ReadByte();
+				NetDeliveryMethod flags = (NetDeliveryMethod)msg.ReadByte();
+				NetworkGamer recipient = this.FindGamerById(recipientId);
+				if (recipient != null)
 				{
-					byte b2 = msg.ReadByte();
-					SteamNetBuffer steamNetBuffer = this._steamAPI.AllocSteamNetBuffer();
-					steamNetBuffer.Write(b);
-					steamNetBuffer.Write(b2);
-					steamNetBuffer.CopyByteArrayFrom(msg);
-					this._steamAPI.SendPacket(steamNetBuffer, networkGamer.AlternateAddress, netDeliveryMethod, 0);
+					byte senderId = msg.ReadByte();
+					SteamNetBuffer omsg = this._steamAPI.AllocSteamNetBuffer();
+					omsg.Write(recipientId);
+					omsg.Write(senderId);
+					omsg.CopyByteArrayFrom(msg);
+					this._steamAPI.SendPacket(omsg, recipient.AlternateAddress, flags, 0);
 				}
 				break;
 			}
 			case 4:
 			{
-				NetDeliveryMethod netDeliveryMethod = (NetDeliveryMethod)msg.ReadByte();
-				byte b2 = msg.ReadByte();
-				byte[] array = null;
-				int num = msg.ReadInt32();
-				int num2 = 0;
-				bool flag2 = false;
-				if (num > 0)
+				NetDeliveryMethod flags = (NetDeliveryMethod)msg.ReadByte();
+				byte senderId = msg.ReadByte();
+				byte[] data = null;
+				int dataSize = msg.ReadInt32();
+				int offset = 0;
+				bool dataIsAligned = false;
+				if (dataSize > 0)
 				{
-					flag2 = msg.GetAlignedData(out array, out num2);
-					if (!flag2)
+					dataIsAligned = msg.GetAlignedData(out data, out offset);
+					if (!dataIsAligned)
 					{
-						array = msg.ReadBytes(num);
+						data = msg.ReadBytes(dataSize);
 					}
 				}
-				LocalNetworkGamer localNetworkGamer = this.FindGamerById(0) as LocalNetworkGamer;
-				if (localNetworkGamer != null)
+				LocalNetworkGamer host = this.FindGamerById(0) as LocalNetworkGamer;
+				if (host != null)
 				{
-					NetworkGamer networkGamer2 = this.FindGamerById(b2);
-					if (flag2)
+					NetworkGamer sender = this.FindGamerById(senderId);
+					if (dataIsAligned)
 					{
-						localNetworkGamer.AppendNewDataPacket(array, num2, num, networkGamer2);
+						host.AppendNewDataPacket(data, offset, dataSize, sender);
 					}
 					else
 					{
-						localNetworkGamer.AppendNewDataPacket(array, networkGamer2);
+						host.AppendNewDataPacket(data, sender);
 					}
 					for (int i = 0; i < this._remoteGamers.Count; i++)
 					{
-						if (this._remoteGamers[i].Id != b2)
+						if (this._remoteGamers[i].Id != senderId)
 						{
-							ulong alternateAddress = this._remoteGamers[i].AlternateAddress;
-							if (alternateAddress != 0UL)
+							ulong c = this._remoteGamers[i].AlternateAddress;
+							if (c != 0UL)
 							{
-								SteamNetBuffer steamNetBuffer2 = this._steamAPI.AllocSteamNetBuffer();
-								steamNetBuffer2.Write(this._remoteGamers[i].Id);
-								steamNetBuffer2.Write(b2);
-								steamNetBuffer2.Write(num);
-								if (num > 0)
+								SteamNetBuffer omsg2 = this._steamAPI.AllocSteamNetBuffer();
+								omsg2.Write(this._remoteGamers[i].Id);
+								omsg2.Write(senderId);
+								omsg2.Write(dataSize);
+								if (dataSize > 0)
 								{
-									steamNetBuffer2.Write(array, num2, num);
+									omsg2.Write(data, offset, dataSize);
 								}
-								this._steamAPI.SendPacket(steamNetBuffer2, alternateAddress, netDeliveryMethod, 0);
+								this._steamAPI.SendPacket(omsg2, c, flags, 0);
 							}
 						}
 					}
@@ -444,84 +444,84 @@ namespace DNA.CastleMinerZ.Net.Steam
 				break;
 			}
 			}
-			return flag;
+			return result;
 		}
 
 		private void HandleHostConnectionApproval(SteamNetBuffer msg)
 		{
-			RequestConnectToHostMessage requestConnectToHostMessage = msg.ReadRequestConnectToHostMessage(this._gameName, this._version);
-			if (requestConnectToHostMessage.ReadResult == VersionCheckedMessage.ReadResultCode.GameNameInvalid)
+			RequestConnectToHostMessage crm = msg.ReadRequestConnectToHostMessage(this._gameName, this._version);
+			if (crm.ReadResult == VersionCheckedMessage.ReadResultCode.GameNameInvalid)
 			{
 				this.FailConnection(msg.SenderId, NetworkSession.ResultCode.GameNamesDontMatch);
 				return;
 			}
-			if (requestConnectToHostMessage.ReadResult == VersionCheckedMessage.ReadResultCode.VersionInvalid)
+			if (crm.ReadResult == VersionCheckedMessage.ReadResultCode.VersionInvalid)
 			{
 				this.FailConnection(msg.SenderId, NetworkSession.ResultCode.ServerHasOlderVersion);
 				return;
 			}
-			if (requestConnectToHostMessage.ReadResult == VersionCheckedMessage.ReadResultCode.LocalVersionIsLower)
+			if (crm.ReadResult == VersionCheckedMessage.ReadResultCode.LocalVersionIsLower)
 			{
 				this.FailConnection(msg.SenderId, NetworkSession.ResultCode.ServerHasOlderVersion);
 				return;
 			}
-			if (requestConnectToHostMessage.ReadResult == VersionCheckedMessage.ReadResultCode.LocalVersionIsHIgher)
+			if (crm.ReadResult == VersionCheckedMessage.ReadResultCode.LocalVersionIsHIgher)
 			{
 				this.FailConnection(msg.SenderId, NetworkSession.ResultCode.ServerHasNewerVersion);
 				return;
 			}
-			if (!string.IsNullOrWhiteSpace(this._password) && (string.IsNullOrWhiteSpace(requestConnectToHostMessage.Password) || !requestConnectToHostMessage.Password.Equals(this._password)))
+			if (!string.IsNullOrWhiteSpace(this._password) && (string.IsNullOrWhiteSpace(crm.Password) || !crm.Password.Equals(this._password)))
 			{
 				this.FailConnection(msg.SenderId, NetworkSession.ResultCode.IncorrectPassword);
 				return;
 			}
-			if (this.AllowConnectionCallbackAlt != null && !this.AllowConnectionCallbackAlt(requestConnectToHostMessage.Gamer.PlayerID, msg.SenderId))
+			if (this.AllowConnectionCallbackAlt != null && !this.AllowConnectionCallbackAlt(crm.Gamer.PlayerID, msg.SenderId))
 			{
 				this.FailConnection(msg.SenderId, NetworkSession.ResultCode.ConnectionDenied);
 				return;
 			}
-			if (requestConnectToHostMessage.SessionProperties.Count != this._properties.Count)
+			if (crm.SessionProperties.Count != this._properties.Count)
 			{
 				this.FailConnection(msg.SenderId, NetworkSession.ResultCode.SessionPropertiesDontMatch);
 				return;
 			}
-			for (int i = 0; i < requestConnectToHostMessage.SessionProperties.Count; i++)
+			for (int i = 0; i < crm.SessionProperties.Count; i++)
 			{
-				if (this._properties[i] != null && requestConnectToHostMessage.SessionProperties[i] != this._properties[i])
+				if (this._properties[i] != null && crm.SessionProperties[i] != this._properties[i])
 				{
 					this.FailConnection(msg.SenderId, NetworkSession.ResultCode.SessionPropertiesDontMatch);
 					return;
 				}
 			}
-			GamerCollection<NetworkGamer> allGamers = base.AllGamers;
-			for (int j = 0; j < allGamers.Count; j++)
+			GamerCollection<NetworkGamer> gamers = base.AllGamers;
+			for (int j = 0; j < gamers.Count; j++)
 			{
-				bool flag = false;
-				if (allGamers[j] == null)
+				bool failConnection = false;
+				if (gamers[j] == null)
 				{
-					flag = true;
+					failConnection = true;
 				}
-				else if (allGamers[j].AlternateAddress == msg.SenderId)
+				else if (gamers[j].AlternateAddress == msg.SenderId)
 				{
-					flag = true;
+					failConnection = true;
 				}
-				else if (allGamers[j].Gamertag == requestConnectToHostMessage.Gamer.Gamertag)
+				else if (gamers[j].Gamertag == crm.Gamer.Gamertag)
 				{
-					flag = true;
+					failConnection = true;
 				}
-				if (flag)
+				if (failConnection)
 				{
 					this.FailConnection(msg.SenderId, NetworkSession.ResultCode.GamerAlreadyConnected);
 					return;
 				}
 			}
-			this._steamIDToGamer[msg.SenderId] = requestConnectToHostMessage.Gamer;
+			this._steamIDToGamer[msg.SenderId] = crm.Gamer;
 			this._steamAPI.AcceptConnection(msg.SenderId);
 		}
 
 		private bool HandleHostMessages(SteamNetBuffer msg)
 		{
-			bool flag = true;
+			bool messageHandled = true;
 			NetIncomingMessageType messageType = msg.MessageType;
 			if (messageType != NetIncomingMessageType.StatusChanged)
 			{
@@ -529,7 +529,7 @@ namespace DNA.CastleMinerZ.Net.Steam
 				{
 					if (messageType != NetIncomingMessageType.Data)
 					{
-						flag = false;
+						messageHandled = false;
 					}
 					else
 					{
@@ -537,77 +537,77 @@ namespace DNA.CastleMinerZ.Net.Steam
 						{
 							return this.HandleHostSystemMessages(msg);
 						}
-						flag = false;
+						messageHandled = false;
 					}
 				}
 				else
 				{
 					this.HandleHostConnectionApproval(msg);
 				}
-				return flag;
+				return messageHandled;
 			}
 			return this.HandleHostStatusChangedMessage(msg);
 		}
 
 		private void AddNewPeer(SteamNetBuffer msg)
 		{
-			byte b = msg.ReadByte();
-			Gamer gamer = msg.ReadGamer();
-			base.AddProxyGamer(gamer, false, b);
+			byte id = msg.ReadByte();
+			Gamer newGamer = msg.ReadGamer();
+			base.AddProxyGamer(newGamer, false, id);
 		}
 
 		private bool HandleClientSystemMessages(SteamNetBuffer msg)
 		{
-			bool flag = true;
-			InternalMessageTypes internalMessageTypes = (InternalMessageTypes)msg.ReadByte();
-			NetworkGamer networkGamer = null;
-			switch (internalMessageTypes)
+			bool result = true;
+			InternalMessageTypes msgType = (InternalMessageTypes)msg.ReadByte();
+			NetworkGamer g = null;
+			switch (msgType)
 			{
 			case InternalMessageTypes.NewPeer:
 				this.AddNewPeer(msg);
-				return flag;
+				return result;
 			case InternalMessageTypes.ResponseToConnection:
 			{
-				ConnectedMessage connectedMessage = msg.ReadConnectedMessage();
-				base.AddLocalGamer(this._signedInGamers[0], false, connectedMessage.PlayerGID, this._steamAPI.SteamPlayerID);
-				for (int i = 0; i < connectedMessage.Peers.Length; i++)
+				ConnectedMessage cm = msg.ReadConnectedMessage();
+				base.AddLocalGamer(this._signedInGamers[0], false, cm.PlayerGID, this._steamAPI.SteamPlayerID);
+				for (int i = 0; i < cm.Peers.Length; i++)
 				{
-					if (connectedMessage.ids[i] == 0)
+					if (cm.ids[i] == 0)
 					{
-						base.AddRemoteGamer(connectedMessage.Peers[i], msg.SenderId, true, 0);
+						base.AddRemoteGamer(cm.Peers[i], msg.SenderId, true, 0);
 					}
 					else
 					{
-						base.AddProxyGamer(connectedMessage.Peers[i], false, connectedMessage.ids[i]);
+						base.AddProxyGamer(cm.Peers[i], false, cm.ids[i]);
 					}
 				}
-				return flag;
+				return result;
 			}
 			case InternalMessageTypes.DropPeer:
 			{
-				DropPeerMessage dropPeerMessage = msg.ReadDropPeerMessage();
-				if (this._idToGamer.TryGetValue(dropPeerMessage.PlayerGID, out networkGamer))
+				DropPeerMessage dropPeer = msg.ReadDropPeerMessage();
+				if (this._idToGamer.TryGetValue(dropPeer.PlayerGID, out g))
 				{
-					base.RemoveGamer(networkGamer);
-					return flag;
+					base.RemoveGamer(g);
+					return result;
 				}
-				return flag;
+				return result;
 			}
 			case InternalMessageTypes.SessionPropertiesChanged:
 			{
-				NetworkSessionProperties networkSessionProperties = msg.ReadSessionProps();
-				for (int j = 0; j < networkSessionProperties.Count; j++)
+				NetworkSessionProperties newProps = msg.ReadSessionProps();
+				for (int j = 0; j < newProps.Count; j++)
 				{
-					if (networkSessionProperties[j] != null && this._properties[j] != null)
+					if (newProps[j] != null && this._properties[j] != null)
 					{
-						this._properties[j] = networkSessionProperties[j];
+						this._properties[j] = newProps[j];
 					}
 				}
-				return flag;
+				return result;
 			}
 			}
-			flag = false;
-			return flag;
+			result = false;
+			return result;
 		}
 
 		private void HandleClientStatusChangedMessage(SteamNetBuffer msg)
@@ -630,13 +630,13 @@ namespace DNA.CastleMinerZ.Net.Steam
 
 		private bool HandleClientMessages(SteamNetBuffer msg)
 		{
-			bool flag = true;
+			bool messageHandled = true;
 			NetIncomingMessageType messageType = msg.MessageType;
 			if (messageType != NetIncomingMessageType.StatusChanged)
 			{
 				if (messageType != NetIncomingMessageType.Data)
 				{
-					flag = false;
+					messageHandled = false;
 				}
 				else
 				{
@@ -644,14 +644,14 @@ namespace DNA.CastleMinerZ.Net.Steam
 					{
 						return this.HandleClientSystemMessages(msg);
 					}
-					flag = false;
+					messageHandled = false;
 				}
 			}
 			else
 			{
 				this.HandleClientStatusChangedMessage(msg);
 			}
-			return flag;
+			return messageHandled;
 		}
 
 		private void FailConnection(ulong c, NetworkSession.ResultCode reason)
@@ -661,7 +661,7 @@ namespace DNA.CastleMinerZ.Net.Steam
 
 		private bool HandleCommonMessages(SteamNetBuffer msg)
 		{
-			bool flag = true;
+			bool messageHandled = true;
 			NetIncomingMessageType messageType = msg.MessageType;
 			if (messageType <= NetIncomingMessageType.VerboseDebugMessage)
 			{
@@ -669,54 +669,54 @@ namespace DNA.CastleMinerZ.Net.Steam
 				{
 					if (messageType == NetIncomingMessageType.VerboseDebugMessage)
 					{
-						return flag;
+						return messageHandled;
 					}
 				}
 				else
 				{
-					byte b = msg.ReadByte();
-					NetworkGamer networkGamer = this.FindGamerById(b);
-					if (networkGamer == null)
+					byte pid = msg.ReadByte();
+					NetworkGamer gamer = this.FindGamerById(pid);
+					if (gamer == null)
 					{
-						return flag;
+						return messageHandled;
 					}
-					LocalNetworkGamer localNetworkGamer = networkGamer as LocalNetworkGamer;
-					if (localNetworkGamer == null)
+					LocalNetworkGamer localGamer = gamer as LocalNetworkGamer;
+					if (localGamer == null)
 					{
-						return flag;
+						return messageHandled;
 					}
-					byte b2 = msg.ReadByte();
-					NetworkGamer networkGamer2 = this.FindGamerById(b2);
-					if (networkGamer2 != null)
+					byte senderid = msg.ReadByte();
+					NetworkGamer ng = this.FindGamerById(senderid);
+					if (ng != null)
 					{
-						byte[] array = msg.ReadByteArray();
-						localNetworkGamer.AppendNewDataPacket(array, networkGamer2);
-						return flag;
+						byte[] data = msg.ReadByteArray();
+						localGamer.AppendNewDataPacket(data, ng);
+						return messageHandled;
 					}
-					return flag;
+					return messageHandled;
 				}
 			}
 			else if (messageType == NetIncomingMessageType.DebugMessage || messageType == NetIncomingMessageType.WarningMessage || messageType == NetIncomingMessageType.ErrorMessage)
 			{
-				return flag;
+				return messageHandled;
 			}
-			flag = false;
-			return flag;
+			messageHandled = false;
+			return messageHandled;
 		}
 
 		public override void Update()
 		{
-			bool flag = this._steamAPI.Update();
-			if (flag)
+			bool msgAvailable = this._steamAPI.Update();
+			if (msgAvailable)
 			{
-				SteamNetBuffer packet;
-				while ((packet = this._steamAPI.GetPacket()) != null)
+				SteamNetBuffer msg;
+				while ((msg = this._steamAPI.GetPacket()) != null)
 				{
-					if (!(this._isHost ? this.HandleHostMessages(packet) : this.HandleClientMessages(packet)))
+					if (!(this._isHost ? this.HandleHostMessages(msg) : this.HandleClientMessages(msg)))
 					{
-						bool flag2 = this.HandleCommonMessages(packet);
+						bool messageHandled = this.HandleCommonMessages(msg);
 					}
-					this._steamAPI.FreeSteamNetBuffer(packet);
+					this._steamAPI.FreeSteamNetBuffer(msg);
 				}
 			}
 		}

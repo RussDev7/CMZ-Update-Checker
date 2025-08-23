@@ -21,8 +21,8 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from)
 		{
-			RequestInventoryMessage sendInstance = Message.GetSendInstance<RequestInventoryMessage>();
-			sendInstance.DoSend(from);
+			RequestInventoryMessage Instance = Message.GetSendInstance<RequestInventoryMessage>();
+			Instance.DoSend(from);
 		}
 
 		protected override SendDataOptions SendDataOptions

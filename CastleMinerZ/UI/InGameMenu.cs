@@ -30,13 +30,13 @@ namespace DNA.CastleMinerZ.UI
 
 		public override void Draw(GraphicsDevice device, SpriteBatch spriteBatch, GameTime gameTime)
 		{
-			Rectangle screenRect = Screen.Adjuster.ScreenRect;
+			Rectangle titleArea = Screen.Adjuster.ScreenRect;
 			spriteBatch.Begin();
 			spriteBatch.Draw(this._game.DummyTexture, Screen.Adjuster.ScreenRect, new Color(0f, 0f, 0f, 0.5f));
 			if (CastleMinerZGame.Instance.IsOnlineGame && CastleMinerZGame.Instance.CurrentNetworkSession != null)
 			{
-				string text = Strings.Server_Message + ": " + CastleMinerZGame.Instance.CurrentNetworkSession.ServerMessage;
-				spriteBatch.DrawOutlinedText(this._game._consoleFont, text, new Vector2((float)(screenRect.Left + 22), (float)screenRect.Top), Color.White, Color.Black, 1);
+				string message = Strings.Server_Message + ": " + CastleMinerZGame.Instance.CurrentNetworkSession.ServerMessage;
+				spriteBatch.DrawOutlinedText(this._game._consoleFont, message, new Vector2((float)(titleArea.Left + 22), (float)titleArea.Top), Color.White, Color.Black, 1);
 			}
 			spriteBatch.End();
 			base.Draw(device, spriteBatch, gameTime);

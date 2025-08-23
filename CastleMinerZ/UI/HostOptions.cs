@@ -71,8 +71,8 @@ namespace DNA.CastleMinerZ.UI
 		protected override void OnDraw(GraphicsDevice device, SpriteBatch spriteBatch, GameTime gameTime)
 		{
 			spriteBatch.Begin();
-			Rectangle rectangle = new Rectangle(0, 0, device.Viewport.Width, device.Viewport.Height);
-			spriteBatch.Draw(this._game.DummyTexture, rectangle, new Color(0f, 0f, 0f, 0.5f));
+			Rectangle dest = new Rectangle(0, 0, device.Viewport.Width, device.Viewport.Height);
+			spriteBatch.Draw(this._game.DummyTexture, dest, new Color(0f, 0f, 0f, 0.5f));
 			spriteBatch.End();
 			base.OnDraw(device, spriteBatch, gameTime);
 		}

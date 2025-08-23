@@ -31,11 +31,11 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, IntVector3 location, bool originalExplosion, ExplosiveTypes explosiveType)
 		{
-			DetonateExplosiveMessage sendInstance = Message.GetSendInstance<DetonateExplosiveMessage>();
-			sendInstance.Location = location;
-			sendInstance.OriginalExplosion = originalExplosion;
-			sendInstance.ExplosiveType = explosiveType;
-			sendInstance.DoSend(from);
+			DetonateExplosiveMessage Instance = Message.GetSendInstance<DetonateExplosiveMessage>();
+			Instance.Location = location;
+			Instance.OriginalExplosion = originalExplosion;
+			Instance.ExplosiveType = explosiveType;
+			Instance.DoSend(from);
 		}
 
 		protected override void SendData(BinaryWriter writer)

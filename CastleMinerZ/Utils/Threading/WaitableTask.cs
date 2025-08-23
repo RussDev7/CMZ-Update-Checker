@@ -7,13 +7,13 @@ namespace DNA.CastleMinerZ.Utils.Threading
 	{
 		public WaitableTask()
 		{
-			WaitableTask waitables;
+			WaitableTask root;
 			do
 			{
-				waitables = WaitableTask._waitables;
-				this._nextWaitableTask = waitables;
+				root = WaitableTask._waitables;
+				this._nextWaitableTask = root;
 			}
-			while (waitables != Interlocked.CompareExchange<WaitableTask>(ref WaitableTask._waitables, this, waitables));
+			while (root != Interlocked.CompareExchange<WaitableTask>(ref WaitableTask._waitables, this, root));
 		}
 
 		public override void Init(TaskDelegate work, object context)
@@ -51,9 +51,9 @@ namespace DNA.CastleMinerZ.Utils.Threading
 
 		public static void WakeAll()
 		{
-			for (WaitableTask waitableTask = WaitableTask._waitables; waitableTask != null; waitableTask = waitableTask._nextWaitableTask)
+			for (WaitableTask walker = WaitableTask._waitables; walker != null; walker = walker._nextWaitableTask)
 			{
-				waitableTask.Interrupt();
+				walker.Interrupt();
 			}
 		}
 

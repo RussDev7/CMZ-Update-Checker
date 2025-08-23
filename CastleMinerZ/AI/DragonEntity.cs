@@ -81,42 +81,42 @@ namespace DNA.CastleMinerZ.AI
 
 		public void InitSpawnState()
 		{
-			Vector3 vector = CastleMinerZGame.Instance.LocalPlayer.WorldPosition;
-			float num = MathTools.RandomFloat(-1.5707964f, 1.5707964f);
-			Vector3 vector2 = DragonBaseState.MakeYawVector(num);
-			vector -= vector2 * this.EType.SpawnDistance;
-			vector.Y = this.EType.CruisingAltitude;
+			Vector3 newpos = CastleMinerZGame.Instance.LocalPlayer.WorldPosition;
+			float yaw = MathTools.RandomFloat(-1.5707964f, 1.5707964f);
+			Vector3 yawVector = DragonBaseState.MakeYawVector(yaw);
+			newpos -= yawVector * this.EType.SpawnDistance;
+			newpos.Y = this.EType.CruisingAltitude;
 			this.TargetAltitude = this.EType.CruisingAltitude;
-			this.Yaw = (this.DefaultHeading = num);
+			this.Yaw = (this.DefaultHeading = yaw);
 			this.Pitch = 0f;
 			this.CurrentAnimation = DragonAnimEnum.FLAP;
 			this.Velocity = this.EType.Speed;
 			this.Target = null;
 			base.LocalRotation = Quaternion.CreateFromYawPitchRoll(this.Yaw, 0f, 0f);
-			base.LocalPosition = vector;
+			base.LocalPosition = newpos;
 			this.StateMachine.ChangeState(DragonStates.Default);
 		}
 
 		public void DoMigration()
 		{
-			DragonHostMigrationInfo dragonHostMigrationInfo = new DragonHostMigrationInfo();
-			dragonHostMigrationInfo.Yaw = this.Yaw;
-			dragonHostMigrationInfo.TargetYaw = this.TargetYaw;
-			dragonHostMigrationInfo.Roll = this.Roll;
-			dragonHostMigrationInfo.TargetRoll = this.TargetRoll;
-			dragonHostMigrationInfo.Pitch = this.Pitch;
-			dragonHostMigrationInfo.TargetPitch = this.TargetPitch;
-			dragonHostMigrationInfo.NextDragonTime = this.DragonTime + 0.4f;
-			dragonHostMigrationInfo.NextUpdateTime = this.NextUpdateTime + 0.4f;
-			dragonHostMigrationInfo.Position = base.LocalPosition;
-			dragonHostMigrationInfo.Velocity = this.Velocity;
-			dragonHostMigrationInfo.TargetVelocity = this.TargetVelocity;
-			dragonHostMigrationInfo.DefaultHeading = this.DefaultHeading;
-			dragonHostMigrationInfo.NextFireballIndex = DragonEntity.NextFireballIndex;
-			dragonHostMigrationInfo.ForBiome = this.ForBiome;
-			dragonHostMigrationInfo.Target = this.TravelTarget;
-			dragonHostMigrationInfo.EType = this.EType.EType;
-			EnemyManager.Instance.MigrateDragon(this.MigrateDragonTo, dragonHostMigrationInfo);
+			DragonHostMigrationInfo miginfo = new DragonHostMigrationInfo();
+			miginfo.Yaw = this.Yaw;
+			miginfo.TargetYaw = this.TargetYaw;
+			miginfo.Roll = this.Roll;
+			miginfo.TargetRoll = this.TargetRoll;
+			miginfo.Pitch = this.Pitch;
+			miginfo.TargetPitch = this.TargetPitch;
+			miginfo.NextDragonTime = this.DragonTime + 0.4f;
+			miginfo.NextUpdateTime = this.NextUpdateTime + 0.4f;
+			miginfo.Position = base.LocalPosition;
+			miginfo.Velocity = this.Velocity;
+			miginfo.TargetVelocity = this.TargetVelocity;
+			miginfo.DefaultHeading = this.DefaultHeading;
+			miginfo.NextFireballIndex = DragonEntity.NextFireballIndex;
+			miginfo.ForBiome = this.ForBiome;
+			miginfo.Target = this.TravelTarget;
+			miginfo.EType = this.EType.EType;
+			EnemyManager.Instance.MigrateDragon(this.MigrateDragonTo, miginfo);
 		}
 
 		public int GetNextFireballIndex()
@@ -221,46 +221,46 @@ namespace DNA.CastleMinerZ.AI
 				this.MigrateDragonTo = null;
 				this.MigrateDragon = false;
 			}
-			float num = (float)gameTime.ElapsedGameTime.TotalSeconds;
-			this.DragonTime += num;
-			this.StateMachine._currentState.Update(this, num);
+			float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+			this.DragonTime += dt;
+			this.StateMachine._currentState.Update(this, dt);
 			this.UpdateSounds(gameTime.ElapsedGameTime);
-			float num2 = MathHelper.WrapAngle(this.TargetYaw - this._yaw);
+			float dyaw = MathHelper.WrapAngle(this.TargetYaw - this._yaw);
 			if (this.CurrentAnimation == DragonAnimEnum.HOVER)
 			{
 				this.TargetRoll = 0f;
 			}
 			else
 			{
-				this.TargetRoll = MathHelper.Clamp(num2, -this.EType.MaxRoll, this.EType.MaxRoll);
+				this.TargetRoll = MathHelper.Clamp(dyaw, -this.EType.MaxRoll, this.EType.MaxRoll);
 			}
-			float y = base.WorldPosition.Y;
-			if (y > this.TargetAltitude - 2f && y < this.TargetAltitude + 2f)
+			float alt = base.WorldPosition.Y;
+			if (alt > this.TargetAltitude - 2f && alt < this.TargetAltitude + 2f)
 			{
 				this.TargetPitch = 0f;
 			}
 			else
 			{
-				float num3 = this.TargetAltitude - y;
-				this.TargetPitch = (float)Math.Sign(num3) * Math.Min(num3 * num3 / 30f, this.EType.MaxPitch);
+				float off = this.TargetAltitude - alt;
+				this.TargetPitch = (float)Math.Sign(off) * Math.Min(off * off / 30f, this.EType.MaxPitch);
 			}
-			float yaw = this._yaw;
-			this._yaw = MathTools.MoveTowardTargetAngle(this._yaw, this.TargetYaw, this.EType.YawRate, num);
-			this._velocity = MathTools.MoveTowardTarget(this._velocity, this.TargetVelocity, this.EType.MaxAccel, num);
-			this._roll = MathTools.MoveTowardTarget(this._roll, this.TargetRoll, this.EType.RollRate, num);
-			this._pitch = MathTools.MoveTowardTarget(this._pitch, this.TargetPitch, this.EType.PitchRate, num);
+			float oldyaw = this._yaw;
+			this._yaw = MathTools.MoveTowardTargetAngle(this._yaw, this.TargetYaw, this.EType.YawRate, dt);
+			this._velocity = MathTools.MoveTowardTarget(this._velocity, this.TargetVelocity, this.EType.MaxAccel, dt);
+			this._roll = MathTools.MoveTowardTarget(this._roll, this.TargetRoll, this.EType.RollRate, dt);
+			this._pitch = MathTools.MoveTowardTarget(this._pitch, this.TargetPitch, this.EType.PitchRate, dt);
 			if (this.AnimationChangeUpdate >= this.FlapChangeUpdate && this.UpdatesSent > this.AnimationChangeUpdate)
 			{
-				float num4 = ((this._pitch > 0f) ? 2f : 0.5f);
-				this.FlapDebt += this._pitch * num * num4;
-				this.FlapDebt += Math.Abs(MathHelper.WrapAngle(yaw - this.Yaw)) * 1.5f;
+				float pitchMulter = ((this._pitch > 0f) ? 2f : 0.5f);
+				this.FlapDebt += this._pitch * dt * pitchMulter;
+				this.FlapDebt += Math.Abs(MathHelper.WrapAngle(oldyaw - this.Yaw)) * 1.5f;
 				if (Math.Abs(this._pitch) < 0.01f)
 				{
-					this.FlapDebt += 0.2f * num;
+					this.FlapDebt += 0.2f * dt;
 				}
 				if (this.CurrentAnimation != DragonAnimEnum.SOAR)
 				{
-					this.FlapDebt -= 0.5f * num;
+					this.FlapDebt -= 0.5f * dt;
 					if (this.FlapDebt < -1f && this.NextAnimation == DragonAnimEnum.FLAP)
 					{
 						this.NextAnimation = DragonAnimEnum.SOAR;
@@ -275,7 +275,7 @@ namespace DNA.CastleMinerZ.AI
 				this.FlapDebt = this.FlapDebt.Clamp(-1f, 1f);
 			}
 			base.LocalRotation = Quaternion.CreateFromYawPitchRoll(this._yaw, this._pitch, this._roll);
-			base.LocalPosition += base.LocalToWorld.Forward * (this._velocity * num);
+			base.LocalPosition += base.LocalToWorld.Forward * (this._velocity * dt);
 			for (int i = 0; i < base.Children.Count; i++)
 			{
 				base.Children[i].Update(game, gameTime);

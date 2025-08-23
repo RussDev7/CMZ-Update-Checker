@@ -11,14 +11,14 @@ namespace DNA.CastleMinerZ.UI
 		public ReleaseNotesScreen(CastleMinerZGame game, string versionString)
 			: base(game._largeFont, game._medLargeFont, game._medFont, false)
 		{
-			ImageButtonControl imageButtonControl = new ImageButtonControl();
-			imageButtonControl.Image = game._uiSprites["BackArrow"];
-			imageButtonControl.Font = game._medFont;
-			imageButtonControl.LocalPosition = new Point(32, 32);
-			imageButtonControl.Pressed += this._backButton_Pressed;
-			imageButtonControl.Text = " " + Strings.Back;
-			imageButtonControl.ImageDefaultColor = new Color(CMZColors.MenuGreen.ToVector4() * 0.8f);
-			base.Controls.Add(imageButtonControl);
+			ImageButtonControl _backButton = new ImageButtonControl();
+			_backButton.Image = game._uiSprites["BackArrow"];
+			_backButton.Font = game._medFont;
+			_backButton.LocalPosition = new Point(32, 32);
+			_backButton.Pressed += this._backButton_Pressed;
+			_backButton.Text = " " + Strings.Back;
+			_backButton.ImageDefaultColor = new Color(CMZColors.MenuGreen.ToVector4() * 0.8f);
+			base.Controls.Add(_backButton);
 			base.AddCreditsItem("Castleminer Z " + versionString + " Release Notes", ItemTypes.Title);
 			base.AddCreditsItem(" ");
 			base.AddCreditsItem("1.9.6", ItemTypes.Header);

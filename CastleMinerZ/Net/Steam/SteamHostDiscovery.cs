@@ -18,39 +18,39 @@ namespace DNA.CastleMinerZ.Net.Steam
 
 		public override int GetHostInfo(ulong lobbyid, HostDiscovery.HostDiscoveryCallback callback, object context)
 		{
-			int num = this._nextWaitingID++;
-			HostDiscovery.WaitingForResponse waitingForResponse = new HostDiscovery.WaitingForResponse();
-			waitingForResponse.Callback = callback;
-			waitingForResponse.Context = context;
-			waitingForResponse.WaitingID = num;
-			waitingForResponse.SteamLobbyID = lobbyid;
-			this._awaitingResponse.Add(waitingForResponse);
-			waitingForResponse.Timer = Stopwatch.StartNew();
+			int result = this._nextWaitingID++;
+			HostDiscovery.WaitingForResponse wc = new HostDiscovery.WaitingForResponse();
+			wc.Callback = callback;
+			wc.Context = context;
+			wc.WaitingID = result;
+			wc.SteamLobbyID = lobbyid;
+			this._awaitingResponse.Add(wc);
+			wc.Timer = Stopwatch.StartNew();
 			this._steamAPI.GetUpdatedGameInfo(lobbyid);
-			return num;
+			return result;
 		}
 
 		private void SessionUpdatedCallback(ulong lobbyid, GameUpdateResultCode updateresult, ClientSessionInfo session, object context)
 		{
-			HostDiscovery.WaitingForResponse waitingForResponse = this.FindWaiterBySteamID(lobbyid);
-			if (waitingForResponse != null)
+			HostDiscovery.WaitingForResponse waiter = this.FindWaiterBySteamID(lobbyid);
+			if (waiter != null)
 			{
-				AvailableNetworkSession availableNetworkSession = null;
-				HostDiscovery.ResultCode resultCode = HostDiscovery.ResultCode.ConnectionDenied;
+				AvailableNetworkSession netsession = null;
+				HostDiscovery.ResultCode result = HostDiscovery.ResultCode.ConnectionDenied;
 				switch (updateresult)
 				{
 				case GameUpdateResultCode.Success:
-					availableNetworkSession = new AvailableNetworkSession(session);
-					resultCode = HostDiscovery.ResultCode.Success;
+					netsession = new AvailableNetworkSession(session);
+					result = HostDiscovery.ResultCode.Success;
 					break;
 				case GameUpdateResultCode.NoLongerValid:
-					resultCode = HostDiscovery.ResultCode.ConnectionDenied;
+					result = HostDiscovery.ResultCode.ConnectionDenied;
 					break;
 				case GameUpdateResultCode.UnknownGame:
-					resultCode = HostDiscovery.ResultCode.ConnectionDenied;
+					result = HostDiscovery.ResultCode.ConnectionDenied;
 					break;
 				}
-				waitingForResponse.Callback(resultCode, availableNetworkSession, waitingForResponse.Context);
+				waiter.Callback(result, netsession, waiter.Context);
 			}
 		}
 
@@ -62,9 +62,9 @@ namespace DNA.CastleMinerZ.Net.Steam
 				{
 					if (this._awaitingResponse[i].SteamLobbyID == lobbyId)
 					{
-						HostDiscovery.WaitingForResponse waitingForResponse = this._awaitingResponse[i];
+						HostDiscovery.WaitingForResponse result = this._awaitingResponse[i];
 						this._awaitingResponse.RemoveAt(i);
-						return waitingForResponse;
+						return result;
 					}
 				}
 			}

@@ -20,14 +20,14 @@ namespace DNA.CastleMinerZ.UI
 			this._menuButtonFont = this._game._medFont;
 			this.inGame = InGame;
 			this._uiGroup = uiGroup;
-			Color color = new Color(CMZColors.MenuGreen.ToVector4() * 0.8f);
+			Color btnColor = new Color(CMZColors.MenuGreen.ToVector4() * 0.8f);
 			this._defaultButton.LocalPosition = new Point(690, 595);
 			this._defaultButton.Size = new Size(225, this._menuButtonFont.LineSpacing);
 			this._defaultButton.Text = Strings.Reset_To_Default;
 			this._defaultButton.Font = this._menuButtonFont;
 			this._defaultButton.Frame = this._game.ButtonFrame;
 			this._defaultButton.Pressed += this._defaultButton_Pressed;
-			this._defaultButton.ButtonColor = color;
+			this._defaultButton.ButtonColor = btnColor;
 			base.Children.Add(this._defaultButton);
 			this.invertYButton.LocalPosition = new Point(310, 595);
 			this.invertYButton.Size = new Size(135, this._controlsFont.LineSpacing);
@@ -35,28 +35,28 @@ namespace DNA.CastleMinerZ.UI
 			this.invertYButton.Font = this._controlsFont;
 			this.invertYButton.Frame = this._game.ButtonFrame;
 			this.invertYButton.Pressed += this.invertYButton_Pressed;
-			this.invertYButton.ButtonColor = color;
+			this.invertYButton.ButtonColor = btnColor;
 			base.Children.Add(this.invertYButton);
 			this._buttons = new ControlsTab.BindingScreenButtonControl[this._buttonOrder.Length - 1];
 			this._labels = new TextControl[this._buttonOrder.Length - 1];
-			int num = 0;
+			int currentButton = 0;
 			for (int i = 0; i < this._buttonOrder.Length; i++)
 			{
 				if (this._buttonLabels[i] != null)
 				{
-					ControlsTab.BindingScreenButtonControl bindingScreenButtonControl = new ControlsTab.BindingScreenButtonControl(this._buttonOrder[i]);
-					bindingScreenButtonControl.Size = new Size(135, this._controlsFont.LineSpacing);
-					bindingScreenButtonControl.Text = InputBinding.KeyString(this._binding.GetBinding((int)this._buttonOrder[i], InputBinding.Slot.KeyMouse1));
-					bindingScreenButtonControl.Font = this._controlsFont;
-					bindingScreenButtonControl.Frame = this._game.ButtonFrame;
-					bindingScreenButtonControl.Pressed += this._bindingBtn_Pressed;
-					bindingScreenButtonControl.ButtonColor = color;
-					base.Children.Add(bindingScreenButtonControl);
-					this._buttons[num] = bindingScreenButtonControl;
-					TextControl textControl = new TextControl(this._buttonLabels[i], this._controlsFont);
-					base.Children.Add(textControl);
-					this._labels[num] = textControl;
-					num++;
+					ControlsTab.BindingScreenButtonControl btn = new ControlsTab.BindingScreenButtonControl(this._buttonOrder[i]);
+					btn.Size = new Size(135, this._controlsFont.LineSpacing);
+					btn.Text = InputBinding.KeyString(this._binding.GetBinding((int)this._buttonOrder[i], InputBinding.Slot.KeyMouse1));
+					btn.Font = this._controlsFont;
+					btn.Frame = this._game.ButtonFrame;
+					btn.Pressed += this._bindingBtn_Pressed;
+					btn.ButtonColor = btnColor;
+					base.Children.Add(btn);
+					this._buttons[currentButton] = btn;
+					TextControl text = new TextControl(this._buttonLabels[i], this._controlsFont);
+					base.Children.Add(text);
+					this._labels[currentButton] = text;
+					currentButton++;
 				}
 			}
 			this._esc = new TextControl(this._controlsFont, "Esc", Point.Zero, CMZColors.MenuGreen);
@@ -78,10 +78,10 @@ namespace DNA.CastleMinerZ.UI
 
 		private void _bindingBtn_Pressed(object sender, EventArgs e)
 		{
-			ControlsTab.BindingScreenButtonControl bindingScreenButtonControl = sender as ControlsTab.BindingScreenButtonControl;
-			if (bindingScreenButtonControl != null)
+			ControlsTab.BindingScreenButtonControl ctrl = sender as ControlsTab.BindingScreenButtonControl;
+			if (ctrl != null)
 			{
-				this._uiGroup.PushScreen(new ControlsTab.SelectButtonDialog(this._controlsFont, bindingScreenButtonControl.Function, bindingScreenButtonControl, this));
+				this._uiGroup.PushScreen(new ControlsTab.SelectButtonDialog(this._controlsFont, ctrl.Function, ctrl, this));
 			}
 		}
 
@@ -138,42 +138,42 @@ namespace DNA.CastleMinerZ.UI
 			if (this._prevScreenSize != Screen.Adjuster.ScreenRect)
 			{
 				this._prevScreenSize = Screen.Adjuster.ScreenRect;
-				int num = 40;
+				int buttonHeight = 40;
 				if (this._buttons.Length > 1)
 				{
-					num = (int)((float)this._buttons[0].Size.Height * 1.3f);
+					buttonHeight = (int)((float)this._buttons[0].Size.Height * 1.3f);
 				}
-				int num2 = (int)((float)num * Screen.Adjuster.ScaleFactor.Y);
-				Point point = new Point(0, (int)(55f * Screen.Adjuster.ScaleFactor.Y));
-				int num3 = (int)(300f * Screen.Adjuster.ScaleFactor.Y);
-				int num4 = 0;
+				int height = (int)((float)buttonHeight * Screen.Adjuster.ScaleFactor.Y);
+				Point loc = new Point(0, (int)(55f * Screen.Adjuster.ScaleFactor.Y));
+				int btnOffset = (int)(300f * Screen.Adjuster.ScaleFactor.Y);
+				int btn = 0;
 				this._pressToRebind.LocalPosition = new Point((int)(300f * Screen.Adjuster.ScaleFactor.Y), this._pressToRebind.LocalPosition.Y);
 				for (int i = 0; i < this._buttonLabels.Length; i++)
 				{
 					if (this._buttonLabels[i] == null)
 					{
-						point = new Point((int)(475f * Screen.Adjuster.ScaleFactor.Y), this._buttons[0].LocalPosition.Y);
+						loc = new Point((int)(475f * Screen.Adjuster.ScaleFactor.Y), this._buttons[0].LocalPosition.Y);
 					}
 					else
 					{
-						this._buttons[num4].LocalPosition = new Point(point.X + num3, point.Y);
-						this._labels[num4].LocalPosition = point;
-						this._labels[num4].Scale = (this._buttons[num4].Scale = Screen.Adjuster.ScaleFactor.Y);
-						num4++;
-						point.Y += num2;
+						this._buttons[btn].LocalPosition = new Point(loc.X + btnOffset, loc.Y);
+						this._labels[btn].LocalPosition = loc;
+						this._labels[btn].Scale = (this._buttons[btn].Scale = Screen.Adjuster.ScaleFactor.Y);
+						btn++;
+						loc.Y += height;
 					}
 				}
 				this._esc.Scale = (this._opensMenu.Scale = (this._sensitivityLabel.Scale = (this._invertY.Scale = (this._defaultButton.Scale = (this.invertYButton.Scale = (this._pressToRebind.Scale = Screen.Adjuster.ScaleFactor.Y))))));
-				this._esc.LocalPosition = new Point((int)((double)point.X + (double)num3 * 1.2), point.Y);
-				this._opensMenu.LocalPosition = point;
-				point.Y += num2;
-				this.invertYButton.LocalPosition = new Point(point.X + num3, point.Y);
-				this._invertY.LocalPosition = point;
-				point.Y += num2;
-				this._sensitivityControl.LocalPosition = new Point((int)((double)point.X + (double)num3 * 0.85), point.Y + (int)(10f * Screen.Adjuster.ScaleFactor.Y));
-				this._sensitivityControl.Size = new Size((int)(185f * Screen.Adjuster.ScaleFactor.Y), num2);
-				this._sensitivityLabel.LocalPosition = new Point(point.X, point.Y);
-				point.Y += num2;
+				this._esc.LocalPosition = new Point((int)((double)loc.X + (double)btnOffset * 1.2), loc.Y);
+				this._opensMenu.LocalPosition = loc;
+				loc.Y += height;
+				this.invertYButton.LocalPosition = new Point(loc.X + btnOffset, loc.Y);
+				this._invertY.LocalPosition = loc;
+				loc.Y += height;
+				this._sensitivityControl.LocalPosition = new Point((int)((double)loc.X + (double)btnOffset * 0.85), loc.Y + (int)(10f * Screen.Adjuster.ScaleFactor.Y));
+				this._sensitivityControl.Size = new Size((int)(185f * Screen.Adjuster.ScaleFactor.Y), height);
+				this._sensitivityLabel.LocalPosition = new Point(loc.X, loc.Y);
+				loc.Y += height;
 				this._defaultButton.LocalPosition = new Point((int)(140f * Screen.Adjuster.ScaleFactor.Y), this.Size.Height - (int)(40f * Screen.Adjuster.ScaleFactor.Y));
 			}
 			base.OnUpdate(game, gameTime);
@@ -331,18 +331,18 @@ namespace DNA.CastleMinerZ.UI
 			{
 				if (!inputManager.Mouse.LeftButtonPressed || !this.cancelButton.HitTest(inputManager.Mouse.Position))
 				{
-					InputBinding.Bindable bindable = this._binding.SenseBindable(InputBinding.Slot.KeyMouse1, inputManager.Keyboard, inputManager.Mouse, inputManager.Controllers[0]);
-					InputBinding.Bindable bindable2 = bindable;
-					if (bindable2 != InputBinding.Bindable.None)
+					InputBinding.Bindable bound = this._binding.SenseBindable(InputBinding.Slot.KeyMouse1, inputManager.Keyboard, inputManager.Mouse, inputManager.Controllers[0]);
+					InputBinding.Bindable bindable = bound;
+					if (bindable != InputBinding.Bindable.None)
 					{
-						if (bindable2 == InputBinding.Bindable.KeyEscape)
+						if (bindable == InputBinding.Bindable.KeyEscape)
 						{
 							SoundManager.Instance.PlayInstance("Click");
 							base.PopMe();
 						}
 						else
 						{
-							this._binding.Bind((int)this._function, InputBinding.Slot.KeyMouse1, bindable);
+							this._binding.Bind((int)this._function, InputBinding.Slot.KeyMouse1, bound);
 							this._controllerScreen.ResetAllButtonText();
 							SoundManager.Instance.PlayInstance("Click");
 							base.PopMe();

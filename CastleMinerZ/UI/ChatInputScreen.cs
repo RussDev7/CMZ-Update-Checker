@@ -35,23 +35,23 @@ namespace DNA.CastleMinerZ.UI
 			if (this._chatInput.UpperBar.DragMenu)
 			{
 				this._chatPosition += inputManager.Mouse.DeltaPosition;
-				float num = (float)(Screen.Adjuster.ScreenRect.Width - this._chatInput.Width);
-				float num2 = (float)(Screen.Adjuster.ScreenRect.Height - this._chatInput.Height);
+				float maxX = (float)(Screen.Adjuster.ScreenRect.Width - this._chatInput.Width);
+				float maxY = (float)(Screen.Adjuster.ScreenRect.Height - this._chatInput.Height);
 				if (this._chatPosition.X < 0f)
 				{
 					this._chatPosition.X = 0f;
 				}
-				else if (this._chatPosition.X > num)
+				else if (this._chatPosition.X > maxX)
 				{
-					this._chatPosition.X = num;
+					this._chatPosition.X = maxX;
 				}
 				if (this._chatPosition.Y < 0f)
 				{
 					this._chatPosition.Y = 0f;
 				}
-				else if (this._chatPosition.Y > num2)
+				else if (this._chatPosition.Y > maxY)
 				{
-					this._chatPosition.Y = num2;
+					this._chatPosition.Y = maxY;
 				}
 			}
 			return base.OnInput(inputManager, gameTime);

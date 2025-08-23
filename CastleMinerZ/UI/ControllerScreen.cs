@@ -21,11 +21,11 @@ namespace DNA.CastleMinerZ.UI
 			this._smallControlsFont = this._game._smallFont;
 			this.inGame = InGame;
 			this._uiGroup = uiGroup;
-			float num = this._controlsFont.MeasureString(Strings.Invert_Y_Axis).X;
-			float num2 = Math.Max(this._controlsFont.MeasureString(Strings.Selects_the_appropriate_quickbar_item).X, this._controlsFont.MeasureString(Strings.Opens_the_menu__Pauses_offline_games).X);
-			float num3 = this._smallControlsFont.MeasureString(Strings.Invert_Y_Axis).X;
-			float num4 = Math.Max(this._smallControlsFont.MeasureString(Strings.Selects_the_appropriate_quickbar_item).X, this._smallControlsFont.MeasureString(Strings.Opens_the_menu__Pauses_offline_games).X);
-			bool flag = false;
+			float normalMax = this._controlsFont.MeasureString(Strings.Invert_Y_Axis).X;
+			float normalMax2 = Math.Max(this._controlsFont.MeasureString(Strings.Selects_the_appropriate_quickbar_item).X, this._controlsFont.MeasureString(Strings.Opens_the_menu__Pauses_offline_games).X);
+			float smallMax = this._smallControlsFont.MeasureString(Strings.Invert_Y_Axis).X;
+			float smallMax2 = Math.Max(this._smallControlsFont.MeasureString(Strings.Selects_the_appropriate_quickbar_item).X, this._smallControlsFont.MeasureString(Strings.Opens_the_menu__Pauses_offline_games).X);
+			bool afterNull = false;
 			this._buttonLabelLengths = new float[this._buttonLabels.Length];
 			this._smallButtonLabelLengths = new float[this._buttonLabels.Length];
 			for (int i = 0; i < this._buttonLabels.Length; i++)
@@ -34,42 +34,42 @@ namespace DNA.CastleMinerZ.UI
 				{
 					this._buttonLabelLengths[i] = this._controlsFont.MeasureString(this._buttonLabels[i]).X;
 					this._smallButtonLabelLengths[i] = this._smallControlsFont.MeasureString(this._buttonLabels[i]).X;
-					if (flag)
+					if (afterNull)
 					{
-						num2 = Math.Max(num2, this._buttonLabelLengths[i]);
-						num4 = Math.Max(num4, this._smallButtonLabelLengths[i]);
+						normalMax2 = Math.Max(normalMax2, this._buttonLabelLengths[i]);
+						smallMax2 = Math.Max(smallMax2, this._smallButtonLabelLengths[i]);
 					}
 					else
 					{
-						num = Math.Max(num, this._buttonLabelLengths[i]);
-						num3 = Math.Max(num3, this._smallButtonLabelLengths[i]);
+						normalMax = Math.Max(normalMax, this._buttonLabelLengths[i]);
+						smallMax = Math.Max(smallMax, this._smallButtonLabelLengths[i]);
 					}
 				}
 				else
 				{
-					flag = true;
+					afterNull = true;
 				}
 			}
-			this._normalFontWidth = (int)(num + num2 + 270f + 10f + 10f);
-			this._smallFontWidth = (int)(num3 + num4 + 270f + 10f + 10f);
-			this._normalLeftSize = (int)num + 5;
-			this._smallLeftSize = (int)num3 + 5;
-			Color color = new Color(CMZColors.MenuGreen.ToVector4() * 0.8f);
-			ImageButtonControl imageButtonControl = new ImageButtonControl();
-			imageButtonControl.Image = this._game._uiSprites["BackArrow"];
-			imageButtonControl.Font = this._game._medFont;
-			imageButtonControl.LocalPosition = new Point(15, 15);
-			imageButtonControl.Pressed += this._backButton_Pressed;
-			imageButtonControl.Text = " " + Strings.Back;
-			imageButtonControl.ImageDefaultColor = color;
-			base.Controls.Add(imageButtonControl);
+			this._normalFontWidth = (int)(normalMax + normalMax2 + 270f + 10f + 10f);
+			this._smallFontWidth = (int)(smallMax + smallMax2 + 270f + 10f + 10f);
+			this._normalLeftSize = (int)normalMax + 5;
+			this._smallLeftSize = (int)smallMax + 5;
+			Color btnColor = new Color(CMZColors.MenuGreen.ToVector4() * 0.8f);
+			ImageButtonControl _backButton = new ImageButtonControl();
+			_backButton.Image = this._game._uiSprites["BackArrow"];
+			_backButton.Font = this._game._medFont;
+			_backButton.LocalPosition = new Point(15, 15);
+			_backButton.Pressed += this._backButton_Pressed;
+			_backButton.Text = " " + Strings.Back;
+			_backButton.ImageDefaultColor = btnColor;
+			base.Controls.Add(_backButton);
 			this._defaultButton.LocalPosition = new Point(690, 595);
 			this._defaultButton.Size = new Size(225, 40);
 			this._defaultButton.Text = Strings.Reset_To_Default;
 			this._defaultButton.Font = this._controlsFont;
 			this._defaultButton.Frame = this._game.ButtonFrame;
 			this._defaultButton.Pressed += this._defaultButton_Pressed;
-			this._defaultButton.ButtonColor = color;
+			this._defaultButton.ButtonColor = btnColor;
 			base.Controls.Add(this._defaultButton);
 			this.invertYButton.LocalPosition = new Point(310, 595);
 			this.invertYButton.Size = new Size(135, 40);
@@ -77,41 +77,41 @@ namespace DNA.CastleMinerZ.UI
 			this.invertYButton.Font = this._controlsFont;
 			this.invertYButton.Frame = this._game.ButtonFrame;
 			this.invertYButton.Pressed += this.invertYButton_Pressed;
-			this.invertYButton.ButtonColor = color;
+			this.invertYButton.ButtonColor = btnColor;
 			base.Controls.Add(this.invertYButton);
-			Point point = new Point(Screen.Adjuster.ScreenRect.Center.X - 140, 145);
-			int num5 = (int)((float)this._controlsFont.LineSpacing * 1.25f);
+			Point loc = new Point(Screen.Adjuster.ScreenRect.Center.X - 140, 145);
+			int height = (int)((float)this._controlsFont.LineSpacing * 1.25f);
 			this._buttons = new ControllerScreen.BindingScreenButtonControl[this._buttonOrder.Length - 1];
-			int num6 = 0;
+			int currentButton = 0;
 			for (int j = 0; j < this._buttonOrder.Length; j++)
 			{
 				if (this._buttonOrder[j] == CastleMinerZControllerMapping.CMZControllerFunctions.Count)
 				{
-					point = new Point(Screen.Adjuster.ScreenRect.Center.X + 5, 145);
+					loc = new Point(Screen.Adjuster.ScreenRect.Center.X + 5, 145);
 				}
 				else
 				{
-					ControllerScreen.BindingScreenButtonControl bindingScreenButtonControl = new ControllerScreen.BindingScreenButtonControl(this._buttonOrder[j]);
-					bindingScreenButtonControl.LocalPosition = point;
-					bindingScreenButtonControl.Size = new Size(135, 40);
-					bindingScreenButtonControl.Text = InputBinding.KeyString(this._binding.GetBinding((int)this._buttonOrder[j], InputBinding.Slot.KeyMouse1));
-					bindingScreenButtonControl.Font = this._controlsFont;
-					bindingScreenButtonControl.Frame = this._game.ButtonFrame;
-					bindingScreenButtonControl.Pressed += this._bindingBtn_Pressed;
-					base.Controls.Add(bindingScreenButtonControl);
-					this._buttons[num6++] = bindingScreenButtonControl;
-					point.Y += num5;
-					bindingScreenButtonControl.ButtonColor = color;
+					ControllerScreen.BindingScreenButtonControl btn = new ControllerScreen.BindingScreenButtonControl(this._buttonOrder[j]);
+					btn.LocalPosition = loc;
+					btn.Size = new Size(135, 40);
+					btn.Text = InputBinding.KeyString(this._binding.GetBinding((int)this._buttonOrder[j], InputBinding.Slot.KeyMouse1));
+					btn.Font = this._controlsFont;
+					btn.Frame = this._game.ButtonFrame;
+					btn.Pressed += this._bindingBtn_Pressed;
+					base.Controls.Add(btn);
+					this._buttons[currentButton++] = btn;
+					loc.Y += height;
+					btn.ButtonColor = btnColor;
 				}
 			}
 		}
 
 		private void _bindingBtn_Pressed(object sender, EventArgs e)
 		{
-			ControllerScreen.BindingScreenButtonControl bindingScreenButtonControl = sender as ControllerScreen.BindingScreenButtonControl;
-			if (bindingScreenButtonControl != null)
+			ControllerScreen.BindingScreenButtonControl ctrl = sender as ControllerScreen.BindingScreenButtonControl;
+			if (ctrl != null)
 			{
-				this._uiGroup.PushScreen(new ControllerScreen.SelectButtonDialog(this._controlsFont, bindingScreenButtonControl.Function, bindingScreenButtonControl, this));
+				this._uiGroup.PushScreen(new ControllerScreen.SelectButtonDialog(this._controlsFont, ctrl.Function, ctrl, this));
 			}
 		}
 
@@ -180,62 +180,62 @@ namespace DNA.CastleMinerZ.UI
 			{
 				spriteBatch.Draw(this._game.DummyTexture, Screen.Adjuster.ScreenRect, new Color(0f, 0f, 0f, 0.5f));
 			}
-			float num = (float)this._controlsFont.LineSpacing * 1.35f;
-			int num2 = Math.Max(55, Screen.Adjuster.ScreenRect.Center.Y - (int)num * 5);
-			Vector2 vector = new Vector2(125f, (float)num2);
-			Point point = new Point(Screen.Adjuster.ScreenRect.Center.X - this._normalFontWidth / 2 + this._normalLeftSize, num2);
-			int num3 = 0;
-			SpriteFont spriteFont = this._controlsFont;
-			float[] array;
+			float height = (float)this._controlsFont.LineSpacing * 1.35f;
+			int yLoc = Math.Max(55, Screen.Adjuster.ScreenRect.Center.Y - (int)height * 5);
+			Vector2 loc = new Vector2(125f, (float)yLoc);
+			Point btnloc = new Point(Screen.Adjuster.ScreenRect.Center.X - this._normalFontWidth / 2 + this._normalLeftSize, yLoc);
+			int btn = 0;
+			SpriteFont font = this._controlsFont;
+			float[] labelLengths;
 			if (Screen.Adjuster.ScreenRect.Width < this._normalFontWidth)
 			{
-				point.X = Screen.Adjuster.ScreenRect.Center.X - this._smallFontWidth / 2 + this._smallLeftSize;
-				vector.Y = (float)(num2 + 7);
-				spriteFont = this._smallControlsFont;
-				array = this._smallButtonLabelLengths;
+				btnloc.X = Screen.Adjuster.ScreenRect.Center.X - this._smallFontWidth / 2 + this._smallLeftSize;
+				loc.Y = (float)(yLoc + 7);
+				font = this._smallControlsFont;
+				labelLengths = this._smallButtonLabelLengths;
 			}
 			else
 			{
-				array = this._buttonLabelLengths;
+				labelLengths = this._buttonLabelLengths;
 			}
-			bool flag = false;
+			bool afterNull = false;
 			for (int i = 0; i < this._buttonLabels.Length; i++)
 			{
 				if (this._buttonLabels[i] == null)
 				{
-					flag = true;
-					point = new Point(point.X + 145, num2);
-					vector = new Vector2((float)(point.X + 140), (float)num2);
+					afterNull = true;
+					btnloc = new Point(btnloc.X + 145, yLoc);
+					loc = new Vector2((float)(btnloc.X + 140), (float)yLoc);
 					if (Screen.Adjuster.ScreenRect.Width < this._normalFontWidth)
 					{
-						vector.Y = (float)(num2 + 7);
+						loc.Y = (float)(yLoc + 7);
 					}
 				}
 				else
 				{
-					this._buttons[num3].LocalPosition = point;
-					point.Y += (int)num;
-					num3++;
-					if (!flag)
+					this._buttons[btn].LocalPosition = btnloc;
+					btnloc.Y += (int)height;
+					btn++;
+					if (!afterNull)
 					{
-						vector.X = (float)point.X - array[i] - 5f;
+						loc.X = (float)btnloc.X - labelLengths[i] - 5f;
 					}
-					spriteBatch.DrawOutlinedText(spriteFont, this._buttonLabels[i], vector, Color.White, Color.Black, 1);
-					vector.Y += num;
+					spriteBatch.DrawOutlinedText(font, this._buttonLabels[i], loc, Color.White, Color.Black, 1);
+					loc.Y += height;
 				}
 			}
-			spriteBatch.DrawOutlinedText(this._controlsFont, "1 - 8", vector - new Vector2(100f, 0f), CMZColors.MenuGreen, Color.Black, 1);
-			spriteBatch.DrawOutlinedText(spriteFont, Strings.Selects_the_appropriate_quickbar_item, vector, Color.White, Color.Black, 1);
-			vector.Y += num;
-			spriteBatch.DrawOutlinedText(this._controlsFont, "Esc", vector - new Vector2(100f, 0f), CMZColors.MenuGreen, Color.Black, 1);
-			spriteBatch.DrawOutlinedText(spriteFont, Strings.Opens_the_menu__Pauses_offline_games, vector, Color.White, Color.Black, 1);
-			point.Y += (int)num * 2;
-			this._defaultButton.LocalPosition = point;
-			point.X = this._buttons[0].LocalPosition.X;
-			this.invertYButton.LocalPosition = point;
-			vector.Y += num;
-			vector.X = (float)(point.X - 10) - spriteFont.MeasureString(Strings.Invert_Y_Axis).X;
-			spriteBatch.DrawOutlinedText(spriteFont, Strings.Invert_Y_Axis + ":", vector, Color.White, Color.Black, 1);
+			spriteBatch.DrawOutlinedText(this._controlsFont, "1 - 8", loc - new Vector2(100f, 0f), CMZColors.MenuGreen, Color.Black, 1);
+			spriteBatch.DrawOutlinedText(font, Strings.Selects_the_appropriate_quickbar_item, loc, Color.White, Color.Black, 1);
+			loc.Y += height;
+			spriteBatch.DrawOutlinedText(this._controlsFont, "Esc", loc - new Vector2(100f, 0f), CMZColors.MenuGreen, Color.Black, 1);
+			spriteBatch.DrawOutlinedText(font, Strings.Opens_the_menu__Pauses_offline_games, loc, Color.White, Color.Black, 1);
+			btnloc.Y += (int)height * 2;
+			this._defaultButton.LocalPosition = btnloc;
+			btnloc.X = this._buttons[0].LocalPosition.X;
+			this.invertYButton.LocalPosition = btnloc;
+			loc.Y += height;
+			loc.X = (float)(btnloc.X - 10) - font.MeasureString(Strings.Invert_Y_Axis).X;
+			spriteBatch.DrawOutlinedText(font, Strings.Invert_Y_Axis + ":", loc, Color.White, Color.Black, 1);
 			spriteBatch.End();
 			base.OnDraw(device, spriteBatch, gameTime);
 		}
@@ -368,13 +368,13 @@ namespace DNA.CastleMinerZ.UI
 			{
 				if (!inputManager.Mouse.LeftButtonPressed || !this.cancelButton.HitTest(inputManager.Mouse.Position))
 				{
-					InputBinding.Bindable bindable = this._binding.SenseBindable(InputBinding.Slot.KeyMouse1, inputManager.Keyboard, inputManager.Mouse, inputManager.Controllers[0]);
-					InputBinding.Bindable bindable2 = bindable;
-					if (bindable2 != InputBinding.Bindable.None)
+					InputBinding.Bindable bound = this._binding.SenseBindable(InputBinding.Slot.KeyMouse1, inputManager.Keyboard, inputManager.Mouse, inputManager.Controllers[0]);
+					InputBinding.Bindable bindable = bound;
+					if (bindable != InputBinding.Bindable.None)
 					{
-						if (bindable2 != InputBinding.Bindable.KeyEscape)
+						if (bindable != InputBinding.Bindable.KeyEscape)
 						{
-							switch (bindable2)
+							switch (bindable)
 							{
 							case InputBinding.Bindable.KeyD1:
 							case InputBinding.Bindable.KeyD2:
@@ -388,7 +388,7 @@ namespace DNA.CastleMinerZ.UI
 								this._binding.InitBindableSensor();
 								break;
 							default:
-								this._binding.Bind((int)this._function, InputBinding.Slot.KeyMouse1, bindable);
+								this._binding.Bind((int)this._function, InputBinding.Slot.KeyMouse1, bound);
 								this._controllerScreen.ResetAllButtonText();
 								SoundManager.Instance.PlayInstance("Click");
 								base.PopMe();

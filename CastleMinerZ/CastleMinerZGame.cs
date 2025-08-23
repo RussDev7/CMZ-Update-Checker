@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Threading;
-using System.Windows.Forms;
 using DNA.Audio;
 using DNA.Avatars;
 using DNA.CastleMinerZ.Achievements;
@@ -143,12 +142,12 @@ namespace DNA.CastleMinerZ
 		{
 			get
 			{
-				string text = base.ServerMessage;
-				if (text == null && this.CurrentWorld != null)
+				string result = base.ServerMessage;
+				if (result == null && this.CurrentWorld != null)
 				{
-					text = this.CurrentWorld.ServerMessage;
+					result = this.CurrentWorld.ServerMessage;
 				}
-				return text;
+				return result;
 			}
 			set
 			{
@@ -229,10 +228,10 @@ namespace DNA.CastleMinerZ
 		protected override void SecondaryLoad()
 		{
 			SoundManager.ActiveListener = this.Listener;
-			Texture2D texture2D = base.Content.Load<Texture2D>("UI\\Screens\\LoadScreen");
-			LoadScreen loadScreen = new LoadScreen(texture2D, TimeSpan.FromSeconds(10.300000190734863));
+			Texture2D loadImage = base.Content.Load<Texture2D>("UI\\Screens\\LoadScreen");
+			LoadScreen screen = new LoadScreen(loadImage, TimeSpan.FromSeconds(10.300000190734863));
 			MainThreadMessageSender.Init();
-			this.mainScreenGroup.PushScreen(loadScreen);
+			this.mainScreenGroup.PushScreen(screen);
 			base.ScreenManager.PushScreen(this.mainScreenGroup);
 			base.ScreenManager.PushScreen(this.overlayScreenGroup);
 			SoundManager.Instance.Load("Sounds");
@@ -245,23 +244,24 @@ namespace DNA.CastleMinerZ
 			this.SetAudio(1f, 0f, 0f, 0f);
 			ControllerImages.Load(base.Content);
 			this.MenuBackdrop = base.Content.Load<Texture2D>("UI\\Screens\\MenuBack");
+			CastleMinerSky.LoadTextures();
 			this.CMZREAd = base.Content.Load<Texture2D>("UI\\CMZREAd");
 			this.CMZREAdSel = base.Content.Load<Texture2D>("UI\\CMZREAdSelected");
 			this._terrain = new BlockTerrain(base.GraphicsDevice, base.Content);
 			InventoryItem.Initalize(base.Content);
 			BlockEntity.Initialize();
 			TracerManager.Initialize();
-			string text = "Fonts\\";
-			this._consoleFont = base.Content.LoadLocalized(text + "ConsoleFont");
-			this._largeFont = base.Content.LoadLocalized(text + "LargeFont");
-			this._medFont = base.Content.LoadLocalized(text + "MedFont");
-			this._medLargeFont = base.Content.LoadLocalized(text + "MedLargeFont");
-			this._smallFont = base.Content.LoadLocalized(text + "SmallFont");
-			this._systemFont = base.Content.LoadLocalized(text + "System");
-			this._nameTagFont = base.Content.LoadLocalized(text + "NameTagFont");
-			this._myriadLarge = base.Content.LoadLocalized(text + "MyriadLarge");
-			this._myriadMed = base.Content.LoadLocalized(text + "MyriadMedium");
-			this._myriadSmall = base.Content.LoadLocalized(text + "MyriadSmall");
+			string fontLoc = "Fonts\\";
+			this._consoleFont = base.Content.LoadLocalized(fontLoc + "ConsoleFont");
+			this._largeFont = base.Content.LoadLocalized(fontLoc + "LargeFont");
+			this._medFont = base.Content.LoadLocalized(fontLoc + "MedFont");
+			this._medLargeFont = base.Content.LoadLocalized(fontLoc + "MedLargeFont");
+			this._smallFont = base.Content.LoadLocalized(fontLoc + "SmallFont");
+			this._systemFont = base.Content.LoadLocalized(fontLoc + "System");
+			this._nameTagFont = base.Content.LoadLocalized(fontLoc + "NameTagFont");
+			this._myriadLarge = base.Content.LoadLocalized(fontLoc + "MyriadLarge");
+			this._myriadMed = base.Content.LoadLocalized(fontLoc + "MyriadMedium");
+			this._myriadSmall = base.Content.LoadLocalized(fontLoc + "MyriadSmall");
 			this._uiSprites = base.Content.Load<SpriteManager>("UI\\SpriteSheet");
 			this.DialogScreenImage = base.Content.Load<Texture2D>("UI\\Screens\\DialogBack");
 			this.Logo = this._uiSprites["Logo"];
@@ -396,13 +396,13 @@ namespace DNA.CastleMinerZ
 			});
 			this.FrontEnd = new FrontEndScreen(this);
 			this.BeginLoadTerrain(null, true);
-			while (!loadScreen.Finished && !this._exitRequested)
+			while (!screen.Finished && !this._exitRequested)
 			{
 				Thread.Sleep(50);
 			}
 			this.mainScreenGroup.PopScreen();
 			this.mainScreenGroup.PushScreen(this.FrontEnd);
-			texture2D.Dispose();
+			loadImage.Dispose();
 			NetworkSession.InviteAccepted += this.NetworkSession_InviteAccepted;
 			base.SecondaryLoad();
 			this._waitToExit = false;
@@ -410,7 +410,7 @@ namespace DNA.CastleMinerZ
 
 		private void NetworkSession_InviteAccepted(object sender, InviteAcceptedEventArgs e)
 		{
-			DNA.Drawing.UI.Screen.SelectedPlayerIndex = new PlayerIndex?(e.Gamer.PlayerIndex);
+			Screen.SelectedPlayerIndex = new PlayerIndex?(e.Gamer.PlayerIndex);
 			if (Guide.IsTrialMode)
 			{
 				base.ShowMarketPlace();
@@ -440,30 +440,18 @@ namespace DNA.CastleMinerZ
 
 		protected override void OnExiting(object sender, EventArgs args)
 		{
-			if (this.GameMode == GameModeTypes.Endurance && this.FrontEnd.WorldManager != null)
-			{
-				this.FrontEnd.WorldManager.Delete(this.CurrentWorld);
-				this.SaveDevice.Flush();
-			}
 			this._exitRequested = true;
 			while (this._waitToExit || this._saving)
 			{
 				Thread.Sleep(50);
 			}
-			try
+			if (ChunkCache.Instance != null)
 			{
-				if (ChunkCache.Instance != null)
-				{
-					ChunkCache.Instance.Stop(false);
-				}
-				if (TaskDispatcher.Instance != null)
-				{
-					TaskDispatcher.Instance.Stop();
-				}
+				ChunkCache.Instance.Stop(false);
 			}
-			catch (Exception ex)
+			if (TaskDispatcher.Instance != null)
 			{
-				MessageBox.Show(ex.Message);
+				TaskDispatcher.Instance.Stop();
 			}
 			base.OnExiting(sender, args);
 		}
@@ -503,60 +491,60 @@ namespace DNA.CastleMinerZ
 
 		public void HostGame(bool local, SuccessCallback callback)
 		{
-			NetworkSessionProperties networkSessionProperties = new NetworkSessionProperties();
-			networkSessionProperties[0] = new int?(4);
-			networkSessionProperties[2] = new int?((int)this.GameMode);
-			networkSessionProperties[1] = new int?(0);
-			networkSessionProperties[3] = new int?((int)this.Difficulty);
-			networkSessionProperties[5] = new int?((int)this.PVPState);
+			NetworkSessionProperties sessionProps = new NetworkSessionProperties();
+			sessionProps[0] = new int?(4);
+			sessionProps[2] = new int?((int)this.GameMode);
+			sessionProps[1] = new int?(0);
+			sessionProps[3] = new int?((int)this.Difficulty);
+			sessionProps[5] = new int?((int)this.PVPState);
 			if (this.InfiniteResourceMode)
 			{
-				networkSessionProperties[4] = new int?(1);
+				sessionProps[4] = new int?(1);
 			}
 			else
 			{
-				networkSessionProperties[4] = new int?(0);
+				sessionProps[4] = new int?(0);
 			}
 			if (local)
 			{
-				base.HostGame(NetworkSessionType.Local, networkSessionProperties, new SignedInGamer[] { DNA.Drawing.UI.Screen.CurrentGamer }, 2, false, true, callback, "CastleMinerZSteam", 4, this.CurrentWorld.ServerMessage, null);
+				base.HostGame(NetworkSessionType.Local, sessionProps, new SignedInGamer[] { Screen.CurrentGamer }, 2, false, true, callback, "CastleMinerZSteam", 4, this.CurrentWorld.ServerMessage, null);
 				return;
 			}
-			base.HostGame(NetworkSessionType.PlayerMatch, networkSessionProperties, new SignedInGamer[] { DNA.Drawing.UI.Screen.CurrentGamer }, 16, false, true, callback, "CastleMinerZSteam", 4, this.CurrentWorld.ServerMessage, string.IsNullOrWhiteSpace(this.CurrentWorld.ServerPassword) ? null : this.CurrentWorld.ServerPassword);
+			base.HostGame(NetworkSessionType.PlayerMatch, sessionProps, new SignedInGamer[] { Screen.CurrentGamer }, 16, false, true, callback, "CastleMinerZSteam", 4, this.CurrentWorld.ServerMessage, string.IsNullOrWhiteSpace(this.CurrentWorld.ServerPassword) ? null : this.CurrentWorld.ServerPassword);
 		}
 
 		public void GetNetworkSessions(CastleMinerZGame.GotSessionsCallback callback)
 		{
-			NetworkSessionProperties networkSessionProperties = new NetworkSessionProperties();
-			for (int i = 0; i < networkSessionProperties.Count; i++)
+			NetworkSessionProperties sessionProps = new NetworkSessionProperties();
+			for (int i = 0; i < sessionProps.Count; i++)
 			{
-				networkSessionProperties[i] = null;
+				sessionProps[i] = null;
 			}
-			networkSessionProperties[0] = new int?(4);
-			networkSessionProperties[1] = new int?(0);
-			QuerySessionInfo querySessionInfo = new QuerySessionInfo();
-			querySessionInfo._props = networkSessionProperties;
-			NetworkSession.BeginFind(NetworkSessionType.PlayerMatch, new SignedInGamer[] { DNA.Drawing.UI.Screen.CurrentGamer }, querySessionInfo, delegate(IAsyncResult result)
+			sessionProps[0] = new int?(4);
+			sessionProps[1] = new int?(0);
+			QuerySessionInfo queryInfo = new QuerySessionInfo();
+			queryInfo._props = sessionProps;
+			NetworkSession.BeginFind(NetworkSessionType.PlayerMatch, new SignedInGamer[] { Screen.CurrentGamer }, queryInfo, delegate(IAsyncResult result)
 			{
-				AvailableNetworkSessionCollection availableNetworkSessionCollection = null;
+				AvailableNetworkSessionCollection sessions = null;
 				try
 				{
-					availableNetworkSessionCollection = NetworkSession.EndFind(result);
+					sessions = NetworkSession.EndFind(result);
 				}
 				catch
 				{
 				}
 				try
 				{
-					CastleMinerZGame.GotSessionsCallback gotSessionsCallback = (CastleMinerZGame.GotSessionsCallback)result.AsyncState;
-					if (gotSessionsCallback != null)
+					CastleMinerZGame.GotSessionsCallback clientCallback = (CastleMinerZGame.GotSessionsCallback)result.AsyncState;
+					if (clientCallback != null)
 					{
-						gotSessionsCallback(availableNetworkSessionCollection);
+						clientCallback(sessions);
 					}
 				}
-				catch (Exception ex)
+				catch (Exception e)
 				{
-					base.CrashGame(ex);
+					base.CrashGame(e);
 				}
 			}, callback);
 		}
@@ -578,28 +566,28 @@ namespace DNA.CastleMinerZ
 			{
 				return;
 			}
-			CastleMinerZGame.SaveDataInfo saveDataInfo = new CastleMinerZGame.SaveDataInfo();
+			CastleMinerZGame.SaveDataInfo sdata = new CastleMinerZGame.SaveDataInfo();
 			if (this.GameScreen == null || this.GameScreen.HUD == null)
 			{
 				return;
 			}
-			saveDataInfo.Inventory = this.GameScreen.HUD.PlayerInventory;
-			saveDataInfo.Worldinfo = this.CurrentWorld;
-			saveDataInfo.PlayerStats = this.PlayerStats;
-			this.TaskScheduler.QueueUserWorkItem(new ParameterizedThreadStart(this.SaveDataInternal), saveDataInfo);
+			sdata.Inventory = this.GameScreen.HUD.PlayerInventory;
+			sdata.Worldinfo = this.CurrentWorld;
+			sdata.PlayerStats = this.PlayerStats;
+			this.TaskScheduler.QueueUserWorkItem(new ParameterizedThreadStart(this.SaveDataInternal), sdata);
 		}
 
 		public void SavePlayerStats(CastleMinerZPlayerStats playerStats)
 		{
 			lock (this.saveLock)
 			{
-				if (DNA.Drawing.UI.Screen.CurrentGamer != null && !DNA.Drawing.UI.Screen.CurrentGamer.IsGuest)
+				if (Screen.CurrentGamer != null && !Screen.CurrentGamer.IsGuest)
 				{
 					this.SaveDevice.Save("stats.sav", true, true, delegate(Stream stream)
 					{
-						BinaryWriter binaryWriter = new BinaryWriter(stream);
-						playerStats.Save(binaryWriter);
-						binaryWriter.Flush();
+						BinaryWriter writer = new BinaryWriter(stream);
+						playerStats.Save(writer);
+						writer.Flush();
 					});
 				}
 			}
@@ -607,32 +595,32 @@ namespace DNA.CastleMinerZ
 
 		public void SaveDataInternal(object state)
 		{
-			CastleMinerZGame.SaveDataInfo saveDataInfo = (CastleMinerZGame.SaveDataInfo)state;
+			CastleMinerZGame.SaveDataInfo sdata = (CastleMinerZGame.SaveDataInfo)state;
 			lock (this.saveLock)
 			{
 				try
 				{
 					this._saving = true;
-					this.SavePlayerStats(saveDataInfo.PlayerStats);
-					if (saveDataInfo.Worldinfo.OwnerGamerTag != null)
+					this.SavePlayerStats(sdata.PlayerStats);
+					if (sdata.Worldinfo.OwnerGamerTag != null)
 					{
-						saveDataInfo.Worldinfo.LastPlayedDate = DateTime.Now;
-						saveDataInfo.Worldinfo.LastPosition = this.LocalPlayer.LocalPosition;
-						saveDataInfo.Worldinfo.SaveToStorage(DNA.Drawing.UI.Screen.CurrentGamer, this.SaveDevice);
+						sdata.Worldinfo.LastPlayedDate = DateTime.Now;
+						sdata.Worldinfo.LastPosition = this.LocalPlayer.LocalPosition;
+						sdata.Worldinfo.SaveToStorage(Screen.CurrentGamer, this.SaveDevice);
 					}
 					if (!this.LocalPlayer.FinalSaveRegistered)
 					{
 						if (this.LocalPlayer.Gamer.IsHost)
 						{
-							this.LocalPlayer.SaveInventory(this.SaveDevice, saveDataInfo.Worldinfo.SavePath);
+							this.LocalPlayer.SaveInventory(this.SaveDevice, sdata.Worldinfo.SavePath);
 						}
 						else if (base.CurrentNetworkSession == null)
 						{
-							this.LocalPlayer.SaveInventory(this.SaveDevice, saveDataInfo.Worldinfo.SavePath);
+							this.LocalPlayer.SaveInventory(this.SaveDevice, sdata.Worldinfo.SavePath);
 						}
 						else
 						{
-							InventoryStoreOnServerMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, saveDataInfo.Inventory, false);
+							InventoryStoreOnServerMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, sdata.Inventory, false);
 						}
 					}
 					if (this.GameMode != GameModeTypes.Endurance)
@@ -683,13 +671,13 @@ namespace DNA.CastleMinerZ
 			{
 				WaterPlane.Instance.RemoveFromParent();
 			}
-			if (DNA.Drawing.UI.Screen.CurrentGamer == null)
+			if (Screen.CurrentGamer == null)
 			{
 				this.FrontEnd.PopToStartScreen();
 			}
 			else
 			{
-				this.FrontEnd.PopToMainMenu(DNA.Drawing.UI.Screen.CurrentGamer, null);
+				this.FrontEnd.PopToMainMenu(Screen.CurrentGamer, null);
 			}
 			if (this.GameMode == GameModeTypes.Endurance && this.FrontEnd.WorldManager != null)
 			{
@@ -913,17 +901,17 @@ namespace DNA.CastleMinerZ
 				}
 				else
 				{
-					float num = this.PlayerStats.musicVolume - this.musicFadeTimer.PercentComplete;
-					if (num < 0f)
+					float volume = this.PlayerStats.musicVolume - this.musicFadeTimer.PercentComplete;
+					if (volume < 0f)
 					{
-						num = 0f;
+						volume = 0f;
 					}
 					if (this.PlayerStats.musicMute)
 					{
 						this.MusicSounds.SetVolume(0f);
 						return;
 					}
-					this.MusicSounds.SetVolume(num);
+					this.MusicSounds.SetVolume(volume);
 				}
 			}
 		}
@@ -933,71 +921,71 @@ namespace DNA.CastleMinerZ
 			return base.CurrentNetworkSession.FindGamerById(id);
 		}
 
-		private void ProcessUpdateSpawnerMessage(DNA.Net.Message message)
+		private void ProcessUpdateSpawnerMessage(Message message)
 		{
-			UpdateSpawnerMessage updateSpawnerMessage = (UpdateSpawnerMessage)message;
-			if (updateSpawnerMessage.IsStarted)
+			UpdateSpawnerMessage msg = (UpdateSpawnerMessage)message;
+			if (msg.IsStarted)
 			{
-				CastleMinerZGame.Instance.CurrentWorld.GetSpawner(IntVector3.FromVector3(updateSpawnerMessage.SpawnerPosition), true, BlockTypeEnum.Empty);
+				CastleMinerZGame.Instance.CurrentWorld.GetSpawner(IntVector3.FromVector3(msg.SpawnerPosition), true, BlockTypeEnum.Empty);
 				return;
 			}
-			Spawner spawner = CastleMinerZGame.Instance.CurrentWorld.GetSpawner(IntVector3.FromVector3(updateSpawnerMessage.SpawnerPosition), false, BlockTypeEnum.Empty);
+			Spawner spawner = CastleMinerZGame.Instance.CurrentWorld.GetSpawner(IntVector3.FromVector3(msg.SpawnerPosition), false, BlockTypeEnum.Empty);
 			spawner.HandleStopSpawningMessage();
 		}
 
-		private void ProcessDestroyCustomBlockMessage(DNA.Net.Message message)
+		private void ProcessDestroyCustomBlockMessage(Message message)
 		{
-			DestroyCustomBlockMessage destroyCustomBlockMessage = (DestroyCustomBlockMessage)message;
+			DestroyCustomBlockMessage icm = (DestroyCustomBlockMessage)message;
 			Door door;
-			if (this.CurrentWorld.Doors.TryGetValue(destroyCustomBlockMessage.Location, out door))
+			if (this.CurrentWorld.Doors.TryGetValue(icm.Location, out door))
 			{
 				door.Destroyed = true;
-				this.CurrentWorld.Doors.Remove(destroyCustomBlockMessage.Location);
+				this.CurrentWorld.Doors.Remove(icm.Location);
 			}
 		}
 
-		private void ProcessMeleePlayerMessage(DNA.Net.Message message)
+		private void ProcessMeleePlayerMessage(Message message)
 		{
 			if (this.PVPState == CastleMinerZGame.PVPEnum.Everyone || (!this.MyNetworkGamer.IsHost && !this.MyNetworkGamer.SignedInGamer.IsFriend(base.CurrentNetworkSession.Host)))
 			{
-				MeleePlayerMessage meleePlayerMessage = (MeleePlayerMessage)message;
-				float num = 0.21f;
-				if (meleePlayerMessage.ItemID == InventoryItemIDs.IronLaserSword || meleePlayerMessage.ItemID == InventoryItemIDs.CopperLaserSword || meleePlayerMessage.ItemID == InventoryItemIDs.GoldLaserSword || meleePlayerMessage.ItemID == InventoryItemIDs.DiamondLaserSword || meleePlayerMessage.ItemID == InventoryItemIDs.BloodStoneLaserSword)
+				MeleePlayerMessage mpm = (MeleePlayerMessage)message;
+				float damage = 0.21f;
+				if (mpm.ItemID == InventoryItemIDs.IronLaserSword || mpm.ItemID == InventoryItemIDs.CopperLaserSword || mpm.ItemID == InventoryItemIDs.GoldLaserSword || mpm.ItemID == InventoryItemIDs.DiamondLaserSword || mpm.ItemID == InventoryItemIDs.BloodStoneLaserSword)
 				{
-					num = 1.1f;
+					damage = 1.1f;
 				}
-				this.GameScreen.HUD.ApplyDamage(num, meleePlayerMessage.DamageSource);
+				this.GameScreen.HUD.ApplyDamage(damage, mpm.DamageSource);
 			}
 		}
 
-		private void _processAddExplosiveFlashMessage(DNA.Net.Message message)
+		private void _processAddExplosiveFlashMessage(Message message)
 		{
-			AddExplosiveFlashMessage addExplosiveFlashMessage = (AddExplosiveFlashMessage)message;
+			AddExplosiveFlashMessage efm = (AddExplosiveFlashMessage)message;
 			if (this.GameScreen != null)
 			{
-				this.GameScreen.AddExplosiveFlashModel(addExplosiveFlashMessage.Position);
+				this.GameScreen.AddExplosiveFlashModel(efm.Position);
 			}
 		}
 
-		private void _processAddExplosionEffectsMessage(DNA.Net.Message message)
+		private void _processAddExplosionEffectsMessage(Message message)
 		{
-			AddExplosionEffectsMessage addExplosionEffectsMessage = (AddExplosionEffectsMessage)message;
-			Explosive.AddEffects(addExplosionEffectsMessage.Position, true);
+			AddExplosionEffectsMessage eem = (AddExplosionEffectsMessage)message;
+			Explosive.AddEffects(eem.Position, true);
 		}
 
-		private void _processKickMessage(DNA.Net.Message message, LocalNetworkGamer localGamer)
+		private void _processKickMessage(Message message, LocalNetworkGamer localGamer)
 		{
-			KickMessage kickMessage = (KickMessage)message;
-			if (kickMessage.PlayerID == this.MyNetworkGamer.Id)
+			KickMessage km = (KickMessage)message;
+			if (km.PlayerID == this.MyNetworkGamer.Id)
 			{
 				this.EndGame(true);
 				this._waitForWorldInfo = null;
-				string text = (kickMessage.Banned ? Strings.You_have_been_banned_by_the_host_of_this_session_ : Strings.You_have_been_kicked_by_the_host_of_the_session_);
-				this.FrontEnd.ShowUIDialog(Strings.Session_Ended, text, false);
+				string showStr = (km.Banned ? Strings.You_have_been_banned_by_the_host_of_this_session_ : Strings.You_have_been_kicked_by_the_host_of_the_session_);
+				this.FrontEnd.ShowUIDialog(Strings.Session_Ended, showStr, false);
 			}
 		}
 
-		private void _processRequestWorldInfoMessage(DNA.Net.Message message, LocalNetworkGamer localGamer, bool isEcho)
+		private void _processRequestWorldInfoMessage(Message message, LocalNetworkGamer localGamer, bool isEcho)
 		{
 			if (localGamer.IsHost && !isEcho)
 			{
@@ -1010,125 +998,125 @@ namespace DNA.CastleMinerZ
 			}
 		}
 
-		private void _processClientReadyForChunkMessage(DNA.Net.Message message, bool isEcho)
+		private void _processClientReadyForChunkMessage(Message message, bool isEcho)
 		{
-			byte id = this.MyNetworkGamer.Id;
-			if (id == this.TerrainServerID && !isEcho)
+			byte myID = this.MyNetworkGamer.Id;
+			if (myID == this.TerrainServerID && !isEcho)
 			{
 				ChunkCache.Instance.SendRemoteChunkList(message.Sender.Id, false);
 			}
 		}
 
-		private void _processProvideDeltaListMessage(DNA.Net.Message message)
+		private void _processProvideDeltaListMessage(Message message)
 		{
 			ChunkCache.Instance.RemoteChunkListArrived(((ProvideDeltaListMessage)message).Delta);
 		}
 
-		private void _processAlterBlocksMessage(DNA.Net.Message message)
+		private void _processAlterBlocksMessage(Message message)
 		{
-			AlterBlockMessage alterBlockMessage = (AlterBlockMessage)message;
-			this._terrain.SetBlock(alterBlockMessage.BlockLocation, alterBlockMessage.BlockType);
+			AlterBlockMessage abm = (AlterBlockMessage)message;
+			this._terrain.SetBlock(abm.BlockLocation, abm.BlockType);
 		}
 
-		private void _processRequestChunkMessage(DNA.Net.Message message)
+		private void _processRequestChunkMessage(Message message)
 		{
-			RequestChunkMessage requestChunkMessage = (RequestChunkMessage)message;
-			ChunkCache.Instance.RetrieveChunkForNetwork(requestChunkMessage.Sender.Id, requestChunkMessage.BlockLocation, requestChunkMessage.Priority, null);
+			RequestChunkMessage rcm = (RequestChunkMessage)message;
+			ChunkCache.Instance.RetrieveChunkForNetwork(rcm.Sender.Id, rcm.BlockLocation, rcm.Priority, null);
 		}
 
-		private void _processProvideChunkMessage(DNA.Net.Message message)
+		private void _processProvideChunkMessage(Message message)
 		{
-			ProvideChunkMessage provideChunkMessage = (ProvideChunkMessage)message;
-			ChunkCache.Instance.ChunkDeltaArrived(provideChunkMessage.BlockLocation, provideChunkMessage.Delta, provideChunkMessage.Priority);
+			ProvideChunkMessage pcm = (ProvideChunkMessage)message;
+			ChunkCache.Instance.ChunkDeltaArrived(pcm.BlockLocation, pcm.Delta, pcm.Priority);
 		}
 
-		private void _processWorldInfoMessage(DNA.Net.Message message)
+		private void _processWorldInfoMessage(Message message)
 		{
-			WorldInfoMessage worldInfoMessage = (WorldInfoMessage)message;
-			WorldInfo worldInfo = worldInfoMessage.WorldInfo;
+			WorldInfoMessage pcm = (WorldInfoMessage)message;
+			WorldInfo newWorld = pcm.WorldInfo;
 			if (this._waitForWorldInfo != null)
 			{
-				this._waitForWorldInfo(worldInfo);
+				this._waitForWorldInfo(newWorld);
 				this._waitForWorldInfo = null;
 			}
 		}
 
-		private void _processTimeOfDayMessage(DNA.Net.Message message, bool isEcho)
+		private void _processTimeOfDayMessage(Message message, bool isEcho)
 		{
 			if (!isEcho)
 			{
-				TimeOfDayMessage timeOfDayMessage = (TimeOfDayMessage)message;
+				TimeOfDayMessage todm = (TimeOfDayMessage)message;
 				if (this.GameScreen != null)
 				{
-					this.GameScreen.Day = timeOfDayMessage.TimeOfDay;
+					this.GameScreen.Day = todm.TimeOfDay;
 				}
 			}
 		}
 
-		private void _processBroadcastTextMessage(DNA.Net.Message message)
+		private void _processBroadcastTextMessage(Message message)
 		{
-			BroadcastTextMessage broadcastTextMessage = (BroadcastTextMessage)message;
-			Console.WriteLine(broadcastTextMessage.Message);
+			BroadcastTextMessage btm = (BroadcastTextMessage)message;
+			Console.WriteLine(btm.Message);
 		}
 
-		private void _processItemCrateMessage(DNA.Net.Message message)
+		private void _processItemCrateMessage(Message message)
 		{
-			ItemCrateMessage itemCrateMessage = (ItemCrateMessage)message;
-			itemCrateMessage.Apply(this.CurrentWorld);
+			ItemCrateMessage icm = (ItemCrateMessage)message;
+			icm.Apply(this.CurrentWorld);
 		}
 
-		private void _processDestroyCrateMessage(DNA.Net.Message message)
+		private void _processDestroyCrateMessage(Message message)
 		{
-			DestroyCrateMessage destroyCrateMessage = (DestroyCrateMessage)message;
+			DestroyCrateMessage icm = (DestroyCrateMessage)message;
 			Crate crate;
-			if (this.CurrentWorld.Crates.TryGetValue(destroyCrateMessage.Location, out crate))
+			if (this.CurrentWorld.Crates.TryGetValue(icm.Location, out crate))
 			{
 				crate.Destroyed = true;
-				this.CurrentWorld.Crates.Remove(destroyCrateMessage.Location);
+				this.CurrentWorld.Crates.Remove(icm.Location);
 			}
 		}
 
-		private void _processDoorOpenCloseMessage(DNA.Net.Message message)
+		private void _processDoorOpenCloseMessage(Message message)
 		{
-			DoorOpenCloseMessage doorOpenCloseMessage = (DoorOpenCloseMessage)message;
-			AudioEmitter audioEmitter = new AudioEmitter();
-			audioEmitter.Position = doorOpenCloseMessage.Location;
-			if (doorOpenCloseMessage.Opened)
+			DoorOpenCloseMessage dm = (DoorOpenCloseMessage)message;
+			AudioEmitter emitter = new AudioEmitter();
+			emitter.Position = dm.Location;
+			if (dm.Opened)
 			{
-				SoundManager.Instance.PlayInstance("DoorOpen", audioEmitter);
+				SoundManager.Instance.PlayInstance("DoorOpen", emitter);
 			}
 			else
 			{
-				SoundManager.Instance.PlayInstance("DoorClose", audioEmitter);
+				SoundManager.Instance.PlayInstance("DoorClose", emitter);
 			}
 			Door door;
-			if (this.CurrentWorld.Doors.TryGetValue(doorOpenCloseMessage.Location, out door))
+			if (this.CurrentWorld.Doors.TryGetValue(dm.Location, out door))
 			{
-				door.Open = doorOpenCloseMessage.Opened;
+				door.Open = dm.Opened;
 			}
 		}
 
-		private void _processAppointServerMessage(DNA.Net.Message message)
+		private void _processAppointServerMessage(Message message)
 		{
-			byte id = this.MyNetworkGamer.Id;
-			AppointServerMessage appointServerMessage = (AppointServerMessage)message;
-			NetworkGamer gamerFromID = this.GetGamerFromID(appointServerMessage.PlayerID);
-			if (appointServerMessage.PlayerID == id)
+			byte myID = this.MyNetworkGamer.Id;
+			AppointServerMessage asm = (AppointServerMessage)message;
+			NetworkGamer newServer = this.GetGamerFromID(asm.PlayerID);
+			if (asm.PlayerID == myID)
 			{
 				ChunkCache.Instance.MakeHost(null, true);
 			}
-			else if (this.TerrainServerID == id)
+			else if (this.TerrainServerID == myID)
 			{
 				ChunkCache.Instance.MakeHost(null, false);
 			}
-			else if (appointServerMessage.PlayerID != this.TerrainServerID)
+			else if (asm.PlayerID != this.TerrainServerID)
 			{
 				ChunkCache.Instance.HostChanged();
 			}
-			this.TerrainServerID = appointServerMessage.PlayerID;
+			this.TerrainServerID = asm.PlayerID;
 		}
 
-		private void _processRestartLevelMessage(DNA.Net.Message message)
+		private void _processRestartLevelMessage(Message message)
 		{
 			if (this.GameScreen != null)
 			{
@@ -1146,63 +1134,63 @@ namespace DNA.CastleMinerZ
 			}
 		}
 
-		private void _processInventoryStoreOnServerMessage(DNA.Net.Message message, bool isHost)
+		private void _processInventoryStoreOnServerMessage(Message message, bool isHost)
 		{
 			if (isHost)
 			{
-				InventoryStoreOnServerMessage inventoryStoreOnServerMessage = (InventoryStoreOnServerMessage)message;
-				Player player = (Player)inventoryStoreOnServerMessage.Sender.Tag;
+				InventoryStoreOnServerMessage pism = (InventoryStoreOnServerMessage)message;
+				Player player = (Player)pism.Sender.Tag;
 				if (player != this._localPlayer)
 				{
-					player.PlayerInventory = inventoryStoreOnServerMessage.Inventory;
+					player.PlayerInventory = pism.Inventory;
 				}
-				if (inventoryStoreOnServerMessage.FinalSave)
+				if (pism.FinalSave)
 				{
 					player.FinalSaveRegistered = true;
 				}
 				this.TaskScheduler.QueueUserWorkItem(delegate(object state)
 				{
-					Player player2 = (Player)state;
-					player2.SaveInventory(this.SaveDevice, this.CurrentWorld.SavePath);
+					Player plyer = (Player)state;
+					plyer.SaveInventory(this.SaveDevice, this.CurrentWorld.SavePath);
 				}, player);
 			}
 		}
 
-		private void _processInventoryRetrieveFromServerMessage(DNA.Net.Message message, bool isHost)
+		private void _processInventoryRetrieveFromServerMessage(Message message, bool isHost)
 		{
-			InventoryRetrieveFromServerMessage inventoryRetrieveFromServerMessage = (InventoryRetrieveFromServerMessage)message;
-			NetworkGamer gamerFromID = this.GetGamerFromID(inventoryRetrieveFromServerMessage.playerID);
-			if (gamerFromID != null && gamerFromID.Tag != null)
+			InventoryRetrieveFromServerMessage pism = (InventoryRetrieveFromServerMessage)message;
+			NetworkGamer gamer = this.GetGamerFromID(pism.playerID);
+			if (gamer != null && gamer.Tag != null)
 			{
-				Player player = (Player)gamerFromID.Tag;
-				player.PlayerInventory = inventoryRetrieveFromServerMessage.Inventory;
+				Player player = (Player)gamer.Tag;
+				player.PlayerInventory = pism.Inventory;
 				player.PlayerInventory.Player = player;
 			}
 		}
 
-		private void _processRequestInventoryMessage(DNA.Net.Message message, bool isHost)
+		private void _processRequestInventoryMessage(Message message, bool isHost)
 		{
 			if (isHost && message.Sender.Tag != null)
 			{
 				this.TaskScheduler.QueueUserWorkItem(delegate(object state)
 				{
 					Player player = (Player)state;
-					bool flag = player.LoadInventory(this.SaveDevice, this.CurrentWorld.SavePath);
-					InventoryRetrieveFromServerMessage.Send((LocalNetworkGamer)this._localPlayer.Gamer, player, flag);
+					bool isdefault = player.LoadInventory(this.SaveDevice, this.CurrentWorld.SavePath);
+					InventoryRetrieveFromServerMessage.Send((LocalNetworkGamer)this._localPlayer.Gamer, player, isdefault);
 				}, message.Sender.Tag);
 			}
 		}
 
-		private void _processPlayerExistsMessage(DNA.Net.Message message, bool isEcho, bool isHost)
+		private void _processPlayerExistsMessage(Message message, bool isEcho, bool isHost)
 		{
-			PlayerExistsMessage playerExistsMessage = (PlayerExistsMessage)message;
+			PlayerExistsMessage lm = (PlayerExistsMessage)message;
 			if (message.Sender.Tag == null)
 			{
-				Player player = new Player(message.Sender, new AvatarDescription(playerExistsMessage.AvatarDescriptionData));
+				Player netPlayer = new Player(message.Sender, new AvatarDescription(lm.AvatarDescriptionData));
 				if (isEcho)
 				{
-					this._localPlayer = player;
-					this.GameScreen = new GameScreen(this, player);
+					this._localPlayer = netPlayer;
+					this.GameScreen = new GameScreen(this, netPlayer);
 					this.GameScreen.Inialize();
 					this.mainScreenGroup.PushScreen(this.GameScreen);
 					this._localPlayer.LocalPosition = this.CurrentWorld.LastPosition;
@@ -1222,9 +1210,9 @@ namespace DNA.CastleMinerZ
 					{
 						while (this.holdingGround.Children.Count > 0)
 						{
-							Entity entity2 = this.holdingGround.Children[0];
-							entity2.RemoveFromParent();
-							this.GameScreen.AddPlayer((Player)entity2);
+							Entity player = this.holdingGround.Children[0];
+							player.RemoveFromParent();
+							this.GameScreen.AddPlayer((Player)player);
 						}
 						this.holdingGround.Children.Clear();
 						goto IL_024B;
@@ -1234,12 +1222,12 @@ namespace DNA.CastleMinerZ
 				{
 					lock (this.holdingGround)
 					{
-						this.holdingGround.Children.Add(player);
+						this.holdingGround.Children.Add(netPlayer);
 						goto IL_024B;
 					}
 				}
-				this.GameScreen.AddPlayer(player);
-				if (playerExistsMessage.RequestResponse)
+				this.GameScreen.AddPlayer(netPlayer);
+				if (lm.RequestResponse)
 				{
 					PlayerExistsMessage.Send(this.MyNetworkGamer, this._myAvatarDescription, false);
 					if (isHost)
@@ -1258,11 +1246,11 @@ namespace DNA.CastleMinerZ
 			}
 		}
 
-		protected override void OnMessage(DNA.Net.Message message)
+		protected override void OnMessage(Message message)
 		{
-			LocalNetworkGamer myNetworkGamer = this.MyNetworkGamer;
-			bool isHost = myNetworkGamer.IsHost;
-			bool flag = message.Sender == myNetworkGamer;
+			LocalNetworkGamer localGamer = this.MyNetworkGamer;
+			bool isHost = localGamer.IsHost;
+			bool isEcho = message.Sender == localGamer;
 			if (4 != base.CurrentNetworkSession.SessionProperties[0].Value)
 			{
 				this.EndGame(false);
@@ -1271,7 +1259,7 @@ namespace DNA.CastleMinerZ
 			}
 			if (message is PlayerExistsMessage)
 			{
-				this._processPlayerExistsMessage(message, flag, isHost);
+				this._processPlayerExistsMessage(message, isEcho, isHost);
 			}
 			else if (message is AddExplosiveFlashMessage)
 			{
@@ -1283,15 +1271,15 @@ namespace DNA.CastleMinerZ
 			}
 			else if (message is KickMessage && !isHost)
 			{
-				this._processKickMessage(message, myNetworkGamer);
+				this._processKickMessage(message, localGamer);
 			}
 			else if (message is RequestWorldInfoMessage)
 			{
-				this._processRequestWorldInfoMessage(message, myNetworkGamer, flag);
+				this._processRequestWorldInfoMessage(message, localGamer, isEcho);
 			}
 			else if (message is ClientReadyForChunksMessage)
 			{
-				this._processClientReadyForChunkMessage(message, flag);
+				this._processClientReadyForChunkMessage(message, isEcho);
 			}
 			else if (message is ProvideDeltaListMessage && !isHost)
 			{
@@ -1315,7 +1303,7 @@ namespace DNA.CastleMinerZ
 			}
 			else if (message is TimeOfDayMessage)
 			{
-				this._processTimeOfDayMessage(message, flag);
+				this._processTimeOfDayMessage(message, isEcho);
 			}
 			else if (message is BroadcastTextMessage)
 			{
@@ -1379,17 +1367,17 @@ namespace DNA.CastleMinerZ
 			}
 			if (message is CastleMinerZMessage)
 			{
-				CastleMinerZMessage castleMinerZMessage = (CastleMinerZMessage)message;
-				switch (castleMinerZMessage.MessageType)
+				CastleMinerZMessage ccm = (CastleMinerZMessage)message;
+				switch (ccm.MessageType)
 				{
 				case CastleMinerZMessage.MessageTypes.Broadcast:
 				{
 					for (int i = 0; i < base.CurrentNetworkSession.AllGamers.Count; i++)
 					{
-						NetworkGamer networkGamer = base.CurrentNetworkSession.AllGamers[i];
-						if (networkGamer.Tag != null)
+						NetworkGamer gamer = base.CurrentNetworkSession.AllGamers[i];
+						if (gamer.Tag != null)
 						{
-							Player player = (Player)networkGamer.Tag;
+							Player player = (Player)gamer.Tag;
 							player.ProcessMessage(message);
 						}
 					}
@@ -1405,13 +1393,13 @@ namespace DNA.CastleMinerZ
 				case CastleMinerZMessage.MessageTypes.EnemyMessage:
 					if (EnemyManager.Instance != null)
 					{
-						EnemyManager.Instance.HandleMessage(castleMinerZMessage);
+						EnemyManager.Instance.HandleMessage(ccm);
 					}
 					break;
 				case CastleMinerZMessage.MessageTypes.PickupMessage:
 					if (PickupManager.Instance != null)
 					{
-						PickupManager.Instance.HandleMessage(castleMinerZMessage);
+						PickupManager.Instance.HandleMessage(ccm);
 					}
 					break;
 				}
@@ -1421,12 +1409,12 @@ namespace DNA.CastleMinerZ
 
 		protected override void OnGamerJoined(NetworkGamer gamer)
 		{
-			LocalNetworkGamer localNetworkGamer = base.CurrentNetworkSession.LocalGamers[0];
+			LocalNetworkGamer me = base.CurrentNetworkSession.LocalGamers[0];
 			Console.WriteLine(Strings.Player_Joined + ": " + gamer.Gamertag);
-			if (gamer == localNetworkGamer)
+			if (gamer == me)
 			{
-				this.MyNetworkGamer = localNetworkGamer;
-				if (!localNetworkGamer.IsHost)
+				this.MyNetworkGamer = me;
+				if (!me.IsHost)
 				{
 					this.GameMode = (GameModeTypes)base.CurrentNetworkSession.SessionProperties[2].Value;
 					if (base.CurrentNetworkSession.SessionProperties[4] == 1)
@@ -1443,7 +1431,7 @@ namespace DNA.CastleMinerZ
 					base.CurrentNetworkSession.Password = this.CurrentWorld.ServerPassword;
 				}
 			}
-			else if (localNetworkGamer.IsHost)
+			else if (me.IsHost)
 			{
 				AppointServerMessage.Send(this.MyNetworkGamer, this.TerrainServerID);
 				if (this.IsOnlineGame)
@@ -1469,27 +1457,27 @@ namespace DNA.CastleMinerZ
 
 		private void AppointNewServer()
 		{
-			TimeSpan timeSpan = TimeSpan.Zero;
-			byte b = 0;
-			bool flag = false;
-			foreach (NetworkGamer networkGamer in base.CurrentNetworkSession.AllGamers)
+			TimeSpan longestTime = TimeSpan.Zero;
+			byte longestID = 0;
+			bool hostFound = false;
+			foreach (NetworkGamer gamer in base.CurrentNetworkSession.AllGamers)
 			{
-				if (networkGamer.Tag != null)
+				if (gamer.Tag != null)
 				{
-					Player player = (Player)networkGamer.Tag;
-					if (player.TimeConnected >= timeSpan)
+					Player player = (Player)gamer.Tag;
+					if (player.TimeConnected >= longestTime)
 					{
-						timeSpan = player.TimeConnected;
-						b = networkGamer.Id;
-						flag = true;
+						longestTime = player.TimeConnected;
+						longestID = gamer.Id;
+						hostFound = true;
 					}
 				}
 			}
-			if (flag)
+			if (hostFound)
 			{
-				if (b != this.TerrainServerID)
+				if (longestID != this.TerrainServerID)
 				{
-					AppointServerMessage.Send(this.MyNetworkGamer, b);
+					AppointServerMessage.Send(this.MyNetworkGamer, longestID);
 					return;
 				}
 			}
@@ -1508,13 +1496,13 @@ namespace DNA.CastleMinerZ
 			{
 				return;
 			}
-			NetworkGamer myNetworkGamer = this.MyNetworkGamer;
+			NetworkGamer me = this.MyNetworkGamer;
 			Console.WriteLine(Strings.Player_Left + ": " + gamer.Gamertag);
-			if (gamer != myNetworkGamer && myNetworkGamer.IsHost && this.TerrainServerID == gamer.Id)
+			if (gamer != me && me.IsHost && this.TerrainServerID == gamer.Id)
 			{
 				this.AppointNewServer();
 			}
-			if (gamer != myNetworkGamer && myNetworkGamer.IsHost)
+			if (gamer != me && me.IsHost)
 			{
 				if (this.IsOnlineGame)
 				{
@@ -1543,14 +1531,14 @@ namespace DNA.CastleMinerZ
 		public void LoadPlayerData()
 		{
 			CastleMinerZPlayerStats stats = new CastleMinerZPlayerStats();
-			stats.GamerTag = DNA.Drawing.UI.Screen.CurrentGamer.Gamertag;
+			stats.GamerTag = Screen.CurrentGamer.Gamertag;
 			try
 			{
 				this.SaveDevice.Load("stats.sav", delegate(Stream stream)
 				{
 					stats.Load(new BinaryReader(stream));
 				});
-				if (stats.GamerTag != DNA.Drawing.UI.Screen.CurrentGamer.Gamertag)
+				if (stats.GamerTag != Screen.CurrentGamer.Gamertag)
 				{
 					throw new Exception("Stats Error");
 				}
@@ -1559,7 +1547,7 @@ namespace DNA.CastleMinerZ
 			catch (Exception)
 			{
 				this.PlayerStats = new CastleMinerZPlayerStats();
-				this.PlayerStats.GamerTag = DNA.Drawing.UI.Screen.CurrentGamer.Gamertag;
+				this.PlayerStats.GamerTag = Screen.CurrentGamer.Gamertag;
 				if (GraphicsProfileManager.Instance.IsReach)
 				{
 					this.PlayerStats.DrawDistance = 0;

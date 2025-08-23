@@ -47,27 +47,27 @@ namespace DNA.CastleMinerZ
 
 		public void CreateUpwardPickup(InventoryItem item, Vector3 location, float vel, bool displayOnPickup = false)
 		{
-			Vector3 vector = new Vector3(MathTools.RandomFloat(-0.5f, 0.501f), 0.1f, MathTools.RandomFloat(-0.5f, 0.501f));
-			vector.Normalize();
-			vector *= vel;
-			CreatePickupMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, location, vector, this._nextPickupID++, item, false, displayOnPickup);
+			Vector3 vec = new Vector3(MathTools.RandomFloat(-0.5f, 0.501f), 0.1f, MathTools.RandomFloat(-0.5f, 0.501f));
+			vec.Normalize();
+			vec *= vel;
+			CreatePickupMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, location, vec, this._nextPickupID++, item, false, displayOnPickup);
 		}
 
 		public void CreatePickup(InventoryItem item, Vector3 location, bool dropped, bool displayOnPickup = false)
 		{
 			if (dropped)
 			{
-				Player localPlayer = CastleMinerZGame.Instance.LocalPlayer;
-				Matrix localToWorld = localPlayer.FPSCamera.LocalToWorld;
-				Vector3 vector = localToWorld.Forward;
-				vector.Y = 0f;
-				vector.Normalize();
-				vector.Y = 0.1f;
-				vector += localToWorld.Left * (MathTools.RandomFloat() * 0.25f - 0.12f);
-				float num = 4f;
-				vector.Normalize();
-				vector *= num;
-				CreatePickupMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, location, vector, this._nextPickupID++, item, dropped, displayOnPickup);
+				Player p = CastleMinerZGame.Instance.LocalPlayer;
+				Matrix i = p.FPSCamera.LocalToWorld;
+				Vector3 vec = i.Forward;
+				vec.Y = 0f;
+				vec.Normalize();
+				vec.Y = 0.1f;
+				vec += i.Left * (MathTools.RandomFloat() * 0.25f - 0.12f);
+				float vel = 4f;
+				vec.Normalize();
+				vec *= vel;
+				CreatePickupMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, location, vec, this._nextPickupID++, item, dropped, displayOnPickup);
 				return;
 			}
 			this.CreateUpwardPickup(item, location, 1.5f, displayOnPickup);
@@ -80,16 +80,16 @@ namespace DNA.CastleMinerZ
 
 		private void HandleCreatePickupMessage(CreatePickupMessage msg)
 		{
-			int id = (int)msg.Sender.Id;
-			PickupEntity pickupEntity = new PickupEntity(msg.Item, msg.PickupID, id, msg.Dropped, msg.SpawnPosition);
-			pickupEntity.Item.DisplayOnPickup = msg.DisplayOnPickup;
-			pickupEntity.PlayerPhysics.LocalVelocity = msg.SpawnVector;
-			pickupEntity.LocalPosition = msg.SpawnPosition + new Vector3(0.5f, 0.5f, 0.5f);
-			this.Pickups.Add(pickupEntity);
+			int spawnID = (int)msg.Sender.Id;
+			PickupEntity entity = new PickupEntity(msg.Item, msg.PickupID, spawnID, msg.Dropped, msg.SpawnPosition);
+			entity.Item.DisplayOnPickup = msg.DisplayOnPickup;
+			entity.PlayerPhysics.LocalVelocity = msg.SpawnVector;
+			entity.LocalPosition = msg.SpawnPosition + new Vector3(0.5f, 0.5f, 0.5f);
+			this.Pickups.Add(entity);
 			Scene scene = base.Scene;
 			if (scene != null && scene.Children != null)
 			{
-				scene.Children.Add(pickupEntity);
+				scene.Children.Add(entity);
 			}
 		}
 
@@ -113,11 +113,11 @@ namespace DNA.CastleMinerZ
 			{
 				if (this.Pickups[i].PickupID == msg.PickupID && this.Pickups[i].SpawnerID == msg.SpawnerID)
 				{
-					PickupEntity pickupEntity = this.Pickups[i];
-					if (!this.PendingPickupList.Contains(pickupEntity))
+					PickupEntity pickup = this.Pickups[i];
+					if (!this.PendingPickupList.Contains(pickup))
 					{
-						this.PendingPickupList.Add(pickupEntity);
-						ConsumePickupMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, msg.Sender.Id, pickupEntity.GetActualGraphicPos(), pickupEntity.SpawnerID, pickupEntity.PickupID, pickupEntity.Item, pickupEntity.Item.DisplayOnPickup);
+						this.PendingPickupList.Add(pickup);
+						ConsumePickupMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, msg.Sender.Id, pickup.GetActualGraphicPos(), pickup.SpawnerID, pickup.PickupID, pickup.Item, pickup.Item.DisplayOnPickup);
 						return;
 					}
 				}
@@ -126,20 +126,20 @@ namespace DNA.CastleMinerZ
 
 		private void HandleConsumePickupMessage(ConsumePickupMessage msg)
 		{
-			Vector3 vector = Vector3.Zero;
-			PickupEntity pickupEntity = null;
+			Vector3 position = Vector3.Zero;
+			PickupEntity pe = null;
 			Player player = null;
 			if (CastleMinerZGame.Instance.CurrentNetworkSession != null)
 			{
 				for (int i = 0; i < CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers.Count; i++)
 				{
-					NetworkGamer networkGamer = CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers[i];
-					if (networkGamer != null && networkGamer.Id == msg.PickerUpper)
+					NetworkGamer nwg = CastleMinerZGame.Instance.CurrentNetworkSession.AllGamers[i];
+					if (nwg != null && nwg.Id == msg.PickerUpper)
 					{
-						Player player2 = (Player)networkGamer.Tag;
-						if (player2 != null)
+						Player p = (Player)nwg.Tag;
+						if (p != null)
 						{
-							player = player2;
+							player = p;
 						}
 					}
 				}
@@ -148,17 +148,17 @@ namespace DNA.CastleMinerZ
 			{
 				if (this.Pickups[j].PickupID == msg.PickupID && this.Pickups[j].SpawnerID == msg.SpawnerID)
 				{
-					pickupEntity = this.Pickups[j];
-					this.RemovePickup(pickupEntity);
+					pe = this.Pickups[j];
+					this.RemovePickup(pe);
 				}
 			}
-			if (pickupEntity != null)
+			if (pe != null)
 			{
-				vector = pickupEntity.GetActualGraphicPos();
+				position = pe.GetActualGraphicPos();
 			}
 			else
 			{
-				vector = msg.PickupPosition;
+				position = msg.PickupPosition;
 			}
 			if (player != null)
 			{
@@ -167,11 +167,11 @@ namespace DNA.CastleMinerZ
 					CastleMinerZGame.Instance.GameScreen.HUD.PlayerInventory.AddInventoryItem(msg.Item, msg.DisplayOnPickup);
 					SoundManager.Instance.PlayInstance("pickupitem");
 				}
-				FlyingPickupEntity flyingPickupEntity = new FlyingPickupEntity(msg.Item, player, vector);
+				FlyingPickupEntity fpe = new FlyingPickupEntity(msg.Item, player, position);
 				Scene scene = base.Scene;
 				if (scene != null && scene.Children != null)
 				{
-					scene.Children.Add(flyingPickupEntity);
+					scene.Children.Add(fpe);
 				}
 			}
 		}

@@ -11,25 +11,25 @@ namespace DNA.CastleMinerZ
 	{
 		public static void Initialize()
 		{
-			CastleMinerZGame instance = CastleMinerZGame.Instance;
+			CastleMinerZGame game = CastleMinerZGame.Instance;
 			BlockEntity._effect = BlockTerrain.Instance._effect;
-			BlockEntity._vb = new VertexBuffer(instance.GraphicsDevice, typeof(BlockEntity.BlockEntityVertex), 24, BufferUsage.WriteOnly);
-			BlockEntity.BlockEntityVertex[] array = new BlockEntity.BlockEntityVertex[24];
-			int[] array2 = new int[] { 0, 0, 0, 0, 1, 2 };
-			IntVector3 intVector = new IntVector3(1, 2, 4);
-			for (BlockFace blockFace = BlockFace.POSX; blockFace < BlockFace.NUM_FACES; blockFace++)
+			BlockEntity._vb = new VertexBuffer(game.GraphicsDevice, typeof(BlockEntity.BlockEntityVertex), 24, BufferUsage.WriteOnly);
+			BlockEntity.BlockEntityVertex[] verts = new BlockEntity.BlockEntityVertex[24];
+			int[] txs = new int[] { 0, 0, 0, 0, 1, 2 };
+			IntVector3 indexer = new IntVector3(1, 2, 4);
+			for (BlockFace f = BlockFace.POSX; f < BlockFace.NUM_FACES; f++)
 			{
-				int num = (int)(blockFace * BlockFace.POSY);
-				int num2 = array2[(int)blockFace];
-				int i = 0;
-				while (i < 4)
+				int idx = (int)(f * BlockFace.POSY);
+				int num = txs[(int)f];
+				int v = 0;
+				while (v < 4)
 				{
-					array[(int)(blockFace * BlockFace.POSY + i)] = new BlockEntity.BlockEntityVertex(blockFace, intVector.Dot(BlockVertex._faceVertices[num]), i, (int)blockFace);
-					i++;
-					num++;
+					verts[(int)(f * BlockFace.POSY + v)] = new BlockEntity.BlockEntityVertex(f, indexer.Dot(BlockVertex._faceVertices[idx]), v, (int)f);
+					v++;
+					idx++;
 				}
 			}
-			BlockEntity._vb.SetData<BlockEntity.BlockEntityVertex>(array, 0, array.Length);
+			BlockEntity._vb.SetData<BlockEntity.BlockEntityVertex>(verts, 0, verts.Length);
 		}
 
 		public BlockEntity(BlockTypeEnum blockType, ItemUse use, bool attachedToLocalPlayer)
@@ -56,11 +56,11 @@ namespace DNA.CastleMinerZ
 			BlockEntity._effect.Parameters["View"].SetValue(Matrix.Identity);
 			BlockEntity._effect.Parameters["WaterDepth"].SetValue(10000);
 			BlockEntity._effect.Parameters["WaterLevel"].SetValue(-10000);
-			Vector3 vector = default(Vector3);
-			vector.X = 0f;
-			vector.Y = 1f;
-			vector.Z = -1000f;
-			BlockEntity._effect.Parameters["EyeWaterConstants"].SetValue(vector);
+			Vector3 waterCalculations = default(Vector3);
+			waterCalculations.X = 0f;
+			waterCalculations.Y = 1f;
+			waterCalculations.Z = -1000f;
+			BlockEntity._effect.Parameters["EyeWaterConstants"].SetValue(waterCalculations);
 			BlockEntity._effect.Parameters["LightDirection"].SetValue(Vector3.Backward);
 			BlockEntity._effect.Parameters["TorchLight"].SetValue(new Color(255, 235, 190).ToVector3());
 			BlockEntity._effect.Parameters["SunLight"].SetValue(Vector3.One);
@@ -79,38 +79,38 @@ namespace DNA.CastleMinerZ
 		{
 			if (!this._uiObject && BlockTerrain.Instance != null && BlockTerrain.Instance.IsReady)
 			{
-				Vector3 vector = base.WorldPosition;
+				Vector3 pos = base.WorldPosition;
 				if (this.AttachedToLocalPlayer)
 				{
-					vector = CastleMinerZGame.Instance.LocalPlayer.FPSCamera.WorldPosition;
+					pos = CastleMinerZGame.Instance.LocalPlayer.FPSCamera.WorldPosition;
 				}
-				Vector2 lightAtPoint = BlockTerrain.Instance.GetLightAtPoint(vector);
-				this.SunLight = lightAtPoint.X * 255f;
-				this.TorchLight = Math.Max(125f, lightAtPoint.Y * 255f);
+				Vector2 light = BlockTerrain.Instance.GetLightAtPoint(pos);
+				this.SunLight = light.X * 255f;
+				this.TorchLight = Math.Max(125f, light.Y * 255f);
 			}
 			base.OnUpdate(gameTime);
 		}
 
 		public override void Draw(GraphicsDevice device, GameTime gameTime, Matrix view, Matrix projection)
 		{
-			BlockType type = BlockType.GetType(this._blockType);
-			Matrix localToWorld = base.LocalToWorld;
-			BlockEntity._effect.Parameters["World"].SetValue(localToWorld);
+			BlockType bt = BlockType.GetType(this._blockType);
+			Matrix worldMat = base.LocalToWorld;
+			BlockEntity._effect.Parameters["World"].SetValue(worldMat);
 			BlockEntity._effect.Parameters["View"].SetValue(view);
 			BlockEntity._effect.Parameters["Projection"].SetValue(projection);
-			BlockEntity._effect.Parameters["InverseWorld"].SetValue(localToWorld.QuickInvert());
+			BlockEntity._effect.Parameters["InverseWorld"].SetValue(worldMat.QuickInvert());
 			BlockEntity._effect.Parameters["CubeScaleSunTorch"].SetValue(new Vector3(this.Scale, this.SunLight, this.TorchLight));
-			BlockEntity._effect.Parameters["CubeTx"].SetValue(type.TileIndices);
-			GraphicsDevice graphicsDevice = CastleMinerZGame.Instance.GraphicsDevice;
-			graphicsDevice.SetVertexBuffer(BlockEntity._vb);
-			graphicsDevice.Indices = BlockTerrain.Instance._staticIB;
+			BlockEntity._effect.Parameters["CubeTx"].SetValue(bt.TileIndices);
+			GraphicsDevice g = CastleMinerZGame.Instance.GraphicsDevice;
+			g.SetVertexBuffer(BlockEntity._vb);
+			g.Indices = BlockTerrain.Instance._staticIB;
 			if (this._uiObject)
 			{
-				Vector3 translation = localToWorld.Translation;
-				translation.Z = 0f;
-				BlockEntity._effect.Parameters["EyePosition"].SetValue(translation);
+				Vector3 v = worldMat.Translation;
+				v.Z = 0f;
+				BlockEntity._effect.Parameters["EyePosition"].SetValue(v);
 				BlockEntity._effect.CurrentTechnique = BlockEntity._effect.Techniques[6];
-				BlockEntity._effect.CurrentTechnique.Passes[type.NeedsFancyLighting ? 3 : 2].Apply();
+				BlockEntity._effect.CurrentTechnique.Passes[bt.NeedsFancyLighting ? 3 : 2].Apply();
 			}
 			else if (CastleMinerZGame.Instance.DrawingReflection)
 			{
@@ -120,9 +120,9 @@ namespace DNA.CastleMinerZ
 			else
 			{
 				BlockEntity._effect.CurrentTechnique = BlockEntity._effect.Techniques[BlockTerrain.Instance.IsWaterWorld ? 4 : 6];
-				BlockEntity._effect.CurrentTechnique.Passes[type.NeedsFancyLighting ? 1 : 0].Apply();
+				BlockEntity._effect.CurrentTechnique.Passes[bt.NeedsFancyLighting ? 1 : 0].Apply();
 			}
-			graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 24, 0, 12);
+			g.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 24, 0, 12);
 		}
 
 		private static Effect _effect;

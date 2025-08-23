@@ -13,15 +13,15 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 
 		public override void BuildColumn(BlockTerrain terrain, int worldX, int worldZ, int minY, float blender)
 		{
-			int num = this._noiseFunction.ComputeNoise(worldX, worldZ);
-			num = 1 + num * 3 / 256;
-			int num2 = num;
-			for (int i = 0; i < num2; i++)
+			int noise = this._noiseFunction.ComputeNoise(worldX, worldZ);
+			noise = 1 + noise * 3 / 256;
+			int bedRockLevel = noise;
+			for (int y = 0; y < bedRockLevel; y++)
 			{
-				int num3 = i + minY;
-				IntVector3 intVector = new IntVector3(worldX, num3, worldZ);
-				int num4 = terrain.MakeIndexFromWorldIndexVector(intVector);
-				terrain._blocks[num4] = Biome.bedrockBlock;
+				int worldY = y + minY;
+				IntVector3 worldPos = new IntVector3(worldX, worldY, worldZ);
+				int index = terrain.MakeIndexFromWorldIndexVector(worldPos);
+				terrain._blocks[index] = Biome.bedrockBlock;
 			}
 		}
 

@@ -16,29 +16,29 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public override Entity CreateEntity(ItemUse use, bool attachedToLocalPlayer)
 		{
-			ClockEntity clockEntity = new ClockEntity(this._model, use, attachedToLocalPlayer);
+			ClockEntity result = new ClockEntity(this._model, use, attachedToLocalPlayer);
 			if (use != ItemUse.UI)
 			{
-				clockEntity.TrackPosition = false;
+				result.TrackPosition = false;
 			}
 			switch (use)
 			{
 			case ItemUse.UI:
 			{
-				Quaternion quaternion = Quaternion.CreateFromYawPitchRoll(0f, 1.5707964f, 0f);
-				Matrix matrix = Matrix.Transform(Matrix.CreateScale(22.4f / clockEntity.GetLocalBoundingSphere().Radius), quaternion);
-				matrix.Translation = new Vector3(0f, 0f, 0f);
-				clockEntity.LocalToParent = matrix;
-				clockEntity.EnableDefaultLighting();
+				Quaternion mat = Quaternion.CreateFromYawPitchRoll(0f, 1.5707964f, 0f);
+				Matrix i = Matrix.Transform(Matrix.CreateScale(22.4f / result.GetLocalBoundingSphere().Radius), mat);
+				i.Translation = new Vector3(0f, 0f, 0f);
+				result.LocalToParent = i;
+				result.EnableDefaultLighting();
 				break;
 			}
 			case ItemUse.Hand:
-				clockEntity.TrackPosition = true;
-				clockEntity.LocalRotation = new Quaternion(0.6469873f, 0.1643085f, 0.7078394f, -0.2310277f);
-				clockEntity.LocalPosition = new Vector3(0f, 0.09360941f, 0f);
+				result.TrackPosition = true;
+				result.LocalRotation = new Quaternion(0.6469873f, 0.1643085f, 0.7078394f, -0.2310277f);
+				result.LocalPosition = new Vector3(0f, 0.09360941f, 0f);
 				break;
 			}
-			return clockEntity;
+			return result;
 		}
 
 		public override bool IsMeleeWeapon

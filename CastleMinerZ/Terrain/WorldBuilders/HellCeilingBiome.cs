@@ -14,29 +14,29 @@ namespace DNA.CastleMinerZ.Terrain.WorldBuilders
 
 		public override void BuildColumn(BlockTerrain terrain, int worldX, int worldZ, int minY, float blender)
 		{
-			int num = (int)MathHelper.Lerp(0f, 32f, blender);
-			int num2 = 1;
-			float num3 = 0f;
-			int num4 = 4;
-			for (int i = 0; i < num4; i++)
+			int adjustedHellHeight = (int)MathHelper.Lerp(0f, 32f, blender);
+			int freq = 1;
+			float noise = 0f;
+			int octives = 4;
+			for (int i = 0; i < octives; i++)
 			{
-				num3 += this._noiseFunction.ComputeNoise(0.03125f * (float)worldX * (float)num2 + 1000f, 0.03125f * (float)worldZ * (float)num2 + 1000f) / (float)num2;
-				num2 *= 2;
+				noise += this._noiseFunction.ComputeNoise(0.03125f * (float)worldX * (float)freq + 1000f, 0.03125f * (float)worldZ * (float)freq + 1000f) / (float)freq;
+				freq *= 2;
 			}
-			num3 += 1f;
-			int num5 = num - (int)(num3 * 4f);
-			for (int j = 0; j <= num5; j++)
+			noise += 1f;
+			int ceilingHeight = adjustedHellHeight - (int)(noise * 4f);
+			for (int y = 0; y <= ceilingHeight; y++)
 			{
-				int num6 = j + minY;
-				IntVector3 intVector = new IntVector3(worldX, num6, worldZ);
-				int num7 = terrain.MakeIndexFromWorldIndexVector(intVector);
-				if (j < num5)
+				int worldY = y + minY;
+				IntVector3 worldPos = new IntVector3(worldX, worldY, worldZ);
+				int index = terrain.MakeIndexFromWorldIndexVector(worldPos);
+				if (y < ceilingHeight)
 				{
-					terrain._blocks[num7] = Biome.emptyblock;
+					terrain._blocks[index] = Biome.emptyblock;
 				}
-				else if (j == num5 && terrain._blocks[num7] == Biome.rockblock)
+				else if (y == ceilingHeight && terrain._blocks[index] == Biome.rockblock)
 				{
-					terrain._blocks[num7] = Biome.BloodSToneBlock;
+					terrain._blocks[index] = Biome.BloodSToneBlock;
 				}
 			}
 		}

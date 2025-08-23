@@ -41,13 +41,13 @@ namespace DNA.CastleMinerZ.Inventory
 		public override void GetDisplayText(StringBuilder builder)
 		{
 			base.GetDisplayText(builder);
-			Vector3 localPosition = CastleMinerZGame.Instance.LocalPlayer.LocalPosition;
+			Vector3 playerPosition = CastleMinerZGame.Instance.LocalPlayer.LocalPosition;
 			builder.Append(": ");
 			builder.Append(this._GPSname);
 			builder.Append(" - ");
 			builder.Append(Strings.Distance);
 			builder.Append(": ");
-			builder.Concat((int)Vector3.Distance(localPosition, this.PointToLocation));
+			builder.Concat((int)Vector3.Distance(playerPosition, this.PointToLocation));
 		}
 
 		public GPSItemClass GPSClass
@@ -87,15 +87,15 @@ namespace DNA.CastleMinerZ.Inventory
 			{
 				if (this._keyboardInputScreen.OptionSelected != -1)
 				{
-					string textInput = this._keyboardInputScreen.TextInput;
-					if (textInput != null)
+					string nameText = this._keyboardInputScreen.TextInput;
+					if (nameText != null)
 					{
-						if (textInput.Length > 10)
+						if (nameText.Length > 10)
 						{
-							this._GPSname = textInput.Substring(0, 10);
+							this._GPSname = nameText.Substring(0, 10);
 							return;
 						}
-						this._GPSname = textInput;
+						this._GPSname = nameText;
 					}
 				}
 			});
@@ -146,7 +146,7 @@ namespace DNA.CastleMinerZ.Inventory
 						return;
 					}
 					SoundManager.Instance.PlayInstance("Teleport");
-					string text = string.Concat(new string[]
+					string msg = string.Concat(new string[]
 					{
 						CastleMinerZGame.Instance.MyNetworkGamer.Gamertag,
 						" ",
@@ -154,7 +154,7 @@ namespace DNA.CastleMinerZ.Inventory
 						" ",
 						this._GPSname
 					});
-					BroadcastTextMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, text);
+					BroadcastTextMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, msg);
 					CastleMinerZGame.Instance.GameScreen.TeleportToLocation(this._pointToLocation, false);
 					if (this.InflictDamage())
 					{
@@ -182,7 +182,7 @@ namespace DNA.CastleMinerZ.Inventory
 						return;
 					}
 					SoundManager.Instance.PlayInstance("Teleport");
-					string text2 = string.Concat(new string[]
+					string msg2 = string.Concat(new string[]
 					{
 						CastleMinerZGame.Instance.MyNetworkGamer.Gamertag,
 						" ",
@@ -190,7 +190,7 @@ namespace DNA.CastleMinerZ.Inventory
 						" ",
 						this._GPSname
 					});
-					BroadcastTextMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, text2);
+					BroadcastTextMessage.Send(CastleMinerZGame.Instance.MyNetworkGamer, msg2);
 					CastleMinerZGame.Instance.GameScreen.TeleportToLocation(this._pointToLocation, false);
 				}
 				break;

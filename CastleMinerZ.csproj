@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{70330CAE-A0B0-4F55-AFE4-23C3AF2BF5F6}</ProjectGuid>
+    <ProjectGuid>{39D1001C-CB0D-4995-98E2-1DAAF466369D}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>DNA</RootNamespace>
     <AssemblyName>CastleMinerZ</AssemblyName>
@@ -45,17 +45,12 @@
     <Reference Include="DNA.Steam">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\CastleMiner Z\DNA.Steam.dll</HintPath>
     </Reference>
-    <Reference Include="Facebook">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\CastleMiner Z\Facebook.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Xna.Framework" />
     <Reference Include="Microsoft.Xna.Framework.Game" />
     <Reference Include="Microsoft.Xna.Framework.Graphics" />
     <Reference Include="Microsoft.Xna.Framework.Xact" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
@@ -166,12 +161,6 @@
     <Compile Include="CastleMinerZ\DistanceTrigger.cs" />
     <Compile Include="CastleMinerZ\DoorEntity.cs" />
     <Compile Include="CastleMinerZ\ExplosiveFlashEntity.cs" />
-    <Compile Include="CastleMinerZ\FacebookLoginDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="CastleMinerZ\FacebookLoginDialog.Designer.cs">
-      <DependentUpon>FacebookLoginDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="CastleMinerZ\FlashGrenadeProjectile.cs" />
     <Compile Include="CastleMinerZ\FlyingPickupEntity.cs" />
     <Compile Include="CastleMinerZ\FrontEndScreen.cs" />
@@ -465,7 +454,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="CastleMinerZ\FacebookLoginDialog.resources" />
     <EmbeddedResource Include="CastleMinerZ\Game.ico" />
     <EmbeddedResource Include="CastleMinerZ\Globalization\Strings.resources" />
     <EmbeddedResource Include="CastleMinerZ\OptionsForm.resources" />

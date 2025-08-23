@@ -17,7 +17,7 @@ namespace DNA.CastleMinerZ.UI
 			this._controlsFont = this._game._medFont;
 			this._inGame = inGame;
 			this._uiGroup = uiGroup;
-			Color color = new Color(CMZColors.MenuGreen.ToVector4() * 0.8f);
+			Color btnColor = new Color(CMZColors.MenuGreen.ToVector4() * 0.8f);
 			this._deleteStorageDialog = new PCDialogScreen(Strings.Erase_Storage, Strings.Are_you_sure_you_want_to_delete_everything_, null, true, this._game.DialogScreenImage, this._game._myriadMed, true, this._game.ButtonFrame);
 			this._deleteStorageDialog.UseDefaultValues();
 			if (!this._inGame)
@@ -27,7 +27,7 @@ namespace DNA.CastleMinerZ.UI
 				this._eraseSaves.Font = this._controlsFont;
 				this._eraseSaves.Frame = this._game.ButtonFrame;
 				this._eraseSaves.Pressed += this._eraseSaves_Pressed;
-				this._eraseSaves.ButtonColor = color;
+				this._eraseSaves.ButtonColor = btnColor;
 				base.Children.Add(this._eraseSaves);
 			}
 			this._autoClimb.Font = this._controlsFont;
@@ -118,17 +118,17 @@ namespace DNA.CastleMinerZ.UI
 				{
 					this._eraseSaves.Scale = Screen.Adjuster.ScaleFactor.Y;
 				}
-				int num = (int)(50f * Screen.Adjuster.ScaleFactor.Y);
-				Point point = new Point(0, (int)(75f * Screen.Adjuster.ScaleFactor.Y));
-				int num2 = (int)(200f * Screen.Adjuster.ScaleFactor.Y);
-				this._musicVolumeLabel.LocalPosition = point;
-				this._musicVolumeTrack.LocalPosition = new Point(point.X + num2, point.Y + (int)(10f * Screen.Adjuster.ScaleFactor.Y));
-				this._musicVolumeTrack.Size = new Size((int)(185f * Screen.Adjuster.ScaleFactor.Y), num);
-				this._musicMute.LocalPosition = new Point(point.X + num2 * 2, point.Y + (int)(5f * Screen.Adjuster.ScaleFactor.Y));
-				point.Y += num;
-				this._autoClimb.LocalPosition = point;
-				point.Y += num;
-				this._fadeInactiveTray.LocalPosition = point;
+				int height = (int)(50f * Screen.Adjuster.ScaleFactor.Y);
+				Point loc = new Point(0, (int)(75f * Screen.Adjuster.ScaleFactor.Y));
+				int btnOffset = (int)(200f * Screen.Adjuster.ScaleFactor.Y);
+				this._musicVolumeLabel.LocalPosition = loc;
+				this._musicVolumeTrack.LocalPosition = new Point(loc.X + btnOffset, loc.Y + (int)(10f * Screen.Adjuster.ScaleFactor.Y));
+				this._musicVolumeTrack.Size = new Size((int)(185f * Screen.Adjuster.ScaleFactor.Y), height);
+				this._musicMute.LocalPosition = new Point(loc.X + btnOffset * 2, loc.Y + (int)(5f * Screen.Adjuster.ScaleFactor.Y));
+				loc.Y += height;
+				this._autoClimb.LocalPosition = loc;
+				loc.Y += height;
+				this._fadeInactiveTray.LocalPosition = loc;
 				if (!this._inGame)
 				{
 					this._eraseSaves.LocalPosition = new Point((int)(140f * Screen.Adjuster.ScaleFactor.Y), this.Size.Height - (int)(40f * Screen.Adjuster.ScaleFactor.Y));

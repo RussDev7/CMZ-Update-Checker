@@ -13,10 +13,10 @@ namespace DNA.CastleMinerZ.Net
 
 		public static void Send(LocalNetworkGamer from, IntVector3 blockLocaion, bool opened)
 		{
-			DoorOpenCloseMessage sendInstance = Message.GetSendInstance<DoorOpenCloseMessage>();
-			sendInstance.Location = blockLocaion;
-			sendInstance.Opened = opened;
-			sendInstance.DoSend(from);
+			DoorOpenCloseMessage Instance = Message.GetSendInstance<DoorOpenCloseMessage>();
+			Instance.Location = blockLocaion;
+			Instance.Opened = opened;
+			Instance.DoSend(from);
 		}
 
 		protected override SendDataOptions SendDataOptions

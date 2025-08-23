@@ -46,25 +46,25 @@ namespace DNA.CastleMinerZ.Net.Steam
 		{
 			try
 			{
-				NetworkSessionStaticProvider.BeginCreateSessionState beginCreateSessionState = (NetworkSessionStaticProvider.BeginCreateSessionState)state;
-				while ((beginCreateSessionState.Session.HostConnectionResult != NetworkSession.ResultCode.Succeeded || beginCreateSessionState.Session.LocalGamers.Count <= 0) && beginCreateSessionState.Session.HostConnectionResult <= NetworkSession.ResultCode.Succeeded)
+				NetworkSessionStaticProvider.BeginCreateSessionState sqs = (NetworkSessionStaticProvider.BeginCreateSessionState)state;
+				while ((sqs.Session.HostConnectionResult != NetworkSession.ResultCode.Succeeded || sqs.Session.LocalGamers.Count <= 0) && sqs.Session.HostConnectionResult <= NetworkSession.ResultCode.Succeeded)
 				{
 					Thread.Sleep(100);
-					beginCreateSessionState.Session.Update();
+					sqs.Session.Update();
 				}
-				if (beginCreateSessionState.ExceptionEncountered == null)
+				if (sqs.ExceptionEncountered == null)
 				{
-					beginCreateSessionState.ExceptionEncountered = new Exception("Unable to start steam lobby");
+					sqs.ExceptionEncountered = new Exception("Unable to start steam lobby");
 				}
 				TaskDispatcher.Instance.AddTaskForMainThread(delegate(object obj)
 				{
-					NetworkSessionStaticProvider.BeginCreateSessionState beginCreateSessionState2 = obj as NetworkSessionStaticProvider.BeginCreateSessionState;
-					beginCreateSessionState2.Event.Set();
-					if (beginCreateSessionState2.Callback != null)
+					NetworkSessionStaticProvider.BeginCreateSessionState bjss = obj as NetworkSessionStaticProvider.BeginCreateSessionState;
+					bjss.Event.Set();
+					if (bjss.Callback != null)
 					{
-						beginCreateSessionState2.Callback(beginCreateSessionState2);
+						bjss.Callback(bjss);
 					}
-				}, beginCreateSessionState);
+				}, sqs);
 			}
 			finally
 			{
@@ -88,52 +88,52 @@ namespace DNA.CastleMinerZ.Net.Steam
 
 		private void WaitForClientToStart(object state)
 		{
-			Stopwatch stopwatch = Stopwatch.StartNew();
+			Stopwatch timeWaiting = Stopwatch.StartNew();
 			try
 			{
-				NetworkSessionStaticProvider.BeginJoinSessionState beginJoinSessionState = (NetworkSessionStaticProvider.BeginJoinSessionState)state;
-				int num = 4;
+				NetworkSessionStaticProvider.BeginJoinSessionState sqs = (NetworkSessionStaticProvider.BeginJoinSessionState)state;
+				int retries = 4;
 				NetworkSession.ResultCode resultCode;
-				string text;
-				while (beginJoinSessionState.Session.HostConnectionResult != NetworkSession.ResultCode.Succeeded || beginJoinSessionState.Session.LocalGamers.Count <= 0)
+				string resultString;
+				while (sqs.Session.HostConnectionResult != NetworkSession.ResultCode.Succeeded || sqs.Session.LocalGamers.Count <= 0)
 				{
-					if (stopwatch.Elapsed.TotalSeconds > 15.0)
+					if (timeWaiting.Elapsed.TotalSeconds > 15.0)
 					{
-						if (num == 0)
+						if (retries == 0)
 						{
 							resultCode = NetworkSession.ResultCode.Timeout;
-							text = "Server or Steam is not responding";
+							resultString = "Server or Steam is not responding";
 							goto IL_00DF;
 						}
-						num--;
-						beginJoinSessionState.Session.ResetHostConnectionResult();
-						beginJoinSessionState.Session.StartClient(beginJoinSessionState);
-						stopwatch.Restart();
+						retries--;
+						sqs.Session.ResetHostConnectionResult();
+						sqs.Session.StartClient(sqs);
+						timeWaiting.Restart();
 					}
-					if (beginJoinSessionState.Session.HostConnectionResult <= NetworkSession.ResultCode.Succeeded)
+					if (sqs.Session.HostConnectionResult <= NetworkSession.ResultCode.Succeeded)
 					{
 						Thread.Sleep(100);
-						beginJoinSessionState.Session.Update();
+						sqs.Session.Update();
 						continue;
 					}
-					resultCode = beginJoinSessionState.Session.HostConnectionResult;
-					text = beginJoinSessionState.Session.HostConnectionResultString;
+					resultCode = sqs.Session.HostConnectionResult;
+					resultString = sqs.Session.HostConnectionResultString;
 					IL_00DF:
-					beginJoinSessionState.HostConnectionResult = resultCode;
-					beginJoinSessionState.HostConnectionResultString = text;
+					sqs.HostConnectionResult = resultCode;
+					sqs.HostConnectionResultString = resultString;
 					TaskDispatcher.Instance.AddTaskForMainThread(delegate(object obj)
 					{
-						NetworkSessionStaticProvider.BeginJoinSessionState beginJoinSessionState2 = obj as NetworkSessionStaticProvider.BeginJoinSessionState;
-						beginJoinSessionState2.Event.Set();
-						if (beginJoinSessionState2.Callback != null)
+						NetworkSessionStaticProvider.BeginJoinSessionState bjss = obj as NetworkSessionStaticProvider.BeginJoinSessionState;
+						bjss.Event.Set();
+						if (bjss.Callback != null)
 						{
-							beginJoinSessionState2.Callback(beginJoinSessionState2);
+							bjss.Callback(bjss);
 						}
-					}, beginJoinSessionState);
+					}, sqs);
 					return;
 				}
-				resultCode = beginJoinSessionState.Session.HostConnectionResult;
-				text = beginJoinSessionState.Session.HostConnectionResultString;
+				resultCode = sqs.Session.HostConnectionResult;
+				resultString = sqs.Session.HostConnectionResultString;
 				goto IL_00DF;
 			}
 			finally
@@ -153,37 +153,37 @@ namespace DNA.CastleMinerZ.Net.Steam
 
 		protected void OnSessionsFound(List<ClientSessionInfo> clientSessions, object context)
 		{
-			NetworkSessionStaticProvider.SessionQueryState sessionQueryState = (NetworkSessionStaticProvider.SessionQueryState)context;
-			sessionQueryState.ClientSessionsFound = new List<ClientSessionInfo>(clientSessions);
+			NetworkSessionStaticProvider.SessionQueryState sqs = (NetworkSessionStaticProvider.SessionQueryState)context;
+			sqs.ClientSessionsFound = new List<ClientSessionInfo>(clientSessions);
 		}
 
 		private void WaitForFindToComplete(object state)
 		{
 			try
 			{
-				Stopwatch stopwatch = Stopwatch.StartNew();
-				NetworkSessionStaticProvider.SessionQueryState sessionQueryState = (NetworkSessionStaticProvider.SessionQueryState)state;
-				while (sessionQueryState.ClientSessionsFound == null)
+				Stopwatch timeWaiting = Stopwatch.StartNew();
+				NetworkSessionStaticProvider.SessionQueryState sqs = (NetworkSessionStaticProvider.SessionQueryState)state;
+				while (sqs.ClientSessionsFound == null)
 				{
 					Thread.Sleep(100);
 					this._steamAPI.Update();
-					if (stopwatch.Elapsed.TotalSeconds > 5.0)
+					if (timeWaiting.Elapsed.TotalSeconds > 5.0)
 					{
 						this._steamAPI.StopFindingGames();
 					}
 				}
-				List<AvailableNetworkSession> list = new List<AvailableNetworkSession>();
-				foreach (ClientSessionInfo clientSessionInfo in sessionQueryState.ClientSessionsFound)
+				List<AvailableNetworkSession> sessions = new List<AvailableNetworkSession>();
+				foreach (ClientSessionInfo info in sqs.ClientSessionsFound)
 				{
-					list.Add(new AvailableNetworkSession(clientSessionInfo));
+					sessions.Add(new AvailableNetworkSession(info));
 				}
-				sessionQueryState.Sessions = new AvailableNetworkSessionCollection(list);
-				sessionQueryState.ClientSessionsFound.Clear();
-				sessionQueryState.ClientSessionsFound = null;
-				sessionQueryState.Event.Set();
-				if (sessionQueryState.Callback != null)
+				sqs.Sessions = new AvailableNetworkSessionCollection(sessions);
+				sqs.ClientSessionsFound.Clear();
+				sqs.ClientSessionsFound = null;
+				sqs.Event.Set();
+				if (sqs.Callback != null)
 				{
-					sessionQueryState.Callback(sessionQueryState);
+					sqs.Callback(sqs);
 				}
 			}
 			finally

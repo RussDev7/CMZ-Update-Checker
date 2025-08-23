@@ -12,9 +12,9 @@ namespace DNA.CastleMinerZ.AI
 	{
 		protected static bool CanSeePosition(DragonEntity entity, Vector3 target)
 		{
-			Vector3 vector = entity.WorldPosition;
-			vector += entity.LocalToWorld.Forward * 7f;
-			DragonBaseState.tp.Init(vector, target);
+			Vector3 pfrom = entity.WorldPosition;
+			pfrom += entity.LocalToWorld.Forward * 7f;
+			DragonBaseState.tp.Init(pfrom, target);
 			BlockTerrain.Instance.Trace(DragonBaseState.tp);
 			return !DragonBaseState.tp._collides;
 		}
@@ -43,11 +43,11 @@ namespace DNA.CastleMinerZ.AI
 		{
 			if (DragonBaseState.DoViewCheck(entity, dt, entity.EType.SlowViewCheckInterval))
 			{
-				TargetSearchResult targetSearchResult = TargetUtils.FindBestTarget(entity, entity.LocalToWorld.Forward, entity.EType.MaxViewDistance);
-				if (targetSearchResult.player != null)
+				TargetSearchResult searchResult = TargetUtils.FindBestTarget(entity, entity.LocalToWorld.Forward, entity.EType.MaxViewDistance);
+				if (searchResult.player != null)
 				{
-					entity.Target = targetSearchResult.player;
-					entity.TravelTarget = targetSearchResult.player.WorldPosition;
+					entity.Target = searchResult.player;
+					entity.TravelTarget = searchResult.player.WorldPosition;
 					if (entity.ChancesToNotAttack != 0)
 					{
 						entity.NextSound = DragonSoundEnum.CRY;
@@ -67,28 +67,28 @@ namespace DNA.CastleMinerZ.AI
 				entity.TimeLeftTilShotsHeard -= dt;
 				if (entity.TimeLeftTilShotsHeard <= 0f)
 				{
-					float num = entity.EType.MaxViewDistance * entity.EType.MaxViewDistance * 2.25f;
-					float num2 = float.MaxValue;
-					Vector3 vector = Vector3.Zero;
-					Vector3 vector2 = ((entity.ChancesToNotAttack == entity.EType.ChancesToNotAttack) ? entity.WorldPosition : entity.TravelTarget);
+					float maxdistsq = entity.EType.MaxViewDistance * entity.EType.MaxViewDistance * 2.25f;
+					float closestGSDist = float.MaxValue;
+					Vector3 closestGS = Vector3.Zero;
+					Vector3 anchorSpot = ((entity.ChancesToNotAttack == entity.EType.ChancesToNotAttack) ? entity.WorldPosition : entity.TravelTarget);
 					for (int i = 0; i < entity.Gunshots.Count; i++)
 					{
-						Vector3 vector3 = entity.Gunshots[i];
-						float num3 = Vector3.DistanceSquared(vector2, vector3);
-						if (num3 < num && num3 < num2 && BlockTerrain.Instance.RegionIsLoaded(vector3))
+						Vector3 gs = entity.Gunshots[i];
+						float distsq = Vector3.DistanceSquared(anchorSpot, gs);
+						if (distsq < maxdistsq && distsq < closestGSDist && BlockTerrain.Instance.RegionIsLoaded(gs))
 						{
-							num2 = num3;
-							vector = vector3;
+							closestGSDist = distsq;
+							closestGS = gs;
 						}
 					}
-					if (num2 != 3.4028235E+38f)
+					if (closestGSDist != 3.4028235E+38f)
 					{
 						entity.ChancesToNotAttack--;
 						if (entity.ChancesToNotAttack == 0)
 						{
 							entity.NextSound = DragonSoundEnum.CRY;
 						}
-						entity.TravelTarget = vector;
+						entity.TravelTarget = closestGS;
 						entity.Target = null;
 						entity.TimeLeftTilShotsHeard = entity.EType.ShotHearingInterval;
 						return true;
@@ -119,31 +119,31 @@ namespace DNA.CastleMinerZ.AI
 
 		public static BaseDragonWaypoint GetBaseWaypoint(DragonEntity entity, DragonAnimEnum nextanim)
 		{
-			BaseDragonWaypoint baseDragonWaypoint = default(BaseDragonWaypoint);
-			baseDragonWaypoint.Position = entity.LocalPosition;
-			baseDragonWaypoint.Velocity = entity.LocalToWorld.Forward * entity.Velocity;
-			baseDragonWaypoint.HostTime = entity.DragonTime;
-			baseDragonWaypoint.Animation = nextanim;
-			baseDragonWaypoint.TargetRoll = entity.TargetRoll;
-			baseDragonWaypoint.Sound = entity.NextSound;
+			BaseDragonWaypoint wpt = default(BaseDragonWaypoint);
+			wpt.Position = entity.LocalPosition;
+			wpt.Velocity = entity.LocalToWorld.Forward * entity.Velocity;
+			wpt.HostTime = entity.DragonTime;
+			wpt.Animation = nextanim;
+			wpt.TargetRoll = entity.TargetRoll;
+			wpt.Sound = entity.NextSound;
 			entity.NextSound = DragonSoundEnum.NONE;
-			return baseDragonWaypoint;
+			return wpt;
 		}
 
 		public static void SendAttack(DragonEntity entity, bool animatedAttack, DragonAnimEnum nextanim)
 		{
-			BaseDragonWaypoint baseWaypoint = DragonBaseState.GetBaseWaypoint(entity, nextanim);
-			Vector3 vector;
+			BaseDragonWaypoint wpt = DragonBaseState.GetBaseWaypoint(entity, nextanim);
+			Vector3 target;
 			if (animatedAttack)
 			{
-				vector = entity.TravelTarget;
+				target = entity.TravelTarget;
 			}
 			else
 			{
-				vector = entity.ShootTarget;
+				target = entity.ShootTarget;
 				entity.ShotPending = false;
 			}
-			DragonAttackMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, baseWaypoint, vector, entity.GetNextFireballIndex(), animatedAttack);
+			DragonAttackMessage.Send((LocalNetworkGamer)CastleMinerZGame.Instance.LocalPlayer.Gamer, wpt, target, entity.GetNextFireballIndex(), animatedAttack);
 			entity.UpdatesSent++;
 		}
 
@@ -165,24 +165,24 @@ namespace DNA.CastleMinerZ.AI
 
 		public static float SteerTowardTarget(DragonEntity entity, out Vector3 dest)
 		{
-			Vector3 worldPosition = entity.WorldPosition;
+			Vector3 pos = entity.WorldPosition;
 			if (entity.Target != null)
 			{
-				Vector3 worldPosition2 = entity.Target.WorldPosition;
-				worldPosition2.Y += 1.5f;
-				if (DragonBaseState.CanSeePosition(entity, worldPosition2))
+				Vector3 target = entity.Target.WorldPosition;
+				target.Y += 1.5f;
+				if (DragonBaseState.CanSeePosition(entity, target))
 				{
 					entity.TravelTarget = entity.Target.WorldPosition;
 				}
 			}
-			dest = entity.TravelTarget - worldPosition;
+			dest = entity.TravelTarget - pos;
 			dest.Y = 0f;
-			float num = dest.Length();
-			if (num > 10f)
+			float dsq = dest.Length();
+			if (dsq > 10f)
 			{
 				entity.TargetYaw = MathHelper.WrapAngle(DragonBaseState.GetHeading(dest, entity.TargetYaw));
 			}
-			return num;
+			return dsq;
 		}
 
 		public virtual void Enter(DragonEntity entity)
