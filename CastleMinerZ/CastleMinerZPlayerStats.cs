@@ -235,6 +235,18 @@ namespace DNA.CastleMinerZ
 			}
 		}
 
+		public TimeSpan TimeOnline
+		{
+			get
+			{
+				return TimeSpan.FromHours((double)this._stats[3].GetFloatValue());
+			}
+			set
+			{
+				this._stats[3].SetValue((float)value.TotalHours);
+			}
+		}
+
 		public void AddStat(SessionStats.StatType statType)
 		{
 			this.sessionStats.AddStat(statType);
@@ -426,8 +438,6 @@ namespace DNA.CastleMinerZ
 		};
 
 		private WeakReference<SteamWorks> _steamAPI;
-
-		public TimeSpan TimeOnline;
 
 		public DateTime TimeOfPurchase;
 

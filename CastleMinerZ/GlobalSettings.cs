@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using DNA.CastleMinerZ.GraphicsProfileSupport;
 using DNA.Drawing;
-using DNA.IO;
 using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
 
 namespace DNA.CastleMinerZ
 {
@@ -33,68 +34,47 @@ namespace DNA.CastleMinerZ
 			return GlobalSettings.GetAppDataDirectory(null);
 		}
 
+		private static string GetSettingsPath()
+		{
+			return Path.Combine(GlobalSettings.GetAppDataDirectory(), "user.settings");
+		}
+
 		public void Save()
 		{
-			HTFDocument settingsDoc = new HTFDocument();
-			string dataPath = GlobalSettings.GetAppDataDirectory();
-			if (!Directory.Exists(dataPath))
+			try
 			{
-				Directory.CreateDirectory(dataPath);
+				string dataPath = GlobalSettings.GetAppDataDirectory();
+				if (!Directory.Exists(dataPath))
+				{
+					Directory.CreateDirectory(dataPath);
+				}
+				string json = JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings
+				{
+					NullValueHandling = NullValueHandling.Ignore,
+					DefaultValueHandling = DefaultValueHandling.Include
+				});
+				File.WriteAllText(GlobalSettings.GetSettingsPath(), json, Encoding.UTF8);
 			}
-			string fullSavePath = Path.Combine(dataPath, "user.settings");
-			settingsDoc.Children.Add(new HTFElement("FullScreen", this.FullScreen.ToString()));
-			settingsDoc.Children.Add(new HTFElement("AskForFacebook", this.AskForFacebook.ToString()));
-			settingsDoc.Children.Add(new HTFElement("ScreenWidth", this.ScreenSize.Width.ToString()));
-			settingsDoc.Children.Add(new HTFElement("ScreenHeight", this.ScreenSize.Height.ToString()));
-			settingsDoc.Children.Add(new HTFElement("TextureQuality", this.TextureQualityLevel.ToString()));
-			settingsDoc.Save(fullSavePath);
+			catch
+			{
+			}
 		}
 
 		public void Load()
 		{
 			try
 			{
-				HTFDocument settingsDoc = new HTFDocument();
-				string dataPath = GlobalSettings.GetAppDataDirectory();
-				string fullSavePath = Path.Combine(dataPath, "user.settings");
-				settingsDoc.Load(fullSavePath);
-				for (int i = 0; i < settingsDoc.Children.Count; i++)
+				string fullSavePath = GlobalSettings.GetSettingsPath();
+				if (File.Exists(fullSavePath))
 				{
-					string id;
-					if ((id = settingsDoc.Children[i].ID) != null)
+					string json = File.ReadAllText(fullSavePath, Encoding.UTF8);
+					GlobalSettings loaded = JsonConvert.DeserializeObject<GlobalSettings>(json);
+					if (loaded != null)
 					{
-						if (!(id == "FullScreen"))
-						{
-							if (!(id == "AskForFacebook"))
-							{
-								if (!(id == "ScreenWidth"))
-								{
-									if (!(id == "ScreenHeight"))
-									{
-										if (id == "TextureQuality")
-										{
-											this.TextureQualityLevel = int.Parse(settingsDoc.Children[i].Value);
-										}
-									}
-									else
-									{
-										this.ScreenSize.Height = int.Parse(settingsDoc.Children[i].Value);
-									}
-								}
-								else
-								{
-									this.ScreenSize.Width = int.Parse(settingsDoc.Children[i].Value);
-								}
-							}
-							else
-							{
-								this.AskForFacebook = bool.Parse(settingsDoc.Children[i].Value);
-							}
-						}
-						else
-						{
-							this.FullScreen = bool.Parse(settingsDoc.Children[i].Value);
-						}
+						this.FullScreen = loaded.FullScreen;
+						this.AskForFacebook = loaded.AskForFacebook;
+						this.ScreenSize = loaded.ScreenSize;
+						this.TextureQualityLevel = loaded.TextureQualityLevel;
 					}
 				}
 			}

@@ -7,7 +7,6 @@ namespace DNA.CastleMinerZ.UI
 		HostOnline,
 		JoinOnline,
 		PlayOffline,
-		Purchase,
 		Quit,
 		Options
 	}

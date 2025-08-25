@@ -83,37 +83,53 @@ namespace DNA.CastleMinerZ.UI
 		{
 			get
 			{
-				if (this._selectedLocation.Y < 8)
+				int index = this._selectedLocation.X + this._selectedLocation.Y * 4;
+				if (this._selectorInCrateGrid)
 				{
-					if (this._selectorInCrateGrid)
+					if (this.CurrentCrate != null && this.CurrentCrate.Inventory != null && index >= 0 && index < this.CurrentCrate.Inventory.Length)
 					{
-						return this.CurrentCrate.Inventory[this._selectedLocation.X + this._selectedLocation.Y * 4];
+						return this.CurrentCrate.Inventory[index];
 					}
-					return this._hud.PlayerInventory.Inventory[this._selectedLocation.X + this._selectedLocation.Y * 4];
+					return null;
+				}
+				else if (this._selectedLocation.Y < 8)
+				{
+					if (this._hud != null && this._hud.PlayerInventory != null && this._hud.PlayerInventory.Inventory != null && index >= 0 && index < this._hud.PlayerInventory.Inventory.Length)
+					{
+						return this._hud.PlayerInventory.Inventory[index];
+					}
+					return null;
 				}
 				else
 				{
-					if (this._selectedLocation.Y >= 8)
+					int trayIndex = this.GetTrayIndexFromRow(this._selectedLocation.Y);
+					if (this._hud == null || this._hud.PlayerInventory == null)
 					{
-						return this._hud.PlayerInventory.TrayManager.GetTrayItem(this.GetTrayIndexFromRow(this._selectedLocation.Y), this._selectedLocation.X);
+						return null;
 					}
-					return null;
+					return this._hud.PlayerInventory.TrayManager.GetTrayItem(trayIndex, this._selectedLocation.X);
 				}
 			}
 			set
 			{
 				if (this._selectedLocation.Y < 8)
 				{
+					int index = this._selectedLocation.X + this._selectedLocation.Y * 4;
 					if (this._selectorInCrateGrid)
 					{
-						ItemCrateMessage.Send((LocalNetworkGamer)this._game.LocalPlayer.Gamer, value, this.CurrentCrate, this._selectedLocation.X + this._selectedLocation.Y * 4);
+						if (this.CurrentCrate != null && this.CurrentCrate.Inventory != null && index >= 0 && index < this.CurrentCrate.Inventory.Length)
+						{
+							ItemCrateMessage.Send((LocalNetworkGamer)this._game.LocalPlayer.Gamer, value, this.CurrentCrate, index);
+							return;
+						}
 					}
-					else
+					else if (this._hud != null && this._hud.PlayerInventory != null && this._hud.PlayerInventory.Inventory != null && index >= 0 && index < this._hud.PlayerInventory.Inventory.Length)
 					{
-						this._hud.PlayerInventory.Inventory[this._selectedLocation.X + this._selectedLocation.Y * 4] = value;
+						this._hud.PlayerInventory.Inventory[index] = value;
+						return;
 					}
 				}
-				if (this._selectedLocation.Y >= 8)
+				else
 				{
 					this._hud.PlayerInventory.TrayManager.SetTrayItem(this.GetTrayIndexFromRow(this._selectedLocation.Y), this._selectedLocation.X, value);
 				}
@@ -695,7 +711,11 @@ namespace DNA.CastleMinerZ.UI
 			else if (controller.PressedButtons.Back || inputManager.Keyboard.WasKeyPressed(Keys.Escape))
 			{
 				SoundManager.Instance.PlayInstance("Click");
-				this._holdingItem = null;
+				if (this._holdingItem != null)
+				{
+					this._hud.PlayerInventory.AddInventoryItem(this._holdingItem, false);
+					this._holdingItem = null;
+				}
 				base.PopMe();
 				CrateFocusMessage.Send((LocalNetworkGamer)this._game.LocalPlayer.Gamer, IntVector3.Zero, Point.Zero);
 			}

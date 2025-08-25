@@ -5,7 +5,6 @@ using DNA.CastleMinerZ.AI;
 using DNA.CastleMinerZ.Net;
 using DNA.CastleMinerZ.Terrain;
 using DNA.CastleMinerZ.UI;
-using DNA.Collections;
 using DNA.Drawing;
 using DNA.Drawing.Particles;
 using DNA.Timers;
@@ -16,6 +15,16 @@ namespace DNA.CastleMinerZ.Inventory
 {
 	public class Explosive : IEquatable<Explosive>
 	{
+		public static void Init()
+		{
+			Explosive._flashEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\FlashEffect");
+			Explosive._firePuffEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\FirePuff");
+			Explosive._smokePuffEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\BigSmokePuff");
+			Explosive._rockBlastEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\BigRockBlast");
+			Explosive._digSmokeEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\SmokeEffect");
+			Explosive._digRocksEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\RocksEffect");
+		}
+
 		static Explosive()
 		{
 			for (int i = 0; i < 6; i++)
@@ -241,7 +250,7 @@ namespace DNA.CastleMinerZ.Inventory
 			}
 		}
 
-		private static void ProcessOneExplosion(Queue<Explosive> tntToExplode, Set<IntVector3> blocksToRemove, Dictionary<IntVector3, BlockTypeEnum> dependentsToRemove, ref bool explosionFlashNotYetShown)
+		private static void ProcessOneExplosion(Queue<Explosive> tntToExplode, HashSet<IntVector3> blocksToRemove, Dictionary<IntVector3, BlockTypeEnum> dependentsToRemove, ref bool explosionFlashNotYetShown)
 		{
 			Explosive currentTNT = tntToExplode.Dequeue();
 			if (explosionFlashNotYetShown && (currentTNT.ExplosiveType == ExplosiveTypes.C4 || currentTNT.ExplosiveType == ExplosiveTypes.TNT))
@@ -366,7 +375,7 @@ namespace DNA.CastleMinerZ.Inventory
 			PossibleLootType.PlaceWorldItem(Explosive.GetHarvestedItem(blockType), intPos);
 		}
 
-		private static void ProcessExplosionDependents(Set<IntVector3> blocksToRemove, Dictionary<IntVector3, BlockTypeEnum> dependentsToRemove)
+		private static void ProcessExplosionDependents(HashSet<IntVector3> blocksToRemove, Dictionary<IntVector3, BlockTypeEnum> dependentsToRemove)
 		{
 			foreach (IntVector3 depPos in dependentsToRemove.Keys)
 			{
@@ -387,7 +396,7 @@ namespace DNA.CastleMinerZ.Inventory
 		public static void FindBlocksToRemove(IntVector3 pos, ExplosiveTypes extype, bool showExplosionFlash)
 		{
 			Queue<Explosive> tntToExplode = new Queue<Explosive>();
-			Set<IntVector3> blocksToRemove = new Set<IntVector3>();
+			HashSet<IntVector3> blocksToRemove = new HashSet<IntVector3>();
 			Dictionary<IntVector3, BlockTypeEnum> dependentsToRemove = new Dictionary<IntVector3, BlockTypeEnum>();
 			tntToExplode.Enqueue(new Explosive(pos, extype));
 			if (extype == ExplosiveTypes.C4 || extype == ExplosiveTypes.TNT)
@@ -660,17 +669,17 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public ExplosiveTypes ExplosiveType;
 
-		private static ParticleEffect _flashEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\FlashEffect");
+		private static ParticleEffect _flashEffect;
 
-		private static ParticleEffect _firePuffEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\FirePuff");
+		private static ParticleEffect _firePuffEffect;
 
-		private static ParticleEffect _smokePuffEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\BigSmokePuff");
+		private static ParticleEffect _smokePuffEffect;
 
-		private static ParticleEffect _rockBlastEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\BigRockBlast");
+		private static ParticleEffect _rockBlastEffect;
 
-		private static ParticleEffect _digSmokeEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\SmokeEffect");
+		private static ParticleEffect _digSmokeEffect;
 
-		private static ParticleEffect _digRocksEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\RocksEffect");
+		private static ParticleEffect _digRocksEffect;
 
 		private static bool[,] BreakLookup = new bool[6, 95];
 
@@ -682,7 +691,7 @@ namespace DNA.CastleMinerZ.Inventory
 
 		private static Queue<Explosive> _sEnemyDiggingTNTToExplode = new Queue<Explosive>();
 
-		private static Set<IntVector3> _sEnemyDiggingBlocksToRemove = new Set<IntVector3>();
+		private static HashSet<IntVector3> _sEnemyDiggingBlocksToRemove = new HashSet<IntVector3>();
 
 		private static Dictionary<IntVector3, BlockTypeEnum> _sEnemyDiggingDependentsToRemove = new Dictionary<IntVector3, BlockTypeEnum>();
 

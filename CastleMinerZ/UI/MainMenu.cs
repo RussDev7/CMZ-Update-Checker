@@ -26,7 +26,6 @@ namespace DNA.CastleMinerZ.UI
 			this.hostOnlineControl = base.AddMenuItem(Strings.Host_Online, MainMenuItems.HostOnline);
 			this.joinOnlineControl = base.AddMenuItem(Strings.Join_Online, MainMenuItems.JoinOnline);
 			base.AddMenuItem(Strings.Play_Offline, MainMenuItems.PlayOffline);
-			this.purchaseControl = base.AddMenuItem(Strings.Purchase, MainMenuItems.Purchase);
 			base.AddMenuItem(Strings.Options, MainMenuItems.Options);
 			base.AddMenuItem(Strings.Exit, MainMenuItems.Quit);
 		}
@@ -84,10 +83,8 @@ namespace DNA.CastleMinerZ.UI
 
 		protected override void OnUpdate(DNAGame game, GameTime gameTime)
 		{
-			this.purchaseControl.Visible = CastleMinerZGame.TrialMode;
-			bool canPlayOnline = !CastleMinerZGame.TrialMode;
-			this.hostOnlineControl.TextColor = new Color?(canPlayOnline ? CMZColors.MenuGreen : Color.Gray);
-			this.joinOnlineControl.TextColor = new Color?(canPlayOnline ? CMZColors.MenuGreen : Color.Gray);
+			this.hostOnlineControl.TextColor = new Color?(CMZColors.MenuGreen);
+			this.joinOnlineControl.TextColor = new Color?(CMZColors.MenuGreen);
 			base.OnUpdate(game, gameTime);
 		}
 
@@ -96,8 +93,6 @@ namespace DNA.CastleMinerZ.UI
 		private MenuItemElement hostOnlineControl;
 
 		private MenuItemElement joinOnlineControl;
-
-		private MenuItemElement purchaseControl;
 
 		private Rectangle adRect;
 

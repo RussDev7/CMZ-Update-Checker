@@ -16,7 +16,7 @@ namespace DNA.CastleMinerZ
 		[STAThread]
 		private static void Main(string[] args)
 		{
-			Version version = Assembly.GetExecutingAssembly().GetName().Version;
+			Version version = Assembly.GetEntryAssembly().GetName().Version;
 			BacktraceIssueReporter reporter = new BacktraceIssueReporter(version, 0UL, "");
 			if (!Debugger.IsAttached)
 			{
@@ -40,7 +40,7 @@ namespace DNA.CastleMinerZ
 				Guid productID = Guid.Parse("FAE62948-F4E6-4F18-9D73-ED507466057F");
 				uint SteamAppID = 253430U;
 				CommonAssembly.Initalize();
-				licenseServices = new SteamOnlineServices(productID, SteamAppID);
+				licenseServices = new SteamOnlineServices(SteamAppID);
 				if (!licenseServices.OperationWasSuccessful)
 				{
 					SteamErrorCode steamError = licenseServices.ErrorCode;
@@ -59,7 +59,6 @@ namespace DNA.CastleMinerZ
 				CastleMinerZGame.GlobalSettings.Load();
 				NetworkSession.StaticProvider = new SteamNetworkSessionStaticProvider(licenseServices.SteamAPI);
 				NetworkSession.NetworkSessionServices = new SteamNetworkSessionServices(licenseServices.SteamAPI, productID, 4);
-				CastleMinerZGame.TrialMode = false;
 			}
 			catch (Exception fatal)
 			{

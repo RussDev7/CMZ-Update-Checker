@@ -11,8 +11,10 @@ namespace DNA.CastleMinerZ
 {
 	public class TorchCloud : Entity
 	{
-		static TorchCloud()
+		public static void Init()
 		{
+			TorchCloud._torchModel = CastleMinerZGame.Instance.Content.Load<Model>("Props\\Items\\Torch\\Model");
+			TorchCloud.instancedModelBones = new Matrix[TorchCloud._torchModel.Bones.Count];
 			TorchCloud._torchModel.CopyAbsoluteBoneTransformsTo(TorchCloud.instancedModelBones);
 			TorchCloud._smokeEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\TorchSmoke");
 			TorchCloud._fireEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\TorchFire");
@@ -182,7 +184,7 @@ namespace DNA.CastleMinerZ
 
 		private List<TorchReference> TorchReferences = new List<TorchReference>();
 
-		public static Model _torchModel = CastleMinerZGame.Instance.Content.Load<Model>("Props\\Items\\Torch\\Model");
+		public static Model _torchModel;
 
 		public static Texture2D _fireTexture;
 
@@ -190,7 +192,7 @@ namespace DNA.CastleMinerZ
 
 		private ParticleEmitter _fireEmitter;
 
-		private static Matrix[] instancedModelBones = new Matrix[TorchCloud._torchModel.Bones.Count];
+		private static Matrix[] instancedModelBones;
 
 		private static ParticleEffect _smokeEffect;
 

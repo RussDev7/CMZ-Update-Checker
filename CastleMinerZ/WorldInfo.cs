@@ -104,11 +104,7 @@ namespace DNA.CastleMinerZ
 		{
 			Random rand = new Random();
 			WorldInfo worldInfo = new WorldInfo();
-			int seed = 839880689;
-			if (!CastleMinerZGame.TrialMode)
-			{
-				seed = rand.Next();
-			}
+			int seed = rand.Next();
 			worldInfo.MakeNew(gamer, seed);
 			return worldInfo;
 		}

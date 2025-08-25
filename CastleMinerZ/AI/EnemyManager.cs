@@ -1130,6 +1130,10 @@ namespace DNA.CastleMinerZ.AI
 				newpos = BlockTerrain.Instance.FindTopmostGroundLocation(newpos);
 				IntVector3 worldPos = new IntVector3((int)newpos.X, (int)newpos.Y - 1, (int)newpos.Z);
 				int index = BlockTerrain.Instance.MakeIndexFromWorldIndexVector(worldPos);
+				if (index == -1)
+				{
+					return;
+				}
 				int block = BlockTerrain.Instance._blocks[index];
 				BlockType blockType = Block.GetType(block);
 				this._distanceEnemiesLeftToSpawn--;
@@ -1213,6 +1217,10 @@ namespace DNA.CastleMinerZ.AI
 					}
 					IntVector3 worldPos = new IntVector3((int)newpos.X, (int)newpos.Y - 1, (int)newpos.Z);
 					int index = BlockTerrain.Instance.MakeIndexFromWorldIndexVector(worldPos);
+					if (index == -1)
+					{
+						return;
+					}
 					int block = BlockTerrain.Instance._blocks[index];
 					BlockType blockType = Block.GetType(block);
 					Vector3 np = new Vector3(newpos.X, newpos.Y + 0.5f, newpos.Z);
@@ -1281,6 +1289,10 @@ namespace DNA.CastleMinerZ.AI
 						IntVector3 worldPos = new IntVector3((int)newpos.X, (int)newpos.Y, (int)newpos.Z);
 						int index = BlockTerrain.Instance.MakeIndexFromWorldIndexVector(worldPos);
 						int block = BlockTerrain.Instance._blocks[index];
+						if (index == -1)
+						{
+							return;
+						}
 						BlockType blockType = Block.GetType(block);
 						Vector3 lightchecker = newpos;
 						lightchecker.Y -= 1f;
@@ -1371,9 +1383,17 @@ namespace DNA.CastleMinerZ.AI
 					Vector3 np = new Vector3(newpos.X, newpos.Y + 0.5f, newpos.Z);
 					IntVector3 worldPos = new IntVector3((int)newpos.X, (int)newpos.Y - 1, (int)newpos.Z);
 					int index = BlockTerrain.Instance.MakeIndexFromWorldIndexVector(worldPos);
+					if (index == -1)
+					{
+						return;
+					}
 					BlockType bt = Block.GetType(BlockTerrain.Instance._blocks[index]);
 					if (!bt.BlockPlayer)
 					{
+						if (index == 0)
+						{
+							return;
+						}
 						index--;
 						bt = Block.GetType(BlockTerrain.Instance._blocks[index]);
 					}

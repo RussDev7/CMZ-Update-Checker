@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{39D1001C-CB0D-4995-98E2-1DAAF466369D}</ProjectGuid>
+    <ProjectGuid>{5DC3C3EB-D085-409C-8362-7BF583B5B834}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>DNA</RootNamespace>
     <AssemblyName>CastleMinerZ</AssemblyName>
@@ -49,6 +49,9 @@
     <Reference Include="Microsoft.Xna.Framework.Game" />
     <Reference Include="Microsoft.Xna.Framework.Graphics" />
     <Reference Include="Microsoft.Xna.Framework.Xact" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\CastleMiner Z\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms" />
@@ -72,7 +75,6 @@
     <Compile Include="CastleMinerZ\Achievements\TotalCraftedAchievement.cs" />
     <Compile Include="CastleMinerZ\Achievements\TotalKillsAchievement.cs" />
     <Compile Include="CastleMinerZ\Achievements\UndeadKilledAchievement.cs" />
-    <Compile Include="CastleMinerZ\AddOnIDs.cs" />
     <Compile Include="CastleMinerZ\AI\ActionDragonWaypoint.cs" />
     <Compile Include="CastleMinerZ\AI\AlienAttack.cs" />
     <Compile Include="CastleMinerZ\AI\AlienChase.cs" />
@@ -314,18 +316,11 @@
     <Compile Include="CastleMinerZ\Net\UpdateDragonMessage.cs" />
     <Compile Include="CastleMinerZ\Net\UpdateSpawnerMessage.cs" />
     <Compile Include="CastleMinerZ\Net\WorldInfoMessage.cs" />
-    <Compile Include="CastleMinerZ\OptionsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="CastleMinerZ\OptionsForm.Designer.cs">
-      <DependentUpon>OptionsForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="CastleMinerZ\PickupEntity.cs" />
     <Compile Include="CastleMinerZ\PickupManager.cs" />
     <Compile Include="CastleMinerZ\Player.cs" />
     <Compile Include="CastleMinerZ\PlayerMode.cs" />
     <Compile Include="CastleMinerZ\PlayerModelEntity.cs" />
-    <Compile Include="CastleMinerZ\PostToWall.cs" />
     <Compile Include="CastleMinerZ\Program.cs" />
     <Compile Include="CastleMinerZ\ReflectionCamera.cs" />
     <Compile Include="CastleMinerZ\RocketEntity.cs" />
@@ -406,12 +401,9 @@
     <Compile Include="CastleMinerZ\UI\MainMenu.cs" />
     <Compile Include="CastleMinerZ\UI\MainMenuItems.cs" />
     <Compile Include="CastleMinerZ\UI\MenuBackdropScreen.cs" />
-    <Compile Include="CastleMinerZ\UI\OptionsMenu.cs" />
-    <Compile Include="CastleMinerZ\UI\OptionsMenuItems.cs" />
     <Compile Include="CastleMinerZ\UI\OptionsScreen.cs" />
     <Compile Include="CastleMinerZ\UI\PlainChatInputScreen.cs" />
     <Compile Include="CastleMinerZ\UI\ProgressCallback.cs" />
-    <Compile Include="CastleMinerZ\UI\ReleaseNotesScreen.cs" />
     <Compile Include="CastleMinerZ\UI\SelectPlayerCallback.cs" />
     <Compile Include="CastleMinerZ\UI\SelectPlayerScreen.cs" />
     <Compile Include="CastleMinerZ\UI\SettingsMenu.cs" />
@@ -456,7 +448,6 @@
   <ItemGroup>
     <EmbeddedResource Include="CastleMinerZ\Game.ico" />
     <EmbeddedResource Include="CastleMinerZ\Globalization\Strings.resources" />
-    <EmbeddedResource Include="CastleMinerZ\OptionsForm.resources" />
     <EmbeddedResource Include="Microsoft.Xna.Framework.RuntimeProfile" />
   </ItemGroup>
   <ItemGroup>

@@ -252,7 +252,7 @@ namespace DNA.CastleMinerZ.AI
 		public EnemyType(EnemyTypeEnum t, EnemyType.ModelNameEnum model, EnemyType.TextureNameEnum tname, EnemyType.FoundInEnum foundin, SessionStats.StatType category)
 		{
 			this.EType = t;
-			this.ModelName = EnemyType._modelNames[(int)model];
+			this.Model = CastleMinerZGame.Instance.Content.Load<Model>(EnemyType._modelNames[(int)model]);
 			this.Scale = EnemyType._modelScales[(int)model];
 			this.Facing = EnemyType._modelFacing[(int)model];
 			this.FoundIn = foundin;
@@ -331,7 +331,7 @@ namespace DNA.CastleMinerZ.AI
 
 		public float ChanceOfBulletStrike;
 
-		public string ModelName;
+		public Model Model;
 
 		public float StartingHealth;
 

@@ -53,12 +53,11 @@ namespace DNA.CastleMinerZ.UI
 
 		protected override void OnUpdate(DNAGame game, GameTime gameTime)
 		{
-			bool canPlayOnline = !CastleMinerZGame.TrialMode;
-			this.DragonEnduranceControl.TextColor = new Color?(((CastleMinerZGame.Instance.PlayerStats.UndeadDragonKills > 0 || this._game.LicenseServices.GetAddOn(AddOnIDs.DragonEndurance) != null) && canPlayOnline) ? CMZColors.MenuGreen : Color.Gray);
-			this.SurvivalControl.TextColor = new Color?(canPlayOnline ? CMZColors.MenuGreen : Color.Gray);
-			this.CreativeControl.TextColor = new Color?(canPlayOnline ? CMZColors.MenuGreen : Color.Gray);
-			this.ExplorationControl.TextColor = new Color?(canPlayOnline ? CMZColors.MenuGreen : Color.Gray);
-			this.ScavengerControl.TextColor = new Color?(canPlayOnline ? CMZColors.MenuGreen : Color.Gray);
+			this.DragonEnduranceControl.TextColor = new Color?((CastleMinerZGame.Instance.PlayerStats.UndeadDragonKills > 0) ? CMZColors.MenuGreen : Color.Gray);
+			this.SurvivalControl.TextColor = new Color?(CMZColors.MenuGreen);
+			this.CreativeControl.TextColor = new Color?(CMZColors.MenuGreen);
+			this.ExplorationControl.TextColor = new Color?(CMZColors.MenuGreen);
+			this.ScavengerControl.TextColor = new Color?(CMZColors.MenuGreen);
 			base.OnUpdate(game, gameTime);
 		}
 

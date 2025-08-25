@@ -229,7 +229,7 @@ namespace DNA.CastleMinerZ
 		{
 			SoundManager.ActiveListener = this.Listener;
 			Texture2D loadImage = base.Content.Load<Texture2D>("UI\\Screens\\LoadScreen");
-			LoadScreen screen = new LoadScreen(loadImage, TimeSpan.FromSeconds(10.300000190734863));
+			LoadScreen screen = new LoadScreen(loadImage, TimeSpan.FromSeconds(14.0));
 			MainThreadMessageSender.Init();
 			this.mainScreenGroup.PushScreen(screen);
 			base.ScreenManager.PushScreen(this.mainScreenGroup);
@@ -242,7 +242,6 @@ namespace DNA.CastleMinerZ
 			this.HellSounds = SoundManager.Instance.GetCatagory("AmbientHell");
 			this.PlayMusic("Theme");
 			this.SetAudio(1f, 0f, 0f, 0f);
-			ControllerImages.Load(base.Content);
 			this.MenuBackdrop = base.Content.Load<Texture2D>("UI\\Screens\\MenuBack");
 			CastleMinerSky.LoadTextures();
 			this.CMZREAd = base.Content.Load<Texture2D>("UI\\CMZREAd");
@@ -272,6 +271,7 @@ namespace DNA.CastleMinerZ
 			PCDialogScreen.DefaultClickSound = "Click";
 			PCDialogScreen.DefaultOpenSound = "Popup";
 			ProfilerUtils.SystemFont = this._systemFont;
+			BaseZombie.Init();
 			EnemyType.Init();
 			DragonType.Init();
 			FireballEntity.Init();
@@ -279,6 +279,15 @@ namespace DNA.CastleMinerZ
 			RocketEntity.Init();
 			BlasterShot.Init();
 			GrenadeProjectile.Init();
+			ExplosiveFlashEntity.Init();
+			Explosive.Init();
+			GPSMarkerEntity.Init();
+			GunEntity.Init();
+			Player.Init();
+			Selector.Init();
+			TorchCloud.Init();
+			TorchEntity.Init();
+			CrackBoxEntity.Init();
 			AvatarAnimationManager.Instance.RegisterAnimation("Swim", base.Content.Load<AnimationClip>("Character\\Animation\\Swim Underwater"), true);
 			AvatarAnimationManager.Instance.RegisterAnimation("Wave", base.Content.Load<AnimationClip>("Character\\Animation\\Wave"), true);
 			AvatarAnimationManager.Instance.RegisterAnimation("Run", base.Content.Load<AnimationClip>("Character\\Animation\\Run"), true);
@@ -405,6 +414,9 @@ namespace DNA.CastleMinerZ
 			loadImage.Dispose();
 			NetworkSession.InviteAccepted += this.NetworkSession_InviteAccepted;
 			base.SecondaryLoad();
+			GC.Collect();
+			GC.WaitForPendingFinalizers();
+			GC.Collect();
 			this._waitToExit = false;
 		}
 
@@ -458,6 +470,9 @@ namespace DNA.CastleMinerZ
 
 		public void BeginLoadTerrain(WorldInfo info, bool host)
 		{
+			GC.Collect();
+			GC.WaitForPendingFinalizers();
+			GC.Collect();
 			if (info == null)
 			{
 				this.CurrentWorld = WorldInfo.CreateNewWorld(null);
@@ -704,15 +719,6 @@ namespace DNA.CastleMinerZ
 
 		protected override void Update(GameTime gameTime)
 		{
-			if (CastleMinerZGame.TrialMode)
-			{
-				this.TrialModeTimer.Update(gameTime.ElapsedGameTime);
-				if (this.TrialModeTimer.Expired)
-				{
-					Process.Start("http://www.digitaldnagames.com/upsell/castleminerz.aspx");
-					base.Exit();
-				}
-			}
 			if (this.CurrentWorld != null)
 			{
 				this.CurrentWorld.Update(gameTime);
@@ -735,7 +741,7 @@ namespace DNA.CastleMinerZ
 				{
 					this.PlayerStats.TimeInMenu += gameTime.ElapsedGameTime;
 				}
-				if (base.CurrentNetworkSession != null && base.CurrentNetworkSession.SessionType == NetworkSessionType.PlayerMatch && CastleMinerZGame.Instance.GameMode == GameModeTypes.Endurance)
+				if (base.CurrentNetworkSession != null && base.CurrentNetworkSession.SessionType == NetworkSessionType.PlayerMatch)
 				{
 					this.PlayerStats.TimeOnline += gameTime.ElapsedGameTime;
 				}
@@ -1643,8 +1649,6 @@ namespace DNA.CastleMinerZ
 		public bool RequestEndGame;
 
 		public static GlobalSettings GlobalSettings = new GlobalSettings();
-
-		public static bool TrialMode = true;
 
 		public OneShotTimer TrialModeTimer = new OneShotTimer(TimeSpan.FromMinutes(8.0));
 

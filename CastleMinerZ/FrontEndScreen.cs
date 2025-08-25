@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -29,7 +28,6 @@ namespace DNA.CastleMinerZ
 			: base(false)
 		{
 			this._versionString = Strings.Version + " " + game.Version.ToString();
-			this._releaseNotesScreen = new ReleaseNotesScreen(game, this._versionString);
 			this._optionsScreen = new OptionsScreen(false, this._uiGroup);
 			this._game = game;
 			this._largeFont = game._largeFont;
@@ -86,6 +84,10 @@ namespace DNA.CastleMinerZ
 		private void _chooseSavedWorldScreen_Clicked(object sender, EventArgs e)
 		{
 			ChooseSavedWorldScreen.SavedWorldItem info = (ChooseSavedWorldScreen.SavedWorldItem)this._chooseSavedWorldScreen.SelectedItem;
+			if (info == null || info.World == null || Screen.CurrentGamer == null)
+			{
+				return;
+			}
 			if (info.World.OwnerGamerTag != Screen.CurrentGamer.Gamertag)
 			{
 				this._uiGroup.ShowPCDialogScreen(this._chooseSavedWorldScreen._takeOverTerrain, delegate
@@ -133,11 +135,6 @@ namespace DNA.CastleMinerZ
 			this._game.Exit();
 		}
 
-		public void PushReleaseNotesScreen()
-		{
-			this._uiGroup.PushScreen(this._releaseNotesScreen);
-		}
-
 		private void _difficultyLevelScreen_MenuItemSelected(object sender, SelectedMenuItemArgs e)
 		{
 			if (e.MenuItem.Tag == null)
@@ -170,33 +167,11 @@ namespace DNA.CastleMinerZ
 					this.startWorld();
 					return;
 				case GameModeTypes.Survival:
-					if (CastleMinerZGame.TrialMode)
-					{
-						this._uiGroup.ShowPCDialogScreen(this._modeNotUnlockedDialog, delegate
-						{
-							if (this._modeNotUnlockedDialog.OptionSelected != -1)
-							{
-								Process.Start("http://www.digitaldnagames.com/Buy/CastleMinerZ.aspx");
-							}
-						});
-						return;
-					}
 					this._game.GameMode = GameModeTypes.Survival;
 					this._uiGroup.PushScreen(this._difficultyLevelScreen);
 					return;
 				case GameModeTypes.DragonEndurance:
-					if (CastleMinerZGame.TrialMode)
-					{
-						this._uiGroup.ShowPCDialogScreen(this._modeNotUnlockedDialog, delegate
-						{
-							if (this._modeNotUnlockedDialog.OptionSelected != -1)
-							{
-								Process.Start("http://www.digitaldnagames.com/Buy/CastleMinerZ.aspx");
-							}
-						});
-						return;
-					}
-					if (this._game.PlayerStats.UndeadDragonKills > 0 || this._game.LicenseServices.GetAddOn(AddOnIDs.DragonEndurance) != null)
+					if (this._game.PlayerStats.UndeadDragonKills > 0)
 					{
 						this._uiGroup.PushScreen(this._chooseSavedWorldScreen);
 						return;
@@ -206,51 +181,18 @@ namespace DNA.CastleMinerZ
 					});
 					return;
 				case GameModeTypes.Creative:
-					if (CastleMinerZGame.TrialMode)
-					{
-						this._uiGroup.ShowPCDialogScreen(this._modeNotUnlockedDialog, delegate
-						{
-							if (this._modeNotUnlockedDialog.OptionSelected != -1)
-							{
-								Process.Start("http://www.digitaldnagames.com/Buy/CastleMinerZ.aspx");
-							}
-						});
-						return;
-					}
 					this._game.GameMode = GameModeTypes.Creative;
 					this._game.InfiniteResourceMode = true;
 					this._game.Difficulty = GameDifficultyTypes.EASY;
 					this._uiGroup.PushScreen(this._difficultyLevelScreen);
 					return;
 				case GameModeTypes.Exploration:
-					if (CastleMinerZGame.TrialMode)
-					{
-						this._uiGroup.ShowPCDialogScreen(this._modeNotUnlockedDialog, delegate
-						{
-							if (this._modeNotUnlockedDialog.OptionSelected != -1)
-							{
-								Process.Start("http://www.digitaldnagames.com/Buy/CastleMinerZ.aspx");
-							}
-						});
-						return;
-					}
 					this._game.GameMode = GameModeTypes.Exploration;
 					this._game.InfiniteResourceMode = true;
 					this._game.Difficulty = GameDifficultyTypes.EASY;
 					this._uiGroup.PushScreen(this._difficultyLevelScreen);
 					return;
 				case GameModeTypes.Scavenger:
-					if (CastleMinerZGame.TrialMode)
-					{
-						this._uiGroup.ShowPCDialogScreen(this._modeNotUnlockedDialog, delegate
-						{
-							if (this._modeNotUnlockedDialog.OptionSelected != -1)
-							{
-								Process.Start("http://www.digitaldnagames.com/Buy/CastleMinerZ.aspx");
-							}
-						});
-						return;
-					}
 					this._game.GameMode = GameModeTypes.Scavenger;
 					this._uiGroup.PushScreen(this._difficultyLevelScreen);
 					this._game.BeginLoadTerrain(null, true);
@@ -272,15 +214,11 @@ namespace DNA.CastleMinerZ
 					this._uiGroup.PushScreen(this._difficultyLevelScreen);
 					return;
 				case GameModeTypes.DragonEndurance:
-					if (this._game.PlayerStats.UndeadDragonKills > 0 || this._game.LicenseServices.GetAddOn(AddOnIDs.DragonEndurance) != null)
-					{
-						this._uiGroup.PushScreen(this._chooseSavedWorldScreen);
-						return;
-					}
-					this._uiGroup.ShowPCDialogScreen(this._undeadNotKilledDialog, delegate
-					{
-					});
+				{
+					int undeadDragonKills = this._game.PlayerStats.UndeadDragonKills;
+					this._uiGroup.PushScreen(this._chooseSavedWorldScreen);
 					return;
+				}
 				case GameModeTypes.Creative:
 					this._game.GameMode = GameModeTypes.Creative;
 					this._game.InfiniteResourceMode = true;
@@ -709,7 +647,6 @@ namespace DNA.CastleMinerZ
 
 		private void _mainMenu_MenuItemSelected(object sender, SelectedMenuItemArgs e)
 		{
-			ThreadStart threadStart = null;
 			if (this.WorldManager == null)
 			{
 				return;
@@ -717,39 +654,11 @@ namespace DNA.CastleMinerZ
 			switch ((MainMenuItems)e.MenuItem.Tag)
 			{
 			case MainMenuItems.HostOnline:
-				if (CastleMinerZGame.TrialMode)
-				{
-					this._uiGroup.ShowPCDialogScreen(this._onlinePlayNotPurchasedDialog, delegate
-					{
-						if (this._onlinePlayNotPurchasedDialog.OptionSelected != -1)
-						{
-							Process.Start("http://www.digitaldnagames.com/Buy/CastleMinerZ.aspx");
-						}
-					});
-					return;
-				}
 				this._localGame = false;
 				this._hostGame = true;
 				this._uiGroup.PushScreen(this._gameModeMenu);
 				return;
 			case MainMenuItems.JoinOnline:
-				if (CastleMinerZGame.TrialMode)
-				{
-					ScreenGroup uiGroup = this._uiGroup;
-					PCDialogScreen onlinePlayNotPurchasedDialog = this._onlinePlayNotPurchasedDialog;
-					if (threadStart == null)
-					{
-						threadStart = delegate
-						{
-							if (this._onlinePlayNotPurchasedDialog.OptionSelected != -1)
-							{
-								Process.Start("http://www.digitaldnagames.com/Buy/CastleMinerZ.aspx");
-							}
-						};
-					}
-					uiGroup.ShowPCDialogScreen(onlinePlayNotPurchasedDialog, threadStart);
-					return;
-				}
 				this._localGame = false;
 				this._hostGame = false;
 				this._game.GetNetworkSessions(delegate(AvailableNetworkSessionCollection result)
@@ -763,9 +672,6 @@ namespace DNA.CastleMinerZ
 			case MainMenuItems.PlayOffline:
 				this._localGame = true;
 				this._uiGroup.PushScreen(this._gameModeMenu);
-				return;
-			case MainMenuItems.Purchase:
-				Process.Start("http://www.digitaldnagames.com/Buy/CastleMinerZ.aspx");
 				return;
 			case MainMenuItems.Quit:
 				this.ConfirmExit();
@@ -920,8 +826,6 @@ namespace DNA.CastleMinerZ
 
 		private OptionsScreen _optionsScreen;
 
-		private AchievementScreen<CastleMinerZPlayerStats> _achievementScreen;
-
 		private GameModeMenu _gameModeMenu;
 
 		private PCDialogScreen _undeadNotKilledDialog;
@@ -936,15 +840,9 @@ namespace DNA.CastleMinerZ
 
 		private Screen _chooseAnotherGameScreen = new Screen(true, false);
 
-		private ReleaseNotesScreen _releaseNotesScreen;
-
 		private SpriteBatch SpriteBatch;
 
 		public SpriteFont _largeFont;
-
-		private PromoCode.PromoCodeManager _promoManager;
-
-		private CheatCode.CheatCodeManager _cheatcodeManager;
 
 		public WorldManager WorldManager;
 

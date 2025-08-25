@@ -9,7 +9,12 @@ namespace DNA.CastleMinerZ.AI
 	{
 		public static DragonType GetDragonType(DragonTypeEnum et)
 		{
-			return DragonType.Types[(int)et];
+			int idx = (int)et;
+			if (idx < 0 || idx >= DragonType.Types.Length)
+			{
+				idx = DragonType.Types.Length - 1;
+			}
+			return DragonType.Types[idx];
 		}
 
 		public string GetDragonName()

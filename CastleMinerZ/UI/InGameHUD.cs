@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
 using DNA.Audio;
 using DNA.CastleMinerZ.AI;
@@ -299,22 +298,37 @@ namespace DNA.CastleMinerZ.UI
 
 		private void EquipActiveItem()
 		{
-			if (this.lastItem == this.ActiveInventoryItem)
+			InventoryItem current = this.ActiveInventoryItem;
+			if (this.lastItem == current)
 			{
 				return;
 			}
-			if (this.lastItem != null)
+			if (this.lastItem != null && this.lastItem.ItemClass != null)
 			{
 				this.lastItem.ItemClass.OnItemUnequipped();
 			}
-			this.ActiveInventoryItem.ItemClass.OnItemEquipped();
-			this.lastItem = this.ActiveInventoryItem;
-			this.LocalPlayer.Equip(this.ActiveInventoryItem);
-			if (this.ActiveInventoryItem is GunInventoryItem)
+			if (current == null)
 			{
-				GunInventoryItem gitm = (GunInventoryItem)this.ActiveInventoryItem;
-				this.LocalPlayer.ReloadSound = gitm.GunClass.ReloadSound;
+				this.lastItem = null;
+				this.LocalPlayer.ReloadSound = null;
+				return;
 			}
+			if (current.ItemClass != null)
+			{
+				current.ItemClass.OnItemEquipped();
+			}
+			this.lastItem = current;
+			if (current.ItemClass != null)
+			{
+				this.LocalPlayer.Equip(current);
+			}
+			if (current is GunInventoryItem)
+			{
+				GunInventoryItem gitm = (GunInventoryItem)current;
+				this.LocalPlayer.ReloadSound = gitm.GunClass.ReloadSound;
+				return;
+			}
+			this.LocalPlayer.ReloadSound = null;
 		}
 
 		private void UpdateAcheivements(GameTime gameTime)
@@ -378,7 +392,7 @@ namespace DNA.CastleMinerZ.UI
 			spriteBatch.Begin();
 			if (!this.LocalPlayer.Dead && this.LocalPlayer.ShoulderedAnimState)
 			{
-				GunInventoryItemClass activeGunClass = this.ActiveInventoryItem.ItemClass as GunInventoryItemClass;
+				GunInventoryItemClass activeGunClass = ((this.ActiveInventoryItem != null) ? (this.ActiveInventoryItem.ItemClass as GunInventoryItemClass) : null);
 				if (activeGunClass != null && activeGunClass.Scoped)
 				{
 					this.LocalPlayer.Avatar.Visible = false;
@@ -775,9 +789,10 @@ namespace DNA.CastleMinerZ.UI
 				{
 					this._game.GameScreen.GPSMarker.Visible = false;
 				}
-				if (this.ActiveInventoryItem.ItemClass is RocketLauncherGuidedInventoryItemClass)
+				InventoryItem currentItem = this.ActiveInventoryItem;
+				if (currentItem != null && currentItem.ItemClass is RocketLauncherGuidedInventoryItemClass)
 				{
-					RocketLauncherGuidedInventoryItemClass rocketLauncher = (RocketLauncherGuidedInventoryItemClass)this.ActiveInventoryItem.ItemClass;
+					RocketLauncherGuidedInventoryItemClass rocketLauncher = (RocketLauncherGuidedInventoryItemClass)currentItem.ItemClass;
 					rocketLauncher.CheckIfLocked(gameTime.ElapsedGameTime);
 				}
 				for (int i = 0; i < this._tntWaitingToExplode.Count; i++)
@@ -789,8 +804,11 @@ namespace DNA.CastleMinerZ.UI
 						i--;
 					}
 				}
-				CastleMinerZPlayerStats.ItemStats itemStats = CastleMinerZGame.Instance.PlayerStats.GetItemStats(this.ActiveInventoryItem.ItemClass.ID);
-				itemStats.TimeHeld += gameTime.ElapsedGameTime;
+				if (currentItem != null && currentItem.ItemClass != null)
+				{
+					CastleMinerZPlayerStats.ItemStats itemStats = CastleMinerZGame.Instance.PlayerStats.GetItemStats(currentItem.ItemClass.ID);
+					itemStats.TimeHeld += gameTime.ElapsedGameTime;
+				}
 				if (!this.fadeInGameStart.Expired)
 				{
 					this.fadeInGameStart.Update(gameTime.ElapsedGameTime);
@@ -836,24 +854,6 @@ namespace DNA.CastleMinerZ.UI
 				Vector2 origin = new Vector2(0f, 0f);
 				Vector2 playerPosition = new Vector2(this._game.LocalPlayer.LocalPosition.X, this._game.LocalPlayer.LocalPosition.Z);
 				this.currentDistanceTraveled = (int)Vector2.Distance(origin, playerPosition);
-				if (CastleMinerZGame.TrialMode)
-				{
-					if (this.currentDistanceTraveled <= 300)
-					{
-						this.trialMaxPosition = this.LocalPlayer.LocalPosition;
-					}
-					else if (this.currentDistanceTraveled > 301)
-					{
-						this.LocalPlayer.LocalPosition = this.trialMaxPosition;
-						this._game.GameScreen._uiGroup.ShowPCDialogScreen(this._travelMaxDialog, delegate
-						{
-							if (this._travelMaxDialog.OptionSelected != -1)
-							{
-								Process.Start("http://www.digitaldnagames.com/Buy/CastleMinerZ.aspx");
-							}
-						});
-					}
-				}
 				if (CastleMinerZGame.Instance.GameMode == GameModeTypes.Endurance)
 				{
 					CastleMinerZGame.Instance.PlayerStats.MaxDistanceTraveled = Math.Max(CastleMinerZGame.Instance.PlayerStats.MaxDistanceTraveled, (float)this.currentDistanceTraveled);
@@ -1291,7 +1291,11 @@ namespace DNA.CastleMinerZ.UI
 
 		protected override bool OnPlayerInput(InputManager inputManager, GameController controller, KeyboardInput chatPad, GameTime gameTime)
 		{
-			CastleMinerZGame.Instance.PlayerStats.GetItemStats(this.ActiveInventoryItem.ItemClass.ID);
+			InventoryItem activeItem = this.ActiveInventoryItem;
+			if (activeItem != null && activeItem.ItemClass != null)
+			{
+				CastleMinerZGame.Instance.PlayerStats.GetItemStats(activeItem.ItemClass.ID);
+			}
 			CastleMinerZControllerMapping controllerMapping = this._game._controllerMapping;
 			controllerMapping.Sensitivity = this._game.PlayerStats.controllerSensitivity;
 			controllerMapping.InvertY = this._game.PlayerStats.InvertYAxis;
@@ -1406,7 +1410,10 @@ namespace DNA.CastleMinerZ.UI
 					this.PlayerInventory.SelectedInventoryIndex++;
 					this.PlayerInventory.SelectedInventoryIndex = this.PlayerInventory.SelectedInventoryIndex % 8;
 					this.LocalPlayer.Shouldering = false;
-					this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					if (this.PlayerInventory.ActiveInventoryItem != null)
+					{
+						this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					}
 				}
 				else if (controllerMapping.PrevoiusItem.Pressed && !this.LocalPlayer.UsingAnimationPlaying)
 				{
@@ -1417,63 +1424,90 @@ namespace DNA.CastleMinerZ.UI
 						this.PlayerInventory.SelectedInventoryIndex = 8 + this.PlayerInventory.SelectedInventoryIndex;
 					}
 					this.LocalPlayer.Shouldering = false;
-					this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					if (this.PlayerInventory.ActiveInventoryItem != null)
+					{
+						this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					}
 				}
 				else if (controllerMapping.Slot1.Pressed && !this.LocalPlayer.UsingAnimationPlaying)
 				{
 					SoundManager.Instance.PlayInstance("Click");
 					this.PlayerInventory.SelectedInventoryIndex = 0;
 					this.LocalPlayer.Shouldering = false;
-					this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					if (this.PlayerInventory.ActiveInventoryItem != null)
+					{
+						this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					}
 				}
 				else if (controllerMapping.Slot2.Pressed && !this.LocalPlayer.UsingAnimationPlaying)
 				{
 					SoundManager.Instance.PlayInstance("Click");
 					this.PlayerInventory.SelectedInventoryIndex = 1;
 					this.LocalPlayer.Shouldering = false;
-					this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					if (this.PlayerInventory.ActiveInventoryItem != null)
+					{
+						this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					}
 				}
 				else if (controllerMapping.Slot3.Pressed && !this.LocalPlayer.UsingAnimationPlaying)
 				{
 					SoundManager.Instance.PlayInstance("Click");
 					this.PlayerInventory.SelectedInventoryIndex = 2;
 					this.LocalPlayer.Shouldering = false;
-					this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					if (this.PlayerInventory.ActiveInventoryItem != null)
+					{
+						this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					}
 				}
 				else if (controllerMapping.Slot4.Pressed && !this.LocalPlayer.UsingAnimationPlaying)
 				{
 					SoundManager.Instance.PlayInstance("Click");
 					this.PlayerInventory.SelectedInventoryIndex = 3;
 					this.LocalPlayer.Shouldering = false;
-					this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					if (this.PlayerInventory.ActiveInventoryItem != null)
+					{
+						this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					}
 				}
 				else if (controllerMapping.Slot5.Pressed && !this.LocalPlayer.UsingAnimationPlaying)
 				{
 					SoundManager.Instance.PlayInstance("Click");
 					this.PlayerInventory.SelectedInventoryIndex = 4;
 					this.LocalPlayer.Shouldering = false;
-					this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					if (this.PlayerInventory.ActiveInventoryItem != null)
+					{
+						this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					}
 				}
 				else if (controllerMapping.Slot6.Pressed && !this.LocalPlayer.UsingAnimationPlaying)
 				{
 					SoundManager.Instance.PlayInstance("Click");
 					this.PlayerInventory.SelectedInventoryIndex = 5;
 					this.LocalPlayer.Shouldering = false;
-					this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					if (this.PlayerInventory.ActiveInventoryItem != null)
+					{
+						this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					}
 				}
 				else if (controllerMapping.Slot7.Pressed && !this.LocalPlayer.UsingAnimationPlaying)
 				{
 					SoundManager.Instance.PlayInstance("Click");
 					this.PlayerInventory.SelectedInventoryIndex = 6;
 					this.LocalPlayer.Shouldering = false;
-					this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					if (this.PlayerInventory.ActiveInventoryItem != null)
+					{
+						this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					}
 				}
 				else if (controllerMapping.Slot8.Pressed && !this.LocalPlayer.UsingAnimationPlaying)
 				{
 					SoundManager.Instance.PlayInstance("Click");
 					this.PlayerInventory.SelectedInventoryIndex = 7;
 					this.LocalPlayer.Shouldering = false;
-					this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					if (this.PlayerInventory.ActiveInventoryItem != null)
+					{
+						this.PlayerInventory.ActiveInventoryItem.DigTime = TimeSpan.Zero;
+					}
 				}
 				if (controllerMapping.DropQuickbarItem.Pressed)
 				{
@@ -1510,10 +1544,10 @@ namespace DNA.CastleMinerZ.UI
 						{
 						case BlockTypeEnum.NormalLowerDoorClosedZ:
 							this.UseDoor(BlockTypeEnum.NormalLowerDoorOpenZ, BlockTypeEnum.NormalUpperDoorOpen);
-							goto IL_0EDE;
+							goto IL_0F8A;
 						case BlockTypeEnum.NormalLowerDoorClosedX:
 							this.UseDoor(BlockTypeEnum.NormalLowerDoorOpenX, BlockTypeEnum.NormalUpperDoorOpen);
-							goto IL_0EDE;
+							goto IL_0F8A;
 						case BlockTypeEnum.NormalLowerDoor:
 							break;
 						case BlockTypeEnum.NormalUpperDoorClosed:
@@ -1530,14 +1564,14 @@ namespace DNA.CastleMinerZ.UI
 								AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0), BlockTypeEnum.NormalLowerDoorOpenZ);
 							}
 							SoundManager.Instance.PlayInstance("Click");
-							goto IL_0EDE;
+							goto IL_0F8A;
 						}
 						case BlockTypeEnum.NormalLowerDoorOpenZ:
 							this.UseDoor(BlockTypeEnum.NormalLowerDoorClosedZ, BlockTypeEnum.NormalUpperDoorClosed);
-							goto IL_0EDE;
+							goto IL_0F8A;
 						case BlockTypeEnum.NormalLowerDoorOpenX:
 							this.UseDoor(BlockTypeEnum.NormalLowerDoorClosedX, BlockTypeEnum.NormalUpperDoorClosed);
-							goto IL_0EDE;
+							goto IL_0F8A;
 						case BlockTypeEnum.NormalUpperDoorOpen:
 						{
 							DoorOpenCloseMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex, false);
@@ -1552,23 +1586,23 @@ namespace DNA.CastleMinerZ.UI
 								AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0), BlockTypeEnum.NormalLowerDoorClosedZ);
 							}
 							SoundManager.Instance.PlayInstance("Click");
-							goto IL_0EDE;
+							goto IL_0F8A;
 						}
 						case BlockTypeEnum.TNT:
 							this.SetFuseForExplosive(this.ConstructionProbe._worldIndex, ExplosiveTypes.TNT);
-							goto IL_0EDE;
+							goto IL_0F8A;
 						case BlockTypeEnum.C4:
 							this.SetFuseForExplosive(this.ConstructionProbe._worldIndex, ExplosiveTypes.C4);
-							goto IL_0EDE;
+							goto IL_0F8A;
 						default:
 							switch (blockTypeEnum)
 							{
 							case BlockTypeEnum.StrongLowerDoorClosedZ:
 								this.UseDoor(BlockTypeEnum.StrongLowerDoorOpenZ, BlockTypeEnum.StrongUpperDoorOpen);
-								goto IL_0EDE;
+								goto IL_0F8A;
 							case BlockTypeEnum.StrongLowerDoorClosedX:
 								this.UseDoor(BlockTypeEnum.StrongLowerDoorOpenX, BlockTypeEnum.StrongUpperDoorOpen);
-								goto IL_0EDE;
+								goto IL_0F8A;
 							case BlockTypeEnum.StrongLowerDoor:
 								break;
 							case BlockTypeEnum.StrongUpperDoorClosed:
@@ -1585,14 +1619,14 @@ namespace DNA.CastleMinerZ.UI
 									AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0), BlockTypeEnum.StrongLowerDoorOpenZ);
 								}
 								SoundManager.Instance.PlayInstance("Click");
-								goto IL_0EDE;
+								goto IL_0F8A;
 							}
 							case BlockTypeEnum.StrongLowerDoorOpenZ:
 								this.UseDoor(BlockTypeEnum.StrongLowerDoorClosedZ, BlockTypeEnum.StrongUpperDoorClosed);
-								goto IL_0EDE;
+								goto IL_0F8A;
 							case BlockTypeEnum.StrongLowerDoorOpenX:
 								this.UseDoor(BlockTypeEnum.StrongLowerDoorClosedX, BlockTypeEnum.StrongUpperDoorClosed);
-								goto IL_0EDE;
+								goto IL_0F8A;
 							case BlockTypeEnum.StrongUpperDoorOpen:
 							{
 								DoorOpenCloseMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex, false);
@@ -1607,16 +1641,16 @@ namespace DNA.CastleMinerZ.UI
 									AlterBlockMessage.Send((LocalNetworkGamer)this.LocalPlayer.Gamer, this.ConstructionProbe._worldIndex + new IntVector3(0, -1, 0), BlockTypeEnum.StrongLowerDoorClosedZ);
 								}
 								SoundManager.Instance.PlayInstance("Click");
-								goto IL_0EDE;
+								goto IL_0F8A;
 							}
 							default:
 								switch (blockTypeEnum)
 								{
 								case BlockTypeEnum.EnemySpawnAltar:
-									goto IL_0EDE;
+									goto IL_0F8A;
 								case BlockTypeEnum.TeleportStation:
 									this.PlayerInventory.ShowTeleportStationMenu(this.ConstructionProbe._worldIndex + Vector3.Zero);
-									goto IL_0EDE;
+									goto IL_0F8A;
 								}
 								break;
 							}
@@ -1625,7 +1659,7 @@ namespace DNA.CastleMinerZ.UI
 						SoundManager.Instance.PlayInstance("Error");
 					}
 				}
-				IL_0EDE:
+				IL_0F8A:
 				if (this.ActiveInventoryItem == null)
 				{
 					this.LocalPlayer.UsingTool = false;

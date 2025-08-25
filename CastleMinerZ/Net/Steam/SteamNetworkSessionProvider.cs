@@ -745,6 +745,10 @@ namespace DNA.CastleMinerZ.Net.Steam
 
 		public override void UpdateHostSession(string serverName, bool? passwordProtected, bool? isPublic, NetworkSessionProperties sessionProps)
 		{
+			if (!this._isHost || this.HostSessionInfo == null)
+			{
+				return;
+			}
 			if (!string.IsNullOrWhiteSpace(serverName))
 			{
 				this.HostSessionInfo.Name = serverName;
@@ -757,13 +761,23 @@ namespace DNA.CastleMinerZ.Net.Steam
 			{
 				this.HostSessionInfo.SessionProperties = sessionProps;
 			}
-			this._steamAPI.UpdateHostLobbyData(this.HostSessionInfo);
+			if (this._steamAPI != null && this._steamAPI.InSession)
+			{
+				this._steamAPI.UpdateHostLobbyData(this.HostSessionInfo);
+			}
 		}
 
 		public override void UpdateHostSessionJoinPolicy(JoinGamePolicy joinGamePolicy)
 		{
+			if (!this._isHost || this.HostSessionInfo == null)
+			{
+				return;
+			}
 			this.HostSessionInfo.JoinGamePolicy = joinGamePolicy;
-			this._steamAPI.UpdateHostLobbyData(this.HostSessionInfo);
+			if (this._steamAPI != null && this._steamAPI.InSession)
+			{
+				this._steamAPI.UpdateHostLobbyData(this.HostSessionInfo);
+			}
 		}
 
 		public override void CloseNetworkSession()

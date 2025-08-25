@@ -46,16 +46,12 @@ namespace DNA.CastleMinerZ.AI
 
 		public DragonClientEntity(DragonTypeEnum type, float health)
 		{
-			DragonPartEntity[] array = new DragonPartEntity[2];
-			this._dragonModel = array;
-			AnimationPlayer[] array2 = new AnimationPlayer[2];
-			this.CurrentPlayer = array2;
+			this._dragonModel = new DragonPartEntity[2];
+			this.CurrentPlayer = new AnimationPlayer[2];
 			this.Waypoints = new List<ActionDragonWaypoint>();
 			this.NextFireballIndex = new List<int>();
 			this.SoundEmitter = new AudioEmitter();
 			this.FlapTimer = new OneShotTimer(TimeSpan.FromSeconds(1.0));
-			this._dragonProbe = new TraceProbe();
-			base..ctor();
 			this.EType = DragonType.GetDragonType(type);
 			base.LocalRotation = Quaternion.CreateFromYawPitchRoll(0f, 0f, 0f);
 			base.LocalPosition = Vector3.Zero;
@@ -686,7 +682,7 @@ namespace DNA.CastleMinerZ.AI
 
 		private bool OnGround;
 
-		public TraceProbe _dragonProbe;
+		public TraceProbe _dragonProbe = new TraceProbe();
 
 		private enum DeathAnimationState
 		{

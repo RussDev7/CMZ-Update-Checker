@@ -7,6 +7,11 @@ namespace DNA.CastleMinerZ
 {
 	public class Selector : ModelEntity
 	{
+		public static void Init()
+		{
+			Selector._selectorModel = CastleMinerZGame.Instance.Content.Load<Model>("Selector");
+		}
+
 		public Selector()
 			: base(Selector._selectorModel)
 		{
@@ -45,7 +50,7 @@ namespace DNA.CastleMinerZ
 			return base.SetEffectParams(mesh, effect, gameTime, world, view, projection);
 		}
 
-		public static Model _selectorModel = CastleMinerZGame.Instance.Content.Load<Model>("Selector");
+		public static Model _selectorModel;
 
 		private float u1;
 

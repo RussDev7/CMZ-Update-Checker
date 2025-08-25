@@ -7,6 +7,11 @@ namespace DNA.CastleMinerZ
 {
 	public class CrackBoxEntity : ModelEntity
 	{
+		public static void Init()
+		{
+			CrackBoxEntity._model = CastleMinerZGame.Instance.Content.Load<Model>("CrackBox");
+		}
+
 		public CrackBoxEntity()
 			: base(CrackBoxEntity._model)
 		{
@@ -36,6 +41,6 @@ namespace DNA.CastleMinerZ
 
 		public float CrackAmount = 0.9f;
 
-		private static Model _model = CastleMinerZGame.Instance.Content.Load<Model>("CrackBox");
+		private static Model _model;
 	}
 }

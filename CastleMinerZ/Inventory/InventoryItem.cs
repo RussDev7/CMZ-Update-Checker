@@ -414,6 +414,7 @@ namespace DNA.CastleMinerZ.Inventory
 
 		protected InventoryItem(InventoryItem.InventoryItemClass cls, int stackCount)
 		{
+			this.sbuilder = new StringBuilder();
 			this._class = cls;
 			this._coolDownTimer = new OneShotTimer(this._class.CoolDownTime);
 			this.StackCount = stackCount;
@@ -726,7 +727,7 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public IntVector3 DigLocation;
 
-		private StringBuilder sbuilder = new StringBuilder();
+		private StringBuilder sbuilder;
 
 		public abstract class InventoryItemClass
 		{

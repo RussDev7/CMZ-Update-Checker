@@ -137,8 +137,12 @@ namespace DNA.CastleMinerZ
 			}
 		}
 
-		static Player()
+		public static void Init()
 		{
+			Player._smokeEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\SmokeEffect");
+			Player._sparkEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\SparksEffect");
+			Player._rocksEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\RocksEffect");
+			Player._starsEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\StarRingEffect");
 			Player.mouthLevels[0].Mouth = AvatarMouth.Neutral;
 			Player.mouthLevels[0].LeftEye = AvatarEye.Neutral;
 			Player.mouthLevels[0].RightEye = AvatarEye.Neutral;
@@ -1977,13 +1981,13 @@ namespace DNA.CastleMinerZ
 
 		public AudioEmitter SoundEmitter = new AudioEmitter();
 
-		public static ParticleEffect _smokeEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\SmokeEffect");
+		public static ParticleEffect _smokeEffect;
 
-		private static ParticleEffect _sparkEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\SparksEffect");
+		private static ParticleEffect _sparkEffect;
 
-		private static ParticleEffect _rocksEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\RocksEffect");
+		private static ParticleEffect _rocksEffect;
 
-		private static ParticleEffect _starsEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\StarRingEffect");
+		private static ParticleEffect _starsEffect;
 
 		private static Model _shadowModel;
 

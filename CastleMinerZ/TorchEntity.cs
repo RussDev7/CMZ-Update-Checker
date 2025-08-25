@@ -27,6 +27,13 @@ namespace DNA.CastleMinerZ
 			}
 		}
 
+		public static void Init()
+		{
+			TorchEntity._torchModel = CastleMinerZGame.Instance.Content.Load<Model>("Props\\Items\\Torch\\Model");
+			TorchEntity._smokeEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\TorchSmoke");
+			TorchEntity._fireEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\TorchFire");
+		}
+
 		public TorchEntity(bool hasParticles)
 		{
 			this._modelEnt = new TorchEntity.TorchModelEntity();
@@ -117,11 +124,11 @@ namespace DNA.CastleMinerZ
 			}
 		}
 
-		public static Model _torchModel = CastleMinerZGame.Instance.Content.Load<Model>("Props\\Items\\Torch\\Model");
+		public static Model _torchModel;
 
-		private static ParticleEffect _smokeEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\TorchSmoke");
+		private static ParticleEffect _smokeEffect;
 
-		private static ParticleEffect _fireEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\TorchFire");
+		private static ParticleEffect _fireEffect;
 
 		private BlockFace AttachedFace = BlockFace.NUM_FACES;
 

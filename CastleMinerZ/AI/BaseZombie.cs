@@ -27,7 +27,7 @@ namespace DNA.CastleMinerZ.AI
 		}
 
 		public BaseZombie(EnemyManager mgr, EnemyTypeEnum et, Player target, Vector3 pos, int id, int seed, EnemyType.InitPackage initpkg)
-			: base(CastleMinerZGame.Instance.Content.Load<Model>(EnemyType.GetEnemyType(et).ModelName))
+			: base(EnemyType.GetEnemyType(et).Model)
 		{
 			this.Rnd = new Random(seed);
 			this.Target = target;
@@ -336,6 +336,11 @@ namespace DNA.CastleMinerZ.AI
 			return bb.Intersects(box);
 		}
 
+		public static void Init()
+		{
+			BaseZombie._shadowModel = CastleMinerZGame.Instance.Content.Load<Model>("Shadow");
+		}
+
 		protected override void OnUpdate(GameTime gameTime)
 		{
 			if (!BlockTerrain.Instance.RegionIsLoaded(base.LocalPosition))
@@ -557,7 +562,7 @@ namespace DNA.CastleMinerZ.AI
 
 		public static Random _rand = new Random();
 
-		private static Model _shadowModel = CastleMinerZGame.Instance.Content.Load<Model>("Shadow");
+		private static Model _shadowModel;
 
 		private TraceProbe shadowProbe = new TraceProbe();
 	}

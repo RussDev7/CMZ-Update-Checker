@@ -14,6 +14,11 @@ namespace DNA.CastleMinerZ
 			base.EnablePerPixelLighting();
 		}
 
+		public static void Init()
+		{
+			GPSMarkerEntity.MarkerModel = CastleMinerZGame.Instance.Content.Load<Model>("Marker");
+		}
+
 		public override void Update(DNAGame game, GameTime gameTime)
 		{
 			base.LocalRotation = Quaternion.CreateFromYawPitchRoll((float)gameTime.TotalGameTime.TotalSeconds * 2f % 6.2831855f, 0f, 0f);
@@ -45,7 +50,7 @@ namespace DNA.CastleMinerZ
 			return false;
 		}
 
-		private static Model MarkerModel = CastleMinerZGame.Instance.Content.Load<Model>("Marker");
+		private static Model MarkerModel;
 
 		public Color color = Color.Gray;
 	}

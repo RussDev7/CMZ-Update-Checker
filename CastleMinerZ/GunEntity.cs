@@ -13,6 +13,11 @@ namespace DNA.CastleMinerZ
 			this._muzzleFlash.Visible = true;
 		}
 
+		public static void Init()
+		{
+			GunEntity._muzzleFlashModel = CastleMinerZGame.Instance.Content.Load<Model>("MuzzleFlash");
+		}
+
 		public GunEntity(Model gunModel, ItemUse use, bool attachedToLocalPlayer)
 			: base(gunModel, use, attachedToLocalPlayer)
 		{
@@ -41,7 +46,7 @@ namespace DNA.CastleMinerZ
 			this._muzzleFlash.Visible = false;
 		}
 
-		private static Model _muzzleFlashModel = CastleMinerZGame.Instance.Content.Load<Model>("MuzzleFlash");
+		private static Model _muzzleFlashModel;
 
 		public Vector3 BarrelTipLocation;
 

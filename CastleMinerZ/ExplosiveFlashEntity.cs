@@ -11,6 +11,12 @@ namespace DNA.CastleMinerZ
 {
 	public class ExplosiveFlashEntity : Entity, IEquatable<ExplosiveFlashEntity>
 	{
+		public static void Init()
+		{
+			ExplosiveFlashEntity._smokeEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\TorchSmoke");
+			ExplosiveFlashEntity.FlashingModelEntity.Init();
+		}
+
 		public ExplosiveFlashEntity(IntVector3 position)
 		{
 			base.LocalPosition = position + new Vector3(0.5f, -0.002f, 0.5f);
@@ -29,9 +35,9 @@ namespace DNA.CastleMinerZ
 				this._smokeEmitter.LocalPosition += new Vector3(0f, 1f, 0f);
 				this._smokeEmitter.LocalRotation = Quaternion.CreateFromAxisAngle(Vector3.Left, Angle.FromDegrees(90f).Radians);
 				base.Children.Add(this._smokeEmitter);
-				this._flashingModel = new ExplosiveFlashEntity.FlashingModelEntity();
-				base.Children.Add(this._flashingModel);
 			}
+			this._flashingModel = new ExplosiveFlashEntity.FlashingModelEntity();
+			base.Children.Add(this._flashingModel);
 		}
 
 		public override void Update(DNAGame game, GameTime gameTime)
@@ -69,7 +75,7 @@ namespace DNA.CastleMinerZ
 
 		private static TimeSpan _maxLifetime = TimeSpan.FromSeconds(8.0);
 
-		private static ParticleEffect _smokeEffect = CastleMinerZGame.Instance.Content.Load<ParticleEffect>("ParticleEffects\\TorchSmoke");
+		private static ParticleEffect _smokeEffect;
 
 		private bool _flashOn = true;
 
@@ -94,6 +100,14 @@ namespace DNA.CastleMinerZ
 			{
 			}
 
+			public static void Init()
+			{
+				if (ExplosiveFlashEntity.FlashingModelEntity._model == null)
+				{
+					ExplosiveFlashEntity.FlashingModelEntity._model = CastleMinerZGame.Instance.Content.Load<Model>("WhiteBox");
+				}
+			}
+
 			protected override bool SetEffectParams(ModelMesh mesh, Effect effect, GameTime gameTime, Matrix world, Matrix view, Matrix projection)
 			{
 				BasicEffect basicEffect = (BasicEffect)effect;
@@ -102,7 +116,7 @@ namespace DNA.CastleMinerZ
 				return base.SetEffectParams(mesh, effect, gameTime, world, view, projection);
 			}
 
-			private static Model _model = CastleMinerZGame.Instance.Content.Load<Model>("WhiteBox");
+			private static Model _model;
 		}
 	}
 }

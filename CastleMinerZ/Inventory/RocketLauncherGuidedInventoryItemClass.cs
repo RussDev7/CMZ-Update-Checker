@@ -110,7 +110,10 @@ namespace DNA.CastleMinerZ.Inventory
 
 		public void StopSound()
 		{
-			this._toneCue.Stop(AudioStopOptions.Immediate);
+			if (this._toneCue != null)
+			{
+				this._toneCue.Stop(AudioStopOptions.Immediate);
+			}
 		}
 
 		private void ResetLockingBox()
